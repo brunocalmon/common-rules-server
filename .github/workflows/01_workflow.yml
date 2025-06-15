@@ -52,6 +52,7 @@ jobs:
       - name: Build Docker Image
         run: |
           IMAGE_NAME="${{ vars.DOCKER_USERNAME && format('{0}/common-rules-server', vars.DOCKER_USERNAME) || 'common-rules-server' }}"
+          echo "Debug: IMAGE_NAME = $IMAGE_NAME"
           TAG="${{ steps.extract_version.outputs.VERSION }}"
           docker build -t $IMAGE_NAME:$TAG .
           echo "Built Docker image: $IMAGE_NAME:$TAG"
@@ -103,17 +104,14 @@ jobs:
       - name: Check if Docker Image Tag Exists
         id: check_tag_exists
         run: |
-          DOCKER_USERNAME="${{ vars.DOCKER_USERNAME }}"
-          IMAGE_NAME="common-rules-server"
-          if [ -n "$DOCKER_USERNAME" ]; then
-            IMAGE_NAME="$DOCKER_USERNAME/$IMAGE_NAME"
-          fi
+          IMAGE_NAME="${{ vars.DOCKER_USERNAME && format('{0}/common-rules-server', vars.DOCKER_USERNAME) || 'common-rules-server' }}"
+          echo "Debug: IMAGE_NAME in check_tag_exists = $IMAGE_NAME"
           TAG="${{ needs.build.outputs.api-version }}"
           echo "Checking if Docker image tag $IMAGE_NAME:$TAG exists..."
           
           response=$(curl --write-out "%" --silent --output /dev/null \
-            -u ${{ vars.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }} \
-            "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME }}/common-rules-server/tags/${{ needs.build.outputs.api-version }}/")
+            -u ${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }} \
+            "https://hub.docker.com/v2/repositories/${{ vars.DOCKER_USERNAME && format('{0}/common-rules-server', vars.DOCKER_USERNAME) || 'common-rules-server' }}/tags/${{ needs.build.outputs.api-version }}/")
           
           if [ "$response" -eq 200 ]; then
             echo "Docker image tag $IMAGE_NAME:$TAG already exists. Skipping push."
@@ -126,16 +124,13 @@ jobs:
       - name: Log in to Docker Hub
         if: env.TAG_EXISTS == 'false'
         run: |
-          docker login -u ${{ vars.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ vars.DOCKER_USERNAME }} --password-stdin
 
       - name: Push Docker Image
         if: env.TAG_EXISTS == 'false'
         run: |
-          DOCKER_USERNAME="${{ vars.DOCKER_USERNAME }}"
-          IMAGE_NAME="common-rules-server"
-          if [ -n "$DOCKER_USERNAME" ]; then
-            IMAGE_NAME="$DOCKER_USERNAME/$IMAGE_NAME"
-          fi
+          IMAGE_NAME="${{ vars.DOCKER_USERNAME && format('{0}/common-rules-server', vars.DOCKER_USERNAME) || 'common-rules-server' }}"
+          echo "Debug: IMAGE_NAME in push_docker_image = $IMAGE_NAME"
           TAG="${{ needs.build.outputs.api-version }}"
           docker push $IMAGE_NAME:$TAG
 
