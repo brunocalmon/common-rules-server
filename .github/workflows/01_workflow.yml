@@ -1,0 +1,127 @@
+name: Workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  VERSION: ''  # Definindo a variável globalmente no início do arquivo
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        uses: astral-sh/actions/setup-uv@v1
+      - name: Install dependencies
+        run: uv sync --locked --system
+      - name: Run tests
+        run: uv run pytest src/test
+
+  build:
+    runs-on: ubuntu-22.04
+    outputs:
+      api-version: ${{ steps.extract_version.outputs.VERSION }}
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Extract version from pyproject.toml
+        id: extract_version
+        run: |
+          VERSION=$(grep -E '^version\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"$' pyproject.toml | sed -E 's/^version\s*=\s*"([0-9]+\.[0-9]+\.[0-9]+)"$/\1/')
+          echo "Version extracted: $VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build Docker Image
+        run: |
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/common-rules-server"
+          TAG="${{ needs.build.outputs.api-version }}"
+          docker build -t $IMAGE_NAME:$TAG .
+          echo "Built Docker image: $IMAGE_NAME:$TAG"
+
+  release:
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:    
+      - uses: actions/checkout@v4
+       
+      - name: Check if Tag Exists
+        id: check_tag
+        run: |
+          echo "Checking if tag ${{ needs.build.outputs.api-version }} exists..."
+          # Atualiza as tags no repositório
+          git fetch --tags
+          # Verifica se a tag já existe
+          tag=$(git tag -l ${{ needs.build.outputs.api-version }})
+          echo "tag: $tag"
+          if [[ -n "$tag" ]]; then
+            echo "Tag ${{ needs.build.outputs.api-version }} already exists."
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "Tag ${{ needs.build.outputs.api-version }} does not exist."
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
+      - name: Set Git User Identity
+        run: |
+          git config --global user.email "brunoxaviercalmon.br@gmail.com"
+          git config --global user.name "${{ github.actor }}"
+
+      - name: Create Tag
+        if: env.TAG_EXISTS == 'false'
+        run: |
+          if [ "${{ env.TAG_EXISTS }}" = "false" ]; then
+            echo "Creating and pushing tag: ${{ needs.build.outputs.api-version }}"
+            git tag -a ${{ needs.build.outputs.api-version }} -m "Version ${{ needs.build.outputs.api-version }}"
+            git push origin --force  ${{ needs.build.outputs.api-version }}
+          else
+            echo "Tag ${{ needs.build.outputs.api-version }} already exists, skipping tag creation."
+          fi
+
+  docker-publish:
+    runs-on: ubuntu-22.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if Docker Image Tag Exists
+        id: check_tag_exists
+        run: |
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/common-rules-server"
+          TAG="${{ needs.build.outputs.api-version }}"
+          echo "Checking if Docker image tag $IMAGE_NAME:$TAG exists..."
+          
+          response=$(curl --write-out "%" --silent --output /dev/null \
+            -u ${{ secrets.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }} \
+            "https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_USERNAME }}/common-rules-server/tags/${{ needs.build.outputs.api-version }}/")
+          
+          if [ "$response" -eq 200 ]; then
+            echo "Docker image tag $IMAGE_NAME:$TAG already exists. Skipping push."
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "Docker image tag $IMAGE_NAME:$TAG does not exist. Proceeding with push."
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi          
+
+      - name: Log in to Docker Hub
+        if: env.TAG_EXISTS == 'false'
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker Image
+        if: env.TAG_EXISTS == 'false'
+        run: |
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/common-rules-server"
+          TAG="${{ needs.build.outputs.api-version }}"
+          docker push $IMAGE_NAME:$TAG
+
