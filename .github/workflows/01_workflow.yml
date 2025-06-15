@@ -20,6 +20,14 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies and test extras
         run: uv sync --locked --extra test
+      - name: Debug PATH
+        run: "echo \"PATH: $PATH\""
+      - name: List .venv contents
+        run: "ls -l .venv"
+      - name: List .venv/bin contents
+        run: "ls -l .venv/bin"
+      - name: Check pytest executable
+        run: "command -v pytest || true"
       - name: Run tests
         run: uv run pytest src/test
 
