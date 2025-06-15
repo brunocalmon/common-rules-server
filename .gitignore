@@ -1,0 +1,26 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Logs
+notebook
+
+# Cursor rules
+.cursor/
+
+# Environment variables
+.env
+
+# Dependency lock files
+# uv.lock
+
+# Generated documentation and notebooks
+planning/
+sample.notebook/

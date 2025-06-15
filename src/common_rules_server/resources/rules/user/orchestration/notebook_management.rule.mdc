@@ -1,0 +1,204 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Notebook Management Rule
+
+## Rule Intent
+This rule manages all notebook operations including creation, updates, organization, and content management for development tracking and documentation.
+
+## Notebook Operations
+
+### Creation and Organization
+- **Directory Structure**: `./notebook/YYYY-MM-DD/`
+- **File Naming**: `YYYY-MM-DD_HH-MM-SS_UTC_title.md`
+- **Content Structure**: Request, reasoning, applied rules, cost tracking
+
+### Content Management
+- **Request Documentation**: Record all development requests
+- **Reasoning Tracking**: Document decision-making process
+- **Rule Application**: Track which rules were applied
+- **Cost Monitoring**: Track token usage and estimated costs
+- **Progress Tracking**: Monitor todo list and completion status
+
+### Integration Points
+- **System Rules**: Receives data from general system rule
+- **Development Process**: Integrates with development workflow
+- **Compliance Tracking**: Documents compliance activities
+- **Daily Summaries**: Provides data for daily logbook summaries
+
+## Expected Output
+- Notebook file created/updated
+- Directory structure maintained
+- Content properly formatted
+- Integration with other rules documented
+
+// NotebookManagement Rule - Pseudocode
+
+/*
+Expected Output Template (Markdown):
+
+# Notebook Management
+
+## Notebook Created/Updated
+- Notebook File: <YYYY-MM-DD_HH-MM-SS_UTC_title.md>
+- Notebook Directory: <./notebook/YYYY-MM-DD/>
+- Status: <created|updated|closed>
+- Content Sections: <list of sections>
+
+## Content Summary
+- Request: <original request>
+- Current State: <current state from orchestrator>
+- Applied Rules: <list of rules applied>
+- Decisions Made: <list of decisions>
+- Open Questions: <list of questions>
+- Next Actions: <list of next actions>
+*/
+
+var context = input.context
+var current_request = input.current_request
+var current_state = input.current_state
+var applied_rules = input.applied_rules
+var decisions_made = input.decisions_made
+var open_questions = input.open_questions
+var next_actions = input.next_actions
+
+var notebook_info = {
+    "notebook_file": "",
+    "notebook_directory": "",
+    "status": "pending",
+    "content_sections": []
+}
+
+// Step 1: Generate timestamp and title
+var timestamp_command = "date -u +\"%Y-%m-%d_%H-%M-%S_UTC\""
+var timestamp_result = ExecuteCommand(timestamp_command)
+var timestamp = timestamp_result.stdout.strip()
+
+var title = GenerateNotebookTitle(current_request, current_state)
+notebook_info.notebook_file = timestamp + "_" + title + ".md"
+
+// Step 2: Create directory structure
+var date_command = "date -u +\"%Y-%m-%d\""
+var date_result = ExecuteCommand(date_command)
+var date = date_result.stdout.strip()
+
+notebook_info.notebook_directory = "./notebook/" + date + "/"
+
+// Create notebook directory if it doesn't exist
+if !DirectoryExists(notebook_info.notebook_directory):
+    CreateDirectory(notebook_info.notebook_directory)
+
+// Step 3: Generate notebook content
+var notebook_content = GenerateNotebookContent(
+    current_request, 
+    current_state, 
+    applied_rules, 
+    decisions_made, 
+    open_questions, 
+    next_actions
+)
+
+// Step 4: Write notebook file
+WriteFile(notebook_info.notebook_directory + notebook_info.notebook_file, notebook_content)
+notebook_info.status = "created"
+
+// Step 5: Update content sections list
+notebook_info.content_sections = [
+    "Request",
+    "Current State", 
+    "Applied Rules",
+    "Decisions Made",
+    "Open Questions",
+    "Next Actions"
+]
+
+function GenerateNotebookTitle(request, state) {
+    var title = state.toLowerCase().replace("_", "-")
+    var request_words = request.split(" ").slice(0, 3).join("-")
+    return title + "-" + request_words
+}
+
+function GenerateNotebookContent(request, state, rules, decisions, questions, actions) {
+    var content = "# Notebook Entry - " + state + "\n\n"
+    
+    content += "## Request\n"
+    content += request + "\n\n"
+    
+    content += "## Current State\n"
+    content += "**State**: " + state + "\n"
+    content += "**Timestamp**: " + GetCurrentTimestamp() + "\n\n"
+    
+    content += "## Applied Rules\n"
+    for rule in rules:
+        content += "- " + rule + "\n"
+    content += "\n"
+    
+    if decisions.length > 0:
+        content += "## Decisions Made\n"
+        for decision in decisions:
+            content += "- " + decision + "\n"
+        content += "\n"
+    
+    if questions.length > 0:
+        content += "## Open Questions\n"
+        for question in questions:
+            content += "- " + question + "\n"
+        content += "\n"
+    
+    if actions.length > 0:
+        content += "## Next Actions\n"
+        for action in actions:
+            content += "- " + action + "\n"
+        content += "\n"
+    
+    content += "## Progress Tracking\n"
+    content += "- State: " + state + "\n"
+    content += "- Rules Applied: " + rules.length + "\n"
+    content += "- Decisions Made: " + decisions.length + "\n"
+    content += "- Open Questions: " + questions.length + "\n"
+    content += "- Pending Actions: " + actions.length + "\n\n"
+    
+    return content
+}
+
+function RenderNotebookManagementMarkdown(notebook_info, content_summary) {
+    var md = "# Notebook Management\n\n"
+    md += "## Notebook Created/Updated\n"
+    md += "- Notebook File: " + notebook_info.notebook_file + "\n"
+    md += "- Notebook Directory: " + notebook_info.notebook_directory + "\n"
+    md += "- Status: " + notebook_info.status + "\n"
+    md += "- Content Sections:\n"
+    for section in notebook_info.content_sections:
+        md += "  - " + section + "\n"
+    md += "\n## Content Summary\n"
+    md += "- Request: " + content_summary.request + "\n"
+    md += "- Current State: " + content_summary.current_state + "\n"
+    md += "- Applied Rules: " + content_summary.applied_rules_count + "\n"
+    md += "- Decisions Made: " + content_summary.decisions_count + "\n"
+    md += "- Open Questions: " + content_summary.questions_count + "\n"
+    md += "- Next Actions: " + content_summary.actions_count + "\n"
+    return md
+}
+
+var content_summary = {
+    "request": current_request,
+    "current_state": current_state,
+    "applied_rules_count": applied_rules.length,
+    "decisions_count": decisions_made.length,
+    "questions_count": open_questions.length,
+    "actions_count": next_actions.length
+}
+
+var output_file = "planning/documentation/notebook_management{YYYY-MM-dd-hh-mm-ss}.md"
+var markdown = RenderNotebookManagementMarkdown(notebook_info, content_summary)
+WriteFile(output_file, markdown)
+
+return {
+    "output_file": output_file,
+    "notebook_info": notebook_info,
+    "content_summary": content_summary,
+    "notebook_created": notebook_info.status == "created"
+}
+

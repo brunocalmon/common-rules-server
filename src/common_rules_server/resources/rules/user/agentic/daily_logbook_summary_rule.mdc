@@ -1,0 +1,148 @@
+---
+description: Daily summary generation from notebook entries
+globs: 
+alwaysApply: false
+---
+// DailyLogbookSummary Rule - Pseudocode
+
+/*
+Expected Output Template (Markdown):
+
+# Daily Logbook Summary - YYYY-MM-DD
+
+## Overall Reflection
+<concise synthesis of day's work, main focus areas, and general progress>
+
+## Achievements & Successes
+- <key accomplishment 1>
+- <key accomplishment 2>
+...
+
+## Challenges & Failures
+- <main difficulty 1>
+- <main difficulty 2>
+...
+
+## Pending Items
+- <open task 1>
+- <open task 2>
+...
+
+## Improvement Suggestions
+- <process improvement 1>
+- <process improvement 2>
+...
+
+## Open Questions
+- <open question 1>
+- <open question 2>
+...
+*/
+
+var target_date = input.target_date // Format: YYYY-MM-DD
+var context = input.context
+
+var notebook_files = []
+var overall_reflection = ""
+var achievements = []
+var challenges = []
+var pending_items = []
+var improvements = []
+var open_questions = []
+
+// Step 1: Find all notebook files for the target date
+var notebook_directory = "./notebook/" + target_date + "/"
+if DirectoryExists(notebook_directory):
+    var files = ListFiles(notebook_directory, "YYYY-MM-DD_HH-MM-SS_UTC_*.md")
+    for file in files:
+        if IsDateMatch(file, target_date):
+            notebook_files.append(file)
+
+// Step 2: Read and analyze all notebook files
+for notebook_file in notebook_files:
+    var content = ReadFile(notebook_file)
+    var analysis = AnalyzeNotebookContent(content)
+    
+    // Extract achievements
+    for achievement in analysis.achievements:
+        if !achievements.contains(achievement):
+            achievements.append(achievement)
+    
+    // Extract challenges
+    for challenge in analysis.challenges:
+        if !challenges.contains(challenge):
+            challenges.append(challenge)
+    
+    // Extract pending items
+    for pending in analysis.pending_items:
+        if !pending_items.contains(pending):
+            pending_items.append(pending)
+    
+    // Extract improvements
+    for improvement in analysis.improvements:
+        if !improvements.contains(improvement):
+            improvements.append(improvement)
+    
+    // Extract open questions
+    for question in analysis.open_questions:
+        if !open_questions.contains(question):
+            open_questions.append(question)
+
+// Step 3: Generate overall reflection
+overall_reflection = GenerateOverallReflection(notebook_files, achievements, challenges, pending_items)
+
+// Step 4: Render the logbook summary
+function RenderDailyLogbookSummary(target_date, overall_reflection, achievements, challenges, pending_items, improvements, open_questions) {
+    var md = "# Daily Logbook Summary - " + target_date + "\n\n"
+    md += "## Overall Reflection\n"
+    md += overall_reflection + "\n\n"
+    
+    if achievements.length > 0:
+        md += "## Achievements & Successes\n"
+        for achievement in achievements:
+            md += "- " + achievement + "\n"
+        md += "\n"
+    
+    if challenges.length > 0:
+        md += "## Challenges & Failures\n"
+        for challenge in challenges:
+            md += "- " + challenge + "\n"
+        md += "\n"
+    
+    if pending_items.length > 0:
+        md += "## Pending Items\n"
+        for pending in pending_items:
+            md += "- " + pending + "\n"
+        md += "\n"
+    
+    if improvements.length > 0:
+        md += "## Improvement Suggestions\n"
+        for improvement in improvements:
+            md += "- " + improvement + "\n"
+        md += "\n"
+    
+    if open_questions.length > 0:
+        md += "## Open Questions\n"
+        for question in open_questions:
+            md += "- " + question + "\n"
+    
+    return md
+}
+
+// Step 5: Write the logbook file
+var output_file = "./notebook/logbook_" + target_date + ".md"
+var markdown = RenderDailyLogbookSummary(target_date, overall_reflection, achievements, challenges, pending_items, improvements, open_questions)
+WriteFile(output_file, markdown)
+
+return {
+    "output_file": output_file,
+    "target_date": target_date,
+    "notebook_files_processed": notebook_files.length,
+    "achievements_count": achievements.length,
+    "challenges_count": challenges.length,
+    "pending_items_count": pending_items.length,
+    "improvements_count": improvements.length,
+    "open_questions_count": open_questions.length,
+    "summary_created": true
+}
+

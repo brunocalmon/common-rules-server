@@ -1,0 +1,143 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+// DeviationProcess Rule - Pseudocode
+
+/*
+Expected Output Template (Markdown):
+
+# Deviation Process
+
+## Deviation Request
+- Type: <API-First|OpenAPI|Documentation|TDD|Architecture>
+- Reason: <detailed explanation>
+- Impact: <what aspects cannot be followed>
+- Requested By: <agent/user>
+
+## Approval Status
+- Status: <pending|approved|rejected>
+- Approved By: <user>
+- Approval Date: <date>
+- Conditions: <any conditions>
+
+## Documentation Updates
+- Files to Update: <list>
+- Updates Required: <list>
+*/
+
+var deviation_type = input.deviation_type
+var reason = input.reason
+var impact = input.impact
+var requested_by = input.requested_by
+var context = input.context
+
+var approval_status = "pending"
+var approved_by = ""
+var approval_date = ""
+var conditions = []
+var files_to_update = []
+var updates_required = []
+
+// Step 1: Stop - Check if deviation is necessary
+if IsDeviationNecessary(deviation_type, context.current_task):
+    // Step 2: Explain - Detailed explanation
+    var detailed_explanation = GenerateDetailedExplanation(reason, context.current_task)
+    
+    // Step 3: Highlight - Explicit mention of aspects that cannot be followed
+    var aspects_not_followed = IdentifyAspectsNotFollowed(deviation_type, context.current_task)
+    
+    // Step 4: Request Permission
+    var permission_request = RequestPermission(deviation_type, detailed_explanation, aspects_not_followed)
+    
+    // Step 5: Document - Document the deviation request
+    var deviation_document = {
+        "type": deviation_type,
+        "reason": reason,
+        "impact": impact,
+        "requested_by": requested_by,
+        "detailed_explanation": detailed_explanation,
+        "aspects_not_followed": aspects_not_followed,
+        "request_date": GetCurrentDate()
+    }
+    
+    // Step 6: Update Documentation (if approved)
+    if permission_request.approved:
+        approval_status = "approved"
+        approved_by = permission_request.approved_by
+        approval_date = GetCurrentDate()
+        conditions = permission_request.conditions
+        
+        // Identify documentation that needs updates
+        if deviation_type == "API-First":
+            files_to_update.append("ARCHITECTURE.md")
+            updates_required.append("Update API-first development section")
+        if deviation_type == "OpenAPI":
+            files_to_update.append("README.md")
+            updates_required.append("Update OpenAPI specification references")
+        if deviation_type == "Documentation":
+            files_to_update.append("docs/")
+            updates_required.append("Update documentation process")
+        if deviation_type == "TDD":
+            files_to_update.append("tdd-process.mdc")
+            updates_required.append("Update TDD process documentation")
+        if deviation_type == "Architecture":
+            files_to_update.append("ARCHITECTURE.md")
+            updates_required.append("Update architecture documentation")
+        
+        // Log approved deviation
+        LogApprovedDeviation(deviation_document, approved_by, approval_date, conditions)
+    else:
+        approval_status = "rejected"
+        // Log rejected deviation
+        LogRejectedDeviation(deviation_document, permission_request.rejection_reason)
+
+function RenderDeviationProcessMarkdown(deviation_type, reason, impact, requested_by, approval_status, approved_by, approval_date, conditions, files_to_update, updates_required) {
+    var md = "# Deviation Process\n\n"
+    md += "## Deviation Request\n"
+    md += "- Type: " + deviation_type + "\n"
+    md += "- Reason: " + reason + "\n"
+    md += "- Impact: " + impact + "\n"
+    md += "- Requested By: " + requested_by + "\n\n"
+    md += "## Approval Status\n"
+    md += "- Status: " + approval_status + "\n"
+    if approved_by:
+        md += "- Approved By: " + approved_by + "\n"
+    if approval_date:
+        md += "- Approval Date: " + approval_date + "\n"
+    if conditions.length > 0:
+        md += "- Conditions:\n"
+        for condition in conditions:
+            md += "  - " + condition + "\n"
+    md += "\n## Documentation Updates\n"
+    if files_to_update.length > 0:
+        md += "- Files to Update:\n"
+        for file in files_to_update:
+            md += "  - " + file + "\n"
+    if updates_required.length > 0:
+        md += "- Updates Required:\n"
+        for update in updates_required:
+            md += "  - " + update + "\n"
+    return md
+}
+
+var output_file = "planning/documentation/deviation_process{YYYY-MM-dd-hh-mm-ss}.md"
+var markdown = RenderDeviationProcessMarkdown(deviation_type, reason, impact, requested_by, approval_status, approved_by, approval_date, conditions, files_to_update, updates_required)
+WriteFile(output_file, markdown)
+
+return {
+    "output_file": output_file,
+    "deviation_type": deviation_type,
+    "reason": reason,
+    "impact": impact,
+    "requested_by": requested_by,
+    "approval_status": approval_status,
+    "approved_by": approved_by,
+    "approval_date": approval_date,
+    "conditions": conditions,
+    "files_to_update": files_to_update,
+    "updates_required": updates_required,
+    "deviation_approved": approval_status == "approved",
+    "can_proceed": approval_status == "approved"
+}

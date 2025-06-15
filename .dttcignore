@@ -1,0 +1,29 @@
+# Ignores
+.dockerignore
+.gitignore
+.dttcignore
+
+# Docker
+Dockerfile
+
+# Python configurations
+*.py
+.python*
+.pytest_cache
+src/test
+src/main/resources/artifacts
+.python-version
+*.lock
+
+# General configurations
+planning
+docs
+README.md
+ARCHITECTURE.md
+API.md]
+.env
+sample.notebook/
+dir-to-text
+*/**/*.json
+.git
+*.toml
