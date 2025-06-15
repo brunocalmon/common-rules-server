@@ -52,7 +52,7 @@ jobs:
       - name: Build Docker Image
         run: |
           IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/common-rules-server"
-          TAG="${{ needs.build.outputs.api-version }}"
+          TAG="${{ steps.extract_version.outputs.VERSION }}"
           docker build -t $IMAGE_NAME:$TAG .
           echo "Built Docker image: $IMAGE_NAME:$TAG"
 
