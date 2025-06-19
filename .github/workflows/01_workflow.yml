@@ -53,8 +53,6 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v4
-      - name: Update lockfile for Docker build
-        run: uv lock
       - name: Extract version from pyproject.toml
         id: extract_version
         run: |

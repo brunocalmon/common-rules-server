@@ -15,9 +15,6 @@ WORKDIR /app
 # Copy only dependency files first for better caching
 COPY pyproject.toml uv.lock ./
 
-# Always update the lockfile to match pyproject.toml
-RUN uv lock
-
 # Install dependencies (without installing the project itself)
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-install-project
