@@ -21,6 +21,13 @@ logger = logging.getLogger("common-rules-server")
 # Create the MCP server
 mcp = FastMCP("common-rules-server")
 
+# Init on a global constant
+ROOT_DIR = Path(__file__).parent
+RULES_DIR = ROOT_DIR / "resources" / "rules"
+SYSTEM_RULES_DIR = RULES_DIR / "system"
+USER_RULES_DIR = RULES_DIR / "user"
+
+
 # Helper to recursively read and parse all rule files in a directory and its subdirectories
 def read_rule_files_with_headers_recursive(directory: Path):
     rules = []
@@ -130,19 +137,19 @@ def read_user_rule_files_with_headers_recursive(directory: Path):
 
 @mcp.tool()
 def get_system_rules() -> list[TextContent]:
-    rules_dir = Path(__file__).parent / "resources" / "rules" / "system"
+    rules_dir = SYSTEM_RULES_DIR
     service = RuleService(rules_dir)
-    return service.get_user_rules()  # Reuse the same logic for system rules
+    return service.get_user_rules() 
 
 @mcp.tool()
 def get_user_rules(rule_name: str = None) -> list[TextContent]:
-    rules_dir = Path(__file__).parent / "resources" / "rules" / "user"
+    rules_dir = USER_RULES_DIR
     service = RuleService(rules_dir)
     return service.get_user_rules(rule_name)
 
 @mcp.tool()
 def get_system_rule(title: str) -> TextContent:
-    rules_dir = Path(__file__).parent / "resources" / "rules" / "system"
+    rules_dir = SYSTEM_RULES_DIR
     service = RuleService(rules_dir)
     rules = service.load_rules()
     title_norm = title.strip().lower().replace("_", "-")
@@ -153,7 +160,7 @@ def get_system_rule(title: str) -> TextContent:
 
 @mcp.tool()
 def get_user_rule(title: str) -> TextContent:
-    rules_dir = Path(__file__).parent / "resources" / "rules" / "user"
+    rules_dir = USER_RULES_DIR
     service = RuleService(rules_dir)
     rules = service.load_rules()
     title_norm = title.strip().lower().replace("_", "-")
@@ -165,7 +172,7 @@ def get_user_rule(title: str) -> TextContent:
 @mcp.tool()
 def list_rule_categories() -> list[TextContent]:
     """List all rule categories and their types for better organization understanding"""
-    rules_dir = Path(__file__).parent / "resources" / "rules"
+    rules_dir = RULES_DIR
     result = []
     
     # System rules

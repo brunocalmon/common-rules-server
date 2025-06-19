@@ -124,4 +124,3 @@ jobs:
           else
             echo "Tag ${{ needs.build.outputs.api-version }} already exists, skipping tag creation."
           fi
-
