@@ -1,6 +1,6 @@
 [project]
 name = "common-rules-server"
-version = "0.1.0"
+version = "0.2.0"
 description = "A Model Context Protocol server for providing common rules to AI IDEs."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -31,6 +31,10 @@ test = [
 [tool.pytest.ini_options]
 testpaths = ["src/test"]
 python_files = ["test_*.py"]
+markers = [
+    "integration: mark a test as an integration test",
+    "timeout(timeout): set a timeout for a test"
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/common_rules_server"]

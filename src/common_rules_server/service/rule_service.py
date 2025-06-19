@@ -1,5 +1,4 @@
 from pathlib import Path
-from common_rules_server.domain.rule import RuleFactory
 from common_rules_server.util.rule_parsing import parse_yaml_header_and_body
 
 class RuleService:
@@ -15,9 +14,14 @@ class RuleService:
                 if header is None:
                     continue
                 key = file.stem.replace("_", "-")
-                rule = RuleFactory.from_header(key, header, body, file)
-                if rule is not None:
-                    rules.append(rule)
+                rule = {
+                    "key": key,
+                    "header": header,
+                    "body": body,
+                    "file": file,
+                    "to_text_content": lambda: type('TextContent', (), {"text": body})()
+                }
+                rules.append(rule)
             except Exception as e:
                 print(f"Error loading rule {file}: {e}")
         return rules
@@ -26,7 +30,7 @@ class RuleService:
         rules = self.load_rules()
         result = []
         for rule in rules:
-            if rule_name and rule_name.lower() not in rule.key.lower():
+            if rule_name and rule_name.lower() not in rule["key"].lower():
                 continue
-            result.append(rule.to_text_content())
+            result.append(rule["to_text_content"]())
         return result 

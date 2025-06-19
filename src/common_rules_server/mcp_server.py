@@ -5,7 +5,6 @@ from mcp.types import TextContent
 import re
 import sys
 import logging
-from common_rules_server.service.rule_service import RuleService
 from common_rules_server.util.rule_parsing import parse_yaml_header_and_body
 
 # Set up logging
@@ -28,7 +27,6 @@ SYSTEM_RULES_DIR = RULES_DIR / "system"
 USER_RULES_DIR = RULES_DIR / "user"
 ARTIFACTS_DIR = ROOT_DIR / "resources" / "artifacts"
 
-
 # Helper to recursively read and parse all rule files in a directory and its subdirectories
 # Only accept .md files with a valid YAML header (description and type required)
 def read_rule_files_with_headers_recursive(directory: Path):
@@ -47,107 +45,32 @@ def read_rule_files_with_headers_recursive(directory: Path):
             logging.error(f"Error reading rule file {file}: {e}")
     return rules
 
-# Helper to determine rule type from header (new YAML only)
 def get_rule_type(header):
     return header.get("type", "").strip()
 
-# Helper to get rule title/key
-def get_rule_title(header, file):
-    if "title" in header and header["title"].strip():
-        return header["title"].strip()
-    return file.stem.replace("_", "-")
-
-# Helper to get rule description
 def get_rule_description(header):
     return header.get("description", "")
 
-# Helper to get rule globs
-def get_rule_globs(header):
-    return header.get("globs", "")
-
-# Helper to parse .mdc user rule files (no header, just markdown)
-def parse_mdc_user_rule(text, file):
-    lines = text.splitlines()
-    title = None
-    description = None
-    rule_intent_desc = None
-    # Find first heading as title
-    for i, line in enumerate(lines):
-        if line.strip().startswith('# '):
-            title = line.strip().lstrip('#').strip()
-            # Try to find first non-heading, non-empty line as description
-            for desc_line in lines[i+1:]:
-                if desc_line.strip() and not desc_line.strip().startswith('#'):
-                    description = desc_line.strip()
-                    break
-            break
-    # Find ## Rule Intent section for agent requested description
-    for i, line in enumerate(lines):
-        if line.strip().lower() == '## rule intent':
-            # Collect all non-heading, non-empty lines after this as rule_intent_desc
-            desc_lines = []
-            for desc_line in lines[i+1:]:
-                if desc_line.strip().startswith('#'):
-                    break
-                if desc_line.strip():
-                    desc_lines.append(desc_line.strip())
-            if desc_lines:
-                rule_intent_desc = ' '.join(desc_lines)
-            break
-    if not title:
-        title = file.stem.replace('_', '-')
-    if not description:
-        description = ''
-    return title, description, rule_intent_desc
-
 def read_user_rule_files_with_headers_recursive(directory: Path):
     rules = []
-    for ext in ("*.md", "*.mdc"):
-        for file in sorted(directory.rglob(ext)):
-            try:
-                text = file.read_text(encoding="utf-8")
-                if file.suffix == ".mdc":
-                    header, body = parse_mdc_header_and_body(text)
-                else:
-                    header, body = parse_yaml_header_and_body(text)
-                key = file.stem.replace("_", "-")
-                rule_type = get_rule_type(header)
-                rules.append({
-                    "key": key,
-                    "header": header,
-                    "body": body,
-                    "file": file,
-                    "type": rule_type,
-                    "relative_path": str(file.relative_to(directory))
-                })
-            except Exception as e:
-                logging.error(f"Error reading user rule file {file}: {e}")
+    for file in sorted(directory.rglob("*.md")):
+        try:
+            text = file.read_text(encoding="utf-8")
+            header, body = parse_yaml_header_and_body(text)
+            key = file.stem.replace("_", "-")
+            rule_type = get_rule_type(header)
+            rules.append({
+                "key": key,
+                "header": header,
+                "body": body,
+                "file": file,
+                "type": rule_type,
+                "relative_path": str(file.relative_to(directory))
+            })
+        except Exception as e:
+            logging.error(f"Error reading user rule file {file}: {e}")
     return rules
 
-# Helper to extract description from header or # Description section
-def extract_description(header, body, file):
-    # 1. If YAML header has description, use it
-    desc = header.get("description", "").strip()
-    if desc:
-        return desc
-    # 2. Otherwise, look for a # Description section in the body
-    lines = body.splitlines()
-    in_desc = False
-    desc_lines = []
-    for line in lines:
-        if line.strip().lower().startswith('# description'):
-            in_desc = True
-            continue
-        if in_desc:
-            if line.strip().startswith('#') and not line.strip().lower().startswith('# description'):
-                break
-            if line.strip():
-                desc_lines.append(line.strip())
-    if desc_lines:
-        return ' '.join(desc_lines)
-    return ''
-
-# New helper to get rules as {key, description, type}
 def get_rules_summary(directory: Path):
     rules = []
     if not directory.exists() or not directory.is_dir():

@@ -24,3 +24,9 @@ notebook
 # Generated documentation and notebooks
 planning/
 sample.notebook/
+
+# Coverage data
+.coverage
+
+# VSCode settings
+.vscode/
