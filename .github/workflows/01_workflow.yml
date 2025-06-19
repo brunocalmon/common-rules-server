@@ -18,8 +18,8 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           python-version: '3.12'
-      - name: Update lockfile for test extras
-        run: uv lock --extra test
+      - name: Update lockfile
+        run: uv lock
       - name: Install dependencies and test extras
         run: uv sync --locked --extra test
       - name: Run tests with coverage and save output
