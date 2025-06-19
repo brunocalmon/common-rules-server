@@ -1,37 +1,20 @@
----
-description:
-globs:
-alwaysApply: false
----
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for managing documentation generation projects through structured phases such as requirements analysis, strategy planning, stakeholder input, and implementation planning. The rule does not generate documentation automatically; the agent should use it as a manual to track and document each phase thoroughly.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
+globs: 
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/docs_generation_workflow.md
+```
 // DocsGenerationWorkflow Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Documentation Generation Workflow
-
-## Current Phase
-- Phase: <requirements|analysis|planning|stakeholder_input>
-- Feature/Change: <description>
-- Status: <pending|in_progress|completed>
-
-## Requirements Analysis
-- Clear Statement: <requirement>
-- Current Flow: <analysis>
-- Open Questions: <list>
-- Stakeholder Questionnaire: <file>
-
-## Strategy Analysis
-- Options: <list>
-- Pros/Cons: <table>
-- Impact Analysis: <business|technical|compliance>
-- Recommended Strategy: <strategy>
-
-## Planning Checklist
-- <task 1>
-- <task 2>
-...
-*/
+// The output for this rule must be created according to the template_id: templates/docs_generation_workflow.md
 
 var current_phase = input.phase // "requirements", "analysis", "planning", "stakeholder_input"
 var feature_description = input.feature_description
@@ -140,68 +123,3 @@ else if current_phase == "stakeholder_input":
         // Update questionnaire with remaining questions
         stakeholder_questionnaire = UpdateStakeholderQuestionnaire(open_questions, feature_description)
         status = "completed"
-
-function RenderDocsGenerationWorkflowMarkdown(current_phase, feature_description, status, clear_statement, current_flow_analysis, open_questions, stakeholder_questionnaire, strategy_options, pros_cons, impact_analysis, recommended_strategy, planning_checklist) {
-    var md = "# Documentation Generation Workflow\n\n"
-    md += "## Current Phase\n"
-    md += "- Phase: " + current_phase + "\n"
-    md += "- Feature/Change: " + feature_description + "\n"
-    md += "- Status: " + status + "\n\n"
-    
-    if clear_statement:
-        md += "## Requirements Analysis\n"
-        md += "- Clear Statement: " + clear_statement + "\n"
-        if current_flow_analysis:
-            md += "- Current Flow: " + current_flow_analysis + "\n"
-        if open_questions.length > 0:
-            md += "- Open Questions:\n"
-            for question in open_questions:
-                md += "  - " + question + "\n"
-        if stakeholder_questionnaire:
-            md += "- Stakeholder Questionnaire: " + stakeholder_questionnaire + "\n"
-        md += "\n"
-    
-    if strategy_options.length > 0:
-        md += "## Strategy Analysis\n"
-        md += "- Options:\n"
-        for option in strategy_options:
-            md += "  - " + option + "\n"
-        if pros_cons.length > 0:
-            md += "- Pros/Cons:\n"
-            for analysis in pros_cons:
-                md += "  - " + analysis.option + ":\n"
-                md += "    - Pros: " + analysis.pros.join(", ") + "\n"
-                md += "    - Cons: " + analysis.cons.join(", ") + "\n"
-        if recommended_strategy:
-            md += "- Recommended Strategy: " + recommended_strategy + "\n"
-        md += "\n"
-    
-    if planning_checklist.length > 0:
-        md += "## Planning Checklist\n"
-        for task in planning_checklist:
-            md += "- " + task + "\n"
-    
-    return md
-}
-
-var output_file = "planning/documentation/docs_generation_workflow{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderDocsGenerationWorkflowMarkdown(current_phase, feature_description, status, clear_statement, current_flow_analysis, open_questions, stakeholder_questionnaire, strategy_options, pros_cons, impact_analysis, recommended_strategy, planning_checklist)
-WriteFile(output_file, markdown)
-
-return {
-    "output_file": output_file,
-    "current_phase": current_phase,
-    "feature_description": feature_description,
-    "status": status,
-    "clear_statement": clear_statement,
-    "current_flow_analysis": current_flow_analysis,
-    "open_questions": open_questions,
-    "stakeholder_questionnaire": stakeholder_questionnaire,
-    "strategy_options": strategy_options,
-    "pros_cons": pros_cons,
-    "impact_analysis": impact_analysis,
-    "recommended_strategy": recommended_strategy,
-    "planning_checklist": planning_checklist,
-    "phase_complete": status == "completed",
-    "ready_for_next_phase": status == "completed"
-}

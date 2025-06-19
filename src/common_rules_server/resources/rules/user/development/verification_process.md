@@ -1,36 +1,20 @@
----
-description:
-globs:
-alwaysApply: false
----
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for performing a comprehensive verification process for software projects. It describes how to check documentation status, execute build processes, and validate code quality. The rule does not perform any verification steps automatically; the agent should use it as a checklist and reporting guide for project validation.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
+globs: 
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/verification_process.md
+```
 // VerificationProcess Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Verification Process
-
-## Documentation Status
-- README.md: <exists|missing>
-- ARCHITECTURE.md: <exists|missing>
-- Build Process Documented: <yes|no>
-
-## Build Status
-- Clean Build: <pass|fail>
-- Code Generation: <pass|fail>
-- Code Quality: <pass|fail>
-- Test Coverage: <pass|fail>
-- Test Summary: <pass|fail>
-
-## Details
-- Build System: <detected build system>
-- Build Command: <command from documentation>
-- Errors: <list of errors>
-- Warnings: <list of warnings>
-
-## Next Steps
-- <next action>
-*/
+// The output for this rule must be created according to the template_id: templates/verification_process.md
 
 var context = input.context
 
@@ -157,37 +141,8 @@ if build_result.stdout:
         if "warning" in line.lower():
             warnings.append(line.strip())
 
-function RenderVerificationProcessMarkdown(build_status, build_system, build_command, errors, warnings, next_action, documentation_status) {
-    var md = "# Verification Process\n\n"
-    md += "## Documentation Status\n"
-    md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-    md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-    md += "- Build Process Documented: " + (documentation_status.build_process_documented ? "yes" : "no") + "\n\n"
-    md += "## Build Status\n"
-    md += "- Clean Build: " + build_status.clean_build + "\n"
-    md += "- Code Generation: " + build_status.code_generation + "\n"
-    md += "- Code Quality: " + build_status.code_quality + "\n"
-    md += "- Test Coverage: " + build_status.test_coverage + "\n"
-    md += "- Test Summary: " + build_status.test_summary + "\n\n"
-    md += "## Details\n"
-    md += "- Build System: " + build_system + "\n"
-    md += "- Build Command: " + build_command + "\n"
-    if errors.length > 0:
-        md += "- Errors:\n"
-        for error in errors:
-            md += "  - " + error + "\n"
-    if warnings.length > 0:
-        md += "- Warnings:\n"
-        for warning in warnings:
-            md += "  - " + warning + "\n"
-    md += "\n## Next Steps\n"
-    md += "- " + next_action + "\n"
-    return md
-}
-
 var output_file = "planning/documentation/verification_process{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderVerificationProcessMarkdown(build_status, build_system, build_command, errors, warnings, next_action, documentation_status)
-WriteFile(output_file, markdown)
+// The agent should write the output file using the template and the extracted data
 
 return {
     "output_file": output_file,

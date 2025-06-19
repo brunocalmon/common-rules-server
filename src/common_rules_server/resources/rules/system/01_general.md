@@ -1,46 +1,21 @@
----
-description: 
-globs: 
-alwaysApply: true
----
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides structured guidance to the agent for performing a comprehensive workspace review. It outlines how to check rule compliance, documentation status, cost/time tracking, system status, and commit status. The rule does not perform any actions automatically; instead, it offers a checklist and instructions for the agent to follow when reviewing the project state and preparing reports.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
+globs:
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Always
+artifacts:
+  - templates/general_system_rule.md
+```
+
 // GeneralSystemRule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# General System Rule Execution
-
-## Rule Compliance Check
-- User Rules Source: <common-rules-server|.cursor/rules>
-- Applied Rules: <list of rules>
-- Priority: <.cursor/rules takes priority if exists>
-
-## Documentation Status
-- README.md: <exists|missing>
-- ARCHITECTURE.md: <exists|missing>
-- Documentation Complete: <yes|no>
-
-## Cost & Time Tracking
-- Current Time: <YYYY-MM-DD HH:MM:SS UTC>
-- Token Usage: <tokens used>
-- Estimated Cost: <monetary cost>
-
-## System Status
-- Workspace Root: <path>
-- Current Directory: <path>
-- Git Status: <clean|dirty>
-- Build Status: <success|failure|unknown>
-
-## Commit Status
-- Pending Changes: <yes|no>
-- Commit Reminder: <message>
-- Suggested Command: <git command>
-
-## Agent Instructions
-- <instruction 1>
-- <instruction 2>
-...
-*/
+// The output for this rule must be created according to the template_id: templates/general_system_rule.md
 
 var context = input.context
 var current_request = input.current_request
@@ -149,45 +124,8 @@ else:
     agent_instructions.push("Ask user to specify build system and commands")
     system_status.build_status = "unknown"
 
-function RenderGeneralSystemRuleMarkdown(rule_compliance, documentation_status, cost_tracking, system_status, commit_status, agent_instructions) {
-    var md = "# General System Rule Execution\n\n"
-    md += "## Rule Compliance Check\n"
-    md += "- User Rules Source: " + rule_compliance.user_rules_source + "\n"
-    md += "- Applied Rules:\n"
-    for rule in rule_compliance.applied_rules:
-        md += "  - " + rule + "\n"
-    md += "- Priority: " + rule_compliance.priority + "\n\n"
-    md += "## Documentation Status\n"
-    md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-    md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-    md += "- Documentation Complete: " + (documentation_status.documentation_complete ? "yes" : "no") + "\n\n"
-    md += "## Cost & Time Tracking\n"
-    md += "- Current Time: " + cost_tracking.current_time + "\n"
-    md += "- Token Usage: " + cost_tracking.token_usage + "\n"
-    md += "- Estimated Cost: $" + cost_tracking.estimated_cost.toFixed(4) + "\n\n"
-    md += "## System Status\n"
-    md += "- Workspace Root: " + system_status.workspace_root + "\n"
-    md += "- Current Directory: " + system_status.current_directory + "\n"
-    md += "- Git Status: " + system_status.git_status + "\n"
-    md += "- Build Status: " + system_status.build_status + "\n\n"
-    md += "## Commit Status\n"
-    md += "- Pending Changes: " + (commit_status.pending_changes ? "yes" : "no") + "\n"
-    if commit_status.commit_reminder:
-        md += "- Commit Reminder: " + commit_status.commit_reminder + "\n"
-    if commit_status.suggested_command:
-        md += "- Suggested Command: " + commit_status.suggested_command + "\n"
-    md += "\n## Agent Instructions\n"
-    for instruction in agent_instructions:
-        md += "- " + instruction + "\n"
-    return md
-}
-
-var output_file = "planning/documentation/general_system_rule{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderGeneralSystemRuleMarkdown(rule_compliance, documentation_status, cost_tracking, system_status, commit_status, agent_instructions)
-WriteFile(output_file, markdown)
-
 return {
-    "output_file": output_file,
+    "output_file": "planning/documentation/general_system_rule{YYYY-MM-dd-hh-mm-ss}.md",
     "rule_compliance": rule_compliance,
     "documentation_status": documentation_status,
     "cost_tracking": cost_tracking,

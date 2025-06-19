@@ -1,43 +1,21 @@
----
-description: Daily summary generation from notebook entries
-globs: 
-alwaysApply: false
----
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for generating a daily logbook summary by analyzing notebook entries for a specific date. It describes how to extract and synthesize key information, but does not generate summaries automatically. The agent should follow the outlined steps to track progress and maintain organized documentation.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
+globs:
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/daily_logbook_summary.md
+```
+
 // DailyLogbookSummary Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Daily Logbook Summary - YYYY-MM-DD
-
-## Overall Reflection
-<concise synthesis of day's work, main focus areas, and general progress>
-
-## Achievements & Successes
-- <key accomplishment 1>
-- <key accomplishment 2>
-...
-
-## Challenges & Failures
-- <main difficulty 1>
-- <main difficulty 2>
-...
-
-## Pending Items
-- <open task 1>
-- <open task 2>
-...
-
-## Improvement Suggestions
-- <process improvement 1>
-- <process improvement 2>
-...
-
-## Open Questions
-- <open question 1>
-- <open question 2>
-...
-*/
+// The output for this rule must be created according to the template_id: templates/daily_logbook_summary.md
 
 var target_date = input.target_date // Format: YYYY-MM-DD
 var context = input.context
@@ -91,48 +69,11 @@ for notebook_file in notebook_files:
 // Step 3: Generate overall reflection
 overall_reflection = GenerateOverallReflection(notebook_files, achievements, challenges, pending_items)
 
-// Step 4: Render the logbook summary
-function RenderDailyLogbookSummary(target_date, overall_reflection, achievements, challenges, pending_items, improvements, open_questions) {
-    var md = "# Daily Logbook Summary - " + target_date + "\n\n"
-    md += "## Overall Reflection\n"
-    md += overall_reflection + "\n\n"
-    
-    if achievements.length > 0:
-        md += "## Achievements & Successes\n"
-        for achievement in achievements:
-            md += "- " + achievement + "\n"
-        md += "\n"
-    
-    if challenges.length > 0:
-        md += "## Challenges & Failures\n"
-        for challenge in challenges:
-            md += "- " + challenge + "\n"
-        md += "\n"
-    
-    if pending_items.length > 0:
-        md += "## Pending Items\n"
-        for pending in pending_items:
-            md += "- " + pending + "\n"
-        md += "\n"
-    
-    if improvements.length > 0:
-        md += "## Improvement Suggestions\n"
-        for improvement in improvements:
-            md += "- " + improvement + "\n"
-        md += "\n"
-    
-    if open_questions.length > 0:
-        md += "## Open Questions\n"
-        for question in open_questions:
-            md += "- " + question + "\n"
-    
-    return md
-}
+// Step 4: Prepare output according to the template
+// (The agent must use the template_id: templates/daily_logbook_summary.md to format the output)
 
-// Step 5: Write the logbook file
 var output_file = "./notebook/logbook_" + target_date + ".md"
-var markdown = RenderDailyLogbookSummary(target_date, overall_reflection, achievements, challenges, pending_items, improvements, open_questions)
-WriteFile(output_file, markdown)
+// The agent should write the output file using the template and the extracted data
 
 return {
     "output_file": output_file,

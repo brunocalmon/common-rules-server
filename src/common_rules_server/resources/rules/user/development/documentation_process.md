@@ -1,35 +1,20 @@
----
-description:
-globs:
-alwaysApply: false
----
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for managing project documentation. It describes how to review, update, and create essential documentation (including README.md and ARCHITECTURE.md) before and after development tasks. The rule does not create or update documentation automatically; the agent should follow the outlined steps to ensure documentation completeness and accuracy.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
+globs: 
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/documentation_process.md
+```
 // DocumentationProcess Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Documentation Process
-
-## Documentation Status
-- README.md: <exists|missing>
-- ARCHITECTURE.md: <exists|missing>
-- Project Documentation: <complete|incomplete|missing>
-
-## Current Phase
-- Phase: <review|update|create>
-- Documentation Type: <technical|architectural|requirements>
-- Status: <pending|in_progress|completed>
-
-## Documentation Review
-- Files to Review: <list>
-- Issues Found: <list>
-- Actions Required: <list>
-
-## Documentation Update
-- Files Updated: <list>
-- Changes Made: <list>
-- Verification Status: <pending|completed>
-*/
+// The output for this rule must be created according to the template_id: templates/documentation_process.md
 
 var current_phase = input.phase // "review", "update", or "create"
 var documentation_type = input.documentation_type
@@ -181,76 +166,3 @@ else if current_phase == "create":
     
     status = "completed"
     actions_required.push("Documentation creation process initiated - wait for user input")
-
-function RenderDocumentationProcessMarkdown(current_phase, documentation_type, status, files_to_review, issues_found, actions_required, files_updated, changes_made, verification_status, documentation_status) {
-    var md = "# Documentation Process\n\n"
-    md += "## Documentation Status\n"
-    md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-    md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-    md += "- Project Documentation: " + documentation_status.project_documentation + "\n\n"
-    md += "## Current Phase\n"
-    md += "- Phase: " + current_phase + "\n"
-    md += "- Documentation Type: " + documentation_type + "\n"
-    md += "- Status: " + status + "\n\n"
-    
-    if current_phase == "review":
-        md += "## Documentation Review\n"
-        if files_to_review.length > 0:
-            md += "- Files to Review:\n"
-            for file in files_to_review:
-                md += "  - " + file + "\n"
-        if issues_found.length > 0:
-            md += "- Issues Found:\n"
-            for issue in issues_found:
-                md += "  - " + issue + "\n"
-        if actions_required.length > 0:
-            md += "- Actions Required:\n"
-            for action in actions_required:
-                md += "  - " + action + "\n"
-    
-    else if current_phase == "update":
-        md += "## Documentation Update\n"
-        if files_updated.length > 0:
-            md += "- Files Updated:\n"
-            for file in files_updated:
-                md += "  - " + file + "\n"
-        if changes_made.length > 0:
-            md += "- Changes Made:\n"
-            for change in changes_made:
-                md += "  - " + change + "\n"
-        md += "- Verification Status: " + verification_status + "\n"
-    
-    else if current_phase == "create":
-        md += "## Documentation Creation\n"
-        if issues_found.length > 0:
-            md += "- Documentation Needed:\n"
-            for issue in issues_found:
-                md += "  - " + issue + "\n"
-        if actions_required.length > 0:
-            md += "- Actions Required:\n"
-            for action in actions_required:
-                md += "  - " + action + "\n"
-    
-    return md
-}
-
-var output_file = "planning/documentation/documentation_process{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderDocumentationProcessMarkdown(current_phase, documentation_type, status, files_to_review, issues_found, actions_required, files_updated, changes_made, verification_status, documentation_status)
-WriteFile(output_file, markdown)
-
-return {
-    "output_file": output_file,
-    "current_phase": current_phase,
-    "documentation_type": documentation_type,
-    "status": status,
-    "files_to_review": files_to_review,
-    "issues_found": issues_found,
-    "actions_required": actions_required,
-    "files_updated": files_updated,
-    "changes_made": changes_made,
-    "verification_status": verification_status,
-    "documentation_status": documentation_status,
-    "review_complete": current_phase == "review" && status == "completed",
-    "update_complete": current_phase == "update" && status == "completed",
-    "create_complete": current_phase == "create" && status == "completed"
-}

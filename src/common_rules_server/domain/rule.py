@@ -33,14 +33,16 @@ class ManualRule(Rule):
 class RuleFactory:
     @staticmethod
     def from_header(key, header, body, file):
-        # Normalize and robustly check header fields
-        always_apply = str(header.get("alwaysApply", "")).strip().lower() == "true"
+        # Only create a rule if both description and type are present
         description = str(header.get("description", "")).strip()
+        rule_type = str(header.get("type", "")).strip().lower()
         globs = str(header.get("globs", "")).strip()
-        if always_apply:
+        if not description or not rule_type:
+            return None
+        if rule_type == "always":
             return AlwaysRule(key, header, body, file)
-        if globs:
+        if rule_type == "auto attached":
             return AutoAttachedRule(key, header, body, file)
-        if description:
+        if rule_type == "agent requested":
             return AgentRequestedRule(key, header, body, file)
         return ManualRule(key, header, body, file) 

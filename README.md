@@ -41,6 +41,15 @@ To call tools like `get_user_rules` from the terminal, you must use an MCP-compa
 
 ## Rule System Architecture
 
+### Rule File Format
+
+- **Only `.md` files are supported** for rules. Each rule file must begin with a strict YAML header containing at least:
+  - `description`: Brief summary of the rule's purpose and intent (must clarify that rules are agent/AI guidance, not automation)
+  - `type`: The rule's trigger type (e.g., Always, Agent Requested, Auto Attached, Manual)
+  - `artifacts`: List of referenced artifact/template files (may be empty)
+- **No `.mdc` or legacy formats are supported.**
+- The YAML header is followed by the rule's pseudo-code and agent instructions. Output templates are referenced via the `artifacts` field and stored in `artifacts/templates/`.
+
 ### Rule Types by Trigger Mechanism
 
 The framework supports four types of rules with different trigger mechanisms:
@@ -55,190 +64,68 @@ The framework supports four types of rules with different trigger mechanisms:
 
 3. **Auto Attached Rules**
    - Rules that automatically trigger based on file types or context
-   - Independent "lonely wolves" - never mentioned in orchestrator
 
 4. **Agentic Rules**
    - Rules that the agent chooses when to use
-   - Independent "lonely wolves" - never mentioned in orchestrator
 
-### Current Rule Categories
+### Rule Discovery and Artifacts
 
-### 1. Always Triggered Rules (System Rules)
-**Purpose**: Core orchestration and system-level rules that run automatically
+- The MCP server exposes the following tools for rule and artifact discovery:
+  - `get_system_rules`: List all system rules (summary only)
+  - `get_user_rules`: List all user rules (summary only)
+  - `get_system_rule`: Get the full content of a specific system rule
+  - `get_user_rule`: Get the full content of a specific user rule
+  - `get_artifact`: Retrieve the content of an artifact file by its key (relative path from artifacts directory)
+  - `list_rule_categories`: List all rule categories and their types
+- Rules reference their output templates via the `artifacts` field. Templates are stored in `src/common_rules_server/resources/artifacts/templates/`.
+- Rules provide structured guidance for agents (human or AI) and do not perform actions automatically.
 
-- **01-general.mdc** (System Rule)
-  - **Trigger**: Always executed
-  - **Purpose**: System-level operations (cost tracking, git status, build status)
-  - **Type**: System-level operations
+### Agent/AI Workflow
 
-- **01-orchestrator.mdc** (Main Orchestrator)
-  - **Trigger**: Always executed
-  - **Purpose**: State machine that forces specific rule sequences and provides clear agent instructions
-  - **Type**: State machine orchestration
+- Agents use the rule pseudo-code and referenced templates to guide their actions and outputs.
+- All output formatting is performed according to the referenced template artifact.
+- The system is designed for agent-driven workflows, not direct automation.
 
-### 2. Manual Triggered Rules
-**Purpose**: Rules triggered by orchestrator references or specific user requests
-
-#### Orchestration Rules
-- **compliance_confirmation.rule.mdc** (in orchestration/)
-  - **Trigger**: Manual - beginning/end of tasks
-  - **Purpose**: Project structure and architecture compliance validation
-  - **Type**: Process validation
-
-- **notebook_management.rule.mdc** (in orchestration/)
-  - **Trigger**: Manual - every state transition
-  - **Purpose**: Notebook creation, updates, and organization
-  - **Type**: Documentation management
-
-#### Development Rules (in development/)
-- **development_process.rule.mdc**
-  - **Trigger**: Manual - development workflow orchestration
-  - **Purpose**: Orchestrates development phases (documentation, TDD, verification, deviation)
-  - **Type**: Sub-orchestrator
-
-- **tdd_process.rule.mdc**
-  - **Trigger**: Manual - TDD implementation
-  - **Purpose**: Test-Driven Development cycle (Red-Green-Refactor)
-  - **Type**: Development methodology
-
-- **verification_process.rule.mdc**
-  - **Trigger**: Manual - verification needed
-  - **Purpose**: Build verification, checkstyle, and test execution
-  - **Type**: Quality assurance
-
-- **test_cycle.rule.mdc**
-  - **Trigger**: Manual - test coverage analysis
-  - **Purpose**: Test coverage analysis and missing test implementation
-  - **Type**: Testing process
-
-- **documentation_process.rule.mdc**
-  - **Trigger**: Manual - documentation review/update
-  - **Purpose**: Documentation review and update processes
-  - **Type**: Documentation management
-
-- **docs_generation_workflow.rule.mdc**
-  - **Trigger**: Manual - documentation needs
-  - **Purpose**: Documentation generation with requirements analysis and stakeholder input
-  - **Type**: Workflow orchestration
-
-- **deviation_process.rule.mdc**
-  - **Trigger**: Manual - when deviations needed
-  - **Purpose**: Handling deviations from standard development processes
-  - **Type**: Process management
-
-#### Compliance Rules (in compliance/)
-- **project_architecture_compliance.rule.mdc**
-  - **Trigger**: Manual - architecture review
-  - **Purpose**: Comprehensive architecture compliance checking
-  - **Type**: Compliance validation
-
-### 3. Auto Attached Rules (in auto-attached/)
-**Purpose**: Rules that automatically trigger based on file types or context
-
-- **java_code_style.rule.mdc**
-  - **Trigger**: Auto-attached when working with Java files
-  - **Purpose**: Java code style validation using checkstyle
-  - **Type**: File-type specific validation
-
-### 4. Agentic Rules (in agentic/)
-**Purpose**: Rules that the agent chooses when to use
-
-- **daily_logbook_summary_rule.mdc**
-  - **Trigger**: Agentic - daily summary needed
-  - **Purpose**: Daily summary generation from notebook entries
-  - **Type**: Reporting
-
-### Framework Architecture
-
-#### Orchestration System
-
-```mermaid
-graph TD
-    A[Agent Request] --> B[01-orchestrator.mdc]
-    B --> C{Current State?}
-    
-    C -->|INIT| D[01-general.mdc + compliance_confirmation]
-    C -->|REQUIREMENTS| E[notebook_management + compliance_confirmation]
-    C -->|PLANNING| F[notebook_management + architecture_compliance]
-    C -->|DEVELOPMENT| G[notebook_management + development_process + tdd_process]
-    C -->|TESTING| H[notebook_management + test_cycle + verification_process]
-    C -->|VERIFICATION| I[notebook_management + compliance_confirmation + architecture_compliance]
-    C -->|DEPLOYMENT| J[notebook_management + daily_logbook_summary]
-    C -->|COMPLETE| K[notebook_management]
-    
-    subgraph "Auto-Attached Rules"
-        L[java_code_style.rule.mdc]
-    end
-    
-    G -.-> L
-    H -.-> L
-    
-    style A fill:#e1f5fe
-    style B fill:#c8e6c9
-    style L fill:#fce4ec
-```
-
-#### Rule Header System
-The .mdc format handles rule types automatically:
-- Rules without specific headers default to "manual" triggered
-- System rules (01-*.mdc) are always applied
-- Auto-attached rules are triggered by file patterns
-- Agentic rules are chosen by the agent
-
-## User Customization Framework
-
-### Creating Custom Rule Sets
-
-Users can create their own rule sets by:
-
-1. **Defining Rule Types**:
-   - Always triggered (system/orchestration)
-   - Manual triggered (orchestrator referenced)
-   - Auto attached (file/context specific)
-   - Agentic (agent choice)
-
-2. **Setting Up Orchestration**:
-   - Main orchestrator for overall workflow
-   - Sub-orchestrators for specific processes
-   - Cross-cutting activities for consistency
-
-3. **Organizing by Context**:
-   - Use subdirectories for better organization
-   - Group related rules together
-   - Maintain clear separation of concerns
-
-### Example Custom Rule Set Structure
+### Example Rule File Structure
 
 ```
-src/main/resources/rules/
-├── system/
-│   ├── 01-general.mdc          # Always triggered
-│   └── 01-orchestrator.mdc     # Main orchestrator
-├── user/
-│   ├── orchestration/
-│   │   ├── compliance_confirmation.rule.mdc
-│   │   └── notebook_management.rule.mdc
-│   ├── development/
-│   │   ├── development_process.rule.mdc
-│   │   ├── tdd_process.rule.mdc
-│   │   └── verification_process.rule.mdc
-│   ├── compliance/
-│   │   └── project_architecture_compliance.rule.mdc
-│   ├── auto-attached/
-│   │   └── java_code_style.rule.mdc
-│   └── agentic/
-│       └── daily_logbook_summary_rule.mdc
+---
+description: This rule provides guidance to the agent for ...
+type: Agent Requested
+artifacts:
+  - templates/example_template.md
+---
+
+// Pseudocode and agent instructions here
+// The output for this rule must be created according to the template_id: templates/example_template.md
 ```
 
-## Default Java Rules as Examples
+## Running the MCP Server
 
-The current Java-specific rules serve as **implementation examples** showing how to:
+The main entrypoint is `src/common_rules_server/mcp_server.py`. When run, it logs the following information:
 
-1. **Create file-type specific rules** (java_code_style.rule.mdc)
-2. **Implement development methodologies** (tdd_process.rule.mdc)
-3. **Set up verification processes** (verification_process.rule.mdc)
-4. **Handle compliance checking** (project_architecture_compliance.rule.mdc)
-5. **Orchestrate complex workflows** (development_process.rule.mdc)
+- Server name and status
+- Exposed MCP tools: get_system_rules, get_user_rules, get_system_rule, get_user_rule, list_rule_categories, get_artifact
+- Rule and artifact directory locations
+- Usage instructions for MCP-compatible clients
+
+Example log output:
+
+```
+========================================
+  Common Rules MCP Server (Python)
+========================================
+Server: common-rules-server
+
+MCP server is running.
+- Use an MCP-compatible client, IDE, or Cursor to connect.
+- Exposes tools: get_system_rules, get_user_rules, get_system_rule, get_user_rule, list_rule_categories, get_artifact
+- Place rules in src/common_rules_server/resources/rules/system/ and user/ with subdirectories
+- Supports subfolders for better organization
+
+For SDK details: https://github.com/modelcontextprotocol/python-sdk
+========================================
+```
 
 ## Documentation
 - [Architecture](ARCHITECTURE.md) - System architecture and design patterns

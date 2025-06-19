@@ -1,8 +1,20 @@
----
-description: 
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides structured guidance to the agent for managing notebook creation and maintenance to track development requests, decisions, and progress. It describes how to organize and document notebook entries, but does not create or update notebooks automatically. The agent should follow the outlined steps to ensure comprehensive tracking and documentation.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
 globs: 
-alwaysApply: false
----
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+# The 'artifacts' property lists any related files or resources that are referenced by this rule.
+# For notebook management, this could include templates, example notebooks, or configuration files.
+# If there are no associated files, leave the list empty as shown below.
+artifacts:
+  - templates/notebook_management.md
+```
 # Notebook Management Rule
 
 ## Rule Intent
@@ -36,25 +48,7 @@ This rule manages all notebook operations including creation, updates, organizat
 
 // NotebookManagement Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Notebook Management
-
-## Notebook Created/Updated
-- Notebook File: <YYYY-MM-DD_HH-MM-SS_UTC_title.md>
-- Notebook Directory: <./notebook/YYYY-MM-DD/>
-- Status: <created|updated|closed>
-- Content Sections: <list of sections>
-
-## Content Summary
-- Request: <original request>
-- Current State: <current state from orchestrator>
-- Applied Rules: <list of rules applied>
-- Decisions Made: <list of decisions>
-- Open Questions: <list of questions>
-- Next Actions: <list of next actions>
-*/
+// The output for this rule must be created according to the template_id: templates/notebook_management.md
 
 var context = input.context
 var current_request = input.current_request
@@ -121,65 +115,9 @@ function GenerateNotebookTitle(request, state) {
 }
 
 function GenerateNotebookContent(request, state, rules, decisions, questions, actions) {
-    var content = "# Notebook Entry - " + state + "\n\n"
-    
-    content += "## Request\n"
-    content += request + "\n\n"
-    
-    content += "## Current State\n"
-    content += "**State**: " + state + "\n"
-    content += "**Timestamp**: " + GetCurrentTimestamp() + "\n\n"
-    
-    content += "## Applied Rules\n"
-    for rule in rules:
-        content += "- " + rule + "\n"
-    content += "\n"
-    
-    if decisions.length > 0:
-        content += "## Decisions Made\n"
-        for decision in decisions:
-            content += "- " + decision + "\n"
-        content += "\n"
-    
-    if questions.length > 0:
-        content += "## Open Questions\n"
-        for question in questions:
-            content += "- " + question + "\n"
-        content += "\n"
-    
-    if actions.length > 0:
-        content += "## Next Actions\n"
-        for action in actions:
-            content += "- " + action + "\n"
-        content += "\n"
-    
-    content += "## Progress Tracking\n"
-    content += "- State: " + state + "\n"
-    content += "- Rules Applied: " + rules.length + "\n"
-    content += "- Decisions Made: " + decisions.length + "\n"
-    content += "- Open Questions: " + questions.length + "\n"
-    content += "- Pending Actions: " + actions.length + "\n\n"
-    
-    return content
-}
-
-function RenderNotebookManagementMarkdown(notebook_info, content_summary) {
-    var md = "# Notebook Management\n\n"
-    md += "## Notebook Created/Updated\n"
-    md += "- Notebook File: " + notebook_info.notebook_file + "\n"
-    md += "- Notebook Directory: " + notebook_info.notebook_directory + "\n"
-    md += "- Status: " + notebook_info.status + "\n"
-    md += "- Content Sections:\n"
-    for section in notebook_info.content_sections:
-        md += "  - " + section + "\n"
-    md += "\n## Content Summary\n"
-    md += "- Request: " + content_summary.request + "\n"
-    md += "- Current State: " + content_summary.current_state + "\n"
-    md += "- Applied Rules: " + content_summary.applied_rules_count + "\n"
-    md += "- Decisions Made: " + content_summary.decisions_count + "\n"
-    md += "- Open Questions: " + content_summary.questions_count + "\n"
-    md += "- Next Actions: " + content_summary.actions_count + "\n"
-    return md
+    // The agent must use the template_id: templates/notebook_management.md to format the output
+    // and fill in the required sections with the provided data.
+    return "" // Implementation is agent-specific
 }
 
 var content_summary = {
@@ -192,8 +130,7 @@ var content_summary = {
 }
 
 var output_file = "planning/documentation/notebook_management{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderNotebookManagementMarkdown(notebook_info, content_summary)
-WriteFile(output_file, markdown)
+// The agent should write the output file using the template and the extracted data
 
 return {
     "output_file": output_file,

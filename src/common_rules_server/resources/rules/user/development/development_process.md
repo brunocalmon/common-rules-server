@@ -1,34 +1,21 @@
----
-description: 
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for orchestrating the development process. It describes how to check documentation status, manage phases (documentation review, TDD implementation, verification, deviation handling), and ensure adherence to project-specific workflows. The rule does not perform any orchestration automatically; the agent should use it as a manual for each phase.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
 globs: 
-alwaysApply: false
----
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/development_process.md
+```
+
 // DevelopmentProcess Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Development Process Orchestration
-
-## Documentation Status
-- README.md: <exists|missing>
-- ARCHITECTURE.md: <exists|missing>
-- Development Process Documented: <yes|no>
-
-## Current Phase
-- Phase: <documentation|tdd|verification|deviation>
-- Status: <pending|in_progress|completed|failed>
-- Sub-rule: <current sub-rule being executed>
-
-## Process Flow
-- Documentation Review: <status>
-- TDD Implementation: <status>
-- Verification Steps: <status>
-- Deviation Handling: <status>
-
-## Next Steps
-- <next action>
-*/
+// The output for this rule must be created according to the template_id: templates/development_process.md
 
 var current_phase = input.phase // "documentation", "tdd", "verification", "deviation"
 var context = input.context
@@ -212,32 +199,8 @@ else if current_phase == "deviation":
         status = "failed"
         next_action = "Deviation not approved - follow standard process"
 
-function RenderDevelopmentProcessMarkdown(current_phase, status, current_sub_rule, process_flow, next_action, documentation_status) {
-    var md = "# Development Process Orchestration\n\n"
-    md += "## Documentation Status\n"
-    md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-    md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-    md += "- Development Process Documented: " + (documentation_status.development_process_documented ? "yes" : "no") + "\n\n"
-    md += "## Current Phase\n"
-    md += "- Phase: " + current_phase + "\n"
-    md += "- Status: " + status + "\n"
-    md += "- Sub-rule: " + current_sub_rule + "\n\n"
-    md += "## Process Flow\n"
-    md += "- Documentation Review: " + process_flow.documentation_review + "\n"
-    md += "- TDD Implementation: " + process_flow.tdd_implementation + "\n"
-    md += "- Verification Steps: " + process_flow.verification_steps + "\n"
-    md += "- Deviation Handling: " + process_flow.deviation_handling + "\n\n"
-    md += "## Next Steps\n"
-    md += "- " + next_action + "\n"
-    return md
-}
-
-var output_file = "planning/documentation/development_process{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderDevelopmentProcessMarkdown(current_phase, status, current_sub_rule, process_flow, next_action, documentation_status)
-WriteFile(output_file, markdown)
-
 return {
-    "output_file": output_file,
+    "output_file": "planning/documentation/development_process{YYYY-MM-dd-hh-mm-ss}.md",
     "current_phase": current_phase,
     "status": status,
     "current_sub_rule": current_sub_rule,

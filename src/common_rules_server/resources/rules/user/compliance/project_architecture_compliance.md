@@ -1,41 +1,21 @@
----
-description: 
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for validating project architecture compliance. It describes how to check if the actual project structure, architecture patterns, module responsibilities, and build configuration match the documented requirements. The rule does not perform compliance checks automatically; the agent should follow the instructions to review, report, and recommend improvements.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
 globs: 
-alwaysApply: false
----
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/project_architecture_compliance.md
+```
+
 // ProjectArchitectureCompliance Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Project Architecture Compliance
-
-## Documentation Status
-- README.md: <exists|missing>
-- ARCHITECTURE.md: <exists|missing>
-- Documentation Complete: <yes|no>
-
-## Compliance Status
-- Project Structure: <compliant|non-compliant|pending>
-- Architecture Patterns: <compliant|non-compliant|pending>
-- Module Responsibilities: <compliant|non-compliant|pending>
-- Build Configuration: <compliant|non-compliant|pending>
-
-## Issues Found
-- <issue 1>
-- <issue 2>
-...
-
-## Recommendations
-- <recommendation 1>
-- <recommendation 2>
-...
-
-## Agent Instructions
-- <instruction 1>
-- <instruction 2>
-...
-*/
+// The output for this rule must be created according to the template_id: templates/project_architecture_compliance.md
 
 var context = input.context
 var current_task = input.current_task
@@ -184,52 +164,4 @@ if documentation_status.documentation_complete:
         agent_instructions.push("Cannot parse documented build configuration - ask user for clarification")
         agent_instructions.push("Update ARCHITECTURE.md with clear build configuration definition")
 
-function RenderArchitectureComplianceMarkdown(documentation_status, compliance_status, issues, recommendations, agent_instructions) {
-    var md = "# Project Architecture Compliance\n\n"
-    md += "## Documentation Status\n"
-    md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-    md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-    md += "- Documentation Complete: " + (documentation_status.documentation_complete ? "yes" : "no") + "\n\n"
-    md += "## Compliance Status\n"
-    md += "- Project Structure: " + compliance_status.project_structure + "\n"
-    md += "- Architecture Patterns: " + compliance_status.architecture_patterns + "\n"
-    md += "- Module Responsibilities: " + compliance_status.module_responsibilities + "\n"
-    md += "- Build Configuration: " + compliance_status.build_configuration + "\n\n"
-    
-    if issues.length > 0:
-        md += "## Issues Found\n"
-        for issue in issues:
-            md += "- " + issue + "\n"
-        md += "\n"
-    
-    if recommendations.length > 0:
-        md += "## Recommendations\n"
-        for recommendation in recommendations:
-            md += "- " + recommendation + "\n"
-        md += "\n"
-    
-    if agent_instructions.length > 0:
-        md += "## Agent Instructions\n"
-        for instruction in agent_instructions:
-            md += "- " + instruction + "\n"
-    
-    return md
-}
-
-var output_file = "planning/documentation/architecture_compliance{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderArchitectureComplianceMarkdown(documentation_status, compliance_status, issues, recommendations, agent_instructions)
-WriteFile(output_file, markdown)
-
-return {
-    "output_file": output_file,
-    "documentation_status": documentation_status,
-    "compliance_status": compliance_status,
-    "issues": issues,
-    "recommendations": recommendations,
-    "agent_instructions": agent_instructions,
-    "fully_compliant": documentation_status.documentation_complete && 
-                      compliance_status.project_structure == "compliant" && 
-                      compliance_status.architecture_patterns == "compliant" && 
-                      compliance_status.module_responsibilities == "compliant" && 
-                      compliance_status.build_configuration == "compliant"
-}
+// The agent must use the template_id: templates/project_architecture_compliance.md to format the output

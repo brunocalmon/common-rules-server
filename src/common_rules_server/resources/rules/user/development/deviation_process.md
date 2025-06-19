@@ -1,31 +1,21 @@
----
-description:
-globs:
-alwaysApply: false
----
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for handling deviation requests from established development processes (API-First, OpenAPI, Documentation, TDD, Architecture). It describes how to request, document, and track deviations, but does not process or approve deviations automatically. The agent should follow the workflow to ensure proper approval and documentation updates.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
+globs: 
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/deviation_process.md
+```
+
 // DeviationProcess Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Deviation Process
-
-## Deviation Request
-- Type: <API-First|OpenAPI|Documentation|TDD|Architecture>
-- Reason: <detailed explanation>
-- Impact: <what aspects cannot be followed>
-- Requested By: <agent/user>
-
-## Approval Status
-- Status: <pending|approved|rejected>
-- Approved By: <user>
-- Approval Date: <date>
-- Conditions: <any conditions>
-
-## Documentation Updates
-- Files to Update: <list>
-- Updates Required: <list>
-*/
+// The output for this rule must be created according to the template_id: templates/deviation_process.md
 
 var deviation_type = input.deviation_type
 var reason = input.reason
@@ -92,52 +82,3 @@ if IsDeviationNecessary(deviation_type, context.current_task):
         approval_status = "rejected"
         // Log rejected deviation
         LogRejectedDeviation(deviation_document, permission_request.rejection_reason)
-
-function RenderDeviationProcessMarkdown(deviation_type, reason, impact, requested_by, approval_status, approved_by, approval_date, conditions, files_to_update, updates_required) {
-    var md = "# Deviation Process\n\n"
-    md += "## Deviation Request\n"
-    md += "- Type: " + deviation_type + "\n"
-    md += "- Reason: " + reason + "\n"
-    md += "- Impact: " + impact + "\n"
-    md += "- Requested By: " + requested_by + "\n\n"
-    md += "## Approval Status\n"
-    md += "- Status: " + approval_status + "\n"
-    if approved_by:
-        md += "- Approved By: " + approved_by + "\n"
-    if approval_date:
-        md += "- Approval Date: " + approval_date + "\n"
-    if conditions.length > 0:
-        md += "- Conditions:\n"
-        for condition in conditions:
-            md += "  - " + condition + "\n"
-    md += "\n## Documentation Updates\n"
-    if files_to_update.length > 0:
-        md += "- Files to Update:\n"
-        for file in files_to_update:
-            md += "  - " + file + "\n"
-    if updates_required.length > 0:
-        md += "- Updates Required:\n"
-        for update in updates_required:
-            md += "  - " + update + "\n"
-    return md
-}
-
-var output_file = "planning/documentation/deviation_process{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderDeviationProcessMarkdown(deviation_type, reason, impact, requested_by, approval_status, approved_by, approval_date, conditions, files_to_update, updates_required)
-WriteFile(output_file, markdown)
-
-return {
-    "output_file": output_file,
-    "deviation_type": deviation_type,
-    "reason": reason,
-    "impact": impact,
-    "requested_by": requested_by,
-    "approval_status": approval_status,
-    "approved_by": approved_by,
-    "approval_date": approval_date,
-    "conditions": conditions,
-    "files_to_update": files_to_update,
-    "updates_required": updates_required,
-    "deviation_approved": approval_status == "approved",
-    "can_proceed": approval_status == "approved"
-}

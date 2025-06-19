@@ -1,8 +1,18 @@
----
-description:
-globs:
-alwaysApply: false
----
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for following and tracking Test-Driven Development (TDD) cycles (Red-Green-Refactor). It describes how to check documentation status, identify test frameworks, and structure outputs for each phase. The rule does not execute or track TDD cycles automatically; the agent should use it as a manual for proper TDD workflow execution.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
+globs: 
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/tdd_process.md
+```
+
 // TDDProcess Rule - Pseudocode
 
 /*
@@ -180,35 +190,10 @@ passing_tests = 8 // Placeholder - Agent would get actual count
 failing_tests = 2 // Placeholder - Agent would get actual count
 coverage_percentage = 85 // Placeholder - Agent would get actual coverage
 
-function RenderTDDProcessMarkdown(current_phase, test_description, test_status, total_tests, passing_tests, failing_tests, coverage_percentage, next_action, documentation_status, test_system, test_commands) {
-    var md = "# TDD Process Execution\n\n"
-    md += "## Documentation Status\n"
-    md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-    md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-    md += "- TDD Process Documented: " + (documentation_status.tdd_process_documented ? "yes" : "no") + "\n\n"
-    md += "## Current Cycle\n"
-    md += "- Phase: " + current_phase + "\n"
-    md += "- Test: " + test_description + "\n"
-    md += "- Status: " + test_status + "\n\n"
-    md += "## Test Framework\n"
-    md += "- Test System: " + test_system + "\n"
-    md += "- Test Commands: " + test_commands + "\n\n"
-    md += "## Test Coverage\n"
-    md += "- Total tests: " + total_tests + "\n"
-    md += "- Passing tests: " + passing_tests + "\n"
-    md += "- Failing tests: " + failing_tests + "\n"
-    md += "- Coverage: " + coverage_percentage + "%\n\n"
-    md += "## Next Steps\n"
-    md += "- " + next_action + "\n"
-    return md
-}
-
-var output_file = "planning/documentation/tdd_process{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderTDDProcessMarkdown(current_phase, test_description, test_status, total_tests, passing_tests, failing_tests, coverage_percentage, next_action, documentation_status, test_system, test_commands)
-WriteFile(output_file, markdown)
+// The output for this rule must be created according to the template_id: templates/tdd_process.md
 
 return {
-    "output_file": output_file,
+    "output_file": "planning/documentation/tdd_process{YYYY-MM-dd-hh-mm-ss}.md",
     "current_phase": current_phase,
     "test_description": test_description,
     "test_status": test_status,

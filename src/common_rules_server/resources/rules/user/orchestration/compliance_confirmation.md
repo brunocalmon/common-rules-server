@@ -1,51 +1,20 @@
----
-description:
-globs:
-alwaysApply: false
----
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for validating project compliance against documented requirements in README.md and ARCHITECTURE.md. It outlines how to check alignment with project architecture, development processes, and compliance standards, and how to generate compliance reports. The rule does not perform compliance checks automatically; the agent should follow the instructions to perform validation and reporting.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
+globs: 
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/compliance_confirmation.md
+```
 // ComplianceConfirmation Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Compliance Confirmation
-
-## Documentation Status
-- README.md: <exists|missing>
-- ARCHITECTURE.md: <exists|missing>
-- Compliance Requirements Documented: <yes|no>
-
-## Project Structure Confirmation
-- Workspace root: <path>
-- Current working directory: <path>
-- Project structure verified: <yes/no>
-- Build commands will be executed from: <path>
-- Supporting evidence: <docs/filename.md>
-
-Relevant project structure for this task:
-1. <Relevant component 1>
-2. <Relevant component 2>
-...
-
-## Compliance Confirmation
-I confirm that all changes made comply with:
-- Project architecture as defined in README.md and ARCHITECTURE.md
-- Development process as documented in project files
-- Supporting evidence: <docs/filename.md>
-
-### Architecture Compliance
-1. <Specific alignment with architecture requirement 1>
-2. <Specific alignment with architecture requirement 2>
-...
-
-### Development Process Compliance
-1. Documentation was updated first before implementation
-2. Tests were written before implementing functionality
-3. All verification steps have passed using documented process
-
-[If applicable] Approved deviations:
-- <Specific deviation and approval reference>
-*/
+// The output for this rule must be created according to the template_id: templates/compliance_confirmation.md
 
 var current_state = input.current_state
 var context = input.context
@@ -98,30 +67,8 @@ if task_type == "beginning":
         if IsRelevantForTask(component, context.current_task):
             relevant_components.append(component)
     
-    function RenderProjectStructureConfirmation(workspace_root, current_dir, project_structure_verified, build_path, supporting_evidence, relevant_components, documentation_status) {
-        var md = "# Compliance Confirmation\n\n"
-        md += "## Documentation Status\n"
-        md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-        md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-        md += "- Compliance Requirements Documented: " + (documentation_status.compliance_requirements_documented ? "yes" : "no") + "\n\n"
-        md += "## Project Structure Confirmation\n"
-        md += "- Workspace root: " + workspace_root + "\n"
-        md += "- Current working directory: " + current_dir + "\n"
-        md += "- Project structure verified: " + project_structure_verified + "\n"
-        md += "- Build commands will be executed from: " + build_path + "\n"
-        md += "- Supporting evidence: " + supporting_evidence + "\n\n"
-        md += "Relevant project structure for this task:\n"
-        for i, component in relevant_components:
-            md += (i + 1) + ". " + component + "\n"
-        return md
-    }
-    
-    var output_file = "planning/documentation/compliance_confirmation_beginning{YYYY-MM-dd-hh-mm-ss}.md"
-    var markdown = RenderProjectStructureConfirmation(workspace_root, current_dir, project_structure_verified, build_path, supporting_evidence, relevant_components, documentation_status)
-    WriteFile(output_file, markdown)
-    
     return {
-        "output_file": output_file,
+        "output_file": "planning/documentation/compliance_confirmation_beginning{YYYY-MM-dd-hh-mm-ss}.md",
         "workspace_root": workspace_root,
         "current_dir": current_dir,
         "project_structure_verified": project_structure_verified,
@@ -153,29 +100,8 @@ else if task_type == "requirements":
         requirements_issues.push("Task requirements unclear - ask user for clarification")
         requirements_issues.push("Task scope may exceed documented project boundaries")
     
-    function RenderRequirementsCompliance(requirements_compliance, requirements_issues, documentation_status) {
-        var md = "# Requirements Compliance Confirmation\n\n"
-        md += "## Documentation Status\n"
-        md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-        md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-        md += "- Compliance Requirements Documented: " + (documentation_status.compliance_requirements_documented ? "yes" : "no") + "\n\n"
-        if requirements_compliance.length > 0:
-            md += "## Requirements Compliance\n"
-            for i, compliance in requirements_compliance:
-                md += (i + 1) + ". " + compliance + "\n"
-        if requirements_issues.length > 0:
-            md += "\n## Requirements Issues\n"
-            for i, issue in requirements_issues:
-                md += (i + 1) + ". " + issue + "\n"
-        return md
-    }
-    
-    var output_file = "planning/documentation/compliance_confirmation_requirements{YYYY-MM-dd-hh-mm-ss}.md"
-    var markdown = RenderRequirementsCompliance(requirements_compliance, requirements_issues, documentation_status)
-    WriteFile(output_file, markdown)
-    
     return {
-        "output_file": output_file,
+        "output_file": "planning/documentation/compliance_confirmation_requirements{YYYY-MM-dd-hh-mm-ss}.md",
         "requirements_compliance": requirements_compliance,
         "requirements_issues": requirements_issues,
         "documentation_status": documentation_status,
@@ -214,35 +140,8 @@ else if task_type == "end":
         else:
             approved_deviations.push("Deviation from " + requirement + " - ask user for approval")
     
-    function RenderComplianceConfirmation(architecture_compliance, development_compliance, approved_deviations, supporting_evidence, documentation_status) {
-        var md = "# Compliance Confirmation\n\n"
-        md += "## Documentation Status\n"
-        md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-        md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-        md += "- Compliance Requirements Documented: " + (documentation_status.compliance_requirements_documented ? "yes" : "no") + "\n\n"
-        md += "I confirm that all changes made comply with:\n"
-        md += "- Project architecture as defined in README.md and ARCHITECTURE.md\n"
-        md += "- Development process as documented in project files\n"
-        md += "- Supporting evidence: " + supporting_evidence + "\n\n"
-        md += "### Architecture Compliance\n"
-        for i, compliance in architecture_compliance:
-            md += (i + 1) + ". " + compliance + "\n"
-        md += "\n### Development Process Compliance\n"
-        for i, compliance in development_compliance:
-            md += (i + 1) + ". " + compliance + "\n"
-        if approved_deviations.length > 0:
-            md += "\n[If applicable] Approved deviations:\n"
-            for deviation in approved_deviations:
-                md += "- " + deviation + "\n"
-        return md
-    }
-    
-    var output_file = "planning/documentation/compliance_confirmation_end{YYYY-MM-dd-hh-mm-ss}.md"
-    var markdown = RenderComplianceConfirmation(architecture_compliance, development_compliance, approved_deviations, supporting_evidence, documentation_status)
-    WriteFile(output_file, markdown)
-    
     return {
-        "output_file": output_file,
+        "output_file": "planning/documentation/compliance_confirmation_end{YYYY-MM-dd-hh-mm-ss}.md",
         "architecture_compliance": architecture_compliance,
         "development_compliance": development_compliance,
         "approved_deviations": approved_deviations,

@@ -1,35 +1,25 @@
----
-description: 
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for handling Java code style compliance. It describes how to detect build tools, locate Checkstyle configurations, and validate code style. The rule does not perform validation or remediation automatically; the agent should follow the instructions to check and address style issues.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
 globs: *.java
-alwaysApply: false
----
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Auto Attached
+# The 'artifacts' property lists related configuration files (such as Checkstyle and suppressions XMLs)
+# that are referenced by this rule. These files help define the code style standards and exceptions
+# for Java projects, and should be used by the agent when performing style validation.
+artifacts:
+  - code_style/checkstyle.xml
+  - code_style/suppressions.xml
+  - templates/java_code_style.md
+```
 // JavaCodeStyle Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Java Code Style Validation
-
-## Build Tool Detection
-- Detected Tool: <gradle|maven|unknown>
-- Checkstyle Config: <path|not_found>
-- Suppressions Config: <path|not_found>
-
-## Validation Results
-- Status: <pass|fail>
-- Violations: <number>
-- Warnings: <number>
-
-## Violations Found
-- <violation 1>
-- <violation 2>
-...
-
-## Remediation Steps
-- <step 1>
-- <step 2>
-...
-*/
+// The output for this rule must be created according to the template_id: templates/java_code_style.md
 
 var context = input.context
 var java_files = input.java_files
@@ -138,35 +128,6 @@ if validation_status == "fail":
     
     if build_tool == "unknown":
         remediation_steps.append("Specify build tool (Gradle or Maven) for automated validation")
-
-function RenderJavaCodeStyleMarkdown(build_tool, checkstyle_config, suppressions_config, validation_status, violations, warnings, remediation_steps) {
-    var md = "# Java Code Style Validation\n\n"
-    md += "## Build Tool Detection\n"
-    md += "- Detected Tool: " + build_tool + "\n"
-    md += "- Checkstyle Config: " + (checkstyle_config || "not_found") + "\n"
-    md += "- Suppressions Config: " + (suppressions_config || "not_found") + "\n\n"
-    md += "## Validation Results\n"
-    md += "- Status: " + validation_status + "\n"
-    md += "- Violations: " + violations.length + "\n"
-    md += "- Warnings: " + warnings.length + "\n\n"
-    
-    if violations.length > 0:
-        md += "## Violations Found\n"
-        for violation in violations:
-            md += "- " + violation + "\n"
-        md += "\n"
-    
-    if remediation_steps.length > 0:
-        md += "## Remediation Steps\n"
-        for step in remediation_steps:
-            md += "- " + step + "\n"
-    
-    return md
-}
-
-var output_file = "planning/documentation/java_code_style{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderJavaCodeStyleMarkdown(build_tool, checkstyle_config, suppressions_config, validation_status, violations, warnings, remediation_steps)
-WriteFile(output_file, markdown)
 
 return {
     "output_file": output_file,

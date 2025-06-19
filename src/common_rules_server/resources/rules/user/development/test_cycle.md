@@ -1,34 +1,20 @@
----
-description:
-globs:
-alwaysApply: false
----
+```yaml
+# This description field briefly states the purpose and intended use of this rule.
+description: This rule provides guidance to the agent for performing testing and coverage analysis. It outlines how to check for required documentation, execute build and test commands using documented procedures, analyze code coverage, and identify missing tests. The rule does not automate any testing or analysis; the agent should follow the steps to ensure testing aligns with project standards and to generate comprehensive test cycle reports.
+# 'globs' specifies file-matching patterns (e.g., "*.md", "*.py") that determine which files this rule applies to.
+globs: 
+# Rule Trigger Types: 
+# - Always: Rule is always applied by the system.
+# - Agent Requested: Rule is applied when specifically requested by an agent.
+# - Auto Attached: Rule is automatically attached based on context or conditions.
+# - Manual: Rule is applied only when manually selected or invoked.
+type: Agent Requested
+artifacts:
+  - templates/test_cycle.md
+```
 // TestCycle Rule - Pseudocode
 
-/*
-Expected Output Template (Markdown):
-
-# Test Cycle Process
-
-## Documentation Status
-- README.md: <exists|missing>
-- ARCHITECTURE.md: <exists|missing>
-- Testing Process Documented: <yes|no>
-
-## Current Status
-- Coverage: <percentage>%
-- Uncovered Methods: <list>
-- Uncovered Branches: <list>
-- Missing Tests: <list>
-
-## Actions Taken
-- <action 1>
-- <action 2>
-...
-
-## Next Steps
-- <next action>
-*/
+// The output for this rule must be created according to the template_id: templates/test_cycle.md
 
 var context = input.context
 
@@ -157,44 +143,9 @@ else:
     actions_taken.append("Coverage is 100% - process complete using documented approach")
     next_action = "Move to next task"
 
-function RenderTestCycleMarkdown(coverage_percentage, uncovered_methods, uncovered_branches, missing_tests, actions_taken, next_action, documentation_status, test_system, coverage_tool) {
-    var md = "# Test Cycle Process\n\n"
-    md += "## Documentation Status\n"
-    md += "- README.md: " + (documentation_status.readme_exists ? "exists" : "missing") + "\n"
-    md += "- ARCHITECTURE.md: " + (documentation_status.architecture_exists ? "exists" : "missing") + "\n"
-    md += "- Testing Process Documented: " + (documentation_status.testing_process_documented ? "yes" : "no") + "\n\n"
-    md += "## Test System\n"
-    md += "- Test System: " + test_system + "\n"
-    md += "- Coverage Tool: " + coverage_tool + "\n\n"
-    md += "## Current Status\n"
-    md += "- Coverage: " + coverage_percentage + "%\n"
-    if uncovered_methods.length > 0:
-        md += "- Uncovered Methods:\n"
-        for method in uncovered_methods:
-            md += "  - " + method + "\n"
-    if uncovered_branches.length > 0:
-        md += "- Uncovered Branches:\n"
-        for branch in uncovered_branches:
-            md += "  - " + branch + "\n"
-    if missing_tests.length > 0:
-        md += "- Missing Tests:\n"
-        for test in missing_tests:
-            md += "  - " + test + "\n"
-    md += "\n## Actions Taken\n"
-    for action in actions_taken:
-        md += "- " + action + "\n"
-    md += "\n## Next Steps\n"
-    md += "- " + next_action + "\n"
-    return md
-}
-
-var output_file = "planning/documentation/test_cycle{YYYY-MM-dd-hh-mm-ss}.md"
-var markdown = RenderTestCycleMarkdown(coverage_percentage, uncovered_methods, uncovered_branches, missing_tests, actions_taken, next_action, documentation_status, test_system, coverage_tool)
-WriteFile(output_file, markdown)
-
 END:
 return {
-    "output_file": output_file,
+    "output_file": "planning/documentation/test_cycle{YYYY-MM-dd-hh-mm-ss}.md",
     "coverage_percentage": coverage_percentage,
     "uncovered_methods": uncovered_methods,
     "uncovered_branches": uncovered_branches,
