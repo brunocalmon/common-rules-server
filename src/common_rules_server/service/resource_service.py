@@ -232,12 +232,33 @@ class ResourceService:
         record = catalogue["resources"].get(f"{kind}:{name}")
 
         if record is None:
+            gated = next(
+                (g for g in catalogue["gated_out"] if g["kind"] == kind and g["name"] == name),
+                None,
+            )
+            if gated:
+                return {
+                    "error": (
+                        f"The {kind} '{name}' exists but is switched off in this "
+                        f"project."
+                    ),
+                    "gate": gated["gate"],
+                    "hint": (
+                        f"Set {gated['gate']}=true in "
+                        f"{catalogue['env_status']['file_path']} to enable it. Ask the "
+                        f"user before changing project configuration."
+                    ),
+                }
+
             available = sorted(
                 r["name"] for r in catalogue["resources"].values() if r["kind"] == kind
             )
             return {
                 "error": f"No {kind} named '{name}'.",
                 "available": available,
+                "gated_off": sorted(
+                    g["name"] for g in catalogue["gated_out"] if g["kind"] == kind
+                ),
                 "hint": "Call get_context() to list every resource.",
             }
 
@@ -311,6 +332,26 @@ class ResourceService:
         elif kind == "skill":
             header["trigger"] = "user-invoked"
         header.update(extra_fields or {})
+
+        if kind == "hook" and not str(header.get("event", "")).strip():
+            from common_rules_server.util.resource_parsing import VALID_HOOK_EVENTS
+
+            return {
+                "created": False,
+                "error": (
+                    "A hook must declare an 'event' in extra_fields, and its body "
+                    "must contain a ```sh block."
+                ),
+                "valid_events": list(VALID_HOOK_EVENTS),
+                "authoring_contract": (
+                    "The script is a fragment, not a whole script. It runs with "
+                    "HOOK_INPUT, HOOK_COMMAND, HOOK_FILE, HOOK_EVENT and PROJECT_DIR "
+                    "available, and communicates by setting `decision` to allow, ask "
+                    "or deny, and `message` to one line. Match HOOK_COMMAND at "
+                    "command position rather than searching HOOK_INPUT, or the hook "
+                    "will fire on text that merely mentions a command."
+                ),
+            }
 
         content = _render_resource(header, body)
 

@@ -123,6 +123,45 @@ def test_get_resource_attaches_the_output_template(resources: ResourceService):
     assert result["template"].startswith("# TDD Cycle")
 
 
+def test_a_gated_resource_reports_its_gate_not_absence(resources: ResourceService):
+    """Reporting it as missing sends the agent to create what already exists."""
+    result = resources.get_resource("skill", "notebook")
+
+    assert "switched off" in result["error"]
+    assert result["gate"] == "ENABLE_NOTEBOOKS"
+    assert "ENABLE_NOTEBOOKS=true" in result["hint"]
+    assert "Ask the user" in result["hint"]
+
+
+def test_unknown_name_lists_what_is_gated_off_too(resources: ResourceService):
+    result = resources.get_resource("skill", "nope")
+    assert "notebook" in result["gated_off"]
+    assert "notebook" not in result["available"]
+
+
+def test_creating_a_hook_without_an_event_explains_the_contract(resources: ResourceService):
+    result = resources.create_resource("hook", "h", "Guards something.", "body")
+
+    assert result["created"] is False
+    assert "before-shell" in result["valid_events"]
+    assert "HOOK_COMMAND" in result["authoring_contract"]
+
+
+def test_a_complete_hook_can_be_created(resources: ResourceService):
+    result = resources.create_resource(
+        "hook",
+        "custom-guard",
+        "Blocks a project-specific command.",
+        "## Script\n\n```sh\ncase \"$HOOK_COMMAND\" in *danger*) decision=deny ;; esac\n```",
+        extra_fields={"event": "before-shell"},
+    )
+    assert result["created"] is True
+
+    loaded = resources.get_resource("hook", "custom-guard")
+    assert loaded["event"] == "before-shell"
+    assert "decision=deny" in loaded["script"]
+
+
 def test_unknown_resource_returns_guidance_not_an_exception(resources: ResourceService):
     result = resources.get_resource("skill", "does-not-exist")
     assert result["error"] == "No skill named 'does-not-exist'."
