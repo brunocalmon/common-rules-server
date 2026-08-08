@@ -91,6 +91,11 @@ class SyncTarget:
     agents_dir: Optional[str]
     #: Where Always-rules are concatenated when the editor has no rules folder.
     always_file: Optional[str]
+    #: Whether the editor reads a `tools:` field in agent frontmatter and
+    #: restricts the agent to what it names. Without it an exported agent
+    #: inherits every tool, and a `constraints` line saying it must not edit
+    #: files is prose the agent is asked to respect rather than a limit.
+    tool_frontmatter: bool = False
     #: Whether the editor reads a `<chat-commands>` list out of its always-file
     #: and turns each entry into a typed slash command. Declared here rather
     #: than tested by key at the point of use, so adding a fourth editor is a
@@ -107,6 +112,7 @@ SYNC_TARGETS: tuple[SyncTarget, ...] = (
         ".claude/skills",
         ".claude/agents",
         "CLAUDE.md",
+        tool_frontmatter=True,
         chat_commands=True,
     ),
     SyncTarget("antigravity", "Antigravity", None, ".agents/skills", None, "AGENTS.md"),
@@ -238,10 +244,8 @@ class SyncService:
             f"description: {_one_line(record['description'])}",
         ]
         tools = record.get("tools")
-        if isinstance(tools, list) and tools and target.key == "claude":
-            # Claude expects its own tool names; only pass through values that
-            # look like them rather than guessing a translation.
-            native = [t for t in tools if re.fullmatch(r"[A-Z][A-Za-z]+", str(t))]
+        if isinstance(tools, list) and tools and target.tool_frontmatter:
+            native = _native_tools(tools)
             if native:
                 front.append(f"tools: {', '.join(native)}")
         front.append("---")
@@ -379,6 +383,49 @@ class SyncService:
                         continue
         HookService(str(self.project_root)).uninstall([t.key for t in selected])
         return {"removed": removed}
+
+
+#: The kit names tools in its own lowercase vocabulary so a resource does not
+#: have to know which editor will read it. An editor that restricts agents by
+#: frontmatter needs its own names, and a value it does not recognise is
+#: dropped rather than guessed at — a misspelt tool that silently widens an
+#: agent's reach is worse than one that narrows it.
+NATIVE_TOOL_NAMES: dict[str, str] = {
+    "read": "Read",
+    "write": "Write",
+    "edit": "Edit",
+    "grep": "Grep",
+    "find": "Glob",
+    "glob": "Glob",
+    "execute": "Bash",
+    "bash": "Bash",
+    "git-diff": "Bash",
+    "web-fetch": "WebFetch",
+    "web-search": "WebSearch",
+    "spawn-agent": "Agent",
+}
+
+
+def _native_tools(tools: list) -> list[str]:
+    """Translates the kit's tool vocabulary into the editor's own names.
+
+    Order is preserved and duplicates collapsed, because several kit names map
+    onto one native tool (`execute` and `git-diff` are both `Bash`).
+
+    Names with no mapping are dropped. Those are server-provided capabilities
+    such as `code-review-graph`, which the editor does not gate on, and passing
+    them through unchanged would produce a frontmatter value the editor rejects
+    — taking the whole restriction with it.
+    """
+    native: list[str] = []
+    for tool in tools:
+        key = str(tool).strip().lower()
+        mapped = NATIVE_TOOL_NAMES.get(key)
+        if mapped is None and re.fullmatch(r"[A-Z][A-Za-z]+", str(tool)):
+            mapped = str(tool)  # already an editor-native name
+        if mapped and mapped not in native:
+            native.append(mapped)
+    return native
 
 
 def _is_command(record: dict) -> bool:

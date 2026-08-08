@@ -421,3 +421,49 @@ def test_gated_resources_stay_out_of_the_export(sync, python_project: Path):
     sync.sync(["claude"], include_hooks=False)
     assert not (python_project / ".claude/skills/notebook").exists()
     assert "- /notebook:" not in (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+
+
+# --------------------------------------------------------- tool restriction
+#
+# A `constraints` line saying the orchestrator must not edit files is prose.
+# The `tools:` frontmatter is the part the editor enforces, so it has to
+# survive the export or the constraint is advisory.
+
+
+def test_the_orchestrator_exports_without_the_tools_it_must_not_have(sync, python_project: Path):
+    """It delegates implementation; giving it Edit or Bash invites it to implement."""
+    sync.sync(["claude"], include_hooks=False)
+    front = (python_project / ".claude/agents/orchestrator.md").read_text(encoding="utf-8")
+    line = next(l for l in front.splitlines() if l.startswith("tools:"))
+
+    assert "Edit" not in line
+    assert "Write" not in line
+    assert "Bash" not in line
+    assert "Agent" in line, "it cannot spawn workers without a spawn tool"
+
+
+def test_the_developer_exports_with_the_tools_it_needs(sync, python_project: Path):
+    sync.sync(["claude"], include_hooks=False)
+    front = (python_project / ".claude/agents/developer.md").read_text(encoding="utf-8")
+    line = next(l for l in front.splitlines() if l.startswith("tools:"))
+
+    assert "Edit" in line and "Bash" in line
+    assert "Agent" not in line, "a worker that can spawn is an unbounded tree"
+
+
+def test_every_agent_carries_a_tools_line_after_export(sync, python_project: Path):
+    """An agent with no tools line inherits every tool the editor has."""
+    sync.sync(["claude"], include_hooks=False)
+    for path in (python_project / ".claude/agents").glob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        assert any(l.startswith("tools:") for l in text.splitlines()), (
+            f"{path.name} exports unrestricted"
+        )
+
+
+def test_unmapped_tool_names_are_dropped_not_guessed(sync):
+    from common_rules_server.service.sync_service import _native_tools
+
+    assert _native_tools(["read", "code-review-graph", "edit"]) == ["Read", "Edit"]
+    assert _native_tools(["execute", "git-diff"]) == ["Bash"]  # collapsed
+    assert _native_tools(["Read", "Bash"]) == ["Read", "Bash"]  # already native

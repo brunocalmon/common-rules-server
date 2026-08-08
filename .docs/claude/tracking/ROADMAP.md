@@ -68,6 +68,7 @@ Defects found in the previous implementation, and one found in this one.
 | [FND-026](findings/FND-026.md) | A switched-off resource reported as one that does not exist | Medium |
 | [FND-027](findings/FND-027.md) | A relative project root produced a blank project name | Low |
 | [FND-014](findings/FND-014.md) | CI workflow verified against the new layout | Medium |
+| [FND-028](findings/FND-028.md) | Agent tool restrictions did not survive the export | High |
 
 ## Progress
 
