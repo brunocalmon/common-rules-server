@@ -217,6 +217,27 @@ def test_scripts_carry_the_managed_marker(tmp_path: Path):
     assert MANAGED_MARKER in (tmp_path / ".cursor/hooks/test-guard.sh").read_text()
 
 
+def test_hook_command_is_extracted_from_each_editors_payload(tmp_path: Path):
+    """Editors nest the command differently but all spell the field the same."""
+    hook = {
+        "name": "echoer",
+        "description": "Reports the extracted command.",
+        "event": "before-shell",
+        "blocking": False,
+        "script": 'decision=allow; message="saw:$HOOK_COMMAND"',
+    }
+    HookService(str(tmp_path)).install([hook], ["cursor"])
+    script = tmp_path / ".cursor/hooks/echoer.sh"
+
+    for payload in (
+        '{"command":"ls -la"}',
+        '{"tool_input":{"command":"ls -la"},"tool_name":"Bash"}',
+        '{"tool_name":"Bash","tool_input":{"command":"ls -la","description":"list"}}',
+    ):
+        message = json.loads(run(script, payload).stdout)["agent_message"]
+        assert message == "saw:ls -la", payload
+
+
 def test_the_shipped_hooks_all_run(tmp_path: Path, resources):
     """Every hook in the default kit must execute without error."""
     hooks = resources.hooks()
@@ -233,14 +254,36 @@ def test_the_shipped_hooks_all_run(tmp_path: Path, resources):
 @pytest.mark.parametrize(
     "command,expected",
     [
+        # Genuine hazards.
         ("cat .env", "deny"),
+        ("cat .env.local", "deny"),
+        ("head -5 config/id_rsa", "deny"),
         ("printenv", "deny"),
+        ("env | sort", "deny"),
         ("rm -rf /", "deny"),
+        ("rm -rf build", "ask"),
+        ("rm -fr node_modules", "ask"),
         ("git push --force origin main", "ask"),
+        ("git push -f origin main", "ask"),
         ("git reset --hard HEAD~3", "ask"),
+        ("git clean -fd", "ask"),
+        ("git checkout .", "ask"),
+        ('psql -c "DROP TABLE users"', "ask"),
+        # Ordinary work. Every one of these was flagged by an earlier version
+        # that matched substrings anywhere in the payload. A guard that trips on
+        # normal commands gets switched off, and then guards nothing — so these
+        # matter as much as the hazards above.
         ("ls -la", "allow"),
         ("cat README.md", "allow"),
+        ("cat notes.environment", "allow"),
+        ("npm run env-check", "allow"),
+        ("rm file.txt", "allow"),
+        ("git push origin main", "allow"),
         ("git commit -m 'feat: thing'", "allow"),
+        ("git commit -m 'document printenv usage'", "allow"),
+        ("git commit -m 'remove rm -rf from the docs'", "allow"),
+        ('git commit -m "document git push --force"', "allow"),
+        ('echo "drop table is a sql statement"', "allow"),
     ],
 )
 def test_shipped_guards_make_the_right_call(tmp_path, resources, command, expected):

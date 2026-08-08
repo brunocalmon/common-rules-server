@@ -23,7 +23,7 @@ about who wrote the code.
 ## Script
 
 ```sh
-cmd=$(printf '%s' "$HOOK_INPUT" | tr '\n' ' ')
+cmd="$HOOK_COMMAND"
 
 case "$cmd" in
   *"git commit"*)

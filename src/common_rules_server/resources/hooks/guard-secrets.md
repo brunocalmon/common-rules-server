@@ -23,14 +23,23 @@ that reads it at runtime, is ordinary work and stays allowed.
 ## Script
 
 ```sh
-cmd=$(printf '%s' "$HOOK_INPUT" | tr '\n' ' ')
+reason='Blocked: this command would print credentials into the transcript, where they cannot be recalled. Read the file with an editor tool, or reference the variable without displaying it.'
 
-case "$cmd" in
-  *cat*.env*|*less*.env*|*more*.env*|*head*.env*|*tail*.env*|\
-  *cat*id_rsa*|*cat*id_ed25519*|*cat*.pem*|*cat*.credentials*|\
-  *cat*secrets*|*printenv*|*'env |'*)
-    decision=deny
-    message="Blocked: this command would print credentials into the transcript, where they cannot be recalled. Read the file with an editor tool, or reference the variable without displaying it."
-    ;;
-esac
+# A display command whose target really is a credential file. The trailing
+# boundary matters: without it, ".env" also matches "notes.environment".
+if printf '%s' "$HOOK_COMMAND" | grep -qE \
+  '(^|[;&|]|&&|\|\|)[[:space:]]*(cat|less|more|head|tail|bat|xxd|od|strings)([[:space:]]+-[^[:space:]]+)*[[:space:]]+[^[:space:]]*(\.env([.[:space:]"'"'"']|$)|id_rsa|id_ed25519|id_ecdsa|\.pem([[:space:]"'"'"']|$)|\.p12|\.pfx|\.netrc|credentials|secrets?\.(ya?ml|json|toml))'
+then
+  decision=deny
+  message="$reason"
+fi
+
+# Wholesale environment dumps. Anchored to command position so a commit message
+# or prompt that merely mentions printenv is not treated as running it.
+if printf '%s' "$HOOK_COMMAND" | grep -qE \
+  '(^|[;&|]|&&|\|\|)[[:space:]]*(printenv|env)([[:space:]]*$|[[:space:]]*\|)'
+then
+  decision=deny
+  message="$reason"
+fi
 ```

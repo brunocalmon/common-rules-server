@@ -21,9 +21,14 @@ anything.
 
 A hook's ``sh`` block is a fragment, not a whole script. It runs with:
 
-* ``HOOK_INPUT``  — the raw event JSON the editor supplied on stdin
-* ``HOOK_EVENT``  — the canonical event name
-* ``PROJECT_DIR`` — the project root
+* ``HOOK_INPUT``   — the raw event JSON the editor supplied on stdin
+* ``HOOK_COMMAND`` — the shell command in question, extracted from that JSON
+* ``HOOK_EVENT``   — the canonical event name
+* ``PROJECT_DIR``  — the project root
+
+Prefer ``HOOK_COMMAND`` over matching ``HOOK_INPUT`` directly. The raw JSON also
+contains prose — a commit message, a prompt — and matching against it fires on
+text that merely mentions a command.
 
 and it communicates by setting two variables:
 
@@ -100,7 +105,7 @@ ANTIGRAVITY_EVENTS: dict[str, EventMapping] = {
 # `deny` is expressed with exit code 2 where the editor supports it, which all
 # three document as the blocking exit code.
 
-_PREAMBLE = """#!/bin/sh
+_PREAMBLE = r"""#!/bin/sh
 # {marker}
 # Hook: {name}
 # Event: {event} -> {native}
@@ -113,7 +118,17 @@ _PREAMBLE = """#!/bin/sh
 HOOK_INPUT=$(cat 2>/dev/null || printf '')
 HOOK_EVENT='{event}'
 PROJECT_DIR="${{CLAUDE_PROJECT_DIR:-$(pwd)}}"
-export HOOK_INPUT HOOK_EVENT PROJECT_DIR
+
+# The shell command under consideration, pulled out of whatever JSON the editor
+# sent. Every editor nests it differently but all of them spell the field
+# "command", so one extraction covers all three. Matching the raw JSON instead
+# would fire on text that merely mentions a command -- a commit message
+# describing `rm -rf` -- and a guard that trips on ordinary work gets switched
+# off, after which it guards nothing.
+HOOK_COMMAND=$(printf '%s' "$HOOK_INPUT" | tr '\n' ' ' \
+  | sed -n 's/.*"command"[[:space:]]*:[[:space:]]*"\(\([^"\\]\|\\.\)*\)".*/\1/p')
+
+export HOOK_INPUT HOOK_EVENT PROJECT_DIR HOOK_COMMAND
 
 decision=allow
 message=''
@@ -124,61 +139,61 @@ message=''
 
 # Strip characters that would break the JSON payload below. Messages are
 # single-line by contract, so this loses nothing a hook needs to say.
-message=$(printf '%s' "$message" | tr -d '"\\\\' | tr '\\n' ' ')
+message=$(printf '%s' "$message" | tr -d '"\\' | tr '\n' ' ')
 """
 
-CURSOR_TEMPLATE = _PREAMBLE + """
+CURSOR_TEMPLATE = _PREAMBLE + r"""
 case "$decision" in
   deny)
-    printf '{{"permission":"deny","user_message":"%s","agent_message":"%s"}}\\n' "$message" "$message"
+    printf '{{"permission":"deny","user_message":"%s","agent_message":"%s"}}\n' "$message" "$message"
     exit 0
     ;;
   ask)
-    printf '{{"permission":"ask","user_message":"%s","agent_message":"%s"}}\\n' "$message" "$message"
+    printf '{{"permission":"ask","user_message":"%s","agent_message":"%s"}}\n' "$message" "$message"
     exit 0
     ;;
   *)
     if [ -n "$message" ]; then
-      printf '{{"permission":"allow","agent_message":"%s"}}\\n' "$message"
+      printf '{{"permission":"allow","agent_message":"%s"}}\n' "$message"
     else
-      printf '{{"permission":"allow"}}\\n'
+      printf '{{"permission":"allow"}}\n'
     fi
     exit 0
     ;;
 esac
 """
 
-CLAUDE_TEMPLATE = _PREAMBLE + """
+CLAUDE_TEMPLATE = _PREAMBLE + r"""
 case "$decision" in
   deny)
-    printf '%s\\n' "$message" >&2
+    printf '%s\n' "$message" >&2
     exit 2
     ;;
   ask)
-    printf '{{"hookSpecificOutput":{{"hookEventName":"{claude_event}","permissionDecision":"ask","permissionDecisionReason":"%s"}}}}\\n' "$message"
+    printf '{{"hookSpecificOutput":{{"hookEventName":"{claude_event}","permissionDecision":"ask","permissionDecisionReason":"%s"}}}}\n' "$message"
     exit 0
     ;;
   *)
     if [ -n "$message" ]; then
-      printf '{{"hookSpecificOutput":{{"hookEventName":"{claude_event}","additionalContext":"%s"}}}}\\n' "$message"
+      printf '{{"hookSpecificOutput":{{"hookEventName":"{claude_event}","additionalContext":"%s"}}}}\n' "$message"
     fi
     exit 0
     ;;
 esac
 """
 
-ANTIGRAVITY_TEMPLATE = _PREAMBLE + """
+ANTIGRAVITY_TEMPLATE = _PREAMBLE + r"""
 case "$decision" in
   deny)
-    printf '%s\\n' "$message" >&2
+    printf '%s\n' "$message" >&2
     exit 2
     ;;
   ask)
-    printf '%s\\n' "$message" >&2
+    printf '%s\n' "$message" >&2
     exit 2
     ;;
   *)
-    [ -n "$message" ] && printf '%s\\n' "$message"
+    [ -n "$message" ] && printf '%s\n' "$message"
     exit 0
     ;;
 esac
