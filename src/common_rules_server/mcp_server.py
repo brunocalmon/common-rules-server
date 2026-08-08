@@ -75,19 +75,23 @@ def setup_config() -> dict:
     """
     from common_rules_server.service.ide_service import IdeService
     from common_rules_server.service.mcp_installer_service import McpInstallerService
+    from common_rules_server.service.git_hook_service import GitHookService
     
     ide_service = IdeService()
     mcp_installer_service = McpInstallerService()
+    git_hook_service = GitHookService()
     
     config_result = config_service.write_config()
     ide_result = ide_service.setup_ide_rules()
     mcp_result = mcp_installer_service.inject_mcps()
+    git_hook_result = git_hook_service.setup_hooks(config_result["config"])
     
     return {
         "config": config_result["config"],
         "env_status": config_result["env_status"],
         "ide_rules": ide_result,
         "mcp_injection": mcp_result,
+        "git_hooks": git_hook_result,
         "message": "Dynamic initialization and hooks executed successfully."
     }
 

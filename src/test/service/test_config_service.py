@@ -12,6 +12,7 @@ def test_config_service_defaults(tmp_path):
     assert config["WIKI_DIR"] == ".docs"
     assert config["DOCS_PROTOCOL"] == ".docs/template/DOCUMENTATION-PROTOCOL.md"
     assert config["BUILD_COMMAND"] == ""
+    assert config["STRIP_AI_COAUTHORS"] == "true"
     assert result["env_status"]["file_exists"] is False
 
 def test_config_service_auto_detect_python(tmp_path):

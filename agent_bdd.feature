@@ -121,8 +121,10 @@ Feature: setup_config — Environment Detection
     And the response "config" has key "PROJECT_LANGUAGE" with value "python"
     And the response "config" has key "README_PATH" with value "README.md"
     And the response "config" has key "COVERAGE_THRESHOLD" with value "80"
+    And the response "config" has key "STRIP_AI_COAUTHORS" with value "true"
     And the response "config" has key "RESOURCES_DIR" with value ".common-rules-server/resources/"
     And the response has key "env_status" which is an object
+    And the response has key "git_hooks" which is an object
     And the response "env_status" has key "auto_detected" which is an object
     And the response "env_status" "auto_detected" has key "BUILD_SYSTEM" with value "python"
     And the response "env_status" "auto_detected" has key "PROJECT_LANGUAGE" with value "python"

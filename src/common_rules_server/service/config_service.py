@@ -22,6 +22,7 @@ class ConfigService:
             "ENABLE_DAILY_LOGBOOK": "false",
             "ENABLE_DEVIATION": "false",
             "ENABLE_COMPLIANCE": "false",
+            "STRIP_AI_COAUTHORS": "true",
             "RESOURCES_DIR": ".common-rules-server/resources/"
         }
         
