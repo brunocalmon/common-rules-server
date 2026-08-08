@@ -33,3 +33,6 @@ sample.notebook/
 
 # Test caches
 .pytest_cache/
+
+# Tool state
+.code-review-graph/
