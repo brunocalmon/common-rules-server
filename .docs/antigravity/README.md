@@ -1,7 +1,7 @@
-# AntiGravity Dev: Full Refactoring
+# AntiGravity Dev: Common Rules MCP
 
-[PRD](PRD.md) · [RFC](RFC.md) · [KPI](KPI.md) · [Milestones](MILESTONES.md) · [Usage](USAGE.md) · [Protocol](DOCUMENTATION-PROTOCOL.md) · [Tracker](tracking/ROADMAP.md)
+[Product](product/PRD.md) | [Architecture](architecture/SYSTEM-DESIGN.md) | [ADRs](architecture/adrs/) | [Operations](operations/ROLLBACK-PLAYBOOK.md) | [Tracking](tracking/ROADMAP.md)
 
-Esta wiki documenta o esforço de refatoração do **Common Rules MCP** seguindo a metodologia rigorosa e a arquitetura `Jira-like` proposta no playbook.
+Wiki oficial do projeto. Toda a documentação e as decisões (ADRs) vivem aqui.
 
-Para acompanhar o andamento da execução (Épicos e Tickets), acesse o **[Roadmap/Tracker](tracking/ROADMAP.md)**.
+Este projeto implementa a especificação do **Rollback Playbook v2** que transforma o servidor antigo num orquestrador robusto via MCP.
