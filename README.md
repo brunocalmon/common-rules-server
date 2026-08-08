@@ -40,8 +40,8 @@ This README is a hub. Everything else lives in the wiki.
 
 ## What ships
 
-45 resources — 4 always-applied rules, 24 skills (5 gated behind configuration
-flags), 6 subagents, 4 workflows, 1 loop and 6 lifecycle hooks — plus 32 output
+44 resources — 4 always-applied rules, 24 skills (5 gated behind configuration
+flags), 6 subagents, 4 workflows, 1 loop and 5 lifecycle hooks — plus 32 output
 templates so reports come back in a predictable shape.
 
 Everything is natural language. Nothing names an editor. Anything
@@ -94,18 +94,49 @@ preserved — those are true statements about who wrote the code.
 
 ## Quick start
 
-Point your editor's MCP configuration at the server:
+Point your editor's MCP configuration at the server. Two ways, and they can
+coexist — give them different names and both appear.
+
+**Published image** — nothing to build, and the version is pinned:
 
 ```json
 {
   "mcpServers": {
     "common-rules": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/absolute/path/to/your/project:/project",
+        "-w", "/project",
+        "brunocalmon/common-rules-server:0.2.0"
+      ]
+    }
+  }
+}
+```
+
+The mount is not optional. The server reads and writes inside the project it is
+configuring — `.common-rules-server/config.env`, the commit hook, the native
+exports — so it needs the project on a path it can reach, and `-w` is what makes
+that path its working directory. Tags follow the `version` in `pyproject.toml`;
+there is no `latest`.
+
+**From source** — for working on the kit itself, or running an unreleased branch:
+
+```json
+{
+  "mcpServers": {
+    "common-rules-local": {
       "command": "uv",
       "args": ["--directory", "/absolute/path/to/common-rules-server", "run", "common-rules"]
     }
   }
 }
 ```
+
+No mount, because it already runs on the host and inherits the editor's working
+directory. This is the one to use when the published image is behind the branch
+you are testing.
 
 Then, in any project, ask the agent to run `setup_config()`. It writes the
 configuration file, installs the commit hook, and drops orchestration guidance

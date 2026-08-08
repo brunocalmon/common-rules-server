@@ -269,7 +269,7 @@ def test_lint_hook_is_silent_when_no_per_file_command_is_set(tmp_path, resources
 def test_the_shipped_hooks_all_run(tmp_path: Path, resources):
     """Every hook in the default kit must execute without error."""
     hooks = resources.hooks()
-    assert len(hooks) >= 6
+    assert len(hooks) >= 5
     HookService(str(tmp_path)).install(hooks, ["cursor"])
 
     for hook in hooks:
@@ -341,3 +341,25 @@ def test_ai_co_author_commit_is_blocked_before_it_runs(tmp_path, resources):
         {"command": 'git commit -m "feat: x\n\nCo-authored-by: Ana <ana@example.com>"'}
     )
     assert json.loads(run(script, human).stdout)["permission"] == "allow"
+
+
+def test_no_shipped_hook_fires_on_every_turn_end(resources):
+    """A `stop` hook that emits a message re-injects it on every turn end.
+
+    The editor has no way to know the agent already complied, so the reminder
+    arrives again the moment the next turn finishes, and again after that. The
+    completion-gate hook did exactly this and re-fired eight times in one
+    session before it was removed — see FND-029.
+
+    Closing obligations belong in the Always rules, which the agent reads once
+    per session, not in a hook that cannot observe whether they were met.
+    """
+    offenders = [
+        hook["name"]
+        for hook in resources.hooks()
+        if hook.get("event") == "stop" and "message=" in (hook.get("script") or "")
+    ]
+    assert offenders == [], (
+        f"{offenders} emit a message on the stop event; that reminder re-fires "
+        "every turn. Put the obligation in an Always rule instead."
+    )

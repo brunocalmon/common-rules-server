@@ -24,6 +24,10 @@ notebook
 CLAUDE.md
 AGENTS.md
 
+# Machine-specific MCP wiring: the entries carry absolute paths, so committing
+# one would hand every other clone a path that does not exist there.
+.mcp.json
+
 # Environment variables
 .env
 
