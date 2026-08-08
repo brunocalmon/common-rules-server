@@ -33,14 +33,14 @@ def get_context() -> list[dict]:
     return resource_service.get_context()
 
 @mcp.tool()
-def get_resource(kind: str, name: str) -> str:
+def get_resource(kind: str, name: str) -> dict:
     """
-    Reads the full body of a specific resource.
+    Reads the full parsed resource including frontmatter, body, and resolved env.
     """
     res = resource_service.get_resource(kind, name)
     if not res:
-        return f"Resource {kind}:{name} not found."
-    return res["body"]
+        return {"error": f"Resource {kind}:{name} not found."}
+    return res
 
 @mcp.tool()
 def create_resource(kind: str, name: str, description: str, body: str) -> str:

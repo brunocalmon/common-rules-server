@@ -12,7 +12,7 @@ def parse_resource_file(text):
         return None, None
 
     # Unified format requires --- at the start
-    m = re.match(r"^---\n(.*?)---\n(.*)", text, re.DOTALL)
+    m = re.match(r"^---\n(.*?)---\n?(.*)", text, re.DOTALL)
     if not m:
         return None, None
 
