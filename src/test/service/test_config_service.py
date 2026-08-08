@@ -25,7 +25,9 @@ def test_config_service_auto_detect_python(tmp_path):
     assert result["env_status"]["auto_detected"]["BUILD_SYSTEM"] == "python"
 
 def test_config_service_env_file_override(tmp_path):
-    env_file = tmp_path / ".common-rules-mcp.env"
+    config_dir = tmp_path / ".common-rules-server"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    env_file = config_dir / "config.env"
     env_file.write_text("README_PATH=docs/README.md\nCOVERAGE_THRESHOLD=90\n")
     
     service = ConfigService(project_root=str(tmp_path))

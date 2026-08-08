@@ -18,8 +18,8 @@ def test_dirs(tmp_path):
     )
     
     # Create user resources dir
-    user_res = project_root / ".common-rules"
-    user_res.mkdir()
+    user_res = project_root / ".common-rules-server" / "resources"
+    user_res.mkdir(parents=True, exist_ok=True)
     
     # Create user rule that overrides built-in
     user_rule = user_res / "my-rule.md"

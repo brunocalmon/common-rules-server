@@ -121,22 +121,22 @@ Feature: setup_config — Environment Detection
     And the response "config" has key "PROJECT_LANGUAGE" with value "python"
     And the response "config" has key "README_PATH" with value "README.md"
     And the response "config" has key "COVERAGE_THRESHOLD" with value "80"
-    And the response "config" has key "RESOURCES_DIR" with value ".common-rules/"
+    And the response "config" has key "RESOURCES_DIR" with value ".common-rules-server/resources/"
     And the response has key "env_status" which is an object
     And the response "env_status" has key "auto_detected" which is an object
     And the response "env_status" "auto_detected" has key "BUILD_SYSTEM" with value "python"
     And the response "env_status" "auto_detected" has key "PROJECT_LANGUAGE" with value "python"
 
-  Scenario: Returns correct env_status when no .env file exists
+  Scenario: Returns correct env_status when no config.env file exists
     Given the MCP server "common-rules-server-local-test" is running
-    And no file ".common-rules-mcp.env" exists in the project root
+    And no file ".common-rules-server/config.env" exists in the project root
     When I call setup_config with no arguments
-    Then the response "env_status" has key "file_exists" with value false
-    And the response "env_status" has key "file_path" which ends with ".common-rules-mcp.env"
+    Then the response "env_status" has key "file_exists" with value true
+    And the response "env_status" has key "file_path" which ends with "config.env"
 
 Feature: create_resource — Dynamic Resource Creation
   The create_resource tool writes a new YAML-frontmatter Markdown file
-  to the user's project-local .common-rules/ directory.
+  to the user's project-local .common-rules-server/resources/ directory.
 
   Scenario: Create a new skill and verify structure
     Given the MCP server "common-rules-server-local-test" is running

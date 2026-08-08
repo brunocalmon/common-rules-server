@@ -70,10 +70,26 @@ def create_resource(kind: str, name: str, description: str, body: str) -> str:
 @mcp.tool()
 def setup_config() -> dict:
     """
-    Auto-detects project settings and reads .common-rules-mcp.env.
-    Returns the configuration and environment status.
+    Auto-detects project settings and initializes .common-rules-server.
+    Also detects the IDE, injects global rules, and injects mandatory MCP servers.
     """
-    return config_service.get_config()
+    from common_rules_server.service.ide_service import IdeService
+    from common_rules_server.service.mcp_installer_service import McpInstallerService
+    
+    ide_service = IdeService()
+    mcp_installer_service = McpInstallerService()
+    
+    config_result = config_service.write_config()
+    ide_result = ide_service.setup_ide_rules()
+    mcp_result = mcp_installer_service.inject_mcps()
+    
+    return {
+        "config": config_result["config"],
+        "env_status": config_result["env_status"],
+        "ide_rules": ide_result,
+        "mcp_injection": mcp_result,
+        "message": "Dynamic initialization and hooks executed successfully."
+    }
 
 @mcp.tool()
 def get_bdd_scenario(page: int = 1) -> dict:

@@ -27,13 +27,13 @@ def test_get_resource():
 def test_create_resource(tmp_path, monkeypatch):
     from common_rules_server.mcp_server import resource_service
     # Point user dir to a temporary directory so we don't pollute the actual project
-    monkeypatch.setattr(resource_service, "user_dir", tmp_path / ".common-rules")
+    monkeypatch.setattr(resource_service, "user_dir", tmp_path / ".common-rules-server" / "resources")
     
     result = create_resource("skill", "dummy-skill", "A dummy test skill", "## Instructions\nDo something.")
     
     assert "Created skill dummy-skill" in result
     
-    file_path = tmp_path / ".common-rules" / "dummy-skill.md"
+    file_path = tmp_path / ".common-rules-server" / "resources" / "dummy-skill.md"
     assert file_path.exists()
     content = file_path.read_text(encoding="utf-8")
     
