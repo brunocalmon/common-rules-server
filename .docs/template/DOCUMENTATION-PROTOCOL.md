@@ -4,6 +4,10 @@
 
 Como as decisões são registradas, substituídas e navegadas nesta wiki.
 
+## A Regra do Root (Root README as a Hub)
+
+O arquivo `README.md` localizado na raiz (`root`) do repositório deve servir **exclusivamente como um hub ou página inicial de redirecionamento**. Ele não deve conter documentação técnica extensa, detalhes de arquitetura ou tutoriais longos. Todo conteúdo relevante (como `ARCHITECTURE.md`, guias de desenvolvimento, etc.) deve ser integrado nas pastas apropriadas desta Wiki (ex: `engineering/`, `architecture/`). O Root README deve apenas apontar para `.docs/<projeto>/README.md`.
+
 ## A Regra de Ouro
 
 **Uma decisão nunca é sobrescrita silenciosamente.** Quando algo muda, a documentação antiga não é simplesmente apagada; ela é substituída ou atualizada de forma rastreável em ambas as direções.
