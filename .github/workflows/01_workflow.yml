@@ -12,6 +12,9 @@ env:
 jobs:
   test:
     runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Install uv and Python 3.12

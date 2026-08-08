@@ -8,12 +8,25 @@ wheels/
 
 # Virtual environments
 .venv
+.venv*/
 
 # Logs
 notebook
 
-# Cursor rules
+# Editor exports written by sync_to_ide. These are generated from the resource
+# kit on demand, so committing them would create a second source of truth that
+# goes stale silently. `.common-rules-server/config.env` is deliberately NOT
+# ignored — this project dogfoods its own configuration and the file is meant to
+# be reviewed and committed.
 .cursor/
+.claude/
+.agents/
+CLAUDE.md
+AGENTS.md
+
+# Machine-specific MCP wiring: the entries carry absolute paths, so committing
+# one would hand every other clone a path that does not exist there.
+.mcp.json
 
 # Environment variables
 .env
@@ -30,3 +43,9 @@ sample.notebook/
 
 # VSCode settings
 .vscode/
+
+# Test caches
+.pytest_cache/
+
+# Tool state
+.code-review-graph/
