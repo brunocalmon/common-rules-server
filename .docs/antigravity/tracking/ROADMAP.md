@@ -11,16 +11,18 @@
 
 ### Done
 - [TKT-001: Implement util/resource_parsing.py](tickets/TKT-001.md)
+- [TKT-002: Implement service/config_service.py](tickets/TKT-002.md)
+- [TKT-003: Refactor service/resource_service.py](tickets/TKT-003.md)
+- [TKT-004: Refactor mcp_server.py](tickets/TKT-004.md)
 
 ### Signoff
-- [TKT-002: Implement service/config_service.py](tickets/TKT-002.md)
+- N/A
 
 ### In Progress
 - N/A
 
 ### Refinement
-- [TKT-003: Refactor service/resource_service.py](tickets/TKT-003.md)
-- [TKT-004: Refactor mcp_server.py](tickets/TKT-004.md)
+- N/A
 
 ### Backlog
 - Outros tickets virão após Phase 1.
