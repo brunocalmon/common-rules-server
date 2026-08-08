@@ -19,6 +19,11 @@ relationships:
       required: false
       note: When a question needs facts nobody in the room has
   output: templates/grill-me.md
+self_check:
+  - Is the frontier genuinely empty, or did I stop at the comfortable questions?
+  - Did I look up every fact myself rather than asking the user for something I could find?
+  - Did I give a real recommendation for each question, or hedge?
+  - Did I ask what happens when this fails, and what we are choosing not to build?
 ---
 
 ## Relationships

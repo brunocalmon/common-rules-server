@@ -17,6 +17,9 @@ phases:
     skills: [/review, /architecture-compliance]
 relationships:
   output: templates/workflow-summary.md
+self_check:
+  - Did both gates get a real answer before any writing started?
+  - Did the review check the documentation against the code rather than against itself?
 ---
 
 ## Phases

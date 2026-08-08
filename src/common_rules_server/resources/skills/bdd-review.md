@@ -16,6 +16,10 @@ relationships:
   output: templates/bdd-review.md
 env:
   optional: [BDD_FILE_PATH]
+self_check:
+  - Did I judge the suite against the system's real surface, or against itself?
+  - Did I check each scenario's assertions against the real contract?
+  - Did I report the happy-path-to-error balance honestly?
 ---
 
 ## Relationships

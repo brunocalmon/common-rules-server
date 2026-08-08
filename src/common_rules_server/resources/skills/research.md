@@ -15,6 +15,10 @@ relationships:
   output: templates/research.md
 env:
   optional: [DOCS_DIR, WIKI_DIR]
+self_check:
+  - Is every claim traced to a source that owns it, rather than one describing it?
+  - Did I separate what I established from what I inferred, and label the second?
+  - Did I state what I could not establish rather than filling the gap plausibly?
 ---
 
 ## Relationships

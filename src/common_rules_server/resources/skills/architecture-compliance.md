@@ -16,6 +16,10 @@ relationships:
   output: templates/architecture-compliance.md
 env:
   optional: [WIKI_DIR]
+self_check:
+  - Did I measure against the documented architecture, or against my own preferences?
+  - For each drift, did I say which side should change?
+  - Did I stop and ask when no architecture documentation existed, instead of inventing one?
 ---
 
 ## Relationships

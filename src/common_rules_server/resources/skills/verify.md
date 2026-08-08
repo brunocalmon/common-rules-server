@@ -22,6 +22,10 @@ relationships:
   output: templates/verify.md
 env:
   optional: [BUILD_COMMAND, TEST_COMMAND, LINT_COMMAND]
+self_check:
+  - Did every command actually run, or did I report a step I skipped?
+  - Am I reporting the real output, including failures, rather than a summary that softens them?
+  - If I substituted a command because none was configured, did I say which?
 ---
 
 ## Relationships

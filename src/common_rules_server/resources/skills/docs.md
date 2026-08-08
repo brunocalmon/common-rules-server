@@ -14,6 +14,10 @@ relationships:
   output: templates/docs.md
 env:
   optional: [README_PATH, WIKI_DIR, DOCS_PROTOCOL]
+self_check:
+  - Did I follow the documentation protocol, including the mirror marker on the superseded document?
+  - Is the root README still a hub, with no long-form content added to it?
+  - Did I write only what I could confirm, rather than inventing plausible content?
 ---
 
 ## Relationships

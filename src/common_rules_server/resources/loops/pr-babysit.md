@@ -19,6 +19,10 @@ relationships:
       required: false
       note: When a build failure is not self-explanatory
   output: templates/pr-babysit.md
+self_check:
+  - Did I leave the build configuration alone rather than weakening a check to go green?
+  - Did I stop and ask where two changes genuinely disagreed?
+  - Did I reply with reasoning where I disagreed with a comment, rather than complying or ignoring?
 ---
 
 ## Relationships

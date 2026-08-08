@@ -13,6 +13,10 @@ relationships:
   output: templates/general.md
 env:
   optional: [PROJECT_NAME, README_PATH, WIKI_DIR, BUILD_COMMAND, TEST_COMMAND]
+self_check:
+  - Did I actually read the wiki, or infer the project's conventions from its file layout?
+  - Did I report the build and test commands I found, or the ones I assumed?
+  - Did I keep this to orientation instead of drifting into analysis?
 ---
 
 ## Relationships

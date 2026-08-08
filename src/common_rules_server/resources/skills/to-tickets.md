@@ -12,6 +12,10 @@ relationships:
   output: templates/to-tickets.md
 env:
   optional: [DOCS_DIR, WIKI_DIR]
+self_check:
+  - Is every slice vertical, leaving the system working, or did I slice by layer?
+  - Can each ticket be finished in one sitting?
+  - Did I ask about granularity before writing anything down?
 ---
 
 ## Relationships

@@ -11,6 +11,10 @@ relationships:
       required: false
       note: Escalated from a general review
   output: templates/review-security.md
+self_check:
+  - Did I trace each issue from entry point to sink, rather than judging the sink alone?
+  - Did I state which categories I checked and found clean?
+  - For each finding, did I give the conditions that make it exploitable?
 ---
 
 ## Relationships

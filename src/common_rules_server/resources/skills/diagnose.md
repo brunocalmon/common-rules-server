@@ -14,6 +14,12 @@ relationships:
   output: templates/diagnose.md
 env:
   optional: [TEST_COMMAND]
+self_check:
+  - Do I have a command that goes red on this specific bug, or am I still guessing?
+  - Did I watch the regression test fail before applying the fix?
+  - Did I show the user my ranked hypotheses before testing them?
+  - Did I remove every piece of debug instrumentation I added?
+  - Did I state the root cause, not the trigger and not the fix?
 ---
 
 ## Relationships

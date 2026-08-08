@@ -15,6 +15,11 @@ relationships:
   output: templates/tdd.md
 env:
   requires: [TEST_COMMAND]
+self_check:
+  - Did I watch each test fail before making it pass, or write it green?
+  - Does each expected value come from an independent source rather than the code's own logic?
+  - Did I test through the public interface, or reach into internals?
+  - Did I keep refactoring out of the red-green cycle?
 ---
 
 ## Relationships

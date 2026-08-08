@@ -13,6 +13,10 @@ relationships:
   output: templates/deviation.md
 env:
   optional: [WIKI_DIR]
+self_check:
+  - Did I state the cost, not just the reason?
+  - Was this agreed in advance, and did I say so honestly either way?
+  - Did I say whether the process itself should change?
 ---
 
 ## Relationships

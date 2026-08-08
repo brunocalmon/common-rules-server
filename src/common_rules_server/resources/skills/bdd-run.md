@@ -19,6 +19,11 @@ relationships:
   output: templates/bdd-run.md
 env:
   optional: [BDD_FILE_PATH]
+self_check:
+  - Did I execute every step for real, or reason about what would happen?
+  - Did I record the observed value rather than the expected one?
+  - Did I report failures as failures, whatever their cause?
+  - Did I take one page at a time instead of reading ahead?
 ---
 
 ## Relationships

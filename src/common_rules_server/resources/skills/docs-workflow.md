@@ -14,6 +14,10 @@ relationships:
   output: templates/docs-workflow.md
 env:
   optional: [WIKI_DIR, DOCS_PROTOCOL]
+self_check:
+  - Did I stop at each gate and wait, rather than announcing and continuing?
+  - Did I state what is out of scope before writing anything?
+  - Did I report what I could not write because the answer was unavailable?
 ---
 
 ## Relationships

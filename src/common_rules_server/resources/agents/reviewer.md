@@ -21,6 +21,10 @@ relationships:
     - target: /review-security
       required: false
   output: templates/review.md
+self_check:
+  - Did I stay inside the review and avoid editing the code?
+  - Does every finding name a concrete failure case?
+  - Did I report finding nothing when there was nothing to find?
 ---
 
 ## Relationships

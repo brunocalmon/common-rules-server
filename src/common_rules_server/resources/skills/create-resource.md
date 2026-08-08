@@ -9,6 +9,11 @@ relationships:
   output: templates/create-resource.md
 env:
   optional: [RESOURCES_DIR]
+self_check:
+  - Did I check for an existing resource that already covers this?
+  - Is the description written so another agent can choose on it alone?
+  - Did I confirm it loads and its references resolve after creating it?
+  - Is it natural language, with no pseudo-code and no invented control flow?
 ---
 
 ## Relationships

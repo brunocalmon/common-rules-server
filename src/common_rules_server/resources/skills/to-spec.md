@@ -16,6 +16,10 @@ relationships:
   output: templates/to-spec.md
 env:
   optional: [WIKI_DIR]
+self_check:
+  - Did I synthesise what was decided rather than quietly resolving open questions?
+  - Are open questions recorded as open?
+  - Is the out-of-scope section specific rather than diplomatic?
 ---
 
 ## Relationships

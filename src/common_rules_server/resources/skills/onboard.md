@@ -11,6 +11,11 @@ relationships:
       required: false
       note: Orient once configured
   output: templates/onboard.md
+self_check:
+  - Did I ask one question at a time rather than presenting a wall of configuration?
+  - Did I work through every item in next_steps?
+  - Did I let the user choose the optional features rather than enabling them?
+  - Did I confirm TEST_COMMAND by running it, rather than only asking?
 ---
 
 ## Relationships

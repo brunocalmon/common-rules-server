@@ -18,6 +18,10 @@ relationships:
     - target: /research
       required: true
   output: templates/research.md
+self_check:
+  - Is every claim cited to a primary source?
+  - Did I label inference as inference?
+  - Did I write findings to a file rather than into the conversation?
 ---
 
 ## Relationships

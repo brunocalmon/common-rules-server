@@ -21,6 +21,10 @@ relationships:
     - target: /docs
       required: false
   output: templates/architecture-compliance.md
+self_check:
+  - Did I compare against documented architecture only?
+  - Did I report drift rather than taste?
+  - Did I say which side should change for each gap?
 ---
 
 ## Relationships

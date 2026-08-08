@@ -17,6 +17,12 @@ relationships:
   output: templates/bdd-generate.md
 env:
   optional: [BDD_FILE_PATH]
+self_check:
+  - Is every contract exact — nothing abbreviated, elided, approximated or mocked?
+  - Did I grill the behaviour first, or write scenarios against an assumed contract?
+  - Did I capture unknown shapes by calling the real thing?
+  - Are there error and boundary scenarios, or only happy paths?
+  - Can each scenario run alone, without depending on a previous one?
 ---
 
 ## Relationships

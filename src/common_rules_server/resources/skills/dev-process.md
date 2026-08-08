@@ -30,6 +30,12 @@ relationships:
   output: templates/dev-process.md
 env:
   optional: [WIKI_DIR, README_PATH, BUILD_COMMAND, TEST_COMMAND]
+self_check:
+  - Did I read the documented process before writing code, or start from my own assumptions?
+  - Did I make the change that was asked for — not a smaller one avoiding the hard part, nor a larger one touching what was nearby?
+  - Did I run /verify, and did it actually pass?
+  - Does the code match the surrounding conventions, or my own preferences?
+  - Did I check whether documentation became untrue?
 ---
 
 ## Relationships

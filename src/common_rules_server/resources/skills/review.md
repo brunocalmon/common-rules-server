@@ -15,6 +15,11 @@ relationships:
       required: false
       note: When the change touches a security boundary
   output: templates/review.md
+self_check:
+  - Does every finding name a concrete failure, or are some of them preferences?
+  - Did I check what the change is connected to, or only read the diff in isolation?
+  - Did I say what I examined and found clean?
+  - Did I avoid manufacturing findings to look thorough?
 ---
 
 ## Relationships

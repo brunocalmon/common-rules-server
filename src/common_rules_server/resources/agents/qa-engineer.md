@@ -26,6 +26,10 @@ relationships:
       required: true
       note: Behaviour is settled before scenarios are written
   output: templates/bdd-run.md
+self_check:
+  - Did I execute against the real system rather than simulating a result?
+  - Did I use exact contracts with no abbreviation?
+  - Did I report a step I did not carry out as not run, rather than as passing?
 ---
 
 ## Relationships

@@ -17,6 +17,10 @@ phases:
     skills: [/review]
 relationships:
   output: templates/workflow-summary.md
+self_check:
+  - Did the bug reproduce on demand before I changed anything?
+  - Did the regression test fail before the fix and pass after?
+  - Did I identify the root cause rather than the trigger?
 ---
 
 ## Phases

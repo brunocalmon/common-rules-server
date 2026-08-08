@@ -14,6 +14,9 @@ relationships:
   output: templates/notebook.md
 env:
   optional: [NOTEBOOK_DIR]
+self_check:
+  - Does this entry record reasoning that could not be recovered from the code?
+  - Did I avoid restating what the commit history already holds?
 ---
 
 ## Relationships

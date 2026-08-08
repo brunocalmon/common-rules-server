@@ -24,6 +24,10 @@ relationships:
       required: false
       note: When a scenario fails for a non-obvious reason
   output: templates/bdd-cycle.md
+self_check:
+  - Did the Generate gate confirm exact contracts before execution?
+  - Is every failure either fixed or explicitly recorded as accepted with a reason?
+  - Did the assessment measure against the system's real surface?
 ---
 
 ## Phases

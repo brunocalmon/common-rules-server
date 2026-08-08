@@ -26,6 +26,10 @@ relationships:
       required: false
       note: When discovery needs facts nobody has
   output: templates/workflow-summary.md
+self_check:
+  - Did I stop at each gate and get a real answer?
+  - Were requirements confirmed settled before the Build phase started?
+  - Did I record which phases were skipped and why?
 ---
 
 ## Phases

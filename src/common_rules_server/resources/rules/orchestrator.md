@@ -28,6 +28,10 @@ relationships:
       required: false
       note: When the project has no configuration yet
   output: templates/orchestrator.md
+self_check:
+  - Did I state which route I chose and why, so the user could redirect me?
+  - Did I check whether requirements were settled before routing to implementation?
+  - Am I following a required edge, or skipping one because it seemed unnecessary?
 ---
 
 ## Relationships

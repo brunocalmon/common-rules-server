@@ -13,6 +13,8 @@ relationships:
   output: templates/daily-logbook.md
 env:
   optional: [NOTEBOOK_DIR]
+self_check:
+  - Did I summarise from what was written rather than adding conclusions?
 ---
 
 ## Relationships

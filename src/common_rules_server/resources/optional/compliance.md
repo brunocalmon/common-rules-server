@@ -17,6 +17,10 @@ relationships:
   output: templates/compliance.md
 env:
   optional: [WIKI_DIR]
+self_check:
+  - Did I treat partial as not met unless the remainder was explicitly accepted?
+  - Did I record deviations rather than quietly absorbing them?
+  - Did I resist softening the assessment?
 ---
 
 ## Relationships

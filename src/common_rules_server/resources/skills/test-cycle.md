@@ -13,6 +13,10 @@ relationships:
 env:
   requires: [TEST_COMMAND]
   optional: [COVERAGE_COMMAND, COVERAGE_THRESHOLD]
+self_check:
+  - Did I say which behaviour is unverified, rather than only quoting a percentage?
+  - Did I rank gaps by consequence rather than by line count?
+  - Did I confirm before writing tests, instead of adding tests to move a number?
 ---
 
 ## Relationships

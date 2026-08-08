@@ -14,6 +14,9 @@ relationships:
 env:
   requires: [LINTER_TOOL]
   optional: [LINT_COMMAND, LINTER_CONFIG]
+self_check:
+  - Did I fix violations rather than widening a suppression list?
+  - If the linter examined nothing, did I say so instead of reporting a clean run?
 ---
 
 ## Relationships
