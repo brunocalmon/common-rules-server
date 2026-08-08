@@ -245,7 +245,11 @@ class ConfigService:
     """Reads, resolves and writes project configuration."""
 
     def __init__(self, project_root: Optional[str] = None):
-        self.project_root = Path(project_root) if project_root else Path(os.getcwd())
+        # Resolved, not stored as given: a relative root such as "." has an
+        # empty `.name`, which silently produced a blank detected PROJECT_NAME.
+        self.project_root = (
+            Path(project_root).resolve() if project_root else Path(os.getcwd()).resolve()
+        )
         self.config_dir = self.project_root / CONFIG_DIRNAME
         self.env_file = self.config_dir / CONFIG_FILENAME
 

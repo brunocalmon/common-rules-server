@@ -48,6 +48,24 @@ def test_keys_without_a_safe_default_are_flagged_for_a_human(python_project: Pat
     assert "# NEEDS INPUT: no safe default." in service.env_file.read_text(encoding="utf-8")
 
 
+def test_a_relative_project_root_still_yields_a_project_name(python_project: Path, monkeypatch):
+    """A relative root such as "." has an empty `.name`.
+
+    Found by pointing the service at this repository as "." — detection produced
+    a blank PROJECT_NAME, which then reached every generated report.
+    """
+    monkeypatch.chdir(python_project)
+    detected = ConfigService(".").detect()
+
+    assert detected.values["PROJECT_NAME"] == python_project.name
+    assert detected.values["PROJECT_NAME"] != ""
+
+
+def test_project_root_is_resolved(python_project: Path, monkeypatch):
+    monkeypatch.chdir(python_project)
+    assert ConfigService(".").project_root == python_project.resolve()
+
+
 def test_detects_build_system_from_project_files(python_project: Path):
     resolved = ConfigService(str(python_project)).get_config()
     assert resolved["env_status"]["auto_detected"]["BUILD_SYSTEM"] == "python"
