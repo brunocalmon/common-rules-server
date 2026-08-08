@@ -304,7 +304,7 @@ the tests that were written alongside it.
 The tests written alongside a feature encode the author's model of it. They pass
 because the code does what the author thought it did. Six defects survived that
 and were only found by looking at the artefacts the system produces —
-[FND-017](../findings/FND-017.md) through [FND-022](../findings/FND-022.md).
+[FND-017](../findings/FND-017.md) through [FND-027](../findings/FND-027.md).
 
 Two of them made a feature completely inert while looking healthy, which is the
 same failure mode as [FND-001](../findings/FND-001.md) in the previous
@@ -313,7 +313,7 @@ intent.
 
 ## Verification
 
-639 tests. Each finding has a regression test named after the failure.
+781 tests. Each finding has a regression test named after the failure, and the audit steps themselves are now tests in `test_repository_health.py` so they keep running.
 """),
     ("TKT-018", "Native editor lifecycle hooks", "Feature", "EPC-006", """
 Make hooks a resource kind, and generate native hook configuration for Cursor,
@@ -844,6 +844,89 @@ support.
 Fixed in [TKT-022](../tickets/TKT-022.md), and the whole package is now parsed
 against the 3.11 grammar as part of the audit.
 """),
+    ("FND-023", "The wiki generator destroyed content it did not own", "Critical", "Ticketed", """
+Regenerating the wiki wiped the whole `.docs/claude` tree and rebuilt it from the
+page list, deleting `history/` — hand-written content that happens to live under
+the same root.
+
+## Why it matters
+
+One run removed 3,541 lines while reporting only that documentation had been
+updated. Nothing in the output suggested anything had been lost.
+
+Same shape as [FND-021](FND-021.md): a tool that owns part of a shared location
+behaving as though it owned all of it.
+
+## Resolution
+
+The generator preserves directories it does not generate, listed in `PRESERVE`,
+and a test asserts the list still covers `history/`.
+"""),
+    ("FND-024", "Acceptance scenarios asserted counts the kit no longer had", "Medium", "Ticketed", """
+`agent_bdd.feature` still stated 30 resources across five kinds after the kit had
+grown to 38 across six.
+
+## Why it matters
+
+An agent executing those scenarios reports failures that are not real, which is
+worse than having no coverage: it teaches the reader to discount the suite.
+
+## Resolution
+
+Counts corrected, and a test now reads them back out of the feature file and
+fails the moment they drift. The scenarios keep exact literals — an agent
+executing them needs something concrete to compare against — so the staleness is
+caught mechanically instead of by weakening the assertions.
+"""),
+    ("FND-025", "Exported resources named tools that were not running", "Medium", "Ticketed", """
+Six resources instruct using orchestration server tools. Read natively with the
+server switched off — the situation the export exists to support — those
+instructions dead-end.
+
+## Why it matters
+
+Same class as [FND-019](FND-019.md): the export was complete in what it copied
+and incomplete in what that content could reach.
+
+## Resolution
+
+Each exported resource naming a server tool carries a 'Without the server'
+section. A test asserts every tool referenced by any resource has a documented
+fallback, so adding a tool later cannot silently reintroduce it.
+"""),
+    ("FND-026", "A switched-off resource reported as one that does not exist", "Medium", "Ticketed", """
+Asking for a gated resource returned "No skill named 'notebook'".
+
+## Why it matters
+
+Technically true, practically misleading. The resource exists and is disabled; an
+agent reading that concludes it must build the thing rather than that the user
+must switch it on.
+
+## Resolution
+
+The error names the gate and the file to change, and says to ask the user before
+altering project configuration. The generic not-found error also lists what is
+gated off.
+"""),
+    ("FND-027", "A relative project root produced a blank project name", "Low", "Ticketed", """
+`Path(".").name` is the empty string, so pointing the config service at a project
+as `.` detected `PROJECT_NAME=''`.
+
+## Why it matters
+
+Every generated report would have carried a nameless project, and nothing would
+have flagged it.
+
+## Evidence
+
+Found by making this repository use its own kit — the first time the service was
+constructed with a relative root.
+
+## Resolution
+
+The root is resolved on construction.
+"""),
     ("FND-013", "Companion install path is undocumented", "Low", "Open", """
 `McpInstallerService` can only construct a launch entry when the companion binary
 is already on `PATH`. Otherwise it reports low confidence and asks the user.
@@ -987,7 +1070,7 @@ Built from [`.docs/template`](../template/README.md). See the
 
 ## Status
 
-All six epics are Done. 639 tests pass. One finding remains open, deliberately
+All six epics are Done. 781 tests pass. One finding remains open, deliberately
 deferred — see [Roadmap](tracking/ROADMAP.md).
 """),
 

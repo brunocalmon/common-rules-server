@@ -24,7 +24,7 @@ Built from [`.docs/template`](../template/README.md). See the
 
 ## Status
 
-All six epics are Done. 639 tests pass. One finding remains open, deliberately
+All six epics are Done. 781 tests pass. One finding remains open, deliberately
 deferred — see [Roadmap](tracking/ROADMAP.md).
 
 

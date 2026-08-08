@@ -53,6 +53,11 @@ Defects found in the previous implementation, and one found in this one.
 | [FND-020](findings/FND-020.md) | The post-edit hook ran a whole-project lint on every edit | Medium |
 | [FND-021](findings/FND-021.md) | Syncing erased the guidance setup had just written | Critical |
 | [FND-022](findings/FND-022.md) | An f-string backslash broke the oldest supported Python | Low |
+| [FND-023](findings/FND-023.md) | The wiki generator destroyed content it did not own | Critical |
+| [FND-024](findings/FND-024.md) | Acceptance scenarios asserted counts the kit no longer had | Medium |
+| [FND-025](findings/FND-025.md) | Exported resources named tools that were not running | Medium |
+| [FND-026](findings/FND-026.md) | A switched-off resource reported as one that does not exist | Medium |
+| [FND-027](findings/FND-027.md) | A relative project root produced a blank project name | Low |
 | [FND-014](findings/FND-014.md) | CI workflow verified against the new layout | Medium |
 
 ## Progress
