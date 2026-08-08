@@ -27,6 +27,9 @@ relationships:
     - target: /onboard
       required: false
       note: When the project has no configuration yet
+    - target: agents/orchestrator
+      required: false
+      note: Escalation path for work that splits into independent parallel parts
   output: templates/orchestrator.md
 self_check:
   - Did I state which route I chose and why, so the user could redirect me?
@@ -46,6 +49,7 @@ self_check:
 | can-invoke | /review | no | After verification passes |
 | can-invoke | /docs | no | Behaviour or architecture changed |
 | can-invoke | /onboard | no | Project not configured yet |
+| can-invoke | agents/orchestrator | no | Work splits into parallel parts |
 | output | templates/orchestrator.md | yes | Routing summary |
 
 ## Instructions
@@ -78,6 +82,21 @@ Before starting, settle these. Each is cheap to answer now and expensive later.
 Prefer a required edge over your own judgement. A resource that declares
 `required: true` on its next step is stating that skipping it produces work that
 looks finished and is not.
+
+## When to hand off to the orchestrator agent
+
+This rule routes one agent through one task at a time. That is the right shape
+for most work and costs nothing extra.
+
+Hand off to `agents/orchestrator` when the work genuinely splits into parts that
+do not need each other's output — several independent modules, or an
+implementation that can be reviewed by a different reader while it is written.
+The agent runs in its own context window and can put workers on those parts in
+parallel.
+
+Do not hand off because a task is merely large. Sequential work stays sequential
+whoever runs it, and delegation multiplies token cost by the number of workers.
+Say which of the two you judged it to be, and let the user overrule you.
 
 ## Standing obligations
 

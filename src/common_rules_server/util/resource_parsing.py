@@ -33,7 +33,16 @@ VALID_HOOK_EVENTS = (
 )
 
 VALID_RULE_TYPES = ("Always", "Agent Requested", "Auto Attached", "Manual")
-VALID_SKILL_TRIGGERS = ("user-invoked", "model-invoked")
+#: ``both`` exists because the two-value form forced a false choice. A skill the
+#: user types as a command was marked ``user-invoked``, which the Claude export
+#: turns into ``disable-model-invocation: true`` — severing every ``can-invoke``
+#: edge pointing at it. ``/grill-me`` is the case that proved it: the
+#: orchestrator rule offers it, ``feature-dev`` opens with it, and ``qa-engineer``
+#: requires it, yet the user also types it directly.
+VALID_SKILL_TRIGGERS = ("user-invoked", "model-invoked", "both")
+
+#: Triggers that put a resource in the editor's command list.
+COMMAND_TRIGGERS = ("user-invoked", "both")
 
 # Relationship keys are authored with hyphens in YAML (comes-from) because that
 # reads better in the markdown table beside them, but Python callers want

@@ -76,14 +76,29 @@ def test_hand_written_wiki_content_is_preserved_by_the_generator():
 
 
 def test_no_generated_output_is_committed_to_the_repository_root():
-    """Sync writes into .cursor, .claude and .agents; those are per-project."""
+    """Sync writes into .cursor, .claude, .agents, CLAUDE.md and AGENTS.md.
+
+    All of those are per-project and gitignored. Asking git which files are
+    tracked is what makes this test say what its name says: running sync in a
+    working copy is expected and leaves generated files on disk, but none of
+    them may enter a commit.
+    """
+    import subprocess
+
     from common_rules_server.service.sync_service import GENERATED_HEADER
 
-    for path in ROOT.rglob("*.md"):
-        if ".venv" in path.parts or ".git" in path.parts:
+    tracked = subprocess.run(
+        ["git", "-C", str(ROOT), "ls-files", "-z", "--", "*.md"],
+        capture_output=True,
+        check=True,
+    ).stdout.decode()
+
+    for name in filter(None, tracked.split("\0")):
+        path = ROOT / name
+        if not path.exists():
             continue
         assert GENERATED_HEADER not in path.read_text(encoding="utf-8", errors="replace"), (
-            f"{path.relative_to(ROOT)} is generated output and should not be committed here"
+            f"{name} is generated output and should not be committed here"
         )
 
 

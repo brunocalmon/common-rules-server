@@ -317,3 +317,107 @@ def test_gated_resources_are_not_exported(sync, python_project: Path):
     """A resource withheld from the catalogue must not appear natively either."""
     sync.sync(["cursor"], include_hooks=False)
     assert not (python_project / ".cursor/skills/notebook/SKILL.md").exists()
+
+
+# --------------------------------------------------------- native commands
+#
+# The gap that motivated EPC-008: a skill reachable only through the server is
+# a skill the user cannot type. These check the command list the editor reads.
+
+
+def test_claude_export_lists_user_invocable_resources_as_commands(sync, python_project: Path):
+    sync.sync(["claude"], include_hooks=False)
+    text = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+
+    assert "## Custom Commands" in text
+    assert "<chat-commands>" in text and "</chat-commands>" in text
+    assert "- /grill-me:" in text
+
+
+def test_editors_without_the_capability_get_no_command_block(sync, python_project: Path):
+    """Declared on SyncTarget, so this holds for any target that opts out."""
+    sync.sync(["antigravity"], include_hooks=False)
+    assert "<chat-commands>" not in (python_project / "AGENTS.md").read_text(encoding="utf-8")
+
+
+def test_workflows_reach_the_command_list_despite_having_no_trigger(sync, python_project: Path):
+    """`trigger` is required of skills only.
+
+    Filtering the command list on it alone silently drops every workflow — the
+    four resources a user is most likely to type by name.
+    """
+    sync.sync(["claude"], include_hooks=False)
+    block = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+
+    for workflow in ("feature-dev", "bug-fix", "docs-gen", "bdd-cycle"):
+        assert f"- /{workflow}:" in block, f"{workflow} is not typeable"
+    assert "- /pr-babysit:" in block, "the loop is not typeable"
+
+
+def test_a_command_can_still_be_model_invoked(sync, python_project: Path):
+    """The regression that `trigger: both` exists to prevent.
+
+    Marking grill-me `user-invoked` to get it listed would emit
+    disable-model-invocation, severing the orchestrator rule's "Offer
+    /grill-me", feature-dev's Discover phase and qa-engineer's required edge.
+    """
+    sync.sync(["claude"], include_hooks=False)
+
+    assert "- /grill-me:" in (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+    skill = (python_project / ".claude/skills/grill-me/SKILL.md").read_text(encoding="utf-8")
+    assert "disable-model-invocation" not in skill
+
+
+def test_a_strictly_user_invoked_skill_still_opts_out_of_model_invocation(
+    sync, python_project: Path
+):
+    skill = (python_project / ".claude/skills/to-spec/SKILL.md")
+    sync.sync(["claude"], include_hooks=False)
+    assert "disable-model-invocation: true" in skill.read_text(encoding="utf-8")
+
+
+def test_hooks_never_appear_as_commands(sync, python_project: Path):
+    """A hook is fired by an event; it can never be typed."""
+    sync.sync(["claude"], include_hooks=False)
+    text = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+    for hook in ("guard-secrets", "guard-destructive", "protect-authorship"):
+        assert f"- /{hook}:" not in text
+
+
+def test_the_command_block_is_byte_identical_on_re_sync(sync, python_project: Path):
+    sync.sync(["claude"], include_hooks=False)
+    first = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+    sync.sync(["claude"], include_hooks=False)
+    assert (python_project / "CLAUDE.md").read_text(encoding="utf-8") == first
+
+
+# ------------------------------------------------- built-in + user resources
+#
+# The kit ships working with no configuration, and a project's own resources
+# compose on top. Both halves have to survive the export, not just resolution.
+
+
+def test_a_project_only_skill_becomes_a_native_command(sync, resources, python_project: Path):
+    resources.create_resource(
+        "skill", "house-style", "Applies this team's review conventions.", "Body.",
+        extra_fields={"trigger": "user-invoked"},
+    )
+    sync.sync(["claude"], include_hooks=False)
+
+    assert "- /house-style:" in (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+    assert (python_project / ".claude/skills/house-style/SKILL.md").exists()
+
+
+def test_a_project_override_exports_the_project_body(sync, resources, python_project: Path):
+    """Resolving to the override but exporting the built-in is a silent failure."""
+    resources.create_resource("skill", "verify", "Project verification.", "Run the house pipeline.")
+    sync.sync(["claude"], include_hooks=False)
+
+    skill = (python_project / ".claude/skills/verify/SKILL.md").read_text(encoding="utf-8")
+    assert "Run the house pipeline." in skill
+
+
+def test_gated_resources_stay_out_of_the_export(sync, python_project: Path):
+    sync.sync(["claude"], include_hooks=False)
+    assert not (python_project / ".claude/skills/notebook").exists()
+    assert "- /notebook:" not in (python_project / "CLAUDE.md").read_text(encoding="utf-8")

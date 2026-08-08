@@ -177,3 +177,23 @@ def test_tuple_form_stays_backwards_compatible():
     assert header["name"] == "example"
     assert body.startswith("## Instructions")
     assert parse_resource_file("no frontmatter") == (None, None)
+
+
+def test_both_is_a_valid_skill_trigger():
+    """A skill can be typed as a command and still be model-invokable.
+
+    The two-value form forced a false choice: marking a skill user-invoked to
+    get it listed as a command also emitted disable-model-invocation on export.
+    """
+    parsed = parse_resource(
+        "---\nkind: skill\nname: s\ndescription: X.\ntrigger: both\n---\nBody\n"
+    )
+    assert parsed.errors == []
+    assert parsed.header["trigger"] == "both"
+
+
+def test_an_unknown_trigger_is_still_rejected():
+    parsed = parse_resource(
+        "---\nkind: skill\nname: s\ndescription: X.\ntrigger: sometimes\n---\nBody\n"
+    )
+    assert any("invalid skill trigger" in e for e in parsed.errors)

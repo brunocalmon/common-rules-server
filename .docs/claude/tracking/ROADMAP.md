@@ -17,6 +17,15 @@
 | [EPC-004](epics/EPC-004.md) | Agent BDD framework | Done | 3/3 |
 | [EPC-006](epics/EPC-006.md) | Enforcement and portability | Done | 5/5 |
 | [EPC-005](epics/EPC-005.md) | Quality and documentation | Done | 3/3 |
+| [EPC-008](epics/EPC-008.md) | Native command invocation | Done | 2/2 |
+| [EPC-007](epics/EPC-007.md) | Multi-agent orchestrator | Phase 1 Done | 3/6 |
+
+## Planned
+
+| Epic | Outcome | Status | Tickets |
+|---|---|---|---|
+| [EPC-007](epics/EPC-007.md) phase 2 | Dynamic skills, workflow delegation | Backlog | 0/2 |
+| [EPC-007](epics/EPC-007.md) phase 3 | Temporary runtime skills | Backlog | 0/1 |
 
 ## Open findings
 
@@ -64,9 +73,9 @@ Defects found in the previous implementation, and one found in this one.
 
 | Status | Count |
 |---|---|
-| Done | 22 |
+| Done | 27 |
 | In Progress | 0 |
-| Backlog | 0 |
+| Backlog | 3 |
 | Open findings | 1 |
 
 

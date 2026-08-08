@@ -39,8 +39,8 @@ Feature: Common Rules orchestration server
       | problems          |
       | integrity         |
       | usage             |
-    And "total_resources" equals 38
-    And "resource_counts" equals {"rule": 4, "skill": 19, "agent": 4, "workflow": 4, "loop": 1, "hook": 6}
+    And "total_resources" equals 40
+    And "resource_counts" equals {"rule": 4, "skill": 19, "agent": 6, "workflow": 4, "loop": 1, "hook": 6}
     And "problems" is an empty list
     And no element of "resources" contains a "body" key
 
@@ -92,7 +92,7 @@ Feature: Common Rules orchestration server
     Given ENABLE_NOTEBOOKS is set to "true" in .common-rules-server/config.env
     When I call get_context()
     Then "resources" contains an element with "kind" equal to "skill" and "name" equal to "notebook"
-    And "total_resources" equals 39
+    And "total_resources" equals 41
     And "gated_out" contains exactly 4 entries
     And no entry in "gated_out" has "name" equal to "notebook"
 
@@ -572,6 +572,29 @@ Feature: Common Rules orchestration server
     Then .agents/skills/tdd/SKILL.md exists
     And .agents/hooks.json exists
     And AGENTS.md contains a managed block holding every Always rule
+
+  @sync @commands
+  Scenario: user-invocable resources become typeable commands in Claude Code
+    When I call sync_to_ide(ides=["claude"], include_hooks=false)
+    Then CLAUDE.md contains the section "## Custom Commands"
+    And CLAUDE.md contains the line "<chat-commands>"
+    And CLAUDE.md contains the line "- /grill-me:"
+    And CLAUDE.md contains the line "- /feature-dev:"
+    And CLAUDE.md contains the line "- /pr-babysit:"
+    And CLAUDE.md contains the line "</chat-commands>"
+    And CLAUDE.md does not contain the line "- /guard-secrets:"
+
+  @sync @commands
+  Scenario: an editor that does not read the command block never receives one
+    When I call sync_to_ide(ides=["antigravity"], include_hooks=false)
+    Then AGENTS.md does not contain the line "<chat-commands>"
+
+  @sync @commands
+  Scenario: a command with trigger "both" stays model-invokable
+    When I call sync_to_ide(ides=["claude"], include_hooks=false)
+    Then CLAUDE.md contains the line "- /grill-me:"
+    And .claude/skills/grill-me/SKILL.md does not contain "disable-model-invocation"
+    And .claude/skills/to-spec/SKILL.md contains "disable-model-invocation: true"
 
   @sync @completeness
   Scenario: nothing loadable is left behind

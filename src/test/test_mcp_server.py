@@ -51,7 +51,7 @@ def test_get_context_ships_a_complete_healthy_kit():
     assert result["problems"] == []
     assert result["integrity"]["ok"] is True
     assert result["resource_counts"]["rule"] == 4
-    assert result["resource_counts"]["agent"] == 4
+    assert result["resource_counts"]["agent"] == 6
     assert result["resource_counts"]["workflow"] == 4
     assert result["resource_counts"]["loop"] == 1
     assert result["resource_counts"]["hook"] == 6
