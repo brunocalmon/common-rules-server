@@ -1,7 +1,7 @@
 # AntiGravity Dev: Full Refactoring
 
-Esta wiki documenta o esforço de refatoração do **Common Rules MCP** seguindo a metodologia descrita no `rollback_playbook.md`.
+[PRD](PRD.md) · [RFC](RFC.md) · [KPI](KPI.md) · [Milestones](MILESTONES.md) · [Usage](USAGE.md) · [Protocol](DOCUMENTATION-PROTOCOL.md) · [Tracker](tracking/ROADMAP.md)
 
-- **[ROADMAP](ROADMAP.md)**: Acompanhe o progresso geral.
-- **[EPC-001 (Foundation)](epics/EPC-001.md)**: Setup e Infraestrutura do MCP.
-- **[EPC-002 (Core Resources)](epics/EPC-002.md)**: Implementação das skills e agentes default.
+Esta wiki documenta o esforço de refatoração do **Common Rules MCP** seguindo a metodologia rigorosa e a arquitetura `Jira-like` proposta no playbook.
+
+Para acompanhar o andamento da execução (Épicos e Tickets), acesse o **[Roadmap/Tracker](tracking/ROADMAP.md)**.
