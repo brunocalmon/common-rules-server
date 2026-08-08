@@ -31,6 +31,7 @@ a workflow is in practice an invocable procedure. Antigravity has no documented
 subagent concept, so agents there become skills whose body states the persona.
 """
 
+import json
 import os
 import re
 from dataclasses import dataclass
@@ -248,7 +249,7 @@ class SyncService:
         always = record.get("type") == "Always"
         front = [
             "---",
-            f"description: {_one_line(record['description'])}",
+            f"description: {json.dumps(_one_line(record['description']))}",
             f"alwaysApply: {'true' if always else 'false'}",
             "---",
         ]
@@ -260,7 +261,7 @@ class SyncService:
         front = [
             "---",
             f"name: {record['name']}",
-            f"description: {_one_line(record['description'])}",
+            f"description: {json.dumps(_one_line(record['description']))}",
         ]
         # Claude lets a skill opt out of automatic invocation. Only a strictly
         # user-invoked skill wants that: `both` is listed as a command *and*
@@ -277,7 +278,7 @@ class SyncService:
         front = [
             "---",
             f"name: {record['name']}",
-            f"description: {_one_line(record['description'])}",
+            f"description: {json.dumps(_one_line(record['description']))}",
         ]
         tools = record.get("tools")
         if isinstance(tools, list) and tools and target.tool_frontmatter:
@@ -312,7 +313,7 @@ class SyncService:
         """
         front = [
             "---",
-            f"description: {_one_line(record['description'])}",
+            f"description: {json.dumps(_one_line(record['description']))}",
             "argument-hint: [what the agent should work on]",
             "---",
         ]
@@ -561,7 +562,7 @@ def _render_commands(commands: list[dict]) -> str:
     ]
     for record in commands:
         mark = " (subagent)" if record["kind"] == "agent" else ""
-        lines.append(f"- /{record['name']}{mark}: {_one_line(record['description'])}")
+        lines.append(f"- /{record['name']}{mark}: {json.dumps(_one_line(record['description']))}")
     lines.append("</chat-commands>")
 
     if agents:
