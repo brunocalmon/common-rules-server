@@ -9,6 +9,7 @@ import yaml
 
 from common_rules_server.service.config_service import ConfigService
 from common_rules_server.service.resource_service import ResourceService
+from common_rules_server.service.bdd_service import BddService
 
 logging.basicConfig(
     level=logging.INFO,
@@ -23,6 +24,7 @@ mcp = FastMCP("common-rules")
 # but we can initialize them globally since the server runs in the CWD anyway.
 config_service = ConfigService()
 resource_service = ResourceService(config_service)
+bdd_service = BddService()
 
 @mcp.tool()
 def get_context() -> list[dict]:
@@ -73,12 +75,26 @@ def setup_config() -> dict:
     """
     return config_service.get_config()
 
+@mcp.tool()
+def get_bdd_scenario(page: int = 1) -> dict:
+    """
+    Reads the agent_bdd.feature file from the project root and returns
+    one Gherkin scenario at a time, paginated.
+
+    Page 1 returns the first scenario, page 2 the second, etc.
+    The agent should call this in a loop, incrementing page until
+    has_next is false.
+
+    Returns: { scenario: { name, body }, page, total_pages, has_next }
+    """
+    return bdd_service.get_scenario(page)
+
 def main():
     logger.info("========================================")
     logger.info("  Common Rules MCP (AntiGravity V2)")
     logger.info("========================================")
     logger.info("Server is running.")
-    logger.info("- Exposes tools: get_context, get_resource, create_resource, setup_config")
+    logger.info("- Exposes tools: get_context, get_resource, create_resource, setup_config, get_bdd_scenario")
     logger.info("========================================")
     mcp.run()
 

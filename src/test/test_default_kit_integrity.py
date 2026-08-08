@@ -9,8 +9,8 @@ def test_default_kit_integrity():
     
     context = resource_service.get_context()
     
-    # We should have exactly 30 resources from the playbook
-    assert len(context) == 30, f"Expected 30 resources, found {len(context)}"
+    # 30 original + 3 bdd skills + 1 qa-engineer agent + 1 bdd-cycle workflow = 35
+    assert len(context) == 35, f"Expected 35 resources, found {len(context)}"
     
     counts = {"rule": 0, "skill": 0, "agent": 0, "workflow": 0, "loop": 0}
     
@@ -26,11 +26,12 @@ def test_default_kit_integrity():
         assert res is not None
         assert "body" in res
     
-    # Assert specific counts based on the playbook
+    # Assert specific counts
     assert counts["rule"] == 2
-    assert counts["skill"] == 21  # Wait, 16 core skills + 5 optional skills = 21
-    assert counts["agent"] == 3
-    assert counts["workflow"] == 3
+    assert counts["skill"] == 24  # 16 core + 5 optional + 3 bdd = 24
+    assert counts["agent"] == 4   # 3 original + 1 qa-engineer = 4
+    assert counts["workflow"] == 4 # 3 original + 1 bdd-cycle = 4
     assert counts["loop"] == 1
     
-    # Total = 2 + 21 + 3 + 3 + 1 = 30
+    # Total = 2 + 24 + 4 + 4 + 1 = 35
+
