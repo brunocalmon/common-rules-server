@@ -166,6 +166,52 @@ def test_every_resource_with_an_output_carries_its_shape(sync, resources, python
     assert len(carried) == len(expected)
 
 
+def test_resources_naming_server_tools_carry_a_fallback(sync, python_project: Path):
+    """Same dead end as naming a template the export does not carry.
+
+    An exported skill telling the agent to call a tool that is not running
+    leaves it with no route forward.
+    """
+    sync.sync(["cursor"], include_hooks=False)
+    text = (python_project / ".cursor/skills/bdd-run/SKILL.md").read_text()
+
+    assert "## Without the server" in text
+    assert "get_bdd_scenario" in text
+    assert "Read the feature file directly" in text
+
+
+def test_resources_needing_no_fallback_do_not_get_one(sync, python_project: Path):
+    sync.sync(["cursor"], include_hooks=False)
+    assert "Without the server" not in (
+        python_project / ".cursor/skills/tdd/SKILL.md"
+    ).read_text()
+
+
+def test_every_server_tool_reference_has_a_documented_fallback(sync, resources, python_project: Path):
+    """A tool added later must not silently dead-end the export."""
+    import asyncio
+
+    from common_rules_server import mcp_server
+    from common_rules_server.service.sync_service import TOOL_FALLBACKS
+
+    registered = {t.name for t in asyncio.run(mcp_server.mcp.list_tools())}
+    referenced = {
+        tool
+        for record in resources.load()["resources"].values()
+        for tool in registered
+        if tool in (record.get("body") or "")
+    }
+    assert referenced <= set(TOOL_FALLBACKS), (
+        f"resources reference these tools with no sync fallback: "
+        f"{referenced - set(TOOL_FALLBACKS)}"
+    )
+
+
+@pytest.fixture
+def anyio_backend():
+    return "asyncio"
+
+
 def test_workflow_phases_are_rendered(sync, python_project: Path):
     sync.sync(["cursor"], include_hooks=False)
     text = (python_project / ".cursor/skills/feature-dev/SKILL.md").read_text()

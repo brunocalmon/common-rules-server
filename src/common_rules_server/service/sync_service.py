@@ -49,6 +49,37 @@ BLOCK_END = managed_blocks.end_marker(BLOCK_NAME)
 
 SKILL_KINDS = ("skill", "workflow", "loop")
 
+#: Instructions that name a server tool stop working the moment the export is
+#: read without the server running — the same class of dead end as naming a
+#: template the export does not carry. Each entry says what to do instead.
+TOOL_FALLBACKS: dict[str, str] = {
+    "get_bdd_scenario": (
+        "Read the feature file directly and work through it one scenario at a "
+        "time, in order. Reading ahead defeats the point: a whole file gets "
+        "skimmed and reported on in aggregate, where a single scenario has to "
+        "be carried out. Each scenario needs the feature's `Background` to be "
+        "executable, so keep that in view throughout."
+    ),
+    "get_context": (
+        "The rules and skills beside this file are the catalogue, already "
+        "resolved. Read them directly."
+    ),
+    "get_resource": (
+        "The resource is a file beside this one. Open it."
+    ),
+    "create_resource": (
+        "Write the file by hand into the project's resources directory, under a "
+        "directory named for its kind, then re-run sync. Without the server "
+        "nothing validates it, so check the frontmatter against a resource that "
+        "already works."
+    ),
+    "setup_config": (
+        "This needs the server. Configuration, hook installation and editor "
+        "guidance are all written by it; there is no manual equivalent worth "
+        "reproducing here."
+    ),
+}
+
 
 @dataclass(frozen=True)
 class SyncTarget:
@@ -263,6 +294,22 @@ class SyncService:
                 "none of the `{{...}}` markers in the output.\n\n"
                 "```markdown\n" + template.strip() + "\n```"
             )
+
+        fallbacks = [
+            (tool, guidance)
+            for tool, guidance in TOOL_FALLBACKS.items()
+            if tool in (record.get("body") or "")
+        ]
+        if fallbacks:
+            lines = [
+                "## Without the server",
+                "",
+                "This resource names tools the orchestration server provides. If it "
+                "is not running, use these instead.",
+                "",
+            ]
+            lines += [f"- **`{tool}`** — {guidance}" for tool, guidance in fallbacks]
+            parts.append("\n".join(lines))
 
         if record.get("self_check"):
             parts.append(
