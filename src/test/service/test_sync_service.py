@@ -199,6 +199,22 @@ def test_user_content_in_the_always_file_survives(sync, python_project: Path):
 # ------------------------------------------------------------ idempotence
 
 
+def test_setup_guidance_and_synced_rules_coexist(sync, resources, python_project: Path):
+    """Both write CLAUDE.md. A shared marker made the second erase the first."""
+    from common_rules_server.service.ide_service import IdeService
+    from common_rules_server.util import managed_blocks
+
+    ide = IdeService(str(python_project))
+    ide.setup_ide_rules(["claude"])
+    sync.sync(["claude"], include_hooks=False)
+    ide.setup_ide_rules(["claude"])  # and again, in the other order
+
+    text = (python_project / "CLAUDE.md").read_text()
+    assert "get_context()" in text, "setup guidance was lost"
+    assert "## orchestrator" in text, "synced rules were lost"
+    assert set(managed_blocks.block_names(text)) == {"guidance", "resources"}
+
+
 def test_resync_is_stable(sync, python_project: Path):
     first = sync.sync(["cursor"], include_hooks=False)
     before = (python_project / ".cursor/skills/tdd/SKILL.md").read_text()

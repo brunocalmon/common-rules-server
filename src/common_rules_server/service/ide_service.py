@@ -19,8 +19,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
-BLOCK_START = "<!-- BEGIN common-rules (managed — edits inside are overwritten) -->"
-BLOCK_END = "<!-- END common-rules -->"
+from common_rules_server.util import managed_blocks
+
+#: Name of the block this service owns. Sync writes a differently named block to
+#: the same files; sharing one name made the second write erase the first.
+BLOCK_NAME = "guidance"
+BLOCK_START = managed_blocks.start_marker(BLOCK_NAME)
+BLOCK_END = managed_blocks.end_marker(BLOCK_NAME)
 
 
 @dataclass(frozen=True)
@@ -207,16 +212,7 @@ class IdeService:
 
 
 def _merge_block(existing: str, guidance: str, target: IdeTarget) -> str:
-    """Inserts or replaces the managed block, leaving surrounding content alone."""
-    block = f"{BLOCK_START}\n{guidance.strip()}\n{BLOCK_END}\n"
-
-    if BLOCK_START in existing and BLOCK_END in existing:
-        head, _, rest = existing.partition(BLOCK_START)
-        _, _, tail = rest.partition(BLOCK_END)
-        return f"{head}{block}{tail.lstrip(chr(10))}"
-
-    if not existing.strip():
-        prefix = target.frontmatter or ""
-        return f"{prefix}{block}"
-
-    return f"{existing.rstrip()}\n\n{block}"
+    """Inserts or replaces the guidance block, leaving surrounding content alone."""
+    return managed_blocks.merge(
+        existing, guidance, BLOCK_NAME, prefix=target.frontmatter or ""
+    )
