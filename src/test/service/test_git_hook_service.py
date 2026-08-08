@@ -231,3 +231,64 @@ def test_pure_python_mirror_matches_the_hook_behaviour():
     )
     assert "Ana" in stripped
     assert "anthropic" not in stripped
+
+
+# --------------------------------------------------------- locating the hooks
+#
+# Asking git where hooks live is the only reliable answer. These cover the
+# configurations that break a hand-rolled ".git/hooks" assumption.
+
+
+def test_core_hookspath_is_respected(project: Path):
+    """A repository that relocates its hooks must not get a second set."""
+    custom = project / "githooks"
+    custom.mkdir()
+    subprocess.run(
+        ["git", "-C", str(project), "config", "core.hooksPath", "githooks"], check=True
+    )
+
+    result = GitHookService(str(project)).setup_hooks({"STRIP_AI_COAUTHORS": "true"})
+
+    assert result["installed"] is True
+    assert Path(result["hook_path"]).parent == custom
+    assert (custom / "commit-msg").exists()
+    assert not (project / ".git" / "hooks" / "commit-msg").exists()
+
+
+def test_a_real_worktree_resolves_to_the_shared_hooks_directory(project: Path, tmp_path: Path):
+    (project / "f.txt").write_text("x", encoding="utf-8")
+    subprocess.run(["git", "-C", str(project), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(project), "commit", "-q", "-m", "init"], check=True
+    )
+    worktree = tmp_path / "wt"
+    subprocess.run(
+        ["git", "-C", str(project), "worktree", "add", "-q", str(worktree), "-b", "side"],
+        check=True,
+        capture_output=True,
+    )
+
+    hooks_dir = GitHookService(str(worktree)).hooks_dir()
+
+    assert hooks_dir is not None
+    assert hooks_dir.is_absolute()
+    result = GitHookService(str(worktree)).setup_hooks({"STRIP_AI_COAUTHORS": "true"})
+    assert result["installed"] is True
+
+
+def test_falls_back_when_git_is_not_on_path(project: Path, monkeypatch):
+    """The fallback covers the ordinary layout so the feature degrades, not fails."""
+    monkeypatch.setenv("PATH", "/nonexistent")
+    hooks_dir = GitHookService(str(project)).hooks_dir()
+    assert hooks_dir == project / ".git" / "hooks"
+
+
+def test_unreadable_hook_file_does_not_raise(project: Path):
+    hooks = project / ".git" / "hooks"
+    hooks.mkdir(parents=True, exist_ok=True)
+    (hooks / "commit-msg").write_bytes(b"\xff\xfe not utf-8")
+
+    result = GitHookService(str(project)).setup_hooks({"STRIP_AI_COAUTHORS": "true"})
+
+    assert result["action"] in ("chained", "installed", "updated")
+    assert result["installed"] is True
