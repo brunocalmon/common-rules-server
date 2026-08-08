@@ -494,3 +494,53 @@ def test_only_agents_carry_the_subagent_marker(sync, python_project: Path):
         if "(subagent)" not in line:
             assert not line.startswith("- /orchestrator"), "agent listed unmarked"
     assert "- /grill-me (subagent):" not in block, "a skill was marked as an agent"
+
+
+# --------------------------------------------------- configuring what is used
+#
+# Syncing every layout because none was named leaves .cursor/ and .agents/ in a
+# project that only ever runs Claude Code — directories the user did not ask
+# for and has to recognise as ours before deleting.
+
+
+def test_with_no_argument_it_writes_only_for_detected_editors(sync, python_project: Path):
+    (python_project / ".claude").mkdir(exist_ok=True)
+
+    result = sync.sync(include_hooks=False)
+
+    assert [entry["ide"] for entry in result["synced"]] == ["claude"]
+    assert (python_project / "CLAUDE.md").exists()
+    assert not (python_project / ".cursor").exists()
+    assert not (python_project / ".agents").exists()
+
+
+def test_two_detected_editors_both_get_configured(sync, python_project: Path):
+    (python_project / ".claude").mkdir(exist_ok=True)
+    (python_project / ".cursor").mkdir(exist_ok=True)
+
+    result = sync.sync(include_hooks=False)
+
+    assert {entry["ide"] for entry in result["synced"]} == {"claude", "cursor"}
+    assert not (python_project / ".agents").exists()
+
+
+def test_detecting_nothing_writes_nothing_and_says_so(sync, python_project: Path):
+    """Scattering layouts on a guess is worse than asking one question."""
+    result = sync.sync(include_hooks=False)
+
+    assert result["synced"] == []
+    assert result["detected"] == []
+    assert "No editor detected" in result["error"]
+    assert "sync_to_ide(ides=" in result["hint"]
+    for layout in (".cursor", ".claude", ".agents"):
+        assert not (python_project / layout).exists()
+
+
+def test_an_explicit_choice_still_overrides_detection(sync, python_project: Path):
+    """Naming an editor is a decision; detection must not veto it."""
+    (python_project / ".claude").mkdir(exist_ok=True)
+
+    result = sync.sync(["cursor"], include_hooks=False)
+
+    assert [entry["ide"] for entry in result["synced"]] == ["cursor"]
+    assert (python_project / ".cursor/skills/tdd/SKILL.md").exists()

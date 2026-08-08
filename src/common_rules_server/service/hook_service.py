@@ -134,7 +134,20 @@ HOOK_COMMAND=$(printf '%s' "$HOOK_INPUT" | tr '\n' ' ' \
 HOOK_FILE=$(printf '%s' "$HOOK_INPUT" | tr '\n' ' ' \
   | sed -n 's/.*"\(file_path\|path\)"[[:space:]]*:[[:space:]]*"\(\([^"\\]\|\\.\)*\)".*/\2/p')
 
+# The conversation transcript, for events that fire after the agent has said
+# something. Without it a turn-end hook can only nag unconditionally, because
+# it has no way to see whether what it is about to ask for was already done --
+# which is how one shipped hook came to repeat itself eight turns running.
+HOOK_TRANSCRIPT=$(printf '%s' "$HOOK_INPUT" | tr '\n' ' ' \
+  | sed -n 's/.*"transcript_path"[[:space:]]*:[[:space:]]*"\(\([^"\\]\|\\.\)*\)".*/\1/p')
+
+# Set by the editor when a stop hook has already fired and continued the turn.
+# A hook that ignores it can re-trigger itself indefinitely.
+HOOK_STOP_ACTIVE=$(printf '%s' "$HOOK_INPUT" | tr '\n' ' ' \
+  | sed -n 's/.*"stop_hook_active"[[:space:]]*:[[:space:]]*\(true\|false\).*/\1/p')
+
 export HOOK_INPUT HOOK_EVENT PROJECT_DIR HOOK_COMMAND HOOK_FILE
+export HOOK_TRANSCRIPT HOOK_STOP_ACTIVE
 
 decision=allow
 message=''

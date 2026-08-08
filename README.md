@@ -40,8 +40,8 @@ This README is a hub. Everything else lives in the wiki.
 
 ## What ships
 
-44 resources — 4 always-applied rules, 24 skills (5 gated behind configuration
-flags), 6 subagents, 4 workflows, 1 loop and 5 lifecycle hooks — plus 32 output
+45 resources — 4 always-applied rules, 24 skills (5 gated behind configuration
+flags), 6 subagents, 4 workflows, 1 loop and 6 lifecycle hooks — plus 32 output
 templates so reports come back in a predictable shape.
 
 Everything is natural language. Nothing names an editor. Anything
@@ -150,8 +150,14 @@ running at all:
 # ask the agent to run: sync_to_ide()
 ```
 
-It writes every rule, skill, subagent and hook into `.cursor/`, `.claude/` and
-`.agents/` in the layout each editor documents. Re-run it after changing a
-resource — generated files are overwritten, so edit the resource, not the output.
+It writes every rule, skill, subagent and hook into the layout your editor
+documents. With no argument it configures **only the editors the project shows
+evidence of using** — a project that runs Claude Code gets `.claude/` and
+`CLAUDE.md`, and no `.cursor/` or `.agents/` it will never read. Name them
+explicitly to override that: `sync_to_ide(ides=["cursor", "claude"])`. When
+nothing is detected it writes nothing and asks, rather than guessing.
+
+Re-run it after changing a resource — generated files are overwritten, so edit
+the resource, not the output.
 
 Full instructions: **[Setup Guide](.docs/claude/onboarding/SETUP-GUIDE.md)**

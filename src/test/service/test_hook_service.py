@@ -269,7 +269,7 @@ def test_lint_hook_is_silent_when_no_per_file_command_is_set(tmp_path, resources
 def test_the_shipped_hooks_all_run(tmp_path: Path, resources):
     """Every hook in the default kit must execute without error."""
     hooks = resources.hooks()
-    assert len(hooks) >= 5
+    assert len(hooks) >= 6
     HookService(str(tmp_path)).install(hooks, ["cursor"])
 
     for hook in hooks:
@@ -343,23 +343,55 @@ def test_ai_co_author_commit_is_blocked_before_it_runs(tmp_path, resources):
     assert json.loads(run(script, human).stdout)["permission"] == "allow"
 
 
-def test_no_shipped_hook_fires_on_every_turn_end(resources):
-    """A `stop` hook that emits a message re-injects it on every turn end.
+# ------------------------------------------------------- the completion gate
+#
+# FND-029: its first version set a message with nothing guarding it, so the
+# reminder was re-delivered on every turn end. These run the generated script
+# against real transcripts, because the whole failure was that it could not
+# observe the thing it was asking about.
 
-    The editor has no way to know the agent already complied, so the reminder
-    arrives again the moment the next turn finishes, and again after that. The
-    completion-gate hook did exactly this and re-fired eight times in one
-    session before it was removed — see FND-029.
 
-    Closing obligations belong in the Always rules, which the agent reads once
-    per session, not in a hook that cannot observe whether they were met.
-    """
-    offenders = [
-        hook["name"]
-        for hook in resources.hooks()
-        if hook.get("event") == "stop" and "message=" in (hook.get("script") or "")
-    ]
-    assert offenders == [], (
-        f"{offenders} emit a message on the stop event; that reminder re-fires "
-        "every turn. Put the obligation in an Always rule instead."
-    )
+@pytest.fixture
+def gate(tmp_path: Path, resources) -> Path:
+    hooks = [h for h in resources.hooks() if h["name"] == "completion-gate"]
+    assert hooks, "completion-gate is not in the shipped kit"
+    HookService(str(tmp_path)).install(hooks, ["claude"])
+    return tmp_path / ".claude/hooks/completion-gate.sh"
+
+
+def _transcript(tmp_path: Path, name: str, text: str) -> str:
+    path = tmp_path / name
+    path.write_text(json.dumps({"role": "assistant", "text": text}) + "\n", encoding="utf-8")
+    return str(path)
+
+
+def test_it_says_nothing_when_the_receipt_is_there(gate: Path, tmp_path: Path):
+    """The failure was nagging an agent that had already complied."""
+    path = _transcript(tmp_path, "ok.jsonl", "done\nschema_version: 1\nverification: observed")
+    result = run(gate, json.dumps({"transcript_path": path, "stop_hook_active": False}))
+
+    assert result.returncode == 0
+    assert result.stdout.strip() == "", "it spoke when the receipt was present"
+
+
+def test_it_reminds_when_the_receipt_is_missing(gate: Path, tmp_path: Path):
+    path = _transcript(tmp_path, "bad.jsonl", "all finished, looks good to me")
+    result = run(gate, json.dumps({"transcript_path": path, "stop_hook_active": False}))
+
+    assert result.returncode == 0
+    context = json.loads(result.stdout)["hookSpecificOutput"]["additionalContext"]
+    assert "session receipt" in context
+
+
+def test_it_does_not_re_trigger_itself(gate: Path, tmp_path: Path):
+    """stop_hook_active means this hook already fired and continued the turn."""
+    path = _transcript(tmp_path, "bad2.jsonl", "no receipt here")
+    result = run(gate, json.dumps({"transcript_path": path, "stop_hook_active": True}))
+    assert result.stdout.strip() == ""
+
+
+def test_it_stays_silent_when_it_cannot_check(gate: Path):
+    """An editor that supplies no transcript must not be nagged blindly."""
+    assert run(gate, "{}").stdout.strip() == ""
+    missing = json.dumps({"transcript_path": "/nonexistent/transcript.jsonl"})
+    assert run(gate, missing).stdout.strip() == ""

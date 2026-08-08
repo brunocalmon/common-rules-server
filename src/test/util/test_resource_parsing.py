@@ -1,5 +1,6 @@
 """Parser behaviour, including the cases that used to fail silently."""
 
+import pytest
 from common_rules_server.util.resource_parsing import parse_resource, parse_resource_file
 
 MINIMAL_SKILL = """---
@@ -197,3 +198,44 @@ def test_an_unknown_trigger_is_still_rejected():
         "---\nkind: skill\nname: s\ndescription: X.\ntrigger: sometimes\n---\nBody\n"
     )
     assert any("invalid skill trigger" in e for e in parsed.errors)
+
+
+# ------------------------------------------- hooks that nag on every event
+#
+# FND-029: a stop hook set a message with nothing guarding it, so the reminder
+# was re-delivered after every turn. Deleting that file fixed that file; this
+# is what stops the next one, including any written via create_resource.
+
+def _hook(event: str, script: str) -> str:
+    return (
+        f"---\nkind: hook\nname: h\ndescription: X.\nevent: {event}\n"
+        f"blocking: false\n---\n\n## Script\n\n```sh\n{script}\n```\n"
+    )
+
+
+def test_an_unconditional_message_on_a_repeating_event_is_rejected():
+    parsed = parse_resource(_hook("stop", 'decision=allow\nmessage="Do the checklist."'))
+    assert not parsed.ok
+    assert any("no condition guarding it" in e for e in parsed.errors)
+
+
+@pytest.mark.parametrize("event", ["stop", "before-shell", "after-file-edit", "before-prompt"])
+def test_every_repeating_event_is_covered(event: str):
+    parsed = parse_resource(_hook(event, 'message="nag"'))
+    assert not parsed.ok, f"{event} allowed an unguarded message"
+
+
+def test_session_start_may_brief_unconditionally():
+    """It fires once per session, so there is nothing to repeat."""
+    parsed = parse_resource(_hook("session-start", 'decision=allow\nmessage="Read the contract."'))
+    assert parsed.ok, parsed.errors
+
+
+def test_a_guarded_message_is_allowed():
+    """Every shipped guard sets a message inside a test of its input."""
+    script = 'case "$HOOK_COMMAND" in\n  *danger*) decision=deny; message="No." ;;\nesac'
+    assert parse_resource(_hook("before-shell", script)).ok
+
+
+def test_a_hook_that_sets_no_message_is_allowed():
+    assert parse_resource(_hook("stop", "decision=allow")).ok

@@ -218,8 +218,11 @@ def parse_resource(text: str) -> ParsedResource:
                 f"invalid hook event '{event}' "
                 f"(expected one of {', '.join(VALID_HOOK_EVENTS)})"
             )
-        if not extract_script(text):
+        script = extract_script(text)
+        if not script:
             errors.append("hook has no '```sh' script block in its body")
+        else:
+            errors.extend(_unconditional_message_errors(event, script))
 
     if errors:
         return ParsedResource(errors=errors)
@@ -235,6 +238,47 @@ def parse_resource(text: str) -> ParsedResource:
 
 
 SCRIPT_BLOCK = re.compile(r"```(?:sh|bash|shell)\n(.*?)```", re.DOTALL)
+
+
+#: The one event that fires once per session. Every other event repeats — per
+#: turn, per shell command, per edit — so a message emitted without a condition
+#: is emitted again on every repetition.
+SINGLE_FIRE_EVENTS = ("session-start",)
+
+_CONDITIONAL = re.compile(r"(?m)^\s*(if|elif|case)\b")
+_SETS_MESSAGE = re.compile(r"(?m)^\s*message=")
+
+
+def _unconditional_message_errors(event: str, script: str) -> list[str]:
+    """Rejects a hook that nags on every occurrence of a repeating event.
+
+    ``completion-gate`` set a message on ``stop`` with no condition guarding it.
+    The editor delivers that as context each time a turn ends, so the same
+    reminder arrived after every reply — eight times in one session before a
+    human noticed. A hook cannot observe the response that has just gone out, so
+    it cannot know whether its reminder was already heeded; on a repeating event
+    it can only nag unconditionally. See FND-029.
+
+    Deleting that one file fixed that one file. This is the part that stops the
+    next one — including a hook written through ``create_resource``, which never
+    passes through review.
+
+    A message is fine when something is guarding it: every shipped guard sets
+    one inside an ``if`` or ``case`` that tests the command it was handed. What
+    is rejected is a script with no condition anywhere in it.
+    """
+    if event in SINGLE_FIRE_EVENTS:
+        return []
+    if not _SETS_MESSAGE.search(script):
+        return []
+    if _CONDITIONAL.search(script):
+        return []
+    return [
+        f"hook sets 'message' with no condition guarding it on the repeating "
+        f"event '{event}', so it fires on every occurrence. Guard it with an "
+        f"if/case that tests the input, or move the instruction into an "
+        f"Always rule, which the agent reads once per session."
+    ]
 
 
 def extract_script(text: str) -> Optional[str]:

@@ -126,15 +126,43 @@ class SyncService:
         self.resources = resources
         self.project_root = Path(project_root) if project_root else Path(os.getcwd())
 
+    def detect(self) -> list[SyncTarget]:
+        """The editors this project shows evidence of using.
+
+        Markers live in ``IdeService`` and are read from there rather than
+        copied, so the two services cannot disagree about what counts as
+        evidence that an editor is in use.
+        """
+        from common_rules_server.service.ide_service import IdeService
+
+        detected = {t.key for t in IdeService(str(self.project_root)).detect()}
+        return [target for target in SYNC_TARGETS if target.key in detected]
+
     def sync(self, ides: Optional[list[str]] = None, include_hooks: bool = True) -> dict[str, Any]:
-        selected = (
-            [TARGETS_BY_KEY[k] for k in ides if k in TARGETS_BY_KEY] if ides else list(SYNC_TARGETS)
-        )
-        if not selected:
-            return {
-                "synced": [],
-                "error": f"No known editor selected. Supported: {', '.join(TARGETS_BY_KEY)}.",
-            }
+        if ides:
+            selected = [TARGETS_BY_KEY[k] for k in ides if k in TARGETS_BY_KEY]
+            if not selected:
+                return {
+                    "synced": [],
+                    "error": f"No known editor selected. Supported: {', '.join(TARGETS_BY_KEY)}.",
+                }
+        else:
+            # Writing every layout because none was named leaves .cursor/ and
+            # .agents/ in a project that only ever runs one editor — directories
+            # the user did not ask for, will not read, and has to recognise as
+            # ours before deleting. Configure what is in use; ask about the rest.
+            selected = self.detect()
+            if not selected:
+                return {
+                    "synced": [],
+                    "detected": [],
+                    "error": "No editor detected in this project.",
+                    "hint": (
+                        "Nothing was written. Name the editor explicitly — "
+                        f"sync_to_ide(ides=[\"{next(iter(TARGETS_BY_KEY))}\"]) — "
+                        f"choosing from: {', '.join(TARGETS_BY_KEY)}."
+                    ),
+                }
 
         catalogue = self.resources.load()
         records = sorted(
