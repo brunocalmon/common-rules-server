@@ -1,5 +1,19 @@
-# Orchestrator Report
+# Routing — {{REQUEST_SUMMARY}}
 
-## Summary
+**Shape:** {{SHAPE}}
+**Route:** {{ROUTE}}
+**Workflow:** {{WORKFLOW}}
 
-## Details
+## Pre-flight
+
+| Question | Answer |
+|---|---|
+| Requirements settled? | {{REQUIREMENTS}} |
+| Documented process exists? | {{PROCESS}} |
+| Reproduction needed first? | {{REPRO}} |
+
+## Plan
+{{PLAN}}
+
+## Confirm before proceeding
+{{CONFIRM}}

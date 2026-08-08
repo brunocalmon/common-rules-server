@@ -2,43 +2,56 @@
 kind: workflow
 name: feature-dev
 description: >-
-  Full feature development workflow.
-  Use for new features that need planning, implementation, and review.
+  Build a feature end to end: settle requirements, plan, implement, verify,
+  review, document. Use for new work of any real size.
 phases:
   - name: Discover
     skills: [/grill-me]
-    gate: User confirms requirements are complete
+    gate: The user confirms the requirements are settled
   - name: Plan
     skills: [/architecture-compliance, /to-spec]
-    gate: User approves spec
-  - name: Develop
+    gate: The user approves the specification
+  - name: Build
     skills: [/dev-process, /tdd]
   - name: Verify
     skills: [/verify, /test-cycle]
-    gate: All checks pass
+    gate: The build is green and tests pass
   - name: Review
     skills: [/review]
   - name: Document
     skills: [/docs]
 relationships:
+  can-invoke:
+    - target: /research
+      required: false
+      note: When discovery needs facts nobody has
   output: templates/workflow-summary.md
+self_check:
+  - Did I stop at each gate and get a real answer?
+  - Were requirements confirmed settled before the Build phase started?
+  - Did I record which phases were skipped and why?
 ---
 
-## Relationships
+## Phases
 
 | Phase | Skills | Gate |
 |-------|--------|------|
-| Discover | /grill-me | User confirms requirements |
-| Plan | /architecture-compliance, /to-spec | User approves spec |
-| Develop | /dev-process, /tdd | — |
-| Verify | /verify, /test-cycle | All checks pass |
+| Discover | /grill-me | Requirements confirmed settled |
+| Plan | /architecture-compliance, /to-spec | Specification approved |
+| Build | /dev-process, /tdd | — |
+| Verify | /verify, /test-cycle | Build green, tests pass |
 | Review | /review | — |
 | Document | /docs | — |
 
 ## Instructions
 
-Guide the user through a full feature development cycle. Each phase invokes
-its skills in order. Gates require user confirmation before proceeding.
+Run the phases in order. A gate means stop and get an answer — not pause,
+announce, and continue.
 
-Phases can be skipped if the user explicitly requests it, but flag what was
-skipped in the workflow summary.
+The two early gates carry most of the value. Requirements confirmed at Discover
+and a specification approved at Plan are what stop the Build phase from
+producing something correct that nobody wanted.
+
+Phases may be skipped when the user asks. Record which were skipped and why in
+the summary, so the next person can tell the difference between work that passed
+review and work that never went to review.

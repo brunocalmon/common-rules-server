@@ -1,5 +1,12 @@
-# Pr Babysit Report
+# Babysit Round {{ROUND}} — {{TARGET}}
 
-## Summary
+| Area | State | Action |
+|---|---|---|
+| Conflicts | {{CONFLICT_STATE}} | {{CONFLICT_ACTION}} |
+| Comments | {{COMMENT_STATE}} | {{COMMENT_ACTION}} |
+| Build | {{BUILD_STATE}} | {{BUILD_ACTION}} |
 
-## Details
+**Merge-ready:** {{READY}}
+
+## Needs a decision from you
+{{DECISIONS}}

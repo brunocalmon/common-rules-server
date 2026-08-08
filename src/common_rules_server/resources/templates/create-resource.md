@@ -1,5 +1,18 @@
-# Create Resource Report
+# Resource Created — {{KIND}}:{{NAME}}
 
-## Summary
+**Path:** {{PATH}}
+**Overrides built-in:** {{OVERRIDES}}
 
-## Details
+## Overlap check
+{{OVERLAP_RESULT}}
+
+## Relationships
+| Relation | Target | Required? |
+|---|---|---|
+| {{RELATION}} | {{TARGET}} | {{REQUIRED}} |
+
+## Validation
+{{VALIDATION}}
+
+## Loaded and references resolve
+{{LOAD_CHECK}}

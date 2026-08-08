@@ -1,15 +1,17 @@
-# BDD Generation Report
+# Scenarios Written — {{FEATURE}}
 
-## Feature File
-- **Path:** `{{BDD_FILE_PATH}}`
-- **Features:** {{FEATURE_COUNT}}
-- **Scenarios:** {{SCENARIO_COUNT}}
+**File:** {{BDD_FILE_PATH}} · **Total:** {{SCENARIO_COUNT}}
 
-## Scenarios Generated
-| # | Feature | Scenario | Tool Tested |
-|---|---------|----------|-------------|
-| 1 | ... | ... | ... |
+| Type | Count |
+|---|---|
+| Happy path | {{HAPPY_COUNT}} |
+| Boundary | {{BOUNDARY_COUNT}} |
+| Error | {{ERROR_COUNT}} |
 
-## Grilling Summary
-- Questions asked: {{QUESTION_COUNT}}
-- Contracts validated: {{CONTRACT_COUNT}}
+## Contracts used
+| Scenario | Contract source | Exact |
+|---|---|---|
+| {{SCENARIO}} | {{SOURCE}} | {{EXACT}} |
+
+## Behaviour not yet covered
+{{UNCOVERED}}

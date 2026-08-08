@@ -1,5 +1,15 @@
-# Test Cycle Report
+# Coverage — {{PROJECT_NAME}}
 
-## Summary
+**Coverage:** {{COVERAGE}}% (threshold {{COVERAGE_THRESHOLD}}%) — {{VERDICT}}
 
-## Details
+## Gaps that matter
+
+| Area | Unverified behaviour | If it regressed |
+|---|---|---|
+| {{AREA}} | {{BEHAVIOUR}} | {{CONSEQUENCE}} |
+
+## Gaps not worth closing
+{{IGNORED}}
+
+## Proposed tests (awaiting confirmation)
+{{PROPOSED}}

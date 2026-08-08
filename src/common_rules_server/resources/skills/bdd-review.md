@@ -2,48 +2,56 @@
 kind: skill
 name: bdd-review
 description: >-
-  Review an existing agent_bdd.feature file for completeness,
-  contract accuracy, and coverage gaps. Suggest missing scenarios.
+  Assess whether acceptance scenarios genuinely cover the system's behaviour.
+  Use after execution, or when the suite has drifted from the contracts.
 trigger: user-invoked
 relationships:
   comes-from:
     - target: /bdd-run
       required: false
-      note: Review after execution to catch gaps
+  goes-to:
     - target: /bdd-generate
       required: false
-      note: Review after generation for quality
+      note: Write the scenarios found missing
   output: templates/bdd-review.md
 env:
-  requires: []
-  optional: []
+  optional: [BDD_FILE_PATH]
+self_check:
+  - Did I judge the suite against the system's real surface, or against itself?
+  - Did I check each scenario's assertions against the real contract?
+  - Did I report the happy-path-to-error balance honestly?
 ---
 
 ## Relationships
 
 | Relation | Target | Required? | Notes |
 |----------|--------|-----------|-------|
-| comes-from | /bdd-run | no | Review failures |
-| comes-from | /bdd-generate | no | Review generated file |
-| output | templates/bdd-review.md | yes | Review report |
+| comes-from | /bdd-run | no | Assess after execution |
+| goes-to | /bdd-generate | no | Write the missing scenarios |
+| output | templates/bdd-review.md | yes | Coverage assessment |
 
 ## Instructions
 
-Review the `agent_bdd.feature` file for quality and completeness.
+Judge the suite against the system, not against itself.
 
-**Checklist:**
+**Coverage.** Enumerate the system's real surface — every tool, endpoint or
+entry point, and every documented behaviour. Mark each as covered or not.
+Report the ones that are not; those are the parts nobody is checking.
 
-1. **Syntax.** Is every scenario valid Gherkin? Are keywords used correctly?
-2. **Coverage.** Does every tool/endpoint have at least:
-   - One happy-path scenario
-   - One error/edge-case scenario
-   - One boundary scenario (where applicable)
-3. **Contract accuracy.** Are the expected values in `Then` steps
-   exact matches of the real tool responses? No placeholders, no approximations.
-4. **Relationships.** If the system has cross-references between resources
-   (e.g., `/orchestrator` → `/general`), are those validated in scenarios?
-5. **Cleanup.** Do scenarios that create side effects (e.g., `create_resource`)
-   include cleanup steps?
-6. **Missing scenarios.** Suggest any scenarios that should exist but don't.
+**Contract accuracy.** For each scenario, compare its assertions against the
+real contract. Any field abbreviated, omitted, approximated or invented is a
+defect in the scenario. These are the dangerous ones: they pass, and they pass
+whether or not the system is correct.
 
-Produce a review report using the output template.
+**Balance.** Count happy path, boundary and error scenarios separately. A suite
+weighted towards happy paths reports health rather than measuring it.
+
+**Independence.** Any scenario that only passes after another has run is
+mis-written, because scenarios are executed one at a time.
+
+**Value.** Name scenarios that assert nothing meaningful — a status code with no
+check on the body, an assertion that restates the input. Recommend removing
+them. A suite kept honest is more useful than a suite kept large.
+
+Report findings as concrete gaps with the scenario that should exist, and hand
+them to /bdd-generate.

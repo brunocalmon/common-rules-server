@@ -1,17 +1,22 @@
-# BDD Review Report
+# Scenario Coverage — {{FEATURE}}
 
-## Coverage Analysis
-- **Tools covered:** {{TOOLS_COVERED}} / {{TOOLS_TOTAL}}
-- **Happy paths:** {{HAPPY_COUNT}}
-- **Error paths:** {{ERROR_COUNT}}
-- **Boundary tests:** {{BOUNDARY_COUNT}}
+## Surface coverage
+| Entry point | Covered | Scenarios |
+|---|---|---|
+| {{ENTRY}} | {{COVERED}} | {{SCENARIOS}} |
 
-## Gaps Identified
-| # | Tool | Missing Scenario | Priority |
-|---|------|-----------------|----------|
-| 1 | ... | ... | High/Medium/Low |
+**Covered:** {{TOOLS_COVERED}} of {{TOOLS_TOTAL}}
 
-## Contract Accuracy
-| # | Scenario | Status | Issue |
-|---|----------|--------|-------|
-| 1 | ... | OK/STALE | ... |
+## Contract accuracy
+| Scenario | Issue |
+|---|---|
+| {{SCENARIO}} | {{ISSUE}} |
+
+## Balance
+Happy {{HAPPY_COUNT}} · Boundary {{BOUNDARY_COUNT}} · Error {{ERROR_COUNT}}
+
+## Missing scenarios
+{{GAPS}}
+
+## Recommend removing
+{{LOW_VALUE}}

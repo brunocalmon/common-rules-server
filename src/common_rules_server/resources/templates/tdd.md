@@ -1,5 +1,10 @@
-# Tdd Report
+# TDD Cycle — {{FEATURE}}
 
-## Summary
+| # | Behaviour | Red observed | Green observed |
+|---|---|---|---|
+| {{N}} | {{BEHAVIOUR}} | {{RED}} | {{GREEN}} |
 
-## Details
+**Cycles:** {{CYCLE_COUNT}} · **Command:** `{{TEST_COMMAND}}`
+
+## Deferred to refactoring
+{{DEFERRED}}

@@ -1,18 +1,17 @@
-# BDD Execution Report
+# Scenario Execution — {{FEATURE}}
 
-## Summary
-- **Total Scenarios:** {{TOTAL}}
-- **Passed:** {{PASSED}}
-- **Failed:** {{FAILED}}
-- **Pass Rate:** {{PASS_RATE}}%
+**{{PASSED}} passed · {{FAILED}} failed · {{BLOCKED}} blocked** of {{TOTAL}}
 
-## Results
-| # | Scenario | Status | Details |
-|---|----------|--------|---------|
-| 1 | ... | PASS/FAIL | ... |
+| Page | Scenario | Result |
+|---|---|---|
+| {{PAGE}} | {{SCENARIO_NAME}} | {{STATUS}} |
 
 ## Failures
-### Scenario: {{SCENARIO_NAME}}
-- **Step:** {{STEP}}
-- **Expected:** {{EXPECTED}}
-- **Actual:** {{ACTUAL}}
+
+### Page {{PAGE}} — {{SCENARIO_NAME}}
+Step: {{STEP}}
+Expected: {{EXPECTED}}
+Observed: {{ACTUAL}}
+
+## Blocked
+{{BLOCKED_DETAIL}}

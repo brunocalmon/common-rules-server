@@ -1,5 +1,10 @@
-# To Tickets Report
+# Tickets — {{TITLE}}
 
-## Summary
+| # | Ticket | Delivers | Blocked by | Verified by |
+|---|---|---|---|---|
+| {{N}} | {{TITLE}} | {{DELIVERS}} | {{BLOCKED_BY}} | {{VERIFICATION}} |
 
-## Details
+**Slicing:** vertical · **Total:** {{COUNT}}
+
+## Granularity check
+{{GRANULARITY_QUESTION}}

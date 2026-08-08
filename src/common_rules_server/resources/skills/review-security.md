@@ -2,14 +2,19 @@
 kind: skill
 name: review-security
 description: >-
-  Focused security review of code changes.
-  Use when changes touch auth, input handling, data exposure, or crypto.
+  Focused security review of a change. Use when it touches authentication,
+  authorisation, untrusted input, secrets or cryptography.
 trigger: user-invoked
 relationships:
   comes-from:
     - target: /review
       required: false
+      note: Escalated from a general review
   output: templates/review-security.md
+self_check:
+  - Did I trace each issue from entry point to sink, rather than judging the sink alone?
+  - Did I state which categories I checked and found clean?
+  - For each finding, did I give the conditions that make it exploitable?
 ---
 
 ## Relationships
@@ -21,12 +26,20 @@ relationships:
 
 ## Instructions
 
-Review the diff specifically for security concerns:
+Review the change against each category. Trace data from where it enters to
+where it is used — a vulnerability is a path, and reading the sink alone will
+not show you one.
 
-1. **Injection** — SQL, command, XSS, template injection.
-2. **Auth/AuthZ** — bypass, privilege escalation, missing checks.
-3. **Data exposure** — secrets in code, PII logging, error leakage.
-4. **Crypto** — weak algorithms, hardcoded keys, insecure randomness.
-5. **Dependencies** — known vulnerabilities in added packages.
+| Category | What to look for |
+|---|---|
+| Injection | Untrusted input reaching SQL, shell, a template engine, a path, or rendered markup without escaping appropriate to that sink |
+| Authorisation | Missing or bypassable checks, checks on the wrong subject, privilege that widens along a code path |
+| Data exposure | Secrets committed, credentials or personal data in logs, internal detail in error responses |
+| Cryptography | Broken or home-made algorithms, hardcoded keys, predictable randomness where unpredictability is required |
+| Dependencies | Newly added packages, and known advisories against them |
 
-For each finding: severity (critical/high/medium/low), description, fix.
+For each finding: severity, the exact path from entry point to sink, the
+conditions that make it exploitable, and the fix.
+
+Say clearly which categories you checked and found clean. A security review that
+reports only findings leaves the reader unable to tell what was examined.

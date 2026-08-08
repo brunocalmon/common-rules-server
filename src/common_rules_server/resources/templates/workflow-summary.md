@@ -1,5 +1,14 @@
-# Workflow Summary Report
+# Workflow — {{WORKFLOW_NAME}}
 
-## Summary
+| Phase | Skills | Gate | Result |
+|---|---|---|---|
+| {{PHASE}} | {{SKILLS}} | {{GATE}} | {{RESULT}} |
 
-## Details
+## Skipped phases and why
+{{SKIPPED}}
+
+## Outcome
+{{OUTCOME}}
+
+## Left open
+{{OPEN}}

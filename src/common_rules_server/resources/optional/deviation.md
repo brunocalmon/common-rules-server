@@ -2,26 +2,43 @@
 kind: skill
 name: deviation
 description: >-
-  Request and document a deviation from standard processes.
-  Use when strict compliance is impossible or counter-productive.
-trigger: user-invoked
+  Record a deliberate departure from the documented process or requirements, with
+  its reasoning. Available when deviation tracking is enabled.
+trigger: model-invoked
+gate: ENABLE_DEVIATION
 relationships:
   comes-from:
     - target: /compliance
       required: false
   output: templates/deviation.md
 env:
-  requires: [ENABLE_DEVIATION]
+  optional: [WIKI_DIR]
+self_check:
+  - Did I state the cost, not just the reason?
+  - Was this agreed in advance, and did I say so honestly either way?
+  - Did I say whether the process itself should change?
 ---
 
 ## Relationships
 
 | Relation | Target | Required? | Notes |
 |----------|--------|-----------|-------|
-| comes-from | /compliance | no | Deviation from compliance |
-| output | templates/deviation.md | yes | Deviation report |
+| comes-from | /compliance | no | A requirement was not met |
+| output | templates/deviation.md | yes | Deviation record |
 
 ## Instructions
 
-If `ENABLE_DEVIATION` is false, stop.
-Document the exact process being deviated from, the reason why the deviation is necessary, and the plan to mitigate any risks.
+Record what was departed from, why, what was done instead, and what it costs.
+
+**Ask before deviating, record after.** A deviation agreed in advance is a
+decision; one recorded afterwards is a notification. Where the departure is
+already made, say so plainly rather than writing it as though it had been
+proposed.
+
+Every record states its cost. A deviation with no stated downside was either not
+a deviation or has not been thought through, and the cost is what a reader needs
+in order to decide whether to accept it again.
+
+Note whether it is a one-off or something the process should absorb. Repeated
+deviations in the same place are a sign the documented process is wrong, and
+that is worth acting on rather than working around each time.

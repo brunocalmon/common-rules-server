@@ -30,3 +30,9 @@ sample.notebook/
 
 # VSCode settings
 .vscode/
+
+# Test caches
+.pytest_cache/
+
+# Tool state
+.code-review-graph/

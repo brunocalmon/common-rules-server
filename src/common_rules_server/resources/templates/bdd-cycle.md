@@ -1,18 +1,17 @@
-# BDD Cycle Report
+# BDD Cycle — {{FEATURE}}
 
-## Cycle Summary
-- **Phase:** {{PHASE}} (Generate → Run → Review → Fix → Regression)
-- **Status:** {{STATUS}}
+| Phase | Result | Gate |
+|---|---|---|
+| Specify | {{SPECIFY}} | {{SPECIFY_GATE}} |
+| Generate | {{GENERATE}} | {{GENERATE_GATE}} |
+| Execute | {{EXECUTE}} | — |
+| Assess | {{ASSESS}} | — |
+| Close | {{CLOSE}} | {{CLOSE_GATE}} |
 
-## Phase Results
-| Phase | Status | Notes |
-|-------|--------|-------|
-| Generate | ... | ... |
-| Run | ... | ... |
-| Review | ... | ... |
-| Fix | ... | ... |
-| Regression | ... | ... |
+**Pass rate:** {{PASS_RATE}} ({{PASSED}}/{{TOTAL}})
 
-## Final Verdict
-- **All scenarios passing:** {{ALL_PASS}}
-- **Coverage gaps remaining:** {{GAPS_REMAINING}}
+## Fixed
+{{FIXED}}
+
+## Accepted, with reason
+{{ACCEPTED}}

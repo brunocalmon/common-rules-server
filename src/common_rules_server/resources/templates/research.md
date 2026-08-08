@@ -1,5 +1,16 @@
-# Research Report
+# Research — {{QUESTION}}
 
-## Summary
+## Findings
 
-## Details
+| # | Claim | Source | Type |
+|---|---|---|---|
+| {{N}} | {{CLAIM}} | {{SOURCE}} | primary / secondary |
+
+## Inferred, not established
+{{INFERENCES}}
+
+## Could not establish
+{{UNRESOLVED}}
+
+## Bearing on the decision
+{{IMPLICATIONS}}

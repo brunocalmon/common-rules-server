@@ -1,5 +1,24 @@
-# To Spec Report
+# Specification — {{TITLE}}
 
-## Summary
+## Problem
+{{PROBLEM}}
 
-## Details
+## Solution
+{{SOLUTION}}
+
+## User stories
+{{STORIES}}
+
+## Implementation decisions
+| Decision | Rationale | Alternatives rejected |
+|---|---|---|
+| {{DECISION}} | {{RATIONALE}} | {{REJECTED}} |
+
+## Testing decisions
+{{TESTING}}
+
+## Out of scope
+{{OUT_OF_SCOPE}}
+
+## Open questions
+{{OPEN}}

@@ -2,15 +2,24 @@
 kind: skill
 name: diagnose
 description: >-
-  Structured diagnosis loop for hard bugs and performance regressions.
-  Use when the user reports something broken, failing, or slow.
+  Find the root cause of a bug or regression through a reproducible feedback
+  loop. Use when something is broken, failing intermittently, or slower than it
+  should be.
 trigger: model-invoked
 relationships:
   goes-to:
     - target: /dev-process
       required: false
-      note: Fix the diagnosed bug
+      note: Fix once the cause is actually known
   output: templates/diagnose.md
+env:
+  optional: [TEST_COMMAND]
+self_check:
+  - Do I have a command that goes red on this specific bug, or am I still guessing?
+  - Did I watch the regression test fail before applying the fix?
+  - Did I show the user my ranked hypotheses before testing them?
+  - Did I remove every piece of debug instrumentation I added?
+  - Did I state the root cause, not the trigger and not the fix?
 ---
 
 ## Relationships
@@ -22,24 +31,35 @@ relationships:
 
 ## Instructions
 
-Six phases. Skip only when explicitly justified.
+Six phases. Skip one only with a stated reason.
 
-1. **Build a feedback loop.** This is THE skill. Find a tight pass/fail signal
-   for the bug — one command that goes red on THIS bug. Spend disproportionate
-   effort here. Try: failing test, curl, CLI invocation, headless browser,
-   replay trace, throwaway harness, fuzz loop, bisection, differential loop.
+**1. Build a feedback loop.** This is the phase that decides whether the rest
+works, and it deserves disproportionate effort. You need one command that goes
+red on this specific bug and green when it is gone. A failing test, a curl, a
+CLI invocation, a replay of a captured trace, a throwaway harness, a bisection,
+a differential run against a known-good version — whatever gives a fast,
+unambiguous signal. Without it you are guessing and cannot tell when you have
+stopped.
 
-2. **Reproduce + minimize.** Run the loop, watch it go red. Confirm it matches
-   the user's symptom. Shrink to the smallest scenario that still fails.
+**2. Reproduce and minimise.** Run the loop and watch it fail. Confirm the
+failure is the one the user reported and not a neighbour of it. Then cut the
+scenario down until nothing further can be removed without the failure going
+away. What remains is the bug.
 
-3. **Hypothesize.** Generate 3-5 ranked, falsifiable hypotheses BEFORE testing
-   any. Show the user — they often have domain knowledge that re-ranks instantly.
+**3. Hypothesise before testing.** Write three to five falsifiable hypotheses
+and rank them. Show them to the user before you start testing: they often know
+something that reorders the list instantly, which is far cheaper than
+discovering it by elimination.
 
-4. **Instrument.** One variable at a time. Prefer debugger > targeted logs >
-   never "log everything and grep". Tag debug logs with `[DEBUG-xxxx]`.
+**4. Instrument.** Change one variable at a time. Prefer a debugger; failing
+that, targeted logging at the specific point in question. Do not log everything
+and grep — it buries the signal and outlasts the investigation. Tag temporary
+output `[DEBUG-<id>]` so it can be found and removed exactly.
 
-5. **Fix + regression test.** Write the test before the fix. Watch it fail.
-   Apply fix. Watch it pass.
+**5. Fix, and prove it.** Write the regression test first and watch it fail.
+Apply the fix. Watch it pass. A fix without a test that failed beforehand is a
+change that appeared to help.
 
-6. **Cleanup.** Remove all `[DEBUG-*]` instrumentation. State the root cause
-   in the commit message.
+**6. Clean up.** Remove every `[DEBUG-*]` marker. State the root cause plainly —
+not the symptom, and not the fix. Someone reading this later needs to know why
+it happened.
