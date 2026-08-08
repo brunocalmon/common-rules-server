@@ -144,9 +144,13 @@ class SyncService:
     def _sync_target(self, target: SyncTarget, records: list[dict]) -> dict[str, Any]:
         written: list[str] = []
         always_rules: list[dict] = []
+        user_invoked: list[dict] = []
 
         for record in records:
             kind = record["kind"]
+            if record.get("trigger") == "user-invoked":
+                user_invoked.append(record)
+
             if kind == "hook":
                 continue
 
@@ -169,8 +173,8 @@ class SyncService:
 
             written.append(self._write_skill(target, record))
 
-        if target.always_file and always_rules:
-            written.append(self._write_always_file(target, always_rules))
+        if target.always_file and (always_rules or user_invoked):
+            written.append(self._write_always_file(target, always_rules, user_invoked))
 
         return {
             "ide": target.key,
@@ -237,7 +241,7 @@ class SyncService:
         content = "\n".join(front) + "\n\n" + "\n".join(body)
         return self._write(Path(target.agents_dir) / f"{record['name']}.md", content)
 
-    def _write_always_file(self, target: SyncTarget, rules: list[dict]) -> str:
+    def _write_always_file(self, target: SyncTarget, rules: list[dict], user_invoked: list[dict]) -> str:
         """Concatenates Always-rules into the file the editor reads every session.
 
         Only the managed block is replaced, so anything the user wrote in
@@ -254,6 +258,16 @@ class SyncService:
             sections.append(f"## {record['name']}")
             sections.append("")
             sections.append(self._body(record))
+            sections.append("")
+
+        if target.key == "claude" and user_invoked:
+            sections.append("## Custom Commands")
+            sections.append("")
+            sections.append("<chat-commands>")
+            for record in user_invoked:
+                # E.g. - /grill-me: Grill me on requirements
+                sections.append(f"- /{record['name']}: {_one_line(record['description'])}")
+            sections.append("</chat-commands>")
             sections.append("")
 
         path = self.project_root / target.always_file

@@ -27,6 +27,9 @@ relationships:
     - target: /onboard
       required: false
       note: When the project has no configuration yet
+    - target: agents/orchestrator
+      required: false
+      note: Escalation path for complex, multi-agent tasks
   output: templates/orchestrator.md
 self_check:
   - Did I state which route I chose and why, so the user could redirect me?
@@ -46,6 +49,7 @@ self_check:
 | can-invoke | /review | no | After verification passes |
 | can-invoke | /docs | no | Behaviour or architecture changed |
 | can-invoke | /onboard | no | Project not configured yet |
+| can-invoke | agents/orchestrator | no | Escalation for complex tasks |
 | output | templates/orchestrator.md | yes | Routing summary |
 
 ## Instructions
