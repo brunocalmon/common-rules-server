@@ -4,7 +4,7 @@
 
 # ADR-002 — Multi-agent orchestrator architecture
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-08-08
 
 ## Context
