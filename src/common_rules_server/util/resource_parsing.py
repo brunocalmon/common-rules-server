@@ -18,7 +18,19 @@ from typing import Any, Optional
 
 import yaml
 
-VALID_KINDS = ("rule", "skill", "agent", "workflow", "loop")
+VALID_KINDS = ("rule", "skill", "agent", "workflow", "loop", "hook")
+
+# Canonical lifecycle events. Each editor names these differently and
+# supports a different subset; the hook service owns that translation. A
+# hook is authored once against this vocabulary.
+VALID_HOOK_EVENTS = (
+    "session-start",
+    "before-prompt",
+    "before-shell",
+    "before-mcp",
+    "after-file-edit",
+    "stop",
+)
 
 VALID_RULE_TYPES = ("Always", "Agent Requested", "Auto Attached", "Manual")
 VALID_SKILL_TRIGGERS = ("user-invoked", "model-invoked")
@@ -92,6 +104,21 @@ def _normalize_relationships(raw: Any) -> dict:
             normalized[canonical] = edges
 
     return normalized
+
+
+def _normalize_self_check(raw: Any) -> list[str]:
+    """Coerces the self-check questionnaire into a list of questions.
+
+    Every resource carries one. It is the set of questions the agent puts to
+    itself before declaring the work done, and it exists because an agent that
+    is not asked will report completion from intent rather than from what it
+    actually did.
+    """
+    if isinstance(raw, str):
+        return [raw.strip()] if raw.strip() else []
+    if isinstance(raw, list):
+        return [str(item).strip() for item in raw if str(item).strip()]
+    return []
 
 
 def _normalize_env(raw: Any) -> dict:
@@ -173,6 +200,18 @@ def parse_resource(text: str) -> ParsedResource:
         if not str(header.get("wraps", "")).strip():
             errors.append("loop is missing required field 'wraps'")
 
+    if kind == "hook":
+        event = str(header.get("event", "")).strip()
+        if not event:
+            errors.append("hook is missing required field 'event'")
+        elif event not in VALID_HOOK_EVENTS:
+            errors.append(
+                f"invalid hook event '{event}' "
+                f"(expected one of {', '.join(VALID_HOOK_EVENTS)})"
+            )
+        if not extract_script(text):
+            errors.append("hook has no '```sh' script block in its body")
+
     if errors:
         return ParsedResource(errors=errors)
 
@@ -181,8 +220,22 @@ def parse_resource(text: str) -> ParsedResource:
     header["description"] = description
     header["relationships"] = _normalize_relationships(header.get("relationships"))
     header["env"] = _normalize_env(header.get("env"))
+    header["self_check"] = _normalize_self_check(header.get("self_check"))
 
     return ParsedResource(header=header, body=text[match.end():].lstrip("\n"))
+
+
+SCRIPT_BLOCK = re.compile(r"```(?:sh|bash|shell)\n(.*?)```", re.DOTALL)
+
+
+def extract_script(text: str) -> Optional[str]:
+    """Returns the first shell block in a resource body.
+
+    Hook scripts live in a fenced block rather than a YAML string so the hook
+    stays readable as a document and the script stays editable as a script.
+    """
+    match = SCRIPT_BLOCK.search(text or "")
+    return match.group(1).rstrip() if match else None
 
 
 def parse_resource_file(text: str):

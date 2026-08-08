@@ -22,7 +22,11 @@ from typing import Any, Optional
 
 from common_rules_server.service.config_service import ConfigService
 from common_rules_server.util import placeholders
-from common_rules_server.util.resource_parsing import VALID_KINDS, parse_resource
+from common_rules_server.util.resource_parsing import (
+    VALID_KINDS,
+    extract_script,
+    parse_resource,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -154,6 +158,12 @@ class ResourceService:
         record["body"] = body
         record["resolved_env"] = used
         record["unresolved_env"] = unresolved
+
+        # A hook's script is the executable part of the resource, so it is
+        # lifted out of the prose and resolved like any other instruction.
+        if record["kind"] == "hook":
+            record["script"] = extract_script(body)
+
         return record
 
     # ------------------------------------------------------------------ API
@@ -179,7 +189,11 @@ class ResourceService:
                 "env": record.get("env", {"requires": [], "optional": []}),
                 "source": record["source"],
             }
-            for optional_field in ("type", "trigger", "schedule", "wraps", "phases", "gate"):
+            if record.get("self_check"):
+                entry["self_check"] = record["self_check"]
+            for optional_field in (
+                "type", "trigger", "schedule", "wraps", "phases", "gate", "event", "blocking",
+            ):
                 if optional_field in record:
                     entry[optional_field] = record[optional_field]
             if record.get("unresolved_env"):
@@ -203,6 +217,14 @@ class ResourceService:
                 "reference each other as /name in their relationship tables."
             ),
         }
+
+    def hooks(self) -> list[dict]:
+        """Every loaded hook that carries a usable script."""
+        return [
+            record
+            for record in self.load()["resources"].values()
+            if record["kind"] == "hook" and record.get("script")
+        ]
 
     def get_resource(self, kind: str, name: str) -> dict[str, Any]:
         """Full content of one resource, with its output template attached."""
