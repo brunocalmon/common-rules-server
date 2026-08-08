@@ -43,7 +43,7 @@ def test_antigravity_layout_matches_the_documented_paths(sync, python_project: P
     sync.sync(["antigravity"], include_hooks=False)
 
     assert (python_project / ".agents/skills/tdd/SKILL.md").exists()
-    assert (python_project / "AGENTS.md").exists()
+    assert (python_project / ".agents/AGENTS.md").exists()
 
 
 def test_workflows_and_loops_become_skills(sync, python_project: Path):
@@ -337,7 +337,7 @@ def test_claude_export_lists_user_invocable_resources_as_commands(sync, python_p
 def test_editors_without_the_capability_get_no_command_block(sync, python_project: Path):
     """Declared on SyncTarget, so this holds for any target that opts out."""
     sync.sync(["antigravity"], include_hooks=False)
-    assert "<chat-commands>" not in (python_project / "AGENTS.md").read_text(encoding="utf-8")
+    assert "<chat-commands>" not in (python_project / ".agents/AGENTS.md").read_text(encoding="utf-8")
 
 
 def test_workflows_reach_the_command_list_despite_having_no_trigger(sync, python_project: Path):

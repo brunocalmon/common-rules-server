@@ -175,6 +175,8 @@ def setup_config(ide: Optional[str] = None, install_companions: bool = False) ->
                 f"that automation is unavailable there."
             )
 
+    sync_result = SyncService(resources, root).sync(detected)
+
     return {
         "config": config,
         "env_status": resolved["env_status"],
@@ -182,6 +184,7 @@ def setup_config(ide: Optional[str] = None, install_companions: bool = False) ->
         "editor_hooks": editor_hooks,
         "ide_rules": ide_rules,
         "companions": companions,
+        "sync": sync_result,
         "next_steps": next_steps,
         "message": (
             "Project configured. "

@@ -121,7 +121,7 @@ SYNC_TARGETS: tuple[SyncTarget, ...] = (
         chat_commands=True,
         commands_dir=".claude/commands",
     ),
-    SyncTarget("antigravity", "Antigravity", None, ".agents/skills", None, "AGENTS.md"),
+    SyncTarget("antigravity", "Antigravity", None, ".agents/skills", None, ".agents/AGENTS.md"),
 )
 
 TARGETS_BY_KEY = {target.key: target for target in SYNC_TARGETS}
