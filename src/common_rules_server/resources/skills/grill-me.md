@@ -5,7 +5,7 @@ description: >-
   Interrogate a plan, idea or requirement until nothing is left assumed. Use
   before non-trivial work, or when the user asks to have their thinking
   stress-tested.
-trigger: model-invoked
+trigger: user-invoked
 relationships:
   goes-to:
     - target: /to-spec

@@ -242,6 +242,25 @@ def test_user_content_in_the_always_file_survives(sync, python_project: Path):
     assert text.count(BLOCK_START) == 1
 
 
+def test_claude_always_file_injects_chat_commands_for_user_invoked_skills(sync, python_project: Path):
+    """EPC-004: Claude export must format user-invoked skills inside <chat-commands>."""
+    sync.sync(["claude"], include_hooks=False)
+    text = (python_project / "CLAUDE.md").read_text()
+
+    assert "## Custom Commands" in text
+    assert "<chat-commands>" in text
+    assert "</chat-commands>" in text
+    assert "- /grill-me:" in text
+
+
+def test_non_claude_always_file_omits_chat_commands(sync, python_project: Path):
+    """Non-Claude targets (e.g. Antigravity) must not output <chat-commands>."""
+    sync.sync(["antigravity"], include_hooks=False)
+    text = (python_project / "AGENTS.md").read_text()
+
+    assert "<chat-commands>" not in text
+
+
 # ------------------------------------------------------------ idempotence
 
 
