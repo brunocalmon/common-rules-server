@@ -579,3 +579,54 @@ def test_clean_leaves_an_unrelated_always_file_alone(sync, python_project: Path)
 
     assert claude_md.exists()
     assert "CLAUDE.md" not in result["removed"]
+
+
+# ------------------------------------------------------ agents you can type
+#
+# Claude Code keeps subagents and slash commands in separate namespaces. A file
+# in .claude/agents defines a type the model may spawn; it gives the user no way
+# to ask for it by name. Listing /orchestrator as a command without this is a
+# promise the editor does not keep.
+
+
+def test_each_agent_gets_a_typed_command(sync, python_project: Path):
+    sync.sync(["claude"], include_hooks=False)
+
+    for agent in ("orchestrator", "developer", "reviewer", "researcher", "architect"):
+        path = python_project / ".claude/commands" / f"{agent}.md"
+        assert path.exists(), f"/{agent} is advertised but has no command file"
+
+
+def test_the_command_spawns_the_agent_of_the_same_name(sync, python_project: Path):
+    sync.sync(["claude"], include_hooks=False)
+    text = (python_project / ".claude/commands/orchestrator.md").read_text(encoding="utf-8")
+
+    assert 'subagent_type: "orchestrator"' in text
+    assert "$ARGUMENTS" in text
+    assert "description:" in text
+
+
+def test_every_advertised_agent_command_exists(sync, python_project: Path):
+    """The chat-commands block and the commands directory must not disagree."""
+    result = sync.sync(["claude"], include_hooks=False)
+    advertised = set(result["synced"][0]["commands"])
+    agents = {r["name"] for r in sync.resources.load()["resources"].values() if r["kind"] == "agent"}
+
+    for name in advertised & agents:
+        assert (python_project / ".claude/commands" / f"{name}.md").exists(), (
+            f"/{name} is listed in chat-commands with no command file behind it"
+        )
+
+
+def test_editors_without_a_commands_dir_get_none(sync, python_project: Path):
+    sync.sync(["cursor"], include_hooks=False)
+    assert not (python_project / ".cursor/commands").exists()
+
+
+def test_clean_removes_the_generated_commands(sync, python_project: Path):
+    sync.sync(["claude"], include_hooks=False)
+    assert (python_project / ".claude/commands/orchestrator.md").exists()
+
+    sync.clean(["claude"])
+
+    assert not (python_project / ".claude/commands/orchestrator.md").exists()

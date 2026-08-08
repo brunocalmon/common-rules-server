@@ -101,6 +101,11 @@ class SyncTarget:
     #: than tested by key at the point of use, so adding a fourth editor is a
     #: row in this table instead of a condition buried in a writer.
     chat_commands: bool = False
+    #: Where the editor reads typed slash commands from, when agents are not
+    #: typeable by virtue of being agents. Claude Code keeps subagents and
+    #: slash commands in separate namespaces: a file in `agents/` defines a type
+    #: the *model* may spawn, and gives the user no way to ask for it by name.
+    commands_dir: Optional[str] = None
 
 
 SYNC_TARGETS: tuple[SyncTarget, ...] = (
@@ -114,6 +119,7 @@ SYNC_TARGETS: tuple[SyncTarget, ...] = (
         "CLAUDE.md",
         tool_frontmatter=True,
         chat_commands=True,
+        commands_dir=".claude/commands",
     ),
     SyncTarget("antigravity", "Antigravity", None, ".agents/skills", None, "AGENTS.md"),
 )
@@ -219,6 +225,8 @@ class SyncService:
 
             if kind == "agent" and target.agents_dir:
                 written.append(self._write_agent(target, record))
+                if target.commands_dir:
+                    written.append(self._write_agent_command(target, record))
                 continue
 
             written.append(self._write_skill(target, record))
@@ -290,6 +298,40 @@ class SyncService:
 
         content = "\n".join(front) + "\n\n" + "\n".join(body)
         return self._write(Path(target.agents_dir) / f"{record['name']}.md", content)
+
+    def _write_agent_command(self, target: SyncTarget, record: dict) -> str:
+        """A typed command that spawns the agent of the same name.
+
+        Writing the agent alone leaves it spawnable by the model and unreachable
+        by the user: nothing in the editor turns a subagent into something you
+        can ask for by name. The command file closes that gap, and is why the
+        `<chat-commands>` entry for an agent is a promise rather than a lie.
+
+        The body is a prompt, not configuration — typing the command sends it,
+        so it addresses the agent that will read it.
+        """
+        front = [
+            "---",
+            f"description: {_one_line(record['description'])}",
+            "argument-hint: [what the agent should work on]",
+            "---",
+        ]
+        body = [
+            GENERATED_HEADER,
+            "",
+            f"Use the Agent tool to spawn the `{record['name']}` subagent, passing "
+            f"`subagent_type: \"{record['name']}\"`.",
+            "",
+            "Give it this as its task:",
+            "",
+            "$ARGUMENTS",
+            "",
+            "It runs in its own context window, so tell it everything it needs; it "
+            "cannot see this conversation. Report back what it returned, including "
+            "any part it could not do.",
+        ]
+        content = "\n".join(front) + "\n\n" + "\n".join(body) + "\n"
+        return self._write(Path(target.commands_dir) / f"{record['name']}.md", content)
 
     def _write_always_file(
         self, target: SyncTarget, rules: list[dict], commands: list[dict]
@@ -403,7 +445,12 @@ class SyncService:
         )
         removed = []
         for target in selected:
-            for directory in (target.rules_dir, target.skills_dir, target.agents_dir):
+            for directory in (
+                target.rules_dir,
+                target.skills_dir,
+                target.agents_dir,
+                target.commands_dir,
+            ):
                 if not directory:
                     continue
                 root = self.project_root / directory
