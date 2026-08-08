@@ -126,6 +126,25 @@ Use them when they are available:
 
 If either is missing, `setup_config()` reports it along with how to install it.
 
+## If this project has been synced
+
+Running `sync_to_ide` writes every resource into this editor's own files. When
+that has happened, the rules and skills beside this one *are* the kit, already
+resolved — read them directly and do not call the server for the same content.
+
+Both modes are equivalent in what they say. The server is authoritative and
+always current; the synced files cost nothing to read but go stale until sync is
+re-run. If the two disagree, the server is right and a sync is overdue.
+
+## Standing obligations
+
+Every resource carries a `self_check` list. Answer it before reporting work
+done, and say plainly what you did not do. Close each response with the session
+receipt, whose verification field must name something you observed.
+
+Some automations run from the editor itself rather than from these instructions.
+If one blocks an action, that is the system working as intended.
+
 ## Creating new resources
 
 Use `create_resource(kind, name, description, body)`. It writes into this

@@ -52,6 +52,35 @@ def test_guidance_names_no_editor(tmp_path: Path):
         assert editor not in block
 
 
+def test_guidance_covers_the_synced_mode(tmp_path: Path):
+    """After a sync, telling the agent to call the server is wrong.
+
+    Both routes deliver the same content; the guidance has to say which is
+    authoritative when they disagree.
+    """
+    (tmp_path / ".cursor").mkdir()
+    IdeService(str(tmp_path)).setup_ide_rules()
+    written = " ".join(
+        (tmp_path / ".cursor/rules/common-rules-orchestrator.mdc").read_text().split()
+    )
+
+    assert "synced" in written.lower()
+    assert "the server is right and a sync is overdue" in written
+
+
+def test_guidance_states_the_standing_obligations(tmp_path: Path):
+    (tmp_path / ".cursor").mkdir()
+    IdeService(str(tmp_path)).setup_ide_rules()
+    # Collapse wrapping: the guidance is prose, so a phrase may straddle lines.
+    written = " ".join(
+        (tmp_path / ".cursor/rules/common-rules-orchestrator.mdc").read_text().split()
+    )
+
+    assert "self_check" in written
+    assert "session receipt" in written.lower()
+    assert "blocks an action" in written
+
+
 def test_rerunning_replaces_the_block_rather_than_appending(tmp_path: Path):
     (tmp_path / ".cursor").mkdir()
     service = IdeService(str(tmp_path))

@@ -23,6 +23,7 @@ A hook's ``sh`` block is a fragment, not a whole script. It runs with:
 
 * ``HOOK_INPUT``   — the raw event JSON the editor supplied on stdin
 * ``HOOK_COMMAND`` — the shell command in question, extracted from that JSON
+* ``HOOK_FILE``    — the file an edit touched, for events that concern one
 * ``HOOK_EVENT``   — the canonical event name
 * ``PROJECT_DIR``  — the project root
 
@@ -128,7 +129,12 @@ PROJECT_DIR="${{CLAUDE_PROJECT_DIR:-$(pwd)}}"
 HOOK_COMMAND=$(printf '%s' "$HOOK_INPUT" | tr '\n' ' ' \
   | sed -n 's/.*"command"[[:space:]]*:[[:space:]]*"\(\([^"\\]\|\\.\)*\)".*/\1/p')
 
-export HOOK_INPUT HOOK_EVENT PROJECT_DIR HOOK_COMMAND
+# The file an edit touched, for events that concern one. Editors spell this
+# "file_path" or "path"; both are tried.
+HOOK_FILE=$(printf '%s' "$HOOK_INPUT" | tr '\n' ' ' \
+  | sed -n 's/.*"\(file_path\|path\)"[[:space:]]*:[[:space:]]*"\(\([^"\\]\|\\.\)*\)".*/\2/p')
+
+export HOOK_INPUT HOOK_EVENT PROJECT_DIR HOOK_COMMAND HOOK_FILE
 
 decision=allow
 message=''

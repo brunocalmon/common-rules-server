@@ -78,3 +78,20 @@ Before starting, settle these. Each is cheap to answer now and expensive later.
 Prefer a required edge over your own judgement. A resource that declares
 `required: true` on its next step is stating that skipping it produces work that
 looks finished and is not.
+
+## Standing obligations
+
+Three things apply to every task regardless of the route taken.
+
+**/self-review** — every resource carries a `self_check`. Extend it before you
+start, answer it before you finish, and treat an unanswered question as work not
+done.
+
+**/session-receipt** — close the response with the receipt. Its verification
+field must name something you observed, not the work you performed.
+
+**Enforcement is not advisory.** Some automations run from the editor itself:
+secrets are blocked from reaching the transcript, destructive commands ask first,
+commit authorship is protected. If one of them stops you, that is the system
+working — do not route around it. Where you disagree, say so and let the user
+decide.

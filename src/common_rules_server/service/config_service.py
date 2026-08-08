@@ -125,6 +125,14 @@ CONFIG_SCHEMA: tuple[ConfigKey, ...] = (
         example="uv run ruff check ., npm run lint",
     ),
     ConfigKey(
+        "LINT_FILE_COMMAND",
+        "Code style",
+        "Command that lints a single file, with the path appended. Used by the "
+        "post-edit hook. Left empty the hook does nothing, because running a "
+        "whole-project lint after every edit is slow enough to be switched off.",
+        example="uv run ruff check, npx eslint",
+    ),
+    ConfigKey(
         "LINTER_TOOL",
         "Code style",
         "Linter in use. Enables the optional code-style resource when set.",

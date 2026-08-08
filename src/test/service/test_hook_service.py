@@ -238,6 +238,34 @@ def test_hook_command_is_extracted_from_each_editors_payload(tmp_path: Path):
         assert message == "saw:ls -la", payload
 
 
+def test_edited_file_path_is_extracted(tmp_path: Path):
+    hook = {
+        "name": "filer",
+        "description": "Reports the edited file.",
+        "event": "after-file-edit",
+        "blocking": False,
+        "script": 'decision=allow; message="file:$HOOK_FILE"',
+    }
+    HookService(str(tmp_path)).install([hook], ["cursor"])
+    script = tmp_path / ".cursor/hooks/filer.sh"
+
+    for payload in (
+        '{"file_path":"src/app.py"}',
+        '{"tool_input":{"file_path":"src/app.py"}}',
+        '{"path":"src/app.py"}',
+    ):
+        assert json.loads(run(script, payload).stdout)["agent_message"] == "file:src/app.py"
+
+
+def test_lint_hook_is_silent_when_no_per_file_command_is_set(tmp_path, resources):
+    """A whole-project lint after every edit gets the hook switched off."""
+    HookService(str(tmp_path)).install(resources.hooks(), ["cursor"])
+    result = run(
+        tmp_path / ".cursor/hooks/format-after-edit.sh", '{"file_path":"src/app.py"}'
+    )
+    assert json.loads(result.stdout) == {"permission": "allow"}
+
+
 def test_the_shipped_hooks_all_run(tmp_path: Path, resources):
     """Every hook in the default kit must execute without error."""
     hooks = resources.hooks()
