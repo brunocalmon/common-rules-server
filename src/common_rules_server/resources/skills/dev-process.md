@@ -24,7 +24,7 @@ relationships:
       note: If behavior changed
   output: templates/dev-process.md
 env:
-  optional: [README_PATH, ARCHITECTURE_PATH]
+  optional: [README_PATH, WIKI_DIR]
 ---
 
 ## Relationships
@@ -42,7 +42,7 @@ env:
 
 Before writing code, confirm:
 
-1. {{README_PATH}} and {{ARCHITECTURE_PATH}} exist and describe the dev workflow.
+1. {{README_PATH}} (Hub) and {{WIKI_DIR}} exist and describe the dev workflow.
 2. If either is missing or unclear, ask — do not assume.
 
 Follow the documented development process. If the project uses TDD, invoke /tdd.

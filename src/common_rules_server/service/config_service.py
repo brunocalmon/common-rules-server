@@ -8,9 +8,13 @@ class ConfigService:
         self.env_file = self.project_root / ".common-rules-mcp.env"
         
         self.defaults = {
+            "BUILD_SYSTEM": "unknown",
+            "PROJECT_LANGUAGE": "unknown",
             "README_PATH": "README.md",
-            "ARCHITECTURE_PATH": "ARCHITECTURE.md",
-            "DOCS_DIR": "docs/",
+            "WIKI_DIR": ".docs",
+            "DOCS_PROTOCOL": ".docs/template/DOCUMENTATION-PROTOCOL.md",
+            "BUILD_COMMAND": "",
+            "TEST_COMMAND": "",
             "COVERAGE_THRESHOLD": "80",
             "ENABLE_NOTEBOOKS": "false",
             "NOTEBOOK_DIR": "./notebook/",

@@ -11,7 +11,7 @@ relationships:
       required: false
   output: templates/architecture-compliance.md
 env:
-  optional: [ARCHITECTURE_PATH]
+  optional: [WIKI_DIR]
 ---
 
 ## Relationships
@@ -23,7 +23,7 @@ env:
 
 ## Instructions
 
-Read {{ARCHITECTURE_PATH}} and compare against the actual codebase.
+Read architecture documents in {{WIKI_DIR}}/architecture and compare against the actual codebase.
 
 | Dimension | What to compare |
 |-----------|----------------|
@@ -35,4 +35,4 @@ Read {{ARCHITECTURE_PATH}} and compare against the actual codebase.
 For each: if compliant, note it. If not, describe the gap and recommend fixing
 the code OR updating the docs.
 
-If {{ARCHITECTURE_PATH}} does not exist, stop and ask the user to create it.
+If architecture docs do not exist in {{WIKI_DIR}}, stop and ask the user to create them.

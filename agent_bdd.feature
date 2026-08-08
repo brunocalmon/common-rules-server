@@ -55,7 +55,7 @@ Feature: get_resource — Full Resource Retrieval
     And the response has key "file" which ends with "resources/rules/general.md"
     And the response has key "env" which is an object
     And the response "env" has key "optional" containing "README_PATH"
-    And the response "env" has key "optional" containing "ARCHITECTURE_PATH"
+    And the response "env" has key "optional" containing "WIKI_DIR"
     And the response "relationships" has key "goes-to" as a list with at least 1 item
     And the first item in "goes-to" has target "/orchestrator" and required true
 

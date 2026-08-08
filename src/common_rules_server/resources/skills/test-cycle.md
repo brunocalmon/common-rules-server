@@ -29,4 +29,4 @@ env:
 3. If coverage is below {{COVERAGE_THRESHOLD}} (default: 80%), identify gaps.
 4. For each gap, suggest a test. Do not write tests automatically — confirm first.
 
-If commands are not set, read from {{README_PATH}} or ask.
+If commands are not set, read from {{WIKI_DIR}} or ask.

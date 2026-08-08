@@ -11,7 +11,7 @@ relationships:
       required: true
   output: templates/general.md
 env:
-  optional: [README_PATH, ARCHITECTURE_PATH, BUILD_COMMAND]
+  optional: [README_PATH, WIKI_DIR, BUILD_COMMAND]
 ---
 
 ## Relationships
@@ -25,7 +25,8 @@ env:
 
 Run a workspace health check and report status.
 
-**Documentation.** Check if {{README_PATH}} and {{ARCHITECTURE_PATH}} exist.
+**Documentation.** Check if {{README_PATH}} and {{WIKI_DIR}} exist.
+The {{README_PATH}} at the root is just a Hub. The actual documentation lives in {{WIKI_DIR}}.
 If both exist, read them to understand the project. If either is missing, note
 it — do not assume anything about the project.
 

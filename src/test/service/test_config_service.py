@@ -7,9 +7,11 @@ def test_config_service_defaults(tmp_path):
     service = ConfigService(project_root=str(tmp_path))
     result = service.get_config()
     
-    config = result["config"]
+    config = service.get_config()["config"]
     assert config["README_PATH"] == "README.md"
-    assert config["COVERAGE_THRESHOLD"] == "80"
+    assert config["WIKI_DIR"] == ".docs"
+    assert config["DOCS_PROTOCOL"] == ".docs/template/DOCUMENTATION-PROTOCOL.md"
+    assert config["BUILD_COMMAND"] == ""
     assert result["env_status"]["file_exists"] is False
 
 def test_config_service_auto_detect_python(tmp_path):
