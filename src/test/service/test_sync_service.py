@@ -467,3 +467,30 @@ def test_unmapped_tool_names_are_dropped_not_guessed(sync):
     assert _native_tools(["read", "code-review-graph", "edit"]) == ["Read", "Edit"]
     assert _native_tools(["execute", "git-diff"]) == ["Bash"]  # collapsed
     assert _native_tools(["Read", "Bash"]) == ["Read", "Bash"]  # already native
+
+
+def test_agents_are_typeable_and_marked_as_subagents(sync, python_project: Path):
+    """An agent nobody can name is an agent that never runs.
+
+    The editor knows it as a subagent type, but without a command the user has
+    no way to ask for one.
+    """
+    sync.sync(["claude"], include_hooks=False)
+    text = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+
+    for agent in ("orchestrator", "developer", "reviewer", "architect", "researcher"):
+        assert f"- /{agent} (subagent):" in text, f"{agent} cannot be invoked"
+
+
+def test_only_agents_carry_the_subagent_marker(sync, python_project: Path):
+    """A skill runs here; an agent runs in its own window. Marking them the
+    same way loses the distinction that makes delegation work."""
+    sync.sync(["claude"], include_hooks=False)
+    block = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+    listed = [l for l in block.splitlines() if l.startswith("- /")]
+
+    assert [l for l in listed if "(subagent)" in l], "no agents listed"
+    for line in listed:
+        if "(subagent)" not in line:
+            assert not line.startswith("- /orchestrator"), "agent listed unmarked"
+    assert "- /grill-me (subagent):" not in block, "a skill was marked as an agent"

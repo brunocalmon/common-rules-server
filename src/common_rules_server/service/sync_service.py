@@ -431,12 +431,14 @@ def _native_tools(tools: list) -> list[str]:
 def _is_command(record: dict) -> bool:
     """Whether the user can type this resource's name as a command.
 
-    Two sources, because ``trigger`` alone under-reports. Workflows and loops
-    carry no trigger — the field is only required of skills — yet a workflow is
-    precisely a procedure a user starts by name. Filtering on ``trigger`` alone
-    silently drops every workflow in the kit from the command list.
+    Kind decides for three of them, because ``trigger`` alone under-reports.
+    Workflows and loops carry no trigger — the field is only required of skills
+    — yet a workflow is precisely a procedure a user starts by name. Agents
+    carry none either, and an agent nobody can name is an agent that never runs:
+    the editor knows it as a subagent type, but the user has no way to ask for
+    one. Filtering on ``trigger`` alone silently drops all three groups.
     """
-    if record["kind"] in ("workflow", "loop"):
+    if record["kind"] in ("workflow", "loop", "agent"):
         return True
     return record.get("trigger") in COMMAND_TRIGGERS
 
@@ -446,17 +448,37 @@ def _render_commands(commands: list[dict]) -> str:
 
     Ordering follows the catalogue's (kind, name) sort, so re-running sync over
     an unchanged kit produces a byte-identical block.
+
+    Agents are marked, because typing one means something different from typing
+    a skill: the skill runs here, the agent runs in its own context window as a
+    subagent. Left unmarked they read as ordinary commands, and the delegation
+    never happens.
     """
+    agents = [r for r in commands if r["kind"] == "agent"]
     lines = [
         "## Custom Commands",
         "",
         "Type any of these directly. Each resolves to the resource of the same "
-        "name beside this file.",
+        "name beside this file. Entries marked `(subagent)` are spawned into "
+        "their own context window rather than run in this one.",
         "",
         "<chat-commands>",
     ]
-    lines.extend(f"- /{r['name']}: {_one_line(r['description'])}" for r in commands)
+    for record in commands:
+        mark = " (subagent)" if record["kind"] == "agent" else ""
+        lines.append(f"- /{record['name']}{mark}: {_one_line(record['description'])}")
     lines.append("</chat-commands>")
+
+    if agents:
+        lines.extend(
+            [
+                "",
+                "To delegate, spawn the agent by name — do not paste its "
+                "instructions into this conversation. The separate context "
+                "window is the point: it is what lets workers run in parallel "
+                "without consuming the context you are working in.",
+            ]
+        )
     return "\n".join(lines)
 
 

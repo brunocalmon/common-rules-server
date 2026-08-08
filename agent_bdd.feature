@@ -576,25 +576,40 @@ Feature: Common Rules orchestration server
   @sync @commands
   Scenario: user-invocable resources become typeable commands in Claude Code
     When I call sync_to_ide(ides=["claude"], include_hooks=false)
-    Then CLAUDE.md contains the section "## Custom Commands"
-    And CLAUDE.md contains the line "<chat-commands>"
-    And CLAUDE.md contains the line "- /grill-me:"
-    And CLAUDE.md contains the line "- /feature-dev:"
-    And CLAUDE.md contains the line "- /pr-babysit:"
-    And CLAUDE.md contains the line "</chat-commands>"
-    And CLAUDE.md does not contain the line "- /guard-secrets:"
+    Then CLAUDE.md contains the text "## Custom Commands"
+    And CLAUDE.md contains the text "<chat-commands>"
+    And CLAUDE.md contains the text "- /grill-me:"
+    And CLAUDE.md contains the text "- /feature-dev:"
+    And CLAUDE.md contains the text "- /pr-babysit:"
+    And CLAUDE.md contains the text "</chat-commands>"
+    And CLAUDE.md does not contain the text "- /guard-secrets:"
 
   @sync @commands
   Scenario: an editor that does not read the command block never receives one
     When I call sync_to_ide(ides=["antigravity"], include_hooks=false)
-    Then AGENTS.md does not contain the line "<chat-commands>"
+    Then AGENTS.md does not contain the text "<chat-commands>"
 
   @sync @commands
   Scenario: a command with trigger "both" stays model-invokable
     When I call sync_to_ide(ides=["claude"], include_hooks=false)
-    Then CLAUDE.md contains the line "- /grill-me:"
-    And .claude/skills/grill-me/SKILL.md does not contain "disable-model-invocation"
-    And .claude/skills/to-spec/SKILL.md contains "disable-model-invocation: true"
+    Then CLAUDE.md contains the text "- /grill-me:"
+    And .claude/skills/grill-me/SKILL.md does not contain the text "disable-model-invocation"
+    And .claude/skills/to-spec/SKILL.md contains the text "disable-model-invocation: true"
+
+  @sync @agents
+  Scenario: exported agents are restricted to the tools they declare
+    When I call sync_to_ide(ides=["claude"], include_hooks=false)
+    Then .claude/agents/orchestrator.md contains the text "tools: Read, Grep, Glob, Agent"
+    And .claude/agents/developer.md contains the text "tools: Read, Grep, Glob, Edit, Bash"
+    And every agent file under .claude/agents/ contains a line starting with "tools:"
+
+  @sync @commands @agents
+  Scenario: agents are typeable and marked as spawning a subagent
+    When I call sync_to_ide(ides=["claude"], include_hooks=false)
+    Then CLAUDE.md contains the text "- /orchestrator (subagent):"
+    And CLAUDE.md contains the text "- /developer (subagent):"
+    And CLAUDE.md contains the text "- /reviewer (subagent):"
+    And CLAUDE.md does not contain the text "- /grill-me (subagent):"
 
   @sync @completeness
   Scenario: nothing loadable is left behind
