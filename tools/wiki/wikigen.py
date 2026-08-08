@@ -47,10 +47,16 @@ def build(root: Path, pages: list[tuple[str, str, str]], hub: str = "README.md")
 LINK = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 
 
-def check_links(root: Path) -> list[str]:
-    """Returns every relative link that does not resolve to a file."""
+def check_links(root: Path, skip: tuple = ()) -> list[str]:
+    """Returns every relative link that does not resolve to a file.
+
+    ``skip`` names directories to leave alone — imported material keeps links
+    into the context it was written in, which is not navigation we maintain.
+    """
     broken = []
     for path in sorted(root.rglob("*.md")):
+        if any(part in skip for part in path.relative_to(root).parts):
+            continue
         for target in LINK.findall(path.read_text(encoding="utf-8")):
             # file:// links appear in imported transcripts and point outside
             # the wiki by nature; they are not navigation.

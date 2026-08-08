@@ -1813,6 +1813,6 @@ if __name__ == "__main__":
                 continue
             shutil.rmtree(entry) if entry.is_dir() else entry.unlink()
     build(ROOT, PAGES)
-    broken = check_links(ROOT)
+    broken = check_links(ROOT, skip=tuple(PRESERVE))
     print(f"pages: {len(PAGES)}")
     print("broken links:", broken or "none")
