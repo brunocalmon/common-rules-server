@@ -15,7 +15,7 @@
 | [EPC-002](epics/EPC-002.md) | Default kit | Done | 4/4 |
 | [EPC-003](epics/EPC-003.md) | Active orchestration | Done | 3/3 |
 | [EPC-004](epics/EPC-004.md) | Agent BDD framework | Done | 3/3 |
-| [EPC-006](epics/EPC-006.md) | Enforcement and portability | Done | 4/4 |
+| [EPC-006](epics/EPC-006.md) | Enforcement and portability | Done | 5/5 |
 | [EPC-005](epics/EPC-005.md) | Quality and documentation | Done | 3/3 |
 
 ## Open findings
@@ -47,13 +47,19 @@ Defects found in the previous implementation, and one found in this one.
 | [FND-012](findings/FND-012.md) | Co-author filter erased human authorship | Critical |
 | [FND-015](findings/FND-015.md) | Automations were guidance, not enforcement | High |
 | [FND-016](findings/FND-016.md) | Antigravity was detected by state directories, not its config root | Medium |
+| [FND-017](findings/FND-017.md) | Hook escaping was consumed twice, so every guard allowed everything | Critical |
+| [FND-018](findings/FND-018.md) | Guards fired on ordinary commands | High |
+| [FND-019](findings/FND-019.md) | Exported resources named a template they could not reach | Medium |
+| [FND-020](findings/FND-020.md) | The post-edit hook ran a whole-project lint on every edit | Medium |
+| [FND-021](findings/FND-021.md) | Syncing erased the guidance setup had just written | Critical |
+| [FND-022](findings/FND-022.md) | An f-string backslash broke the oldest supported Python | Low |
 | [FND-014](findings/FND-014.md) | CI workflow verified against the new layout | Medium |
 
 ## Progress
 
 | Status | Count |
 |---|---|
-| Done | 21 |
+| Done | 22 |
 | In Progress | 0 |
 | Backlog | 0 |
 | Open findings | 1 |
