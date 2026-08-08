@@ -83,15 +83,6 @@ Companion detection cannot construct a launch entry without evidence — see
 Recorded as ADRs, starting with
 [ADR-001](adrs/ADR-001-unified-resource-model.md).
 
----
-
-**Document impact**
-
-| Relationship | Target | Section | Summary |
-|---|---|---|---|
-| Supersedes | `ARCHITECTURE.md` (repository root) | whole document | Architecture moves into the wiki under the hub rule. The root document described the pseudo-code rule system and its eight-state orchestrator, both removed by this refactor. It remains in git history. |
-| Depends on | [ADR-001](adrs/ADR-001-unified-resource-model.md) | Decision | The component layout follows from one format for every kind |
-
 
 ---
 

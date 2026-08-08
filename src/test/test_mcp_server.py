@@ -50,10 +50,11 @@ def test_get_context_ships_a_complete_healthy_kit():
     result = call(mcp_server.get_context)
     assert result["problems"] == []
     assert result["integrity"]["ok"] is True
-    assert result["resource_counts"]["rule"] == 2
+    assert result["resource_counts"]["rule"] == 4
     assert result["resource_counts"]["agent"] == 4
     assert result["resource_counts"]["workflow"] == 4
     assert result["resource_counts"]["loop"] == 1
+    assert result["resource_counts"]["hook"] == 6
     assert result["total_resources"] == sum(result["resource_counts"].values())
 
 
@@ -202,6 +203,7 @@ async def test_every_tool_is_registered_with_the_server():
         "create_resource",
         "setup_config",
         "get_bdd_scenario",
+        "sync_to_ide",
     }
 
 

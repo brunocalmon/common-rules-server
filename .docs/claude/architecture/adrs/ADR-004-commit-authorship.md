@@ -51,4 +51,4 @@ upstream.
 
 ---
 
-← Previous: [ADR-003 Report Before Writing](ADR-003-report-not-write.md) · Next: [Development Guide](../../engineering/DEVELOPMENT-GUIDE.md) →
+← Previous: [ADR-003 Report Before Writing](ADR-003-report-not-write.md) · Next: [ADR-005 Hooks Over Guidance](ADR-005-hooks-over-guidance.md) →

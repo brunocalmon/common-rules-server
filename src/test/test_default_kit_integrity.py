@@ -40,8 +40,8 @@ def parsed_resources():
 
 
 def test_the_kit_is_not_empty():
-    assert len(RESOURCE_FILES) >= 30
-    assert len(TEMPLATE_FILES) >= 25
+    assert len(RESOURCE_FILES) >= 40
+    assert len(TEMPLATE_FILES) >= 30
 
 
 @pytest.mark.parametrize("path", RESOURCE_FILES, ids=ident)
@@ -151,8 +151,15 @@ def test_optional_resources_are_all_gated():
 
 @pytest.mark.parametrize("path", RESOURCE_FILES, ids=ident)
 def test_no_pseudo_code_survives_in_the_kit(path: Path):
-    """The rewrite exists to remove this; a regression should fail loudly."""
-    body = parse_resource(path.read_text(encoding="utf-8")).body
+    """The rewrite exists to remove this; a regression should fail loudly.
+
+    Hooks are exempt: their shell block is real, executable code rather than
+    process described as if it were code, which is what this guards against.
+    """
+    parsed = parse_resource(path.read_text(encoding="utf-8"))
+    if parsed.header["kind"] == "hook":
+        pytest.skip("hooks legitimately contain shell code")
+    body = parsed.body
     for marker in ("var ", "function(", "return {", "//", "if (", "elif ", "== \"pass\""):
         assert marker not in body, f"{ident(path)} contains pseudo-code marker {marker!r}"
 
@@ -177,6 +184,8 @@ def test_every_resource_documents_its_relationships_in_prose(path: Path):
     """The YAML is for the server; the table is what the agent reads inline."""
     header = parse_resource(path.read_text(encoding="utf-8")).header
     body = parse_resource(path.read_text(encoding="utf-8")).body
+    if header["kind"] == "hook":
+        pytest.skip("hooks declare no relationships")
     if header.get("relationships") or header.get("phases"):
         assert "| " in body, f"{ident(path)} declares relationships but shows no table"
 
@@ -200,10 +209,62 @@ def test_no_template_is_orphaned():
     assert orphans == set(), f"templates referenced by nothing: {sorted(orphans)}"
 
 
-def test_the_two_always_rules_are_present():
+def test_the_always_rules_are_present():
     always = {
         header["name"]
         for _, header, _ in parsed_resources()
         if header["kind"] == "rule" and header.get("type") == "Always"
     }
-    assert always == {"general", "orchestrator"}
+    assert always == {"general", "orchestrator", "self-review", "session-receipt"}
+
+
+# ------------------------------------------------------------------ hooks
+
+
+def test_every_hook_declares_a_canonical_event_and_a_script():
+    from common_rules_server.util.resource_parsing import VALID_HOOK_EVENTS, extract_script
+
+    hooks = [(p, h, b) for p, h, b in parsed_resources() if h["kind"] == "hook"]
+    assert hooks, "the kit ships no hooks"
+    for path, header, body in hooks:
+        assert header["event"] in VALID_HOOK_EVENTS, ident(path)
+        assert extract_script(body), f"{ident(path)} has no shell block"
+
+
+def test_every_hook_reaches_at_least_one_editor():
+    """A hook no editor supports is an automation that silently never runs."""
+    from common_rules_server.service.hook_service import HOOK_TARGETS
+
+    for path, header, _ in parsed_resources():
+        if header["kind"] != "hook":
+            continue
+        supported = [t.key for t in HOOK_TARGETS if header["event"] in t.events]
+        assert supported, f"{ident(path)} maps to no editor"
+
+
+def test_hook_scripts_only_set_the_documented_variables():
+    """The wrapper reads `decision` and `message`; anything else is inert."""
+    from common_rules_server.util.resource_parsing import extract_script
+
+    for path, header, body in parsed_resources():
+        if header["kind"] != "hook":
+            continue
+        script = extract_script(body)
+        assert "decision=" in script, f"{ident(path)} never sets a decision"
+
+
+# ------------------------------------------------------------- self-check
+
+
+@pytest.mark.parametrize("path", RESOURCE_FILES, ids=ident)
+def test_every_resource_carries_a_self_check(path: Path):
+    """The questionnaire is what turns a followed resource into a verified one."""
+    header = parse_resource(path.read_text(encoding="utf-8")).header
+    questions = header.get("self_check") or []
+    assert questions, f"{ident(path)} has no self_check"
+    for question in questions:
+        # Phrased as a question, so it has to be answered rather than nodded at.
+        # A trailing clarification after the question mark is fine.
+        assert "?" in question, (
+            f"{ident(path)} self_check entry is not a question: {question!r}"
+        )

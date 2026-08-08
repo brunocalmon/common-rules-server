@@ -13,6 +13,8 @@ Built from [`.docs/template`](../template/README.md). See the
 | [Product](product/PRD.md) | What this is for, and for whom |
 | [System Design](architecture/SYSTEM-DESIGN.md) | How the server is put together |
 | [Decisions](architecture/adrs/ADR-001-unified-resource-model.md) | Why it is put together that way |
+| [Hooks](architecture/adrs/ADR-005-hooks-over-guidance.md) | Automations that hold without agent cooperation |
+| [Native sync](architecture/adrs/ADR-006-native-sync.md) | Running the kit with the server switched off |
 | [Development Guide](engineering/DEVELOPMENT-GUIDE.md) | Working on this repository |
 | [Testing Strategy](engineering/TESTING-STRATEGY.md) | What is tested, and how |
 | [Agent BDD](engineering/AGENT-BDD.md) | Agent-executed acceptance testing |
@@ -22,8 +24,8 @@ Built from [`.docs/template`](../template/README.md). See the
 
 ## Status
 
-All five epics are Done. 457 tests pass. Two findings remain open, both
-deliberately deferred — see [Roadmap](tracking/ROADMAP.md).
+All six epics are Done. 604 tests pass. One finding remains open, deliberately
+deferred — see [Roadmap](tracking/ROADMAP.md).
 
 
 ---

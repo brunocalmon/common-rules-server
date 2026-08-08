@@ -15,6 +15,7 @@
 | [EPC-002](epics/EPC-002.md) | Default kit | Done | 4/4 |
 | [EPC-003](epics/EPC-003.md) | Active orchestration | Done | 3/3 |
 | [EPC-004](epics/EPC-004.md) | Agent BDD framework | Done | 3/3 |
+| [EPC-006](epics/EPC-006.md) | Enforcement and portability | Done | 4/4 |
 | [EPC-005](epics/EPC-005.md) | Quality and documentation | Done | 3/3 |
 
 ## Open findings
@@ -44,13 +45,15 @@ Defects found in the previous implementation, and one found in this one.
 | [FND-010](findings/FND-010.md) | Documentation template was untranslated with broken navigation | Medium |
 | [FND-011](findings/FND-011.md) | Server identified itself by editor name | Low |
 | [FND-012](findings/FND-012.md) | Co-author filter erased human authorship | Critical |
+| [FND-015](findings/FND-015.md) | Automations were guidance, not enforcement | High |
+| [FND-016](findings/FND-016.md) | Antigravity was detected by state directories, not its config root | Medium |
 | [FND-014](findings/FND-014.md) | CI workflow verified against the new layout | Medium |
 
 ## Progress
 
 | Status | Count |
 |---|---|
-| Done | 17 |
+| Done | 21 |
 | In Progress | 0 |
 | Backlog | 0 |
 | Open findings | 1 |

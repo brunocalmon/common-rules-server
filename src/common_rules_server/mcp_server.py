@@ -8,6 +8,7 @@ storage underneath:
 * ``create_resource``  — add a project-scoped resource
 * ``setup_config``     — configure the project and its surroundings
 * ``get_bdd_scenario`` — walk the acceptance scenarios one at a time
+* ``sync_to_ide``       — export the whole kit into native editor files
 
 Services are constructed per call rather than at import. The working directory
 and the project's configuration can both change while the server is running, and
@@ -25,9 +26,11 @@ from mcp.server.fastmcp import FastMCP
 from common_rules_server.service.bdd_service import BddService
 from common_rules_server.service.config_service import ConfigService
 from common_rules_server.service.git_hook_service import GitHookService
+from common_rules_server.service.hook_service import HookService
 from common_rules_server.service.ide_service import IdeService
 from common_rules_server.service.mcp_installer_service import McpInstallerService
 from common_rules_server.service.resource_service import ResourceService
+from common_rules_server.service.sync_service import SyncService
 
 logging.basicConfig(
     level=logging.INFO,
@@ -127,7 +130,17 @@ def setup_config(ide: Optional[str] = None, install_companions: bool = False) ->
     config = resolved["config"]
 
     git_hooks = GitHookService(root).setup_hooks(config)
-    ide_rules = IdeService(root).setup_ide_rules([ide] if ide else None)
+
+    ide_service = IdeService(root)
+    ide_rules = ide_service.setup_ide_rules([ide] if ide else None)
+
+    # Native editor hooks are what make the automations hold when the agent
+    # does not read, or chooses to ignore, the guidance it was given.
+    detected = [ide] if ide else [t.key for t in ide_service.detect()]
+    resources = ResourceService(config_service)
+    editor_hooks = (
+        HookService(root).install(resources.hooks(), detected) if detected else None
+    )
 
     installer = McpInstallerService(root)
     auto_install = str(config.get("AUTO_INSTALL_MCPS", "false")).strip().lower() in (
@@ -150,10 +163,23 @@ def setup_config(ide: Optional[str] = None, install_companions: bool = False) ->
             f"Companion MCP server '{missing['server']}' is not configured. {missing['purpose']}"
         )
 
+    if editor_hooks is None:
+        next_steps.append(
+            "No editor detected, so no lifecycle hooks were installed. Name the "
+            "editor to setup_config to install them."
+        )
+    else:
+        for gap in editor_hooks["unsupported"]:
+            next_steps.append(
+                f"Hook '{gap['hook']}' has no equivalent in {gap['ide']}; "
+                f"that automation is unavailable there."
+            )
+
     return {
         "config": config,
         "env_status": resolved["env_status"],
         "git_hooks": git_hooks,
+        "editor_hooks": editor_hooks,
         "ide_rules": ide_rules,
         "companions": companions,
         "next_steps": next_steps,
@@ -185,11 +211,50 @@ def get_bdd_scenario(page: int = 1) -> dict:
     return BddService(root, config.get("BDD_FILE_PATH")).get_scenario(page)
 
 
+@mcp.tool()
+def sync_to_ide(
+    ides: Optional[list] = None,
+    include_hooks: bool = True,
+    clean: bool = False,
+) -> dict:
+    """Export every resource into the editor's own native files.
+
+    Writes rules, skills, agents, workflows, loops and lifecycle hooks into the
+    layout each editor reads directly, so the kit keeps working without this
+    server running and costs nothing per use at run time.
+
+    ides selects targets: cursor, claude, antigravity. Omit to sync every editor
+    detected in the project. clean removes previously generated files instead of
+    writing them.
+
+    The export is mechanical, so it is cheap to re-run — and it must be re-run
+    after changing a resource, since generated files are overwritten rather than
+    merged.
+    """
+    root = _project_root()
+    service = SyncService(_resources(), root)
+
+    if clean:
+        return service.clean(ides)
+
+    targets = ides or [t.key for t in IdeService(root).detect()]
+    if not targets:
+        return {
+            "synced": [],
+            "action_required": (
+                "No editor detected. Pass ides explicitly — cursor, claude or "
+                "antigravity — or run setup_config first."
+            ),
+        }
+    return service.sync(targets, include_hooks=include_hooks)
+
+
 def main() -> None:
     logger.info("common-rules orchestration server starting")
     logger.info("project root: %s", _project_root())
     logger.info(
-        "tools: get_context, get_resource, create_resource, setup_config, get_bdd_scenario"
+        "tools: get_context, get_resource, create_resource, setup_config, "
+        "get_bdd_scenario, sync_to_ide"
     )
     mcp.run()
 

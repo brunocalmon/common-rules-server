@@ -436,3 +436,181 @@ Feature: Common Rules orchestration server
     Then "instruction" contains the text "Execute this scenario for real"
     And "instruction" contains the text "Report the observed value, not the expected one"
     And "instruction" contains the text "call get_bdd_scenario(page=3)"
+
+  # ------------------------------------------------------------ native hooks
+
+  @hooks @enforcement
+  Scenario: setup installs lifecycle hooks into every detected editor
+    Given the project contains a .cursor directory
+    And the default kit ships 6 hook resources
+    When I call setup_config()
+    Then "editor_hooks.installed" contains an entry with "ide" equal to "cursor"
+    And that entry has "hook_count" equal to 6
+    And that entry has "config" equal to ".cursor/hooks.json"
+    And the file .cursor/hooks/guard-secrets.sh exists and is executable
+    And that file contains the marker "common-rules:managed-hook"
+
+  @hooks @cursor
+  Scenario: a Cursor hook returns the permission contract Cursor documents
+    Given .cursor/hooks/guard-secrets.sh has been generated
+    When I run that script with the input {"command":"cat .env"}
+    Then the exit code is 0
+    And stdout parses as JSON with "permission" equal to "deny"
+    And "user_message" explains that credentials would reach the transcript
+
+  @hooks @claude
+  Scenario: the same hook blocks through Claude Code's exit code contract
+    Given .claude/hooks/guard-secrets.sh has been generated from the same resource
+    When I run that script with the input {"tool_input":{"command":"cat .env"}}
+    Then the exit code is 2
+    And stderr contains the blocking reason
+    And stdout is empty
+
+  @hooks @portability
+  Scenario: one hook definition produces the right shape for each editor
+    Given the hook resource "guard-destructive" declares the canonical event "before-shell"
+    When setup_config installs it for cursor, claude and antigravity
+    Then .cursor/hooks.json maps it under the event "beforeShellExecution"
+    And .claude/settings.json maps it under "PreToolUse" with matcher "Bash"
+    And .agents/hooks.json maps it under "PreToolUse" with matcher "run_command"
+    And all three scripts contain the same hook logic
+
+  @hooks @enforcement
+  Scenario: the session briefing reaches the agent without the agent choosing to read anything
+    Given .claude/hooks/orchestration-briefing.sh has been generated
+    When I run that script with the input {}
+    Then stdout parses as JSON
+    And "hookSpecificOutput.hookEventName" equals "SessionStart"
+    And "hookSpecificOutput.additionalContext" instructs the agent to call get_context()
+
+  @hooks @authorship
+  Scenario: a commit crediting an AI co-author is blocked before the command runs
+    Given .cursor/hooks/protect-authorship.sh has been generated
+    When I run it with a git commit command whose message contains "Co-authored-by: Claude <noreply@anthropic.com>"
+    Then "permission" equals "deny"
+    When I run it with a git commit command whose message contains "Co-authored-by: Ana Pereira <ana@example.com>"
+    Then "permission" equals "allow"
+
+  @hooks @safety
+  Scenario: hand-written hooks are preserved when generated ones are installed
+    Given .cursor/hooks.json already contains a handler "./my-own-formatter.sh" under "afterFileEdit"
+    When I call setup_config()
+    Then .cursor/hooks.json still contains "./my-own-formatter.sh" under "afterFileEdit"
+    And it also contains the generated handlers
+
+  @hooks @safety
+  Scenario: unrelated Claude settings survive hook installation
+    Given .claude/settings.json contains "theme": "dark"
+    When I call setup_config()
+    Then .claude/settings.json still contains "theme": "dark"
+    And it now contains a "hooks" object
+
+  @hooks @coverage
+  Scenario: an event an editor does not support is reported rather than dropped
+    Given Antigravity has no equivalent of the canonical event "before-prompt"
+    When hooks are installed for antigravity
+    Then "editor_hooks.unsupported" contains an entry naming that hook and that editor
+    And no script for it is written under .agents/hooks/
+    And "next_steps" mentions that the automation is unavailable there
+
+  # ------------------------------------------------------------- self-check
+
+  @self_check @discipline
+  Scenario: every resource carries a questionnaire it must answer before finishing
+    When I call get_context()
+    Then every element of "resources" has a non-empty "self_check" list
+    And every entry in every "self_check" list is phrased as a question
+
+  @self_check @discipline
+  Scenario: the questionnaire arrives with the instructions
+    When I call get_resource(kind="skill", name="tdd")
+    Then "self_check" is a list containing "Did I watch each test fail before making it pass, or write it green?"
+    And "self_check" contains a question about where expected values come from
+
+  @self_check @discipline
+  Scenario: the self-review rule defines how the questionnaire is used
+    When I call get_resource(kind="rule", name="self-review")
+    Then "type" equals "Always"
+    And "body" instructs extending the checklist before starting
+    And "body" states that the work is done only when every answer is yes
+    And "body" states that nothing is written to disk
+
+  # --------------------------------------------------------------- receipt
+
+  @receipt @reporting
+  Scenario: the session receipt is a global always-applied rule
+    When I call get_resource(kind="rule", name="session-receipt")
+    Then "type" equals "Always"
+    And "body" contains the key "schema_version"
+    And "body" contains the key "verification"
+    And "body" contains the key "outstanding"
+    And "body" states that verification must name something observed
+
+  # ------------------------------------------------------------------ sync
+
+  @sync @portability
+  Scenario: the whole kit exports to Cursor's documented layout
+    Given the project contains a .cursor directory
+    When I call sync_to_ide(ides=["cursor"])
+    Then "synced" contains one entry with "ide" equal to "cursor"
+    And .cursor/rules/general.mdc exists with "alwaysApply: true" in its frontmatter
+    And .cursor/skills/tdd/SKILL.md exists with "name: tdd" in its frontmatter
+    And .cursor/agents/reviewer.md exists
+    And .cursor/hooks.json exists
+
+  @sync @portability
+  Scenario: the whole kit exports to Claude Code's documented layout
+    When I call sync_to_ide(ides=["claude"])
+    Then .claude/skills/tdd/SKILL.md exists
+    And .claude/agents/reviewer.md exists
+    And .claude/settings.json contains a "hooks" object
+    And CLAUDE.md contains a managed block holding every Always rule
+
+  @sync @portability
+  Scenario: the whole kit exports to Antigravity's documented layout
+    When I call sync_to_ide(ides=["antigravity"])
+    Then .agents/skills/tdd/SKILL.md exists
+    And .agents/hooks.json exists
+    And AGENTS.md contains a managed block holding every Always rule
+
+  @sync @completeness
+  Scenario: nothing loadable is left behind
+    When I call sync_to_ide(ides=["cursor"], include_hooks=false)
+    Then "files_written" equals the number of non-hook resources in get_context()
+    And every resource name in get_context() appears in the written paths
+
+  @sync @fidelity
+  Scenario: a user-invoked skill is exported as manual-only where the editor supports it
+    When I call sync_to_ide(ides=["claude"])
+    Then .claude/skills/to-spec/SKILL.md contains "disable-model-invocation: true"
+    And .claude/skills/tdd/SKILL.md does not contain "disable-model-invocation"
+
+  @sync @fidelity
+  Scenario: the self-check travels into every native format
+    When I call sync_to_ide(ides=["cursor", "claude", "antigravity"])
+    Then .cursor/skills/tdd/SKILL.md contains a "## Self-check" section
+    And .claude/skills/tdd/SKILL.md contains a "## Self-check" section
+    And .agents/skills/tdd/SKILL.md contains a "## Self-check" section
+
+  @sync @safety
+  Scenario: re-syncing is stable and preserves what the user wrote
+    Given CLAUDE.md contains the user's own line "Always use tabs."
+    When I call sync_to_ide(ides=["claude"]) twice
+    Then CLAUDE.md still contains "Always use tabs."
+    And CLAUDE.md contains exactly one managed block
+    And the content of .claude/skills/tdd/SKILL.md is identical after both runs
+
+  @sync @safety
+  Scenario: cleaning removes only what sync generated
+    Given sync has run for cursor
+    And .cursor/skills/my-own/SKILL.md was written by hand
+    When I call sync_to_ide(ides=["cursor"], clean=true)
+    Then .cursor/skills/my-own/SKILL.md still exists
+    And .cursor/skills/tdd/SKILL.md no longer exists
+    And "removed" lists the generated files
+
+  @sync @gating
+  Scenario: a gated resource is not exported either
+    Given ENABLE_NOTEBOOKS is "false"
+    When I call sync_to_ide(ides=["cursor"])
+    Then .cursor/skills/notebook/SKILL.md does not exist

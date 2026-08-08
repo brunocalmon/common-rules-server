@@ -77,4 +77,4 @@ exception across the MCP boundary.
 
 ---
 
-← Previous: [ADR-004 Commit Authorship](../architecture/adrs/ADR-004-commit-authorship.md) · Next: [Testing Strategy](TESTING-STRATEGY.md) →
+← Previous: [ADR-006 Native Sync](../architecture/adrs/ADR-006-native-sync.md) · Next: [Testing Strategy](TESTING-STRATEGY.md) →
