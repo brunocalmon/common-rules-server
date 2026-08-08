@@ -390,7 +390,14 @@ class SyncService:
     # ------------------------------------------------------------------ clean
 
     def clean(self, ides: Optional[list[str]] = None) -> dict[str, Any]:
-        """Removes generated files, identified by their generated header."""
+        """Removes generated files, identified by their generated header.
+
+        The always-file is not a generated file — the user owns it and only the
+        managed block inside it is ours — so it needs removing by name rather
+        than by header. Leaving it behind was worse than leaving nothing: the
+        block advertises every command in the kit, so the editor went on
+        offering skills whose files had just been deleted.
+        """
         selected = (
             [TARGETS_BY_KEY[k] for k in ides if k in TARGETS_BY_KEY] if ides else list(SYNC_TARGETS)
         )
@@ -409,6 +416,19 @@ class SyncService:
                             removed.append(str(path.relative_to(self.project_root)))
                     except OSError:
                         continue
+            if target.always_file:
+                path = self.project_root / target.always_file
+                if path.exists():
+                    text = path.read_text(encoding="utf-8", errors="replace")
+                    if managed_blocks.start_marker(BLOCK_NAME) in text:
+                        stripped = managed_blocks.strip(text, BLOCK_NAME)
+                        # Nothing of the user's left: the file was ours alone.
+                        if stripped.strip():
+                            path.write_text(stripped, encoding="utf-8")
+                        else:
+                            path.unlink()
+                        removed.append(target.always_file)
+
         HookService(str(self.project_root)).uninstall([t.key for t in selected])
         return {"removed": removed}
 

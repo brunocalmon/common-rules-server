@@ -544,3 +544,38 @@ def test_an_explicit_choice_still_overrides_detection(sync, python_project: Path
 
     assert [entry["ide"] for entry in result["synced"]] == ["cursor"]
     assert (python_project / ".cursor/skills/tdd/SKILL.md").exists()
+
+
+def test_clean_removes_the_managed_block_from_the_always_file(sync, python_project: Path):
+    """Leaving it behind advertises commands whose files were just deleted."""
+    sync.sync(["claude"], include_hooks=False)
+    assert "<chat-commands>" in (python_project / "CLAUDE.md").read_text(encoding="utf-8")
+
+    result = sync.clean(["claude"])
+
+    assert "CLAUDE.md" in result["removed"]
+    assert not (python_project / "CLAUDE.md").exists()
+
+
+def test_clean_keeps_what_the_user_wrote_around_the_block(sync, python_project: Path):
+    claude_md = python_project / "CLAUDE.md"
+    claude_md.write_text("# My own notes\n\nKeep this.\n", encoding="utf-8")
+    sync.sync(["claude"], include_hooks=False)
+
+    sync.clean(["claude"])
+
+    text = claude_md.read_text(encoding="utf-8")
+    assert "Keep this." in text
+    assert "<chat-commands>" not in text
+    assert "BEGIN common-rules" not in text
+
+
+def test_clean_leaves_an_unrelated_always_file_alone(sync, python_project: Path):
+    """A CLAUDE.md we never wrote to must not be deleted."""
+    claude_md = python_project / "CLAUDE.md"
+    claude_md.write_text("# Hand-written only\n", encoding="utf-8")
+
+    result = sync.clean(["claude"])
+
+    assert claude_md.exists()
+    assert "CLAUDE.md" not in result["removed"]
