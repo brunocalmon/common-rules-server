@@ -254,6 +254,21 @@ class SyncService:
         if record.get("phases"):
             parts.append(_render_phases(record["phases"]))
 
+        # The output template has to travel with the resource. Natively there is
+        # no templates directory to fetch it from, so a synced skill that only
+        # names its template leaves the agent with an instruction to produce a
+        # shape it cannot see — and predictable output was the point.
+        template = self.resources.read_template(
+            (record.get("relationships") or {}).get("output")
+        )
+        if template:
+            parts.append(
+                "## Report format\n\n"
+                "Produce the report in exactly this shape. Fill every slot; leave "
+                "none of the `{{...}}` markers in the output.\n\n"
+                "```markdown\n" + template.strip() + "\n```"
+            )
+
         if record.get("self_check"):
             parts.append(
                 "## Self-check\n\n"

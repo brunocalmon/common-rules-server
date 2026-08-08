@@ -137,6 +137,35 @@ def test_self_check_travels_into_every_export(sync, python_project: Path):
         assert "watch each test fail" in text, path
 
 
+def test_output_template_is_inlined_not_merely_named(sync, python_project: Path):
+    """Natively there is no templates directory to fetch from.
+
+    A synced skill that only names its template leaves the agent with an
+    instruction to produce a shape it cannot see, and predictable output was the
+    entire point of having templates.
+    """
+    sync.sync(["cursor"], include_hooks=False)
+    text = (python_project / ".cursor/skills/tdd/SKILL.md").read_text()
+
+    assert "## Report format" in text
+    assert "# TDD Cycle" in text
+    assert "{{CYCLE_COUNT}}" in text
+
+
+def test_every_resource_with_an_output_carries_its_shape(sync, resources, python_project: Path):
+    sync.sync(["cursor"], include_hooks=False)
+
+    expected = [
+        r for r in resources.load()["resources"].values()
+        if (r.get("relationships") or {}).get("output") and r["kind"] != "hook"
+    ]
+    carried = [
+        p for p in (python_project / ".cursor").rglob("*.md*")
+        if "Report format" in p.read_text()
+    ]
+    assert len(carried) == len(expected)
+
+
 def test_workflow_phases_are_rendered(sync, python_project: Path):
     sync.sync(["cursor"], include_hooks=False)
     text = (python_project / ".cursor/skills/feature-dev/SKILL.md").read_text()

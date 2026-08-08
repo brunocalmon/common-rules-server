@@ -251,6 +251,10 @@ class ResourceService:
         result["template"] = self._read_template(template_ref, catalogue["config"])
         return result
 
+    def read_template(self, ref: Optional[str]) -> Optional[str]:
+        """Public accessor for an output template's content."""
+        return self._read_template(ref, self.config_service.get_config()["config"])
+
     def _read_template(self, ref: Optional[str], config: dict) -> Optional[str]:
         """Reads an output template. Templates keep their own placeholders.
 
