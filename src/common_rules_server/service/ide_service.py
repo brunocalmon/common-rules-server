@@ -63,8 +63,10 @@ IDE_TARGETS: tuple[IdeTarget, ...] = (
     IdeTarget(
         key="antigravity",
         label="Antigravity",
-        markers=(".antigravity", ".gemini"),
-        rules_path=".antigravity/rules/common-rules-orchestrator.md",
+        # `.agents` is the documented customization root; the others are
+        # editor state directories that also indicate it is in use.
+        markers=(".agents", ".antigravity", ".gemini"),
+        rules_path=".agents/rules/common-rules-orchestrator.md",
     ),
     IdeTarget(
         key="generic",
