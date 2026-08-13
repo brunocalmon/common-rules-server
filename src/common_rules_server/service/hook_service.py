@@ -286,6 +286,8 @@ class HookService:
         scripts = []
         for hook in hooks:
             mapping = target.events[hook["event"]]
+            if hook.get("raw_command"):
+                continue
             script = target.template.format(
                 marker=MANAGED_MARKER,
                 name=hook["name"],
@@ -331,11 +333,13 @@ class HookService:
 
         for hook in hooks:
             mapping = target.events[hook["event"]]
+            command = hook.get("raw_command") or f"{target.scripts_dir}/{hook['name']}.sh"
             handler: dict[str, Any] = {
-                "command": f"{target.scripts_dir}/{hook['name']}.sh",
+                "command": command,
             }
-            if mapping.matcher:
-                handler["matcher"] = mapping.matcher
+            matcher = hook.get("matcher") or mapping.matcher
+            if matcher:
+                handler["matcher"] = matcher
             if hook.get("blocking"):
                 handler["failClosed"] = True
             events.setdefault(mapping.native, []).append(handler)
@@ -367,11 +371,13 @@ class HookService:
 
         for hook in hooks:
             mapping = target.events[hook["event"]]
+            command = hook.get("raw_command") or f"${{CLAUDE_PROJECT_DIR}}/{target.scripts_dir}/{hook['name']}.sh"
             handler = {
                 "type": "command",
-                "command": f"${{CLAUDE_PROJECT_DIR}}/{target.scripts_dir}/{hook['name']}.sh",
+                "command": command,
             }
-            group = {"matcher": mapping.matcher or "*", "hooks": [handler]}
+            matcher = hook.get("matcher") or mapping.matcher
+            group = {"matcher": matcher or "*", "hooks": [handler]}
             events.setdefault(mapping.native, []).append(group)
 
         settings["hooks"] = events
@@ -388,14 +394,16 @@ class HookService:
 
         for hook in hooks:
             mapping = target.events[hook["event"]]
+            command = hook.get("raw_command") or f"./{target.scripts_dir}/{hook['name']}.sh"
+            matcher = hook.get("matcher") or mapping.matcher
             preserved[hook["name"]] = {
                 mapping.native: [
                     {
-                        "matcher": mapping.matcher or ".*",
+                        "matcher": matcher or ".*",
                         "hooks": [
                             {
                                 "type": "command",
-                                "command": f"./{target.scripts_dir}/{hook['name']}.sh",
+                                "command": command,
                             }
                         ],
                     }
@@ -429,11 +437,20 @@ class HookService:
 
 
 def _is_managed_command(command: Any, target: IdeHookTarget) -> bool:
-    return bool(command) and target.scripts_dir in str(command)
+    if not command:
+        return False
+    if target.scripts_dir in str(command):
+        return True
+    return "context-mode" in str(command)
 
 
 def _antigravity_is_managed(spec: Any, target: IdeHookTarget) -> bool:
-    return target.scripts_dir in json.dumps(spec) if isinstance(spec, dict) else False
+    if not isinstance(spec, dict):
+        return False
+    spec_str = json.dumps(spec)
+    if target.scripts_dir in spec_str:
+        return True
+    return "context-mode" in spec_str
 
 
 def _one_line(text: str) -> str:
