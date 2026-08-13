@@ -333,7 +333,11 @@ class HookService:
 
         for hook in hooks:
             mapping = target.events[hook["event"]]
-            command = hook.get("raw_command") or f"{target.scripts_dir}/{hook['name']}.sh"
+            command = hook.get("raw_command")
+            if command:
+                command = command.replace("{ide}", target.key)
+            else:
+                command = f"{target.scripts_dir}/{hook['name']}.sh"
             handler: dict[str, Any] = {
                 "command": command,
             }
@@ -371,7 +375,11 @@ class HookService:
 
         for hook in hooks:
             mapping = target.events[hook["event"]]
-            command = hook.get("raw_command") or f"${{CLAUDE_PROJECT_DIR}}/{target.scripts_dir}/{hook['name']}.sh"
+            command = hook.get("raw_command")
+            if command:
+                command = command.replace("{ide}", target.key)
+            else:
+                command = f"${{CLAUDE_PROJECT_DIR}}/{target.scripts_dir}/{hook['name']}.sh"
             handler = {
                 "type": "command",
                 "command": command,
@@ -394,7 +402,11 @@ class HookService:
 
         for hook in hooks:
             mapping = target.events[hook["event"]]
-            command = hook.get("raw_command") or f"./{target.scripts_dir}/{hook['name']}.sh"
+            command = hook.get("raw_command")
+            if command:
+                command = command.replace("{ide}", target.key)
+            else:
+                command = f"./{target.scripts_dir}/{hook['name']}.sh"
             matcher = hook.get("matcher") or mapping.matcher
             preserved[hook["name"]] = {
                 mapping.native: [

@@ -16,6 +16,7 @@ a service captured at import time would keep answering with the state that
 existed when the process started.
 """
 
+import json
 import logging
 import os
 import sys
@@ -254,6 +255,17 @@ def sync_to_ide(
 
 
 def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] == "sync":
+        clean = "--clean" in sys.argv
+        root = _project_root()
+        service = SyncService(_resources(), root)
+        if clean:
+            result = service.clean()
+        else:
+            result = service.sync(include_hooks=True, offline=True)
+        print(json.dumps(result, indent=2))
+        return
+
     logger.info("common-rules orchestration server starting")
     logger.info("project root: %s", _project_root())
     logger.info(

@@ -188,7 +188,7 @@ class SyncService:
         records = sorted(
             catalogue["resources"].values(), key=lambda r: (r["kind"], r["name"])
         )
-        hooks = [r for r in records if r["kind"] == "hook" and r.get("script")]
+        hooks = [r for r in records if r["kind"] == "hook" and (r.get("script") or r.get("raw_command"))]
 
         result: dict[str, Any] = {"synced": [], "hooks": None, "total_resources": len(records)}
 
