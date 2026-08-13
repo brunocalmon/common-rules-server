@@ -219,9 +219,9 @@ def parse_resource(text: str) -> ParsedResource:
                 f"(expected one of {', '.join(VALID_HOOK_EVENTS)})"
             )
         script = extract_script(text)
-        if not script:
+        if not script and "raw_command" not in header:
             errors.append("hook has no '```sh' script block in its body")
-        else:
+        elif script:
             errors.extend(_unconditional_message_errors(event, script))
 
     if errors:
