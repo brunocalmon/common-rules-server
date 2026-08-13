@@ -181,6 +181,9 @@ class SyncService:
                     ),
                 }
 
+        # Purge all generated files across all known editors before writing
+        self.clean()
+
         catalogue = self.resources.load()
         records = sorted(
             catalogue["resources"].values(), key=lambda r: (r["kind"], r["name"])

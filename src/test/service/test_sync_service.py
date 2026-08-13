@@ -639,3 +639,19 @@ def test_online_sync_exports_proxy_skills_and_agents(sync, python_project: Path)
     content = tdd_path.read_text()
     assert "Call get_resource(uri=\"resources/skills/tdd\") from common-rules-server MCP" in content
     assert (python_project / "CLAUDE.md").exists()
+
+def test_sync_purges_before_writing(sync, python_project: Path):
+    from common_rules_server.service.sync_service import GENERATED_HEADER
+    
+    # Create a dummy generated file in a location sync would normally clean
+    rules_dir = python_project / ".cursor" / "rules"
+    rules_dir.mkdir(parents=True, exist_ok=True)
+    trash_file = rules_dir / "old-deleted-rule.mdc"
+    trash_file.write_text(f"---\ndescription: foo\nglobs: *\n---\n{GENERATED_HEADER}\nTrash content.")
+    
+    assert trash_file.exists()
+    
+    sync.sync(["cursor"], include_hooks=False, offline=True)
+    
+    # The sync should have cleaned the trash file before writing new ones
+    assert not trash_file.exists()
