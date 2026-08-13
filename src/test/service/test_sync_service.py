@@ -628,5 +628,14 @@ def test_clean_removes_the_generated_commands(sync, python_project: Path):
     assert (python_project / ".claude/commands/orchestrator.md").exists()
 
     sync.clean(["claude"])
-
     assert not (python_project / ".claude/commands/orchestrator.md").exists()
+
+
+def test_online_sync_exports_proxy_skills_and_agents(sync, python_project: Path):
+    sync.sync(["claude"], include_hooks=False, offline=False)
+
+    tdd_path = python_project / ".claude/skills/tdd/SKILL.md"
+    assert tdd_path.exists()
+    content = tdd_path.read_text()
+    assert "Call get_resource(uri=\"resources/skills/tdd\") from common-rules-server MCP" in content
+    assert (python_project / "CLAUDE.md").exists()

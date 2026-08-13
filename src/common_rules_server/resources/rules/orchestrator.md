@@ -3,7 +3,7 @@ kind: rule
 name: orchestrator
 description: >-
   Route a request to the right resources. A map of which work shape calls for
-  which skills, and which questions to settle before starting.
+  which skills, and which questions to settle before starting. ONLY apply when explicitly requested.
 type: Always
 relationships:
   comes-from:
@@ -53,6 +53,10 @@ self_check:
 | output | templates/orchestrator.md | yes | Routing summary |
 
 ## Instructions
+
+> [!IMPORTANT]
+> **EXPLICIT INVOCATION ONLY**
+> Do not run orchestration routes automatically on every request. Only execute this workflow when the user explicitly asks you to route a request, or run `/orchestrator`.
 
 Match the request to a shape, then follow that row. These are routes, not rails:
 depart from them when the work calls for it, and say that you are doing so.

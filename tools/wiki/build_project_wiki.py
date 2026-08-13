@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from wikigen import build, check_links
 
-ROOT = Path(__file__).resolve().parents[2] / ".docs" / "claude"
+ROOT = Path(__file__).resolve().parents[2] / ".docs" / "wiki"
 
 TICKETS = [
     ("TKT-001", "Unified resource parser", "Chore", "EPC-001", """
@@ -1886,8 +1886,8 @@ PAGES += epic_pages() + ticket_pages() + finding_pages()
 
 #: Directories inside the wiki that this generator does not own. Wiping the
 #: whole tree once destroyed the history folder, which is hand-written content
-#: that happens to live under the same root.
-PRESERVE = {"history"}
+#: that happens to live under the same root. Now preserves all major directories.
+PRESERVE = {"history", "tracking", "architecture", "product", "engineering", "onboarding", "operations"}
 
 if __name__ == "__main__":
     if ROOT.is_dir():

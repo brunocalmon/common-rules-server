@@ -32,8 +32,11 @@ subagent concept, so agents there become skills whose body states the persona.
 """
 
 import json
+import logging
 import os
 import re
+import shutil
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
@@ -145,7 +148,14 @@ class SyncService:
         detected = {t.key for t in IdeService(str(self.project_root)).detect()}
         return [target for target in SYNC_TARGETS if target.key in detected]
 
-    def sync(self, ides: Optional[list[str]] = None, include_hooks: bool = True) -> dict[str, Any]:
+    def sync(self, ides: Optional[list[str]] = None, include_hooks: bool = True, offline: bool = True) -> dict[str, Any]:
+        graph_dir = self.project_root / ".code-review-graph"
+        if not graph_dir.exists():
+            try:
+                subprocess.run(["code-review-graph", "build"], cwd=self.project_root, check=True, capture_output=True)
+            except (subprocess.SubprocessError, FileNotFoundError) as e:
+                logging.getLogger(__name__).warning(f"Failed to build code-review-graph: {e}")
+
         if ides:
             selected = [TARGETS_BY_KEY[k] for k in ides if k in TARGETS_BY_KEY]
             if not selected:
@@ -180,7 +190,7 @@ class SyncService:
         result: dict[str, Any] = {"synced": [], "hooks": None, "total_resources": len(records)}
 
         for target in selected:
-            result["synced"].append(self._sync_target(target, records))
+            result["synced"].append(self._sync_target(target, records, offline))
 
         if include_hooks and hooks:
             result["hooks"] = HookService(str(self.project_root)).install(
@@ -196,7 +206,7 @@ class SyncService:
 
     # ---------------------------------------------------------------- target
 
-    def _sync_target(self, target: SyncTarget, records: list[dict]) -> dict[str, Any]:
+    def _sync_target(self, target: SyncTarget, records: list[dict], offline: bool) -> dict[str, Any]:
         written: list[str] = []
         always_rules: list[dict] = []
         commands: list[dict] = []
@@ -206,9 +216,8 @@ class SyncService:
             if kind == "hook":
                 continue
 
-            # Collected after the hook skip: a hook is fired by an event, never
-            # typed, so it can never be a command.
-            if _is_command(record):
+            # In online mode, we don't want native chat commands since the files won't exist
+            if offline and _is_command(record):
                 commands.append(record)
 
             if kind == "rule" and record.get("type") == "Always":
@@ -219,21 +228,21 @@ class SyncService:
 
             if kind == "rule":
                 if target.rules_dir:
-                    written.append(self._write_cursor_rule(target, record))
+                    written.append(self._write_cursor_rule(target, record, offline))
                 else:
-                    written.append(self._write_skill(target, record))
+                    written.append(self._write_skill(target, record, offline))
                 continue
 
             if kind == "agent" and target.agents_dir:
-                written.append(self._write_agent(target, record))
+                written.append(self._write_agent(target, record, offline))
                 if target.commands_dir:
                     written.append(self._write_agent_command(target, record))
                 continue
 
-            written.append(self._write_skill(target, record))
+            written.append(self._write_skill(target, record, offline))
 
         if target.always_file and (always_rules or (target.chat_commands and commands)):
-            written.append(self._write_always_file(target, always_rules, commands))
+            written.append(self._write_always_file(target, always_rules, commands, offline))
 
         return {
             "ide": target.key,
@@ -245,7 +254,7 @@ class SyncService:
 
     # ---------------------------------------------------------------- writers
 
-    def _write_cursor_rule(self, target: SyncTarget, record: dict) -> str:
+    def _write_cursor_rule(self, target: SyncTarget, record: dict, offline: bool = True) -> str:
         always = record.get("type") == "Always"
         front = [
             "---",
@@ -253,10 +262,17 @@ class SyncService:
             f"alwaysApply: {'true' if always else 'false'}",
             "---",
         ]
-        content = "\n".join(front) + "\n\n" + GENERATED_HEADER + "\n\n" + self._body(record)
+        
+        if offline:
+            body = GENERATED_HEADER + "\n\n" + self._body(record)
+        else:
+            uri = f"resources/rules/{record['name']}"
+            body = GENERATED_HEADER + f"\n\nCall get_resource(uri=\"{uri}\") from common-rules-server MCP to read instructions before proceeding."
+            
+        content = "\n".join(front) + "\n\n" + body
         return self._write(Path(target.rules_dir) / f"{record['name']}.mdc", content)
 
-    def _write_skill(self, target: SyncTarget, record: dict) -> str:
+    def _write_skill(self, target: SyncTarget, record: dict, offline: bool = True) -> str:
         """Skills are a directory containing SKILL.md in all three editors."""
         front = [
             "---",
@@ -270,11 +286,17 @@ class SyncService:
             front.append("disable-model-invocation: true")
         front.append("---")
 
-        content = "\n".join(front) + "\n\n" + GENERATED_HEADER + "\n\n" + self._body(record)
+        if offline:
+            body = GENERATED_HEADER + "\n\n" + self._body(record)
+        else:
+            uri = f"resources/skills/{record['name']}"
+            body = GENERATED_HEADER + f"\n\nCall get_resource(uri=\"{uri}\") from common-rules-server MCP to read instructions before proceeding."
+
+        content = "\n".join(front) + "\n\n" + body
         path = Path(target.skills_dir) / record["name"] / "SKILL.md"
         return self._write(path, content)
 
-    def _write_agent(self, target: SyncTarget, record: dict) -> str:
+    def _write_agent(self, target: SyncTarget, record: dict, offline: bool = True) -> str:
         front = [
             "---",
             f"name: {record['name']}",
@@ -288,14 +310,19 @@ class SyncService:
         front.append("---")
 
         body = [GENERATED_HEADER, ""]
-        if record.get("persona"):
-            body.append(_one_line(record["persona"]))
-            body.append("")
-        if record.get("constraints"):
-            body.append("Constraints:")
-            body.extend(f"- {c}" for c in record["constraints"])
-            body.append("")
-        body.append(self._body(record))
+        
+        if offline:
+            if record.get("persona"):
+                body.append(_one_line(record["persona"]))
+                body.append("")
+            if record.get("constraints"):
+                body.append("Constraints:")
+                body.extend(f"- {c}" for c in record["constraints"])
+                body.append("")
+            body.append(self._body(record))
+        else:
+            uri = f"resources/agents/{record['name']}"
+            body.append(f"Call get_resource(uri=\"{uri}\") from common-rules-server MCP to read instructions before proceeding.")
 
         content = "\n".join(front) + "\n\n" + "\n".join(body)
         return self._write(Path(target.agents_dir) / f"{record['name']}.md", content)
@@ -335,7 +362,7 @@ class SyncService:
         return self._write(Path(target.commands_dir) / f"{record['name']}.md", content)
 
     def _write_always_file(
-        self, target: SyncTarget, rules: list[dict], commands: list[dict]
+        self, target: SyncTarget, rules: list[dict], commands: list[dict], offline: bool = True
     ) -> str:
         """Concatenates Always-rules into the file the editor reads every session.
 
@@ -349,10 +376,16 @@ class SyncService:
             "re-run sync; this block is regenerated.",
             "",
         ]
-        for record in rules:
-            sections.append(f"## {record['name']}")
-            sections.append("")
-            sections.append(self._body(record))
+        
+        if offline:
+            for record in rules:
+                sections.append(f"## {record['name']}")
+                sections.append("")
+                sections.append(self._body(record))
+                sections.append("")
+        else:
+            rule_names = [f"`resources/rules/{record['name']}`" for record in rules]
+            sections.append(f"For orchestration and policies, fetch {', '.join(rule_names)} via common-rules-server MCP.")
             sections.append("")
 
         if target.chat_commands and commands:

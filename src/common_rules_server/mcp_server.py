@@ -219,6 +219,7 @@ def sync_to_ide(
     ides: Optional[list] = None,
     include_hooks: bool = True,
     clean: bool = False,
+    offline: bool = False,
 ) -> dict:
     """Export every resource into the editor's own native files.
 
@@ -249,7 +250,7 @@ def sync_to_ide(
                 "antigravity — or run setup_config first."
             ),
         }
-    return service.sync(targets, include_hooks=include_hooks)
+    return service.sync(targets, include_hooks=include_hooks, offline=offline)
 
 
 def main() -> None:

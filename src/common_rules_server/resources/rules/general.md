@@ -3,7 +3,7 @@ kind: rule
 name: general
 description: >-
   Establish workspace state at the start of a session: documentation, version
-  control, build system. Applied automatically before any other work.
+  control, build system. ONLY apply this when explicitly requested by the user.
 type: Always
 relationships:
   goes-to:
@@ -27,6 +27,10 @@ self_check:
 | output | templates/general.md | yes | Health check report |
 
 ## Instructions
+
+> [!IMPORTANT]
+> **EXPLICIT INVOCATION ONLY**
+> Do not run this workspace check automatically on every request. Only execute this workflow when the user explicitly asks you to orient yourself, check the workspace, or run `/general`.
 
 Establish where the project stands before doing anything to it. Report what you
 find; do not fix anything yet.

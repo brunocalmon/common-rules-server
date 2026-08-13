@@ -17,15 +17,6 @@
 | [EPC-004](epics/EPC-004.md) | Agent BDD framework | Done | 3/3 |
 | [EPC-006](epics/EPC-006.md) | Enforcement and portability | Done | 5/5 |
 | [EPC-005](epics/EPC-005.md) | Quality and documentation | Done | 3/3 |
-| [EPC-008](epics/EPC-008.md) | Native command invocation | Done | 2/2 |
-| [EPC-007](epics/EPC-007.md) | Multi-agent orchestrator | Phase 1 Done | 3/6 |
-
-## Planned
-
-| Epic | Outcome | Status | Tickets |
-|---|---|---|---|
-| [EPC-007](epics/EPC-007.md) phase 2 | Dynamic skills, workflow delegation | Backlog | 0/2 |
-| [EPC-007](epics/EPC-007.md) phase 3 | Temporary runtime skills | Backlog | 0/1 |
 
 ## Open findings
 
@@ -68,15 +59,14 @@ Defects found in the previous implementation, and one found in this one.
 | [FND-026](findings/FND-026.md) | A switched-off resource reported as one that does not exist | Medium |
 | [FND-027](findings/FND-027.md) | A relative project root produced a blank project name | Low |
 | [FND-014](findings/FND-014.md) | CI workflow verified against the new layout | Medium |
-| [FND-028](findings/FND-028.md) | Agent tool restrictions did not survive the export | High |
 
 ## Progress
 
 | Status | Count |
 |---|---|
-| Done | 27 |
+| Done | 22 |
 | In Progress | 0 |
-| Backlog | 3 |
+| Backlog | 0 |
 | Open findings | 1 |
 
 
