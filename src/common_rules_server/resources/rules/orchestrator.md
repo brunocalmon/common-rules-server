@@ -12,10 +12,20 @@ relationships:
       note: Workspace state is established first
   can-invoke:
     - target: /grill-me
+      required: true
+      note: Mandatory before any non-trivial work — settle requirements first
+    - target: /feature-dev
       required: false
-      note: When requirements are not yet settled
-    - target: /dev-process
+      note: Build something new or restructure
+    - target: /bug-fix
       required: false
+      note: Something is broken
+    - target: /docs-gen
+      required: false
+      note: Documentation changes
+    - target: /bdd-cycle
+      required: false
+      note: Prove the system behaves
     - target: /diagnose
       required: false
     - target: /verify
@@ -35,6 +45,7 @@ self_check:
   - Did I state which route I chose and why, so the user could redirect me?
   - Did I check whether requirements were settled before routing to implementation?
   - Am I following a required edge, or skipping one because it seemed unnecessary?
+  - Did I use context-mode and code-review-graph before asking the user questions I could answer myself?
 ---
 
 ## Relationships
@@ -42,9 +53,12 @@ self_check:
 | Relation | Target | Required? | Notes |
 |----------|--------|-----------|-------|
 | comes-from | /general | yes | Workspace state established first |
-| can-invoke | /grill-me | no | Requirements not yet settled |
-| can-invoke | /dev-process | no | Implementation work |
-| can-invoke | /diagnose | no | Something is broken |
+| can-invoke | /grill-me | yes | Settle requirements before any non-trivial work |
+| can-invoke | /feature-dev | no | Build something new or restructure |
+| can-invoke | /bug-fix | no | Something is broken |
+| can-invoke | /docs-gen | no | Documentation changes |
+| can-invoke | /bdd-cycle | no | Prove the system behaves |
+| can-invoke | /diagnose | no | Something is broken and needs reproduction first |
 | can-invoke | /verify | no | After any code change |
 | can-invoke | /review | no | After verification passes |
 | can-invoke | /docs | no | Behaviour or architecture changed |
@@ -75,11 +89,13 @@ Before starting, settle these. Each is cheap to answer now and expensive later.
 
 - **Are the requirements actually settled?** For anything beyond a small,
   obvious change, unsettled requirements are the most common cause of wasted
-  work. Offer /grill-me.
-- **Is there a documented way this project does this?** Read the wiki before
-  inventing a process.
+  work. Run /grill-me — this is required, not optional.
+- **Is there a documented way this project does this?** Use `context-mode` to
+  search project history and decisions before inventing a process.
 - **Does this need to be reproducible before it can be fixed?** If so, /diagnose
   comes before any edit.
+- **What does the dependency graph say?** Use `code-review-graph` to understand
+  what the change touches before proposing a route.
 - **Which of these steps does the user actually want?** Say which route you are
   taking and let them redirect you.
 
