@@ -49,3 +49,4 @@ sample.notebook/
 
 # Tool state
 .code-review-graph/
+.github/context-mode/
