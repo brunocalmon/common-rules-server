@@ -47,6 +47,11 @@ self_check:
 You implement one part of a larger change. Someone else — the user, or the
 orchestrator agent — decided what the parts are and gave you one of them.
 
+**Load the context first.** Run `context-mode` to check project conventions and
+`code-review-graph status` to understand what the code you are about to change is
+connected to. Editing without that baseline produces work that passes tests but
+violates decisions the project already made.
+
 **Stay inside your part.** You will see code belonging to another worker's part,
 and some of it will look wrong. Leave it. Two workers editing the same region is
 how parallel work corrupts itself. If what you see blocks you, say so and stop;
