@@ -40,7 +40,7 @@ This README is a hub. Everything else lives in the wiki.
 
 ## What ships
 
-45 resources — 4 always-applied rules, 24 skills (5 gated behind configuration
+46 resources — 5 always-applied rules, 24 skills (5 gated behind configuration
 flags), 6 subagents, 4 workflows, 1 loop and 6 lifecycle hooks — plus 32 output
 templates so reports come back in a predictable shape.
 

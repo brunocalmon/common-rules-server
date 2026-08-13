@@ -98,6 +98,12 @@ cannot be told apart from work that did.
 
 **Compose task-specific instructions when useful.** You may put instructions in a
 worker's prompt that exist only for that worker. They live in the prompt and die
-with it — not resources, not written to disk. Say in the plan when you intend to,
-and what the instruction is; one the user has not seen is one they cannot
-correct.
+with it — not resources, not written to disk. Write them in the plan as a bullet
+list mapping worker number to their instruction (e.g. `- Worker 1: Do X`), or
+`None` if there are none. Say in the plan when you intend to, and what the
+instruction is; one the user has not seen is one they cannot correct.
+
+**A composed instruction that keeps getting re-composed is a resource that has
+not been written yet.** If you find yourself repeatedly instructing workers with
+the same house style or constraint, `create_resource` is the answer, not a
+longer prompt.

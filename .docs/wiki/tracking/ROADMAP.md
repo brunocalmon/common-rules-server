@@ -16,7 +16,7 @@
 | [EPC-003](epics/EPC-003.md) | Active orchestration | Done | 3/3 |
 | [EPC-004](epics/EPC-004.md) | Agent BDD framework | Done | 3/3 |
 | [EPC-006](epics/EPC-006.md) | Enforcement and portability | Done | 5/5 |
-| [EPC-005](epics/EPC-005.md) | Quality and documentation | Done | 3/3 |
+| [EPC-005](epics/EPC-005.md) | Quality and documentation | Done | 4/4 |
 
 ## Open findings
 
@@ -25,7 +25,6 @@ change under review stayed the change that was planned.
 
 | Finding | Summary | Severity |
 |---|---|---|
-| [FND-013](findings/FND-013.md) | Companion install path is undocumented | Low |
 
 ## Resolved findings
 
@@ -33,6 +32,7 @@ Defects found in the previous implementation, and one found in this one.
 
 | Finding | Summary | Severity |
 |---|---|---|
+| [FND-013](findings/FND-013.md) | Companion install path is undocumented | Low |
 | [FND-001](findings/FND-001.md) | Placeholder substitution never worked | Critical |
 | [FND-002](findings/FND-002.md) | create_resource collided kinds and did not sanitise names | High |
 | [FND-003](findings/FND-003.md) | get_context returned a flat list | High |
@@ -64,10 +64,10 @@ Defects found in the previous implementation, and one found in this one.
 
 | Status | Count |
 |---|---|
-| Done | 22 |
+| Done | 23 |
 | In Progress | 0 |
 | Backlog | 0 |
-| Open findings | 1 |
+| Open findings | 0 |
 
 
 ---

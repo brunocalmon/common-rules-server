@@ -335,6 +335,21 @@ def then_no_element_contains(context, key_path, key):
     for el in lst:
         assert key not in el
 
+@then(parsers.re(r'"{key_path}" describes the bullet-list shape for dynamic instructions'))
+def then_describes_bullet_list(context, key_path):
+    val = resolve_path(context["result"], key_path)
+    assert "bullet list mapping worker number to their instruction" in val
+
+@then(parsers.re(r'"{key_path}" states they must be surfaced in the delegation plan before approval'))
+def then_surfaced_in_plan(context, key_path):
+    val = resolve_path(context["result"], key_path)
+    assert "Say in the plan when you intend to, and what the" in val
+
+@then(parsers.re(r'"{key_path}" advises using create_resource when an instruction keeps getting re-composed'))
+def then_advises_create_resource(context, key_path):
+    val = resolve_path(context["result"], key_path)
+    assert "create_resource is the answer, not a" in val
+
 # Fallback then catcher
 @then(parsers.re(r"(?P<catch_all>.*)"))
 def then_catch_all(catch_all):

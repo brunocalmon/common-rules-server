@@ -68,10 +68,10 @@ def test_hand_written_wiki_content_is_preserved_by_the_generator():
     """The generator wiped a directory it did not own and deleted 3,541 lines."""
     script = (ROOT / "tools" / "wiki" / "build_project_wiki.py").read_text()
     assert "PRESERVE" in script
-    for directory in (DOCS / "claude").iterdir():
+    for directory in (DOCS / "wiki").iterdir():
         if directory.is_dir() and not (directory / "README.md").exists():
             continue
-    assert (DOCS / "claude" / "history").is_dir()
+    assert (DOCS / "wiki" / "history").is_dir()
     assert "history" in re.search(r"PRESERVE = \{([^}]*)\}", script).group(1)
 
 

@@ -215,7 +215,7 @@ def test_the_always_rules_are_present():
         for _, header, _ in parsed_resources()
         if header["kind"] == "rule" and header.get("type") == "Always"
     }
-    assert always == {"general", "orchestrator", "self-review", "session-receipt"}
+    assert always == {"general", "orchestrator", "self-review", "session-receipt", "auto-approve"}
 
 
 # ------------------------------------------------------------------ hooks

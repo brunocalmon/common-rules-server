@@ -34,6 +34,7 @@ COMPANION_INFO: dict[str, dict[str, str]] = {
             "many file reads."
         ),
         "used_by": "/review, /architecture-compliance, /diagnose",
+        "install_method": "uv tool install code-review-graph",
     },
     "context-mode": {
         "purpose": (
@@ -41,6 +42,7 @@ COMPANION_INFO: dict[str, dict[str, str]] = {
             "sessions so it does not have to be re-derived from the repository."
         ),
         "used_by": "/research, /grill-me, /dev-process",
+        "install_method": "npm install -g context-mode",
     },
 }
 
@@ -150,6 +152,7 @@ class McpInstallerService:
                 "server": name,
                 "purpose": COMPANION_INFO[name]["purpose"],
                 "used_by": COMPANION_INFO[name]["used_by"],
+                "install_method": COMPANION_INFO[name]["install_method"],
             }
             on_path = shutil.which(name)
             if on_path:

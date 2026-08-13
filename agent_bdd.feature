@@ -39,8 +39,8 @@ Feature: Common Rules orchestration server
       | problems          |
       | integrity         |
       | usage             |
-    And "total_resources" equals 40
-    And "resource_counts" equals {"rule": 4, "skill": 19, "agent": 6, "workflow": 4, "loop": 1, "hook": 6}
+    And "total_resources" equals 41
+    And "resource_counts" equals {"rule": 5, "skill": 19, "agent": 6, "workflow": 4, "loop": 1, "hook": 6}
     And "problems" is an empty list
     And no element of "resources" contains a "body" key
 
@@ -92,7 +92,7 @@ Feature: Common Rules orchestration server
     Given ENABLE_NOTEBOOKS is set to "true" in .common-rules-server/config.env
     When I call get_context()
     Then "resources" contains an element with "kind" equal to "skill" and "name" equal to "notebook"
-    And "total_resources" equals 41
+    And "total_resources" equals 42
     And "gated_out" contains exactly 4 entries
     And no entry in "gated_out" has "name" equal to "notebook"
 
@@ -652,3 +652,12 @@ Feature: Common Rules orchestration server
     Given ENABLE_NOTEBOOKS is "false"
     When I call sync_to_ide(ides=["cursor"])
     Then .cursor/skills/notebook/SKILL.md does not exist
+
+  # ------------------------------------------------------------- orchestration
+
+  @orchestrator @composition
+  Scenario: dynamic instructions surfaced in the delegation plan are respected
+    When I call get_resource(kind="agent", name="orchestrator")
+    Then "body" describes the bullet-list shape for dynamic instructions
+    And "body" states they must be surfaced in the delegation plan before approval
+    And "body" advises using create_resource when an instruction keeps getting re-composed
