@@ -1,6 +1,6 @@
 [project]
 name = "common-rules-server"
-version = "0.2.4"
+version = "0.2.5"
 description = "A Model Context Protocol server for providing common rules to AI IDEs."
 readme = "README.md"
 requires-python = ">=3.11"
