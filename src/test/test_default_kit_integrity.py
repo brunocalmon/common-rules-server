@@ -215,7 +215,7 @@ def test_the_always_rules_are_present():
         for _, header, _ in parsed_resources()
         if header["kind"] == "rule" and header.get("type") == "Always"
     }
-    assert always == {"general", "orchestrator", "self-review", "session-receipt", "auto-approve"}
+    assert always == {"general", "orchestrator", "self-review", "session-receipt", "auto-approve", "context-mode", "code-review-graph"}
 
 
 # ------------------------------------------------------------------ hooks
@@ -228,7 +228,8 @@ def test_every_hook_declares_a_canonical_event_and_a_script():
     assert hooks, "the kit ships no hooks"
     for path, header, body in hooks:
         assert header["event"] in VALID_HOOK_EVENTS, ident(path)
-        assert extract_script(body), f"{ident(path)} has no shell block"
+        has_script = extract_script(body) or header.get("raw_command")
+        assert has_script, f"{ident(path)} has no shell block and no raw_command"
 
 
 def test_every_hook_reaches_at_least_one_editor():
@@ -248,6 +249,8 @@ def test_hook_scripts_only_set_the_documented_variables():
 
     for path, header, body in parsed_resources():
         if header["kind"] != "hook":
+            continue
+        if header.get("raw_command"):
             continue
         script = extract_script(body)
         assert "decision=" in script, f"{ident(path)} never sets a decision"

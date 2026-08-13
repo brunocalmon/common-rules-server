@@ -445,15 +445,21 @@ class HookService:
                     if MANAGED_MARKER in script.read_text(encoding="utf-8", errors="replace"):
                         script.unlink()
                         removed.append(str(script.relative_to(self.project_root)))
+                if not any(scripts_dir.iterdir()):
+                    scripts_dir.rmdir()
         return {"removed": removed}
+
+
+_MANAGED_COMMANDS = ("context-mode", "code-review-graph")
 
 
 def _is_managed_command(command: Any, target: IdeHookTarget) -> bool:
     if not command:
         return False
-    if target.scripts_dir in str(command):
+    cmd = str(command)
+    if target.scripts_dir in cmd:
         return True
-    return "context-mode" in str(command)
+    return any(tool in cmd for tool in _MANAGED_COMMANDS)
 
 
 def _antigravity_is_managed(spec: Any, target: IdeHookTarget) -> bool:
@@ -462,7 +468,7 @@ def _antigravity_is_managed(spec: Any, target: IdeHookTarget) -> bool:
     spec_str = json.dumps(spec)
     if target.scripts_dir in spec_str:
         return True
-    return "context-mode" in spec_str
+    return any(tool in spec_str for tool in _MANAGED_COMMANDS)
 
 
 def _one_line(text: str) -> str:

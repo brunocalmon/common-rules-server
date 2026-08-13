@@ -3,6 +3,9 @@ kind: rule
 type: Always
 name: code-review-graph
 description: Instructs the agent to use the code-review-graph CLI instead of MCP tools.
+self_check:
+  - Did I use the CLI commands rather than MCP tool calls?
+  - Did I verify the graph is built via `code-review-graph status`?
 ---
 
 ## Code Review Graph (CLI Proxy)

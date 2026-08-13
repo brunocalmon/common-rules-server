@@ -3,6 +3,9 @@ kind: rule
 type: Always
 name: context-mode
 description: Instructs the agent to use the context-mode CLI instead of MCP tools.
+self_check:
+  - Did I use the CLI commands rather than MCP tool calls?
+  - Did I use `context-mode doctor` to verify it is operational?
 ---
 
 ## Context Mode (CLI Proxy)

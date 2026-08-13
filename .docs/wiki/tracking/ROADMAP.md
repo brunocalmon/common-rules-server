@@ -4,7 +4,7 @@
 
 # Roadmap
 
-**Last updated:** 2026-08-08
+**Last updated:** 2026-08-13
 **Workflow:** [Development Workflow](../../template/tracking/WORKFLOW.md)
 
 ## Delivered
@@ -14,25 +14,26 @@
 | [EPC-001](epics/EPC-001.md) | Foundation — unified resource model | Done | 4/4 |
 | [EPC-002](epics/EPC-002.md) | Default kit | Done | 4/4 |
 | [EPC-003](epics/EPC-003.md) | Active orchestration | Done | 3/3 |
-| [EPC-004](epics/EPC-004.md) | Agent BDD framework | Done | 3/3 |
+| [EPC-004](epics/EPC-004.md) | Agent BDD framework | Done | 4/4 |
 | [EPC-006](epics/EPC-006.md) | Enforcement and portability | Done | 5/5 |
 | [EPC-005](epics/EPC-005.md) | Quality and documentation | Done | 4/4 |
+| [EPC-008](epics/EPC-008.md) | Native command invocation | Done | 2/2 |
+
+## In Progress
+
+| Epic | Outcome | Status | Tickets |
+|---|---|---|---|
+| [EPC-007](epics/EPC-007.md) | Multi-agent orchestrator | Phase 1 Done | 4/6 |
 
 ## Open findings
-
-Problems recorded during the rebuild and deliberately not fixed, so that the
-change under review stayed the change that was planned.
 
 | Finding | Summary | Severity |
 |---|---|---|
 
 ## Resolved findings
 
-Defects found in the previous implementation, and one found in this one.
-
 | Finding | Summary | Severity |
 |---|---|---|
-| [FND-013](findings/FND-013.md) | Companion install path is undocumented | Low |
 | [FND-001](findings/FND-001.md) | Placeholder substitution never worked | Critical |
 | [FND-002](findings/FND-002.md) | create_resource collided kinds and did not sanitise names | High |
 | [FND-003](findings/FND-003.md) | get_context returned a flat list | High |
@@ -45,6 +46,8 @@ Defects found in the previous implementation, and one found in this one.
 | [FND-010](findings/FND-010.md) | Documentation template was untranslated with broken navigation | Medium |
 | [FND-011](findings/FND-011.md) | Server identified itself by editor name | Low |
 | [FND-012](findings/FND-012.md) | Co-author filter erased human authorship | Critical |
+| [FND-013](findings/FND-013.md) | Companion install path is undocumented | Low |
+| [FND-014](findings/FND-014.md) | CI workflow verified against the new layout | Medium |
 | [FND-015](findings/FND-015.md) | Automations were guidance, not enforcement | High |
 | [FND-016](findings/FND-016.md) | Antigravity was detected by state directories, not its config root | Medium |
 | [FND-017](findings/FND-017.md) | Hook escaping was consumed twice, so every guard allowed everything | Critical |
@@ -58,15 +61,18 @@ Defects found in the previous implementation, and one found in this one.
 | [FND-025](findings/FND-025.md) | Exported resources named tools that were not running | Medium |
 | [FND-026](findings/FND-026.md) | A switched-off resource reported as one that does not exist | Medium |
 | [FND-027](findings/FND-027.md) | A relative project root produced a blank project name | Low |
-| [FND-014](findings/FND-014.md) | CI workflow verified against the new layout | Medium |
+| [FND-028](findings/FND-028.md) | Agent tool restrictions did not survive the export | High |
+| [FND-029](findings/FND-029.md) | A stop hook re-fired its reminder on every turn end | High |
+| [FND-030](findings/FND-030.md) | Clean left the command list pointing at deleted files | Medium |
+| [FND-031](findings/FND-031.md) | Agents were advertised as commands the editor could not offer | High |
 
 ## Progress
 
 | Status | Count |
 |---|---|
-| Done | 23 |
+| Done | 31 |
 | In Progress | 0 |
-| Backlog | 0 |
+| Backlog | 2 |
 | Open findings | 0 |
 
 

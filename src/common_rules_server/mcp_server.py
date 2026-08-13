@@ -46,10 +46,17 @@ mcp = FastMCP("common-rules")
 def _project_root() -> str:
     """The project being worked on.
 
-    ``COMMON_RULES_PROJECT_ROOT`` wins when set, which is what makes the server
-    testable and usable from a host that launches it outside the project.
+    ``COMMON_RULES_PROJECT_ROOT`` wins when set explicitly, which is what makes
+    the server testable and usable from a host that launches it outside the
+    project. ``CLAUDE_PROJECT_DIR`` is set by Claude Code for every MCP server
+    it launches and is the correct project root when the server runs globally
+    through a proxy wrapper whose cwd is the user's home directory.
     """
-    return os.environ.get("COMMON_RULES_PROJECT_ROOT") or os.getcwd()
+    return (
+        os.environ.get("COMMON_RULES_PROJECT_ROOT")
+        or os.environ.get("CLAUDE_PROJECT_DIR")
+        or os.getcwd()
+    )
 
 
 def _resources() -> ResourceService:
@@ -257,12 +264,14 @@ def sync_to_ide(
 def main() -> None:
     if len(sys.argv) > 1 and sys.argv[1] == "sync":
         clean = "--clean" in sys.argv
+        offline = "--offline" in sys.argv
+        ides = [a for a in sys.argv[2:] if not a.startswith("-")]
         root = _project_root()
         service = SyncService(_resources(), root)
         if clean:
-            result = service.clean()
+            result = service.clean(ides or None)
         else:
-            result = service.sync(include_hooks=True, offline=True)
+            result = service.sync(ides or None, include_hooks=True, offline=offline)
         print(json.dumps(result, indent=2))
         return
 

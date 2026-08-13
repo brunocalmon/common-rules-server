@@ -112,7 +112,7 @@ def test_description_is_collapsed_to_one_line(sync, python_project: Path):
 
 
 def test_agent_body_carries_persona_and_constraints(sync, python_project: Path):
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
     text = (python_project / ".claude/agents/reviewer.md").read_text()
 
     assert "finds defects that matter" in text
@@ -125,7 +125,7 @@ def test_agent_body_carries_persona_and_constraints(sync, python_project: Path):
 
 def test_self_check_travels_into_every_export(sync, python_project: Path):
     """The questionnaire is the part most easily lost in translation."""
-    sync.sync(["cursor", "claude", "antigravity"], include_hooks=False)
+    sync.sync(["cursor", "claude", "antigravity"], include_hooks=False, offline=True)
 
     for path in (
         ".cursor/skills/tdd/SKILL.md",
@@ -144,7 +144,7 @@ def test_output_template_is_inlined_not_merely_named(sync, python_project: Path)
     instruction to produce a shape it cannot see, and predictable output was the
     entire point of having templates.
     """
-    sync.sync(["cursor"], include_hooks=False)
+    sync.sync(["cursor"], include_hooks=False, offline=True)
     text = (python_project / ".cursor/skills/tdd/SKILL.md").read_text()
 
     assert "## Report format" in text
@@ -153,7 +153,7 @@ def test_output_template_is_inlined_not_merely_named(sync, python_project: Path)
 
 
 def test_every_resource_with_an_output_carries_its_shape(sync, resources, python_project: Path):
-    sync.sync(["cursor"], include_hooks=False)
+    sync.sync(["cursor"], include_hooks=False, offline=True)
 
     expected = [
         r for r in resources.load()["resources"].values()
@@ -172,7 +172,7 @@ def test_resources_naming_server_tools_carry_a_fallback(sync, python_project: Pa
     An exported skill telling the agent to call a tool that is not running
     leaves it with no route forward.
     """
-    sync.sync(["cursor"], include_hooks=False)
+    sync.sync(["cursor"], include_hooks=False, offline=True)
     text = (python_project / ".cursor/skills/bdd-run/SKILL.md").read_text()
 
     assert "## Without the server" in text
@@ -213,7 +213,7 @@ def anyio_backend():
 
 
 def test_workflow_phases_are_rendered(sync, python_project: Path):
-    sync.sync(["cursor"], include_hooks=False)
+    sync.sync(["cursor"], include_hooks=False, offline=True)
     text = (python_project / ".cursor/skills/feature-dev/SKILL.md").read_text()
     assert "## Phases" in text
     assert "/grill-me" in text
@@ -223,7 +223,7 @@ def test_workflow_phases_are_rendered(sync, python_project: Path):
 
 
 def test_always_rules_land_in_the_file_the_editor_always_reads(sync, python_project: Path):
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
     text = (python_project / "CLAUDE.md").read_text()
 
     for rule in ("general", "orchestrator", "self-review", "session-receipt"):
@@ -252,7 +252,7 @@ def test_setup_guidance_and_synced_rules_coexist(sync, resources, python_project
 
     ide = IdeService(str(python_project))
     ide.setup_ide_rules(["claude"])
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
     ide.setup_ide_rules(["claude"])  # and again, in the other order
 
     text = (python_project / "CLAUDE.md").read_text()
@@ -326,7 +326,7 @@ def test_gated_resources_are_not_exported(sync, python_project: Path):
 
 
 def test_claude_export_lists_user_invocable_resources_as_commands(sync, python_project: Path):
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
     text = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
 
     assert "## Custom Commands" in text
@@ -346,7 +346,7 @@ def test_workflows_reach_the_command_list_despite_having_no_trigger(sync, python
     Filtering the command list on it alone silently drops every workflow — the
     four resources a user is most likely to type by name.
     """
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
     block = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
 
     for workflow in ("feature-dev", "bug-fix", "docs-gen", "bdd-cycle"):
@@ -361,7 +361,7 @@ def test_a_command_can_still_be_model_invoked(sync, python_project: Path):
     disable-model-invocation, severing the orchestrator rule's "Offer
     /grill-me", feature-dev's Discover phase and qa-engineer's required edge.
     """
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
 
     assert "- /grill-me:" in (python_project / "CLAUDE.md").read_text(encoding="utf-8")
     skill = (python_project / ".claude/skills/grill-me/SKILL.md").read_text(encoding="utf-8")
@@ -402,7 +402,7 @@ def test_a_project_only_skill_becomes_a_native_command(sync, resources, python_p
         "skill", "house-style", "Applies this team's review conventions.", "Body.",
         extra_fields={"trigger": "user-invoked"},
     )
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
 
     assert "- /house-style:" in (python_project / "CLAUDE.md").read_text(encoding="utf-8")
     assert (python_project / ".claude/skills/house-style/SKILL.md").exists()
@@ -411,7 +411,7 @@ def test_a_project_only_skill_becomes_a_native_command(sync, resources, python_p
 def test_a_project_override_exports_the_project_body(sync, resources, python_project: Path):
     """Resolving to the override but exporting the built-in is a silent failure."""
     resources.create_resource("skill", "verify", "Project verification.", "Run the house pipeline.")
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
 
     skill = (python_project / ".claude/skills/verify/SKILL.md").read_text(encoding="utf-8")
     assert "Run the house pipeline." in skill
@@ -475,7 +475,7 @@ def test_agents_are_typeable_and_marked_as_subagents(sync, python_project: Path)
     The editor knows it as a subagent type, but without a command the user has
     no way to ask for one.
     """
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
     text = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
 
     for agent in ("orchestrator", "developer", "reviewer", "architect", "researcher"):
@@ -485,7 +485,7 @@ def test_agents_are_typeable_and_marked_as_subagents(sync, python_project: Path)
 def test_only_agents_carry_the_subagent_marker(sync, python_project: Path):
     """A skill runs here; an agent runs in its own window. Marking them the
     same way loses the distinction that makes delegation work."""
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
     block = (python_project / "CLAUDE.md").read_text(encoding="utf-8")
     listed = [l for l in block.splitlines() if l.startswith("- /")]
 
@@ -548,7 +548,7 @@ def test_an_explicit_choice_still_overrides_detection(sync, python_project: Path
 
 def test_clean_removes_the_managed_block_from_the_always_file(sync, python_project: Path):
     """Leaving it behind advertises commands whose files were just deleted."""
-    sync.sync(["claude"], include_hooks=False)
+    sync.sync(["claude"], include_hooks=False, offline=True)
     assert "<chat-commands>" in (python_project / "CLAUDE.md").read_text(encoding="utf-8")
 
     result = sync.clean(["claude"])

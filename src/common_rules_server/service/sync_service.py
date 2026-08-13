@@ -148,7 +148,7 @@ class SyncService:
         detected = {t.key for t in IdeService(str(self.project_root)).detect()}
         return [target for target in SYNC_TARGETS if target.key in detected]
 
-    def sync(self, ides: Optional[list[str]] = None, include_hooks: bool = True, offline: bool = True) -> dict[str, Any]:
+    def sync(self, ides: Optional[list[str]] = None, include_hooks: bool = True, offline: bool = False) -> dict[str, Any]:
         graph_dir = self.project_root / ".code-review-graph"
         if not graph_dir.exists():
             try:
@@ -500,6 +500,11 @@ class SyncService:
                             removed.append(str(path.relative_to(self.project_root)))
                     except OSError:
                         continue
+                for dirpath in sorted(root.rglob("*"), reverse=True):
+                    if dirpath.is_dir() and not any(dirpath.iterdir()):
+                        dirpath.rmdir()
+                if root.is_dir() and not any(root.iterdir()):
+                    root.rmdir()
             if target.always_file:
                 path = self.project_root / target.always_file
                 if path.exists():
@@ -513,7 +518,55 @@ class SyncService:
                             path.unlink()
                         removed.append(target.always_file)
 
-        HookService(str(self.project_root)).uninstall([t.key for t in selected])
+        hook_result = HookService(str(self.project_root)).uninstall([t.key for t in selected])
+        removed.extend(hook_result.get("removed", []))
+
+        from common_rules_server.service.ide_service import IDE_TARGETS
+        selected_keys = {t.key for t in selected}
+        for ide_target in IDE_TARGETS:
+            if ide_target.key not in selected_keys and ide_target.key != "generic":
+                continue
+            rules_path = self.project_root / ide_target.rules_path
+            if not rules_path.exists():
+                continue
+            already_handled = any(
+                rules_path == self.project_root / (t.always_file or "")
+                for t in selected
+            )
+            if already_handled:
+                continue
+            text = rules_path.read_text(encoding="utf-8", errors="replace")
+            changed = False
+            for block_name in ("guidance", BLOCK_NAME):
+                if managed_blocks.start_marker(block_name) in text:
+                    text = managed_blocks.strip(text, block_name)
+                    changed = True
+            if changed:
+                if text.strip():
+                    rules_path.write_text(text, encoding="utf-8")
+                else:
+                    rules_path.unlink()
+                removed.append(str(rules_path.relative_to(self.project_root)))
+
+        for target in selected:
+            cfg_map = {"claude": ".claude/settings.json",
+                       "cursor": ".cursor/hooks.json",
+                       "antigravity": ".agents/hooks.json"}
+            cfg = cfg_map.get(target.key)
+            if not cfg:
+                continue
+            cfg_path = self.project_root / cfg
+            if cfg_path.exists():
+                try:
+                    data = json.loads(cfg_path.read_text(encoding="utf-8"))
+                    is_empty = (isinstance(data, dict) and
+                                all(not v for v in data.values()))
+                    if is_empty:
+                        cfg_path.unlink()
+                        removed.append(cfg)
+                except (json.JSONDecodeError, OSError):
+                    pass
+
         return {"removed": removed}
 
 
