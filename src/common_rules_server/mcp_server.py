@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import sys
+from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import unquote, urlparse
 
@@ -60,30 +61,150 @@ def _project_root() -> str:
     )
 
 
-async def _project_root_from_ctx(ctx: Context) -> str:
-    """Resolve the project root, preferring MCP roots over os.getcwd().
+PROJECT_MARKERS = (
+    ".git",
+    ".common-rules-server",
+    "pyproject.toml",
+    "package.json",
+    "go.mod",
+    "Cargo.toml",
+    "pom.xml",
+    "build.gradle",
+    "build.gradle.kts",
+    "Gemfile",
+    "composer.json",
+)
 
-    When the server runs as a global MCP server (e.g. via Claude Desktop),
-    its process CWD is typically the user's home directory — not the project.
-    The MCP ``roots`` capability communicates the actual project directory
-    from the client, which is what we need.
+
+def _looks_like_a_project(path: str) -> bool:
+    """Whether this directory is plausibly the root of a codebase.
+
+    A home directory, a container mount point or a folder that merely *holds*
+    projects has none of these markers. Writing configuration into one of those
+    is always a mistake, so the guess that produced it must not be trusted.
     """
-    explicit = os.environ.get("COMMON_RULES_PROJECT_ROOT") or os.environ.get(
-        "CLAUDE_PROJECT_DIR"
-    )
-    if explicit:
-        return explicit
+    base = Path(path)
+    return base.is_dir() and any((base / marker).exists() for marker in PROJECT_MARKERS)
+
+
+def _nearest_project_above(path: str) -> Optional[str]:
+    """Walk up from path looking for the first directory that holds a project."""
+    current = Path(path).resolve()
+    for candidate in (current, *current.parents):
+        if _looks_like_a_project(str(candidate)):
+            return str(candidate)
+    return None
+
+
+async def _roots_from_client(ctx: Context) -> list[str]:
+    """Every filesystem root the client advertises, in the order it sent them.
+
+    The client is not obliged to support roots at all, and when it does the
+    first root is not necessarily the project being worked on — Claude Desktop
+    advertises the folder that *contains* the user's projects. So this returns
+    all of them and lets the caller choose.
+    """
     try:
         result = await ctx.session.list_roots()
-        if result.roots:
-            uri = str(result.roots[0].uri)
-            parsed = urlparse(uri)
-            if parsed.scheme == "file":
-                return unquote(parsed.path)
-    except Exception:
-        logger.debug("Could not read MCP roots, falling back to cwd")
-    return os.getcwd()
+    except Exception as exc:  # noqa: BLE001 - the client may not support roots
+        logger.info("client did not answer roots/list (%s)", exc)
+        return []
 
+    paths: list[str] = []
+    for root in result.roots:
+        parsed = urlparse(str(root.uri))
+        if parsed.scheme == "file":
+            paths.append(unquote(parsed.path))
+    return paths
+
+
+async def _resolve_root(ctx: Context, project_root: Optional[str] = None) -> dict:
+    """Work out which project this call is about, and how confident we are.
+
+    Returns the resolved path plus the evidence behind it. Callers that write
+    to disk must check ``trusted`` — a guess that landed on a directory with no
+    project markers is how configuration ends up in a home directory.
+
+    The order is deliberate: what the caller stated, then what the host process
+    was told, then what the client advertises, then the process's own working
+    directory. Everything below the first two is a guess and is labelled as one.
+    """
+    if project_root:
+        resolved = str(Path(project_root).expanduser().resolve())
+        return {
+            "root": resolved,
+            "source": "argument",
+            "trusted": True,
+            "candidates": [resolved],
+        }
+
+    for var in ("COMMON_RULES_PROJECT_ROOT", "CLAUDE_PROJECT_DIR"):
+        value = os.environ.get(var)
+        if value:
+            resolved = str(Path(value).expanduser().resolve())
+            return {
+                "root": resolved,
+                "source": f"env:{var}",
+                "trusted": True,
+                "candidates": [resolved],
+            }
+
+    candidates = await _roots_from_client(ctx)
+    for candidate in candidates:
+        if _looks_like_a_project(candidate):
+            return {
+                "root": str(Path(candidate).resolve()),
+                "source": "mcp-roots",
+                "trusted": True,
+                "candidates": candidates,
+            }
+
+    cwd = os.getcwd()
+    nearest = _nearest_project_above(cwd)
+    if nearest:
+        return {
+            "root": nearest,
+            "source": "cwd-walk-up",
+            "trusted": True,
+            "candidates": candidates or [cwd],
+        }
+
+    fallback = candidates[0] if candidates else cwd
+    return {
+        "root": str(Path(fallback).resolve()),
+        "source": "mcp-roots-unverified" if candidates else "cwd",
+        "trusted": False,
+        "candidates": candidates or [cwd],
+    }
+
+
+def _untrusted_root_error(resolution: dict) -> dict:
+    """The refusal returned instead of writing into a directory we guessed."""
+    return {
+        "error": "project_root_unresolved",
+        "project_root": resolution["root"],
+        "project_root_source": resolution["source"],
+        "candidates": resolution["candidates"],
+        "message": (
+            f"Refusing to write: {resolution['root']} has none of the markers of a "
+            f"project ({', '.join(PROJECT_MARKERS[:4])}, ...), and it was reached by "
+            f"guessing ({resolution['source']}) rather than being told. This server "
+            "runs outside the project, so it cannot see the working directory of the "
+            "agent that called it."
+        ),
+        "action_required": (
+            "Call this tool again with project_root set to the absolute path of the "
+            "project you are working in."
+        ),
+    }
+
+
+_CLIENT_TO_IDE: tuple[tuple[str, str], ...] = (
+    ("claude", "claude"),
+    ("cursor", "cursor"),
+    ("windsurf", "windsurf"),
+    ("antigravity", "antigravity"),
+)
 
 _ENTRYPOINT_TO_IDE: dict[str, str] = {
     "cli": "claude",
@@ -95,13 +216,32 @@ _ENTRYPOINT_TO_IDE: dict[str, str] = {
 }
 
 
+def _active_ide_from_client(ctx: Context) -> Optional[str]:
+    """Identify the editor from the MCP handshake rather than the environment.
+
+    ``clientInfo`` travels over the protocol, so it survives the server being
+    launched by a desktop application that exports none of the editor's
+    environment variables — which is the normal case for a globally installed
+    server.
+    """
+    try:
+        raw = ctx.session.client_params.clientInfo.name
+    except Exception:  # noqa: BLE001 - client_params is unset before initialize
+        return None
+    if not isinstance(raw, str):
+        return None
+    name = raw.strip().lower()
+    for needle, ide in _CLIENT_TO_IDE:
+        if needle in name:
+            return ide
+    return None
+
+
 def _active_ide_from_env() -> Optional[str]:
     """Identify the active IDE from well-known environment variables.
 
-    Claude Code sets ``CLAUDE_CODE_ENTRYPOINT``; other editors set their own.
-    When one of these is present, we know which IDE is hosting this session
-    and should target only that one — not every editor whose config files
-    happen to exist on disk.
+    Only useful when the editor launched this server itself; a server started by
+    a desktop application inherits none of these.
     """
     entrypoint = os.environ.get("CLAUDE_CODE_ENTRYPOINT", "").strip().lower()
     if entrypoint and entrypoint in _ENTRYPOINT_TO_IDE:
@@ -118,7 +258,7 @@ def _resources(root: Optional[str] = None) -> ResourceService:
 
 
 @mcp.tool()
-async def get_context(ctx: Context) -> dict:
+async def get_context(ctx: Context, project_root: Optional[str] = None) -> dict:
     """Map every available rule, skill, agent, workflow and loop in one call.
 
     Call this once at the start of a session. Returns resolved project
@@ -126,15 +266,27 @@ async def get_context(ctx: Context) -> dict:
     required configuration keys — but not instruction bodies, which are fetched
     with get_resource when they are actually needed.
 
-    Check env_status.needs_input: if it is non-empty the project has not been
-    configured, and setup_config should run first.
+    project_root is the absolute path of the project you are working in. This
+    server usually runs outside that project and cannot see your working
+    directory, so pass it whenever you know it.
+
+    Check project_root in the response: if it is not the project you are working
+    in, everything else in the answer describes the wrong directory. Then check
+    env_status.needs_input — if it is non-empty, setup_config should run first.
     """
-    root = await _project_root_from_ctx(ctx)
-    return _resources(root).get_context()
+    resolution = await _resolve_root(ctx, project_root)
+    result = _resources(resolution["root"]).get_context()
+    result["project_root"] = resolution["root"]
+    result["project_root_source"] = resolution["source"]
+    if not resolution["trusted"]:
+        result["project_root_warning"] = _untrusted_root_error(resolution)["message"]
+    return result
 
 
 @mcp.tool()
-async def get_resource(kind: str, name: str, ctx: Context) -> dict:
+async def get_resource(
+    kind: str, name: str, ctx: Context, project_root: Optional[str] = None
+) -> dict:
     """Read one resource in full.
 
     kind is one of: rule, skill, agent, workflow, loop.
@@ -144,8 +296,8 @@ async def get_resource(kind: str, name: str, ctx: Context) -> dict:
     output template the resulting report should follow, and which configuration
     keys were resolved or are still missing.
     """
-    root = await _project_root_from_ctx(ctx)
-    return _resources(root).get_resource(kind, name)
+    resolution = await _resolve_root(ctx, project_root)
+    return _resources(resolution["root"]).get_resource(kind, name)
 
 
 @mcp.tool()
@@ -156,6 +308,7 @@ async def create_resource(
     body: str,
     ctx: Context,
     extra_fields: Optional[dict] = None,
+    project_root: Optional[str] = None,
 ) -> dict:
     """Create a project-scoped resource.
 
@@ -166,13 +319,20 @@ async def create_resource(
     body is Markdown holding the instructions. extra_fields may carry
     kind-specific frontmatter such as relationships, phases, trigger or type.
     """
-    root = await _project_root_from_ctx(ctx)
-    return _resources(root).create_resource(kind, name, description, body, extra_fields)
+    resolution = await _resolve_root(ctx, project_root)
+    if not resolution["trusted"]:
+        return _untrusted_root_error(resolution)
+    return _resources(resolution["root"]).create_resource(
+        kind, name, description, body, extra_fields
+    )
 
 
 @mcp.tool()
 async def setup_config(
-    ctx: Context, ide: Optional[str] = None, install_companions: bool = False
+    ctx: Context,
+    ide: Optional[str] = None,
+    install_companions: bool = False,
+    project_root: Optional[str] = None,
 ) -> dict:
     """Configure this project and the surroundings the agent works in.
 
@@ -184,6 +344,11 @@ async def setup_config(
     Safe to re-run: values already set are preserved, and the guidance block is
     replaced in place rather than duplicated.
 
+    project_root is the absolute path of the project to configure. This server
+    usually runs outside that project and cannot see your working directory, so
+    pass it — without it the call is refused rather than writing somewhere it
+    guessed.
+
     ide optionally names the editor when detection fails: cursor, claude,
     windsurf, antigravity or generic. install_companions permits writing
     companion MCP servers into editor configuration, which otherwise is only
@@ -191,7 +356,11 @@ async def setup_config(
 
     Read next_steps in the response — it lists what still needs a human answer.
     """
-    root = await _project_root_from_ctx(ctx)
+    resolution = await _resolve_root(ctx, project_root)
+    if not resolution["trusted"]:
+        return _untrusted_root_error(resolution)
+
+    root = resolution["root"]
     config_service = ConfigService(root)
 
     resolved = config_service.write_config()
@@ -200,7 +369,7 @@ async def setup_config(
     git_hooks = GitHookService(root).setup_hooks(config)
 
     ide_service = IdeService(root)
-    active_ide = ide or _active_ide_from_env()
+    active_ide = ide or _active_ide_from_env() or _active_ide_from_client(ctx)
     ide_rules = ide_service.setup_ide_rules([active_ide] if active_ide else None)
 
     detected = [active_ide] if active_ide else [t.key for t in ide_service.detect()]
@@ -245,6 +414,8 @@ async def setup_config(
     sync_result = SyncService(resources, root).sync(detected)
 
     return {
+        "project_root": root,
+        "project_root_source": resolution["source"],
         "config": config,
         "env_status": resolved["env_status"],
         "git_hooks": git_hooks,
@@ -265,7 +436,9 @@ async def setup_config(
 
 
 @mcp.tool()
-async def get_bdd_scenario(ctx: Context, page: int = 1) -> dict:
+async def get_bdd_scenario(
+    ctx: Context, page: int = 1, project_root: Optional[str] = None
+) -> dict:
     """Read one acceptance scenario from the project's Gherkin feature file.
 
     Scenarios are served one per page so each is actually carried out rather
@@ -276,7 +449,8 @@ async def get_bdd_scenario(ctx: Context, page: int = 1) -> dict:
     compare what comes back against what it says should come back — then call
     this again with page + 1. Keep going while has_next is true.
     """
-    root = await _project_root_from_ctx(ctx)
+    resolution = await _resolve_root(ctx, project_root)
+    root = resolution["root"]
     config = ConfigService(root).get_config()["config"]
     return BddService(root, config.get("BDD_FILE_PATH")).get_scenario(page)
 
@@ -288,6 +462,7 @@ async def sync_to_ide(
     include_hooks: bool = True,
     clean: bool = False,
     offline: bool = False,
+    project_root: Optional[str] = None,
 ) -> dict:
     """Export every resource into the editor's own native files.
 
@@ -302,14 +477,25 @@ async def sync_to_ide(
     The export is mechanical, so it is cheap to re-run — and it must be re-run
     after changing a resource, since generated files are overwritten rather than
     merged.
+
+    project_root is the absolute path of the project to sync into. This server
+    usually runs outside that project and cannot see your working directory, so
+    pass it — without it the call is refused rather than writing somewhere it
+    guessed.
     """
-    root = await _project_root_from_ctx(ctx)
+    resolution = await _resolve_root(ctx, project_root)
+    if not resolution["trusted"]:
+        return _untrusted_root_error(resolution)
+
+    root = resolution["root"]
     service = SyncService(_resources(root), root)
 
     if clean:
         return service.clean(ides)
 
-    targets = ides or [t.key for t in IdeService(root).detect()]
+    active_ide = _active_ide_from_env() or _active_ide_from_client(ctx)
+    targets = ides or ([active_ide] if active_ide else None)
+    targets = targets or [t.key for t in IdeService(root).detect()]
     if not targets:
         return {
             "synced": [],

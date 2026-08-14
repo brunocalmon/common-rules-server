@@ -105,7 +105,7 @@ wheels = [
 
 [[package]]
 name = "common-rules-server"
-version = "0.2.6"
+version = "0.2.7"
 source = { editable = "." }
 dependencies = [
     { name = "mcp" },
@@ -133,7 +133,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "mcp", specifier = ">=1.9.3" },
+    { name = "mcp", specifier = ">=1.9.3,<2" },
     { name = "mcp", marker = "extra == 'test'", specifier = ">=1.9.3" },
     { name = "pydantic", specifier = ">=2.7.4" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.2.2" },
