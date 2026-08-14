@@ -21,8 +21,9 @@ import logging
 import os
 import sys
 from typing import Any, Optional
+from urllib.parse import unquote, urlparse
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.fastmcp import Context, FastMCP
 
 from common_rules_server.service.bdd_service import BddService
 from common_rules_server.service.config_service import ConfigService
@@ -44,7 +45,7 @@ mcp = FastMCP("common-rules")
 
 
 def _project_root() -> str:
-    """The project being worked on.
+    """The project being worked on, from environment variables only.
 
     ``COMMON_RULES_PROJECT_ROOT`` wins when set explicitly, which is what makes
     the server testable and usable from a host that launches it outside the
@@ -59,12 +60,65 @@ def _project_root() -> str:
     )
 
 
-def _resources() -> ResourceService:
-    return ResourceService(ConfigService(_project_root()))
+async def _project_root_from_ctx(ctx: Context) -> str:
+    """Resolve the project root, preferring MCP roots over os.getcwd().
+
+    When the server runs as a global MCP server (e.g. via Claude Desktop),
+    its process CWD is typically the user's home directory — not the project.
+    The MCP ``roots`` capability communicates the actual project directory
+    from the client, which is what we need.
+    """
+    explicit = os.environ.get("COMMON_RULES_PROJECT_ROOT") or os.environ.get(
+        "CLAUDE_PROJECT_DIR"
+    )
+    if explicit:
+        return explicit
+    try:
+        result = await ctx.session.list_roots()
+        if result.roots:
+            uri = str(result.roots[0].uri)
+            parsed = urlparse(uri)
+            if parsed.scheme == "file":
+                return unquote(parsed.path)
+    except Exception:
+        logger.debug("Could not read MCP roots, falling back to cwd")
+    return os.getcwd()
+
+
+_ENTRYPOINT_TO_IDE: dict[str, str] = {
+    "cli": "claude",
+    "claude-desktop": "claude",
+    "claude-code": "claude",
+    "cursor": "cursor",
+    "windsurf": "windsurf",
+    "antigravity": "antigravity",
+}
+
+
+def _active_ide_from_env() -> Optional[str]:
+    """Identify the active IDE from well-known environment variables.
+
+    Claude Code sets ``CLAUDE_CODE_ENTRYPOINT``; other editors set their own.
+    When one of these is present, we know which IDE is hosting this session
+    and should target only that one — not every editor whose config files
+    happen to exist on disk.
+    """
+    entrypoint = os.environ.get("CLAUDE_CODE_ENTRYPOINT", "").strip().lower()
+    if entrypoint and entrypoint in _ENTRYPOINT_TO_IDE:
+        return _ENTRYPOINT_TO_IDE[entrypoint]
+    if os.environ.get("CURSOR_SESSION_ID"):
+        return "cursor"
+    if os.environ.get("WINDSURF_SESSION_ID"):
+        return "windsurf"
+    return None
+
+
+def _resources(root: Optional[str] = None) -> ResourceService:
+    return ResourceService(ConfigService(root or _project_root()))
 
 
 @mcp.tool()
-def get_context() -> dict:
+async def get_context(ctx: Context) -> dict:
     """Map every available rule, skill, agent, workflow and loop in one call.
 
     Call this once at the start of a session. Returns resolved project
@@ -75,11 +129,12 @@ def get_context() -> dict:
     Check env_status.needs_input: if it is non-empty the project has not been
     configured, and setup_config should run first.
     """
-    return _resources().get_context()
+    root = await _project_root_from_ctx(ctx)
+    return _resources(root).get_context()
 
 
 @mcp.tool()
-def get_resource(kind: str, name: str) -> dict:
+async def get_resource(kind: str, name: str, ctx: Context) -> dict:
     """Read one resource in full.
 
     kind is one of: rule, skill, agent, workflow, loop.
@@ -89,15 +144,17 @@ def get_resource(kind: str, name: str) -> dict:
     output template the resulting report should follow, and which configuration
     keys were resolved or are still missing.
     """
-    return _resources().get_resource(kind, name)
+    root = await _project_root_from_ctx(ctx)
+    return _resources(root).get_resource(kind, name)
 
 
 @mcp.tool()
-def create_resource(
+async def create_resource(
     kind: str,
     name: str,
     description: str,
     body: str,
+    ctx: Context,
     extra_fields: Optional[dict] = None,
 ) -> dict:
     """Create a project-scoped resource.
@@ -109,11 +166,14 @@ def create_resource(
     body is Markdown holding the instructions. extra_fields may carry
     kind-specific frontmatter such as relationships, phases, trigger or type.
     """
-    return _resources().create_resource(kind, name, description, body, extra_fields)
+    root = await _project_root_from_ctx(ctx)
+    return _resources(root).create_resource(kind, name, description, body, extra_fields)
 
 
 @mcp.tool()
-def setup_config(ide: Optional[str] = None, install_companions: bool = False) -> dict:
+async def setup_config(
+    ctx: Context, ide: Optional[str] = None, install_companions: bool = False
+) -> dict:
     """Configure this project and the surroundings the agent works in.
 
     Writes .common-rules-server/config.env with every setting the server
@@ -131,7 +191,7 @@ def setup_config(ide: Optional[str] = None, install_companions: bool = False) ->
 
     Read next_steps in the response — it lists what still needs a human answer.
     """
-    root = _project_root()
+    root = await _project_root_from_ctx(ctx)
     config_service = ConfigService(root)
 
     resolved = config_service.write_config()
@@ -140,11 +200,10 @@ def setup_config(ide: Optional[str] = None, install_companions: bool = False) ->
     git_hooks = GitHookService(root).setup_hooks(config)
 
     ide_service = IdeService(root)
-    ide_rules = ide_service.setup_ide_rules([ide] if ide else None)
+    active_ide = ide or _active_ide_from_env()
+    ide_rules = ide_service.setup_ide_rules([active_ide] if active_ide else None)
 
-    # Native editor hooks are what make the automations hold when the agent
-    # does not read, or chooses to ignore, the guidance it was given.
-    detected = [ide] if ide else [t.key for t in ide_service.detect()]
+    detected = [active_ide] if active_ide else [t.key for t in ide_service.detect()]
     resources = ResourceService(config_service)
     editor_hooks = (
         HookService(root).install(resources.hooks(), detected) if detected else None
@@ -206,7 +265,7 @@ def setup_config(ide: Optional[str] = None, install_companions: bool = False) ->
 
 
 @mcp.tool()
-def get_bdd_scenario(page: int = 1) -> dict:
+async def get_bdd_scenario(ctx: Context, page: int = 1) -> dict:
     """Read one acceptance scenario from the project's Gherkin feature file.
 
     Scenarios are served one per page so each is actually carried out rather
@@ -217,13 +276,14 @@ def get_bdd_scenario(page: int = 1) -> dict:
     compare what comes back against what it says should come back — then call
     this again with page + 1. Keep going while has_next is true.
     """
-    root = _project_root()
+    root = await _project_root_from_ctx(ctx)
     config = ConfigService(root).get_config()["config"]
     return BddService(root, config.get("BDD_FILE_PATH")).get_scenario(page)
 
 
 @mcp.tool()
-def sync_to_ide(
+async def sync_to_ide(
+    ctx: Context,
     ides: Optional[list] = None,
     include_hooks: bool = True,
     clean: bool = False,
@@ -243,8 +303,8 @@ def sync_to_ide(
     after changing a resource, since generated files are overwritten rather than
     merged.
     """
-    root = _project_root()
-    service = SyncService(_resources(), root)
+    root = await _project_root_from_ctx(ctx)
+    service = SyncService(_resources(root), root)
 
     if clean:
         return service.clean(ides)
