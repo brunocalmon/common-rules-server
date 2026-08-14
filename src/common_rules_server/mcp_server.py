@@ -61,9 +61,11 @@ def _project_root() -> str:
     )
 
 
+# Deliberately excludes .common-rules-server: this server creates that
+# directory, so treating it as evidence would let one bad guess justify itself
+# forever afterwards.
 PROJECT_MARKERS = (
     ".git",
-    ".common-rules-server",
     "pyproject.toml",
     "package.json",
     "go.mod",
