@@ -7,8 +7,9 @@ wheels/
 *.egg-info
 
 # specsfy cli
-.specsfy/
-specs/
+# `.specsfy/` e `specs/` deixaram de ser ignorados: passaram a ser o contrato do
+# framework e o registro normativo das decisões da reescrita v1.0. Precisam estar
+# versionados para sobreviver ao congelamento da v0.2.8 e à raiz órfã da Phase 0.
 skills-lock.json
 
 # Virtual environments
@@ -23,9 +24,11 @@ notebook
 # goes stale silently. `.common-rules-server/config.env` is deliberately NOT
 # ignored — this project dogfoods its own configuration and the file is meant to
 # be reviewed and committed.
+#
+# `.claude/` e `.agents` saíram desta lista. O motivo acima vale para saída
+# gerada pelo sync_to_ide; hoje esses caminhos carregam as skills Specsfy
+# configuradas e os scripts de asserção da Phase 0, que são fonte, não export.
 .cursor/
-.claude/
-.agents/
 CLAUDE.md
 AGENTS.md
 
