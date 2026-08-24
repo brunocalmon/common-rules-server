@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0001 |
 | Slug | 0001-phase-0-preparacao-limpeza |
-| Status | Planned |
+| Status | Implementing |
 | Effort | 3 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Operações git irreversíveis (branch órfã, congelamento de histórico) sobre o repositório real. Baixo volume, alto custo de erro. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | Pending |
+| Delivery Gate | In Progress |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — operações de repositório executadas por linha de comando, sem tela. |
 | Atualizada em | 2026-08-24 |
@@ -516,7 +516,7 @@ O estado passou a viver em `.git/phase0-run-state.json`, fora da árvore version
 
 #### Rastreabilidade
 
-`node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/planned/0001-phase-0-preparacao-limpeza/spec.md .` → **OK, 20 de 20 IDs cobertos**.
+`node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/in-progress/0001-phase-0-preparacao-limpeza/spec.md .` → **OK, 20 de 20 IDs cobertos**.
 
 #### Matriz de verificação
 
@@ -551,7 +551,7 @@ O estado passou a viver em `.git/phase0-run-state.json`, fora da árvore version
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24, rodada 2)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/planned/0001-phase-0-preparacao-limpeza/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/in-progress/0001-phase-0-preparacao-limpeza/spec.md`
 
 **Rodada 1 — 2026-08-24 — NOT READY (histórico)**
 
@@ -590,7 +590,7 @@ Estrutural: VALID DRAFT. Cobertura: 2 US, 4 FR, 3 NFR, 11 AC; mínimo de 3 AC po
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-24) — estrutura válida e RED observado nas sete asserções antes de qualquer operação.
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/planned/0001-phase-0-preparacao-limpeza/spec.md --allow-draft`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/in-progress/0001-phase-0-preparacao-limpeza/spec.md --allow-draft`
 - **Contagens**: 14 tarefas, 8 predecessores TDD, 0 tarefas `[CODE]`, 70 itens de checklist, 20 de 20 IDs da spec cobertos.
 - **RED comprovado**: T001 a T007 materializaram as sete asserções em `.claude/scripts/phase0/` e todas falharam antes de qualquer operação, por ausência do comportamento. A evidência, a prova de sensibilidade e a de discriminação estão na seção 12.
 - **Rastreabilidade**: `check_traceability.mjs` reporta 20 de 20 IDs cobertos.
@@ -715,7 +715,7 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
   - [ ] **EVIDENCE**: Registrar as sete saídas de GREEN na seção 12, ao lado das saídas de RED correspondentes.
   - [ ] **IMPROVE**: Registrar melhoria aplicada à suíte ou justificar ausência.
 
-- [ ] T014 [DOC] [US-001] [US-002] Registrar o relatório final da fase na seção 12 de specs/planned/0001-phase-0-preparacao-limpeza/spec.md — Refs: US-001, US-002, NFR-001, NFR-002, NFR-003, AC-006, AC-007, AC-010 — Depends: T013
+- [ ] T014 [DOC] [US-001] [US-002] Registrar o relatório final da fase na seção 12 de specs/in-progress/0001-phase-0-preparacao-limpeza/spec.md — Refs: US-001, US-002, NFR-001, NFR-002, NFR-003, AC-006, AC-007, AC-010 — Depends: T013
   - [ ] **PREP**: Reunir as evidências de T001 a T013.
   - [ ] **EXECUTE**: Consolidar o relatório com os oito itens do checklist de AC-010, incluindo o clone limpo de `archived` para comprovar que a v0.2.8 continua recuperável e o tempo decorrido entre T009 e T012.
   - [ ] **VERIFY**: Os oito itens retornam positivo e cada um aponta a evidência que o sustenta.
