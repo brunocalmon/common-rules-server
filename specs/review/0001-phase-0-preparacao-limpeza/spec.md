@@ -579,29 +579,30 @@ O estado passou a viver em `.git/phase0-run-state.json`, fora da árvore version
 
 | Requisito | Cenário BDD | Nível | Comando de verificação | Evidência |
 | --- | --- | --- | --- | --- |
-| FR-001 | AC-001 | Inspeção | `git rev-parse archived main` — SHAs iguais | T002 |
-| FR-001 | AC-005 | Inspeção | `git rev-parse archived` — igual ao SHA registrado em T002 | T007 |
-| FR-001 | AC-008 | Inspeção | `git ls-tree archived -- pyproject.toml src` — retorna entradas | T007 |
-| FR-002 | AC-002 | Inspeção | `git rev-list --count HEAD` = 1 e `git rev-list --parents -n 1 HEAD` sem pai | T005 |
-| FR-002 | AC-006 | Medição | tempo decorrido de T003 a T006 | T007 |
-| FR-002 | AC-007 | Inspeção | `git rev-parse main archived` inalterados após interrupção simulada | T007 |
-| FR-003 | AC-003 | Inspeção | `git ls-files specs/ .claude/ .specsfy/` na branch = mesma lista da main | T005 |
-| FR-003 | AC-008 | Inspeção | `git ls-tree -r archived --name-only -- specs .claude .specsfy` retorna entradas | T007 |
-| FR-003 | AC-009 | Inspeção | `git ls-files` — cada caminho sob o conjunto preservado | T005 |
-| FR-003 | AC-011 | Execução | script de captura de inbox roda na branch e grava em `specs/inbox/` | T007 |
-| FR-004 | AC-004 | Inspeção | `git ls-files \| grep -vE '^(specs\|\.claude\|\.specsfy)/'` retorna vazio | T005 |
-| FR-004 | AC-006 | Medição | tempo decorrido de T003 a T006 | T007 |
-| FR-004 | AC-009 | Inspeção | `git ls-files '*.py'` retorna vazio | T005 |
-| NFR-001 | AC-006 | Medição | tempo total de T003 a T006 < 5 min | T007 |
-| NFR-001 | AC-007 | Inspeção | recriação da branch após interrupção conclui dentro do orçamento | T007 |
-| NFR-001 | AC-010 | Medição | tempo registrado no relatório final | T007 |
-| NFR-002 | AC-001 | Inspeção | `git diff --stat archived main` vazio | T002 |
-| NFR-002 | AC-007 | Inspeção | SHA da main inalterado após interrupção | T007 |
-| NFR-002 | AC-008 | Inspeção | checkout de `archived` em clone novo restaura a v0.2.8 | T007 |
-| NFR-003 | AC-005 | Inspeção | `git reflog archived` sem entrada posterior à criação | T007 |
-| NFR-003 | AC-008 | Inspeção | `archived` recuperável e íntegra no remoto | T007 |
-| NFR-003 | AC-009 | Inspeção | nenhuma escrita em main ou `archived` entre T003 e T006 | T007 |
-| NFR-003 | AC-011 | Execução | framework opera na branch sem alterar main ou `archived` | T007 |
+| FR-001 | AC-001 | Execução | `node .claude/scripts/phase0/assert-archived-frozen.test.js` | **Passed** — GREEN 5/5 em T008 |
+| FR-001 | AC-005 | Execução | `node .claude/scripts/phase0/assert-archived-frozen.test.js` — condição de SHA congelado | **Passed** — GREEN em T008 e T013 |
+| FR-001 | AC-008 | Execução | clone limpo de `archived` + `uv run pytest` | **Passed** — 1010 passed, 20 skipped em T014 |
+| FR-002 | AC-002 | Execução | `node .claude/scripts/phase0/assert-orphan-root.test.js` | **Passed** — GREEN 4/4 em T011 e T012 |
+| FR-002 | AC-006 | Execução | `node .claude/scripts/phase0/assert-elapsed-budget.test.js` | **Passed** — 70s de 300s em T012 |
+| FR-002 | AC-007 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` | **Passed** — GREEN 5/5 em T013 |
+| FR-003 | AC-003 | Execução | `node .claude/scripts/phase0/assert-preserved-set.test.js` | **Passed** — GREEN 5/5 em T011 |
+| FR-003 | AC-008 | Inspeção | `git ls-tree -r archived -- specs .claude .specsfy .agents` | **Passed** — 119 arquivos em T014 |
+| FR-003 | AC-009 | Execução | `node .claude/scripts/phase0/assert-preserved-set.test.js` | **Passed** — GREEN em T011 |
+| FR-003 | AC-011 | Execução | `node .claude/scripts/phase0/assert-framework-operational.test.js` | **Passed** — captura real criada em T011 |
+| FR-004 | AC-004 | Execução | `node .claude/scripts/phase0/assert-no-legacy.test.js` | **Passed** — GREEN 5/5 em T011 |
+| FR-004 | AC-006 | Execução | `node .claude/scripts/phase0/assert-elapsed-budget.test.js` | **Passed** — 70s em T012 |
+| FR-004 | AC-009 | Execução | `node .claude/scripts/phase0/assert-no-legacy.test.js` — condição de ausência de `.py` | **Passed** — 0 arquivos `.py` em T011 |
+| NFR-001 | AC-006 | Medição | `node .claude/scripts/phase0/assert-elapsed-budget.test.js` | **Passed** — 70s de 300s em T012 |
+| NFR-001 | AC-007 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` | **Passed** — GREEN em T013 |
+| NFR-001 | AC-010 | Execução | `node .claude/scripts/phase0/run-all.test.js` | **Passed** — GREEN nas 7 em T013 |
+| NFR-002 | AC-001 | Execução | `node .claude/scripts/phase0/assert-archived-frozen.test.js` — árvore idêntica | **Passed** — GREEN em T008 |
+| NFR-002 | AC-007 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` + `git reflog main` | **Passed** — main sem escrita entre 21:09:54 e 21:11:04, em T013 |
+| NFR-002 | AC-008 | Execução | clone limpo de `archived` em diretório novo | **Passed** — v0.2.8 executável em T014 |
+| NFR-003 | AC-005 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` — sem commit posterior | **Passed** — GREEN em T013 |
+| NFR-003 | AC-008 | Inspeção | `git ls-remote --heads origin archived` | **Passed** — `aac477a` íntegra em T014 |
+| NFR-003 | AC-009 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` | **Passed** — nenhuma escrita em main ou `archived` em T013 |
+| NFR-003 | AC-010 | Execução | `node .claude/scripts/phase0/run-all.test.js` | **Passed** — GREEN nas 7 em T013 |
+| NFR-003 | AC-011 | Execução | `node .claude/scripts/phase0/assert-framework-operational.test.js` | **Passed** — framework opera sem alterar main em T011 |
 
 ### 13. Validações
 
@@ -666,8 +667,9 @@ Estrutural: VALID DRAFT. Cobertura: 2 US, 4 FR, 3 NFR, 11 AC; mínimo de 3 AC po
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Pending
-- **Verificação**: conferência dos oito itens do checklist em T007, com evidência registrada na seção 12.
+- **Resultado**: Passed (2026-08-24)
+- **Verificação**: `node .claude/scripts/phase0/run-all.test.js` em GREEN nas sete asserções; clone limpo de `archived` com 1010 testes da v0.2.8 passando; os oito itens do checklist de T014 positivos.
+- **Auditoria de aceite**: `node .claude/skills/specsfy-06-tdd-bdd/scripts/verify_acceptance.mjs` — os onze ACs registram resultado na matriz da seção 12.
 
 ### 14. Tarefas
 
@@ -824,12 +826,16 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
-- [ ] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
-- [ ] Todos os cenários `AC` aplicáveis passam.
-- [ ] Todos os requisitos possuem evidência de verificação registrada na seção 12.
-- [ ] Todas as tarefas da seção 14 estão concluídas.
-- [ ] `archived` está publicada, congelada e protegida contra escrita.
-- [ ] A branch de trabalho está publicada, com um único commit e árvore restrita a `specs/`.
-- [ ] O impacto em `PROJECT.md` foi tratado. O arquivo não existe no repositório em 2026-08-24; a Phase 0 não o cria, porque descrever a finalidade do produto novo cabe à Phase 1. A ausência fica registrada na evidência de T007.
+- [x] `Definition Gate` está `Passed`.
+- [x] `Plan Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
+- [x] Todos os cenários `AC` aplicáveis passam — `verify_acceptance.mjs` retorna `QA: PASSED` para os onze.
+- [x] Todos os requisitos possuem evidência de verificação registrada na matriz da seção 12.
+- [x] Todas as tarefas da seção 14 estão concluídas — 14 de 14, 70 de 70 itens de checklist.
+- [x] A branch de trabalho está publicada, com raiz órfã única e árvore restrita ao conjunto preservado. O texto anterior exigia "um único commit", verdade apenas no instante de T011: a branch cresce legitimamente depois disso, e a invariante é a raiz sem pai somada à ausência de ancestral comum com a main.
+- [x] O impacto em `PROJECT.md` foi tratado. O arquivo não existe no repositório em 2026-08-24; a Phase 0 não o cria, porque descrever a finalidade do produto novo cabe à Phase 1. A ausência fica registrada na evidência de T014.
+- [ ] `archived` está publicada, congelada e protegida contra escrita. **Publicada**: sim, em `aac477a`. **Congelada por regra**: sim, PR-002, com `assert-baseline-untouched` detectando qualquer escrita. **Protegida tecnicamente**: não. A tentativa de aplicar proteção falhou com `403 Resource not accessible by personal access token`, tanto pela API de branch protection quanto pela de rulesets: o token fine-grained em uso não tem `administration: write`. O repositório é público, de modo que o recurso está disponível no plano — a lacuna é de permissão, não de produto. O item exige ação da pessoa responsável pelo repositório, por uma destas vias:
+  - conceder `administration: write` ao token e repetir `gh api -X PUT repos/<owner>/<repo>/branches/archived/protection` com `enforce_admins: true`, `allow_force_pushes: false`, `allow_deletions: false` e `lock_branch: true`;
+  - ou aplicar a regra pela interface do GitHub, em Settings → Branches, bloqueando force-push e deleção de `archived`.
+
+  Enquanto isso não ocorrer, a proteção é detectiva e não preventiva: `assert-baseline-untouched` acusa uma escrita depois do fato, mas nada impede `git push --force origin archived` de destruir a única cópia da v0.2.8.
