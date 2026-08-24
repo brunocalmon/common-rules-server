@@ -1,13 +1,23 @@
 // Guarda o risco de perder o registro de decisões ou o framework durante a limpeza.
-const { filesIn, refExists, assert, WORK_BRANCH, MAIN_BRANCH } = require("./lib");
+//
+// A comparação é entre duas referências imutáveis: o commit raiz da branch de
+// trabalho e `archived`, que é a main no instante do congelamento. Comparar HEAD
+// com a main compararia dois alvos móveis e passaria a acusar divergência a cada
+// commit legítimo da branch nova — a propriedade descrita por AC-003 pertence ao
+// momento da redução, não à vida inteira da branch.
+const { git, filesIn, refExists, assert, WORK_BRANCH, ARCHIVED_BRANCH } = require("./lib");
 
-// Compara um caminho preservado entre a branch de trabalho e a main, arquivo a arquivo.
+const root = () => git(["rev-list", "--max-parents=0", WORK_BRANCH]);
+
+// Compara um caminho preservado entre o commit raiz e o congelamento, arquivo a arquivo.
 const identical = (path) => () => {
-  if (!refExists(WORK_BRANCH) || !refExists(MAIN_BRANCH)) return "referência ausente";
-  const work = filesIn(WORK_BRANCH, [path]);
-  const main = filesIn(MAIN_BRANCH, [path]);
-  if (main === null || !main.length) return `${path} não existe em ${MAIN_BRANCH}`;
-  if (work === null || !work.length) return `${path} ausente ou vazio em ${WORK_BRANCH}`;
+  if (!refExists(WORK_BRANCH) || !refExists(ARCHIVED_BRANCH)) return "referência ausente";
+  const rootSha = root();
+  if (!rootSha) return "commit raiz não encontrado";
+  const work = filesIn(rootSha, [path]);
+  const main = filesIn(ARCHIVED_BRANCH, [path]);
+  if (main === null || !main.length) return `${path} não existe em ${ARCHIVED_BRANCH}`;
+  if (work === null || !work.length) return `${path} ausente ou vazio no commit raiz`;
   const missing = main.filter((f) => !work.includes(f));
   const extra = work.filter((f) => !main.includes(f));
   if (missing.length) return `${missing.length} arquivo(s) perdido(s), p.ex. ${missing[0]}`;
@@ -22,14 +32,14 @@ assert("assert-preserved-set", [
     refExists(WORK_BRANCH) || `referência ${WORK_BRANCH} não encontrada`],
 
   // SPECSFY: US-001 FR-003 NFR-003 AC-003 AC-009
-  ["specs preservado e idêntico ao da main", identical("specs")],
+  ["specs preservado no commit raiz", identical("specs")],
 
   // SPECSFY: US-001 FR-003 NFR-003 AC-003 AC-009
-  [".claude preservado e idêntico ao da main", identical(".claude")],
+  [".claude preservado no commit raiz", identical(".claude")],
 
   // SPECSFY: US-001 FR-003 NFR-003 AC-003 AC-009
-  [".specsfy preservado e idêntico ao da main", identical(".specsfy")],
+  [".specsfy preservado no commit raiz", identical(".specsfy")],
 
   // SPECSFY: US-001 FR-003 NFR-003 AC-003 AC-009
-  [".agents preservado e idêntico ao da main", identical(".agents")],
+  [".agents preservado no commit raiz", identical(".agents")],
 ]);

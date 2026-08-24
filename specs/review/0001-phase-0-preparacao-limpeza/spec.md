@@ -540,6 +540,17 @@ Sequência destrutiva executada em 70 segundos, entre `2026-08-24T19:09:54.40651
 
 **Uma diferença real capturada em T011.** `assert-preserved-set` reprovou por `.specsfy/skills-lock.json`, que entrou no índice porque o `.gitignore` foi removido antes do `git add` e esse arquivo sempre foi ignorado na main. Retirado do índice e mantido em disco, o que restaura a identidade com a main exigida por AC-003. Se o lockfile deve passar a ser versionado, a decisão cabe à Phase 1.
 
+#### Duas asserções presas ao instante da entrega — corrigidas após o gate
+
+Reexecutar a suíte depois do commit de entrega expôs um erro de desenho em duas asserções: elas comparavam alvos móveis e passaram a acusar violação a cada commit legítimo da branch nova.
+
+- `assert-preserved-set` comparava a branch de trabalho com a `main`. Quando a spec migrou de `in-progress/` para `review/`, as duas árvores divergiram e a asserção reprovou. A propriedade que AC-003 descreve pertence ao momento da redução — nada se perdeu ao reduzir —, não à vida inteira da branch. A comparação passou a ser entre duas referências imutáveis: o commit raiz e `archived`, que é a main no instante do congelamento.
+- `assert-orphan-root` exigia "exatamente um commit", verdade apenas em T011. A invariante real é haver uma única raiz sem pai e nenhum ancestral comum com a main; contar commits reprovaria cada commit novo como se fosse violação.
+
+Ambas foram exercitadas por mutação depois da correção. Apontando `assert-preserved-set` para um caminho ausente do congelamento, ela reprova nomeando o caminho; aplicando `assert-orphan-root` à própria `main`, ela reprova na condição de ancestralidade. As duas continuam discriminando.
+
+O estado entregue não mudou: commit raiz, `archived` e a branch publicada permanecem como foram verificados. A correção é do instrumento de medida, não da entrega.
+
 #### Suposição falsa na base do plano, detectada antes da execução
 
 O gate inicial da implementação revelou que o conjunto preservado não estava versionado. `.gitignore` ignorava `.specsfy/` (linha 10), `specs/` (linha 11) e `.claude/` (linha 27), de modo que `git ls-files` retornava zero para os três, enquanto o disco continha 8, 14 e 97 arquivos respectivamente. A main rastreava 259 arquivos, todos do lado Python.

@@ -6,20 +6,27 @@ assert("assert-orphan-root", [
   [`branch ${WORK_BRANCH} existe`, () =>
     refExists(WORK_BRANCH) || `referência ${WORK_BRANCH} não encontrada`],
 
+  // A invariante é haver uma única raiz sem pai, não um único commit: a branch
+  // cresce legitimamente depois de T011, e contar commits reprovaria cada commit
+  // novo como se fosse violação.
   // SPECSFY: US-001 FR-002 AC-002
-  ["histórico tem exatamente um commit", () => {
+  ["o histórico tem exatamente uma raiz", () => {
     if (!refExists(WORK_BRANCH)) return "referência ausente";
-    const count = git(["rev-list", "--count", WORK_BRANCH]);
-    return count === "1" || `encontrados ${count} commits`;
+    const roots = git(["rev-list", "--max-parents=0", WORK_BRANCH]);
+    if (roots === null) return "não foi possível listar as raízes";
+    const n = roots.split("\n").filter(Boolean).length;
+    return n === 1 || `encontradas ${n} raízes`;
   }],
 
   // SPECSFY: US-001 FR-002 AC-002
-  ["o commit raiz não tem pai", () => {
+  ["a raiz não tem pai", () => {
     if (!refExists(WORK_BRANCH)) return "referência ausente";
-    const line = git(["rev-list", "--parents", "-n", "1", WORK_BRANCH]);
-    if (line === null) return "não foi possível ler o commit";
+    const root = git(["rev-list", "--max-parents=0", WORK_BRANCH]);
+    if (!root) return "raiz não encontrada";
+    const line = git(["rev-list", "--parents", "-n", "1", root.split("\n")[0]]);
+    if (line === null) return "não foi possível ler a raiz";
     const parents = line.split(/\s+/).length - 1;
-    return parents === 0 || `o commit declara ${parents} pai(s)`;
+    return parents === 0 || `a raiz declara ${parents} pai(s)`;
   }],
 
   // SPECSFY: US-001 FR-002 AC-002
