@@ -1,6 +1,11 @@
 // Guarda o risco mais grave da fase: a sequência destrutiva escrever na linha
 // que deveria permanecer intocada. Sem esta asserção, uma escrita acidental em
 // main ou archived passaria despercebida até que fosse tarde para desfazer.
+// A baseline tem dois momentos distintos, e confundi-los produz falso positivo.
+// `archivedSha` e `originMainSha` são gravados no congelamento (T008), porque é
+// aí que essas referências param de se mover. `mainSha` é gravado no início da
+// sequência destrutiva (T009): entre o congelamento e o início da sequência a
+// main ainda recebe legitimamente o commit de evidência do próprio T008.
 const { git, sha, readState, assert, MAIN_BRANCH, ARCHIVED_BRANCH, STATE_FILE } = require("./lib");
 
 const compare = (branch, key) => () => {

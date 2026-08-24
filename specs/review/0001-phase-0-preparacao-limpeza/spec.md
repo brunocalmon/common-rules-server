@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0001 |
 | Slug | 0001-phase-0-preparacao-limpeza |
-| Status | Implementing |
+| Status | Reviewing |
 | Effort | 3 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Operações git irreversíveis (branch órfã, congelamento de histórico) sobre o repositório real. Baixo volume, alto custo de erro. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | In Progress |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — operações de repositório executadas por linha de comando, sem tela. |
 | Atualizada em | 2026-08-24 |
@@ -507,6 +507,39 @@ O repositório de simulação foi descartado; a prova está registrada aqui.
 
 **Estado do remoto.** `origin/main` permanece em `0e8229d`, dois commits atrás da `main` local. Os commits `dc93d80` e `aac477a` não foram publicados na main, mas estão em `archived`, que foi criada a partir da main local. Nada do conjunto preservado depende de um push da main para sobreviver.
 
+#### Evidência T009 a T014 — execução — 2026-08-24
+
+Sequência destrutiva executada em 70 segundos, entre `2026-08-24T19:09:54.406514+00:00` e `2026-08-24T19:11:04.500838+00:00`, contra um orçamento de 300.
+
+| Tarefa | Ato | Resultado |
+| --- | --- | --- |
+| T009 | Raiz órfã criada | `assert-orphan-root` em RED parcial, como esperado sem commit |
+| T010 | Árvore reduzida | 20 caminhos removidos do topo; 119 arquivos reindexados |
+| T011 | Commit raiz `53f9949` | `assert-orphan-root`, `assert-preserved-set`, `assert-no-legacy` e `assert-framework-operational` em GREEN |
+| T012 | Branch publicada | `assert-orphan-root` e `assert-elapsed-budget` em GREEN |
+| T013 | Suíte completa | `run-all` em **GREEN**: as sete asserções passam juntas |
+| T014 | Conferência final | Oito itens positivos, detalhados abaixo |
+
+**Checklist final de T014**
+
+1. `archived` no remoto em `aac477a`, com o SHA da baseline — sim.
+2. Árvore de `archived` idêntica à da main no congelamento — sim.
+3. Branch de trabalho com um commit, sem pai, sem ancestral comum com a main — sim.
+4. `git ls-files` lista 119 caminhos, cada um sob o conjunto preservado — sim.
+5. Listagem dos quatro caminhos idêntica à da main — sim.
+6. Captura de inbox criada na branch sem reinstalação — sim, via `assert-framework-operational`.
+7. Clone limpo de `archived` restaura a v0.2.8 executável — sim: `pyproject.toml` declara 0.2.8 e `uv run pytest` retorna **1010 passed, 20 skipped** em 81s.
+8. Intervalo de 70s, abaixo do orçamento de 300s — sim.
+
+`PROJECT.md` não existe no repositório e a Phase 0 não o cria; descrever a finalidade do produto novo cabe à Phase 1.
+
+**Dois defeitos de asserção corrigidos durante a execução.** Ambos foram alterações feitas depois de ver o teste falhar, o que exige justificativa independente:
+
+1. `origin/main` era comparado ao SHA da `main` local, o que testava sincronia entre local e remoto em vez da intenção declarada. Passou a ter baseline própria, `originMainSha`. Exercitado com SHA forjado, voltou a RED.
+2. `mainSha` era gravado no congelamento (T008) e comparado após a sequência, mas a main recebe legitimamente o commit de evidência de T008 entre um momento e outro. O reflog mostra que o último write na main foi às 21:08:38 e que a sequência começou às 21:09:54 — durante T009 a T012 a main não recebeu nada, de modo que a propriedade de segurança valia e apenas o instante da baseline estava errado. `mainSha` passou a ser gravado no início da sequência, e `mainShaAtFreeze` preserva o valor anterior.
+
+**Uma diferença real capturada em T011.** `assert-preserved-set` reprovou por `.specsfy/skills-lock.json`, que entrou no índice porque o `.gitignore` foi removido antes do `git add` e esse arquivo sempre foi ignorado na main. Retirado do índice e mantido em disco, o que restaura a identidade com a main exigida por AC-003. Se o lockfile deve passar a ser versionado, a decisão cabe à Phase 1.
+
 #### Suposição falsa na base do plano, detectada antes da execução
 
 O gate inicial da implementação revelou que o conjunto preservado não estava versionado. `.gitignore` ignorava `.specsfy/` (linha 10), `specs/` (linha 11) e `.claude/` (linha 27), de modo que `git ls-files` retornava zero para os três, enquanto o disco continha 8, 14 e 97 arquivos respectivamente. A main rastreava 259 arquivos, todos do lado Python.
@@ -529,7 +562,7 @@ O estado passou a viver em `.git/phase0-run-state.json`, fora da árvore version
 
 #### Rastreabilidade
 
-`node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/in-progress/0001-phase-0-preparacao-limpeza/spec.md .` → **OK, 20 de 20 IDs cobertos**.
+`node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/review/0001-phase-0-preparacao-limpeza/spec.md .` → **OK, 20 de 20 IDs cobertos**.
 
 #### Matriz de verificação
 
@@ -564,7 +597,7 @@ O estado passou a viver em `.git/phase0-run-state.json`, fora da árvore version
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24, rodada 2)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/in-progress/0001-phase-0-preparacao-limpeza/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0001-phase-0-preparacao-limpeza/spec.md`
 
 **Rodada 1 — 2026-08-24 — NOT READY (histórico)**
 
@@ -603,7 +636,7 @@ Estrutural: VALID DRAFT. Cobertura: 2 US, 4 FR, 3 NFR, 11 AC; mínimo de 3 AC po
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-24) — estrutura válida e RED observado nas sete asserções antes de qualquer operação.
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/in-progress/0001-phase-0-preparacao-limpeza/spec.md --allow-draft`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/review/0001-phase-0-preparacao-limpeza/spec.md --allow-draft`
 - **Contagens**: 14 tarefas, 8 predecessores TDD, 0 tarefas `[CODE]`, 70 itens de checklist, 20 de 20 IDs da spec cobertos.
 - **RED comprovado**: T001 a T007 materializaram as sete asserções em `.claude/scripts/phase0/` e todas falharam antes de qualquer operação, por ausência do comportamento. A evidência, a prova de sensibilidade e a de discriminação estão na seção 12.
 - **Rastreabilidade**: `check_traceability.mjs` reporta 20 de 20 IDs cobertos.
@@ -691,49 +724,49 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
 
 #### Fase 3 — Nascer limpo
 
-- [ ] T009 [OPS] [US-001] Criar a branch de trabalho com raiz órfã, verificando com .claude/scripts/phase0/assert-orphan-root.test.js — Refs: US-001, FR-002, NFR-001, AC-002, AC-007 — Depends: T002, T008
-  - [ ] **PREP**: Confirmar que T008 alcançou GREEN. Marcar o horário de início para a medição de NFR-001.
-  - [ ] **EXECUTE**: Criar `refactor/v1-cli-first` como branch órfã, sem ancestral comum com a main.
-  - [ ] **VERIFY**: Executar `assert-orphan-root.test.js`. A ausência de commit ainda mantém parte das condições em RED; registrar quais passam neste ponto.
-  - [ ] **EVIDENCE**: Registrar horário de início, comando e saída parcial na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao procedimento ou justificar ausência.
+- [x] T009 [OPS] [US-001] Criar a branch de trabalho com raiz órfã, verificando com .claude/scripts/phase0/assert-orphan-root.test.js — Refs: US-001, FR-002, NFR-001, AC-002, AC-007 — Depends: T002, T008
+  - [x] **PREP**: Confirmado T008 em GREEN; horário de início gravado em `.git/phase0-run-state.json`.
+  - [x] **EXECUTE**: `git checkout --orphan refactor/v1-cli-first` — branch sem commits.
+  - [x] **VERIFY**: `assert-orphan-root` em RED parcial, correto para o ponto sem commit.
+  - [x] **EVIDENCE**: Horário de início e saída parcial registrados na seção 12.
+  - [x] **IMPROVE**: A baseline da main passou a ser gravada aqui, e não no congelamento, para não confundir dois instantes distintos.
 
-- [ ] T010 [OPS] [US-001] Reduzir a árvore ao conjunto preservado, verificando com .claude/scripts/phase0/assert-no-legacy.test.js — Refs: US-001, FR-003, FR-004, AC-003, AC-004, AC-009 — Depends: T003, T004, T009
-  - [ ] **PREP**: Confirmar que `specs/`, `.claude/`, `.specsfy/` e `.agents` existem e não estão vazios. Abortar se qualquer um faltar, conforme a seção 7.
-  - [ ] **EXECUTE**: Esvaziar o índice e remover da árvore qualquer caminho fora do conjunto preservado, incluindo arquivos não rastreados. Reindexar os quatro caminhos.
-  - [ ] **VERIFY**: Executar `assert-no-legacy.test.js` e `assert-preserved-set.test.js` sobre o índice; ambos precisam apontar somente as condições que dependem do commit.
-  - [ ] **EVIDENCE**: Registrar a listagem do índice e as saídas dos dois scripts na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao procedimento ou justificar ausência.
+- [x] T010 [OPS] [US-001] Reduzir a árvore ao conjunto preservado, verificando com .claude/scripts/phase0/assert-no-legacy.test.js — Refs: US-001, FR-003, FR-004, AC-003, AC-004, AC-009 — Depends: T003, T004, T009
+  - [x] **PREP**: Quatro caminhos preservados presentes e não vazios: 8, 97, 14 arquivos e o symlink.
+  - [x] **EXECUTE**: Índice esvaziado, 20 caminhos removidos do topo, quatro caminhos reindexados — 120 entradas.
+  - [x] **VERIFY**: `git status` sem entrada fora do conjunto preservado.
+  - [x] **EVIDENCE**: Listagem do índice e da árvore registradas na seção 12.
+  - [x] **IMPROVE**: A remoção incluiu arquivos não rastreados, para que a regra valesse na árvore inteira e não só no índice.
 
-- [ ] T011 [OPS] [US-001] Registrar o commit raiz da branch de trabalho, verificando com .claude/scripts/phase0/assert-preserved-set.test.js — Refs: US-001, FR-002, FR-003, FR-004, AC-002, AC-003, AC-004 — Depends: T010
-  - [ ] **PREP**: Confirmar o resultado de T010.
-  - [ ] **EXECUTE**: Criar o commit raiz da branch com o conteúdo indexado.
-  - [ ] **VERIFY**: Executar `assert-orphan-root.test.js`, `assert-preserved-set.test.js` e `assert-no-legacy.test.js` e observar GREEN nos três.
-  - [ ] **EVIDENCE**: Registrar as três saídas de GREEN e o SHA do commit raiz na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao procedimento ou justificar ausência.
+- [x] T011 [OPS] [US-001] Registrar o commit raiz da branch de trabalho, verificando com .claude/scripts/phase0/assert-preserved-set.test.js — Refs: US-001, FR-002, FR-003, FR-004, AC-002, AC-003, AC-004 — Depends: T010
+  - [x] **PREP**: Resultado de T010 confirmado.
+  - [x] **EXECUTE**: Commit raiz `53f9949` com 119 arquivos.
+  - [x] **VERIFY**: Quatro asserções em GREEN após corrigir a inclusão indevida de `.specsfy/skills-lock.json`.
+  - [x] **EVIDENCE**: Saídas de GREEN e o SHA do commit raiz registrados na seção 12.
+  - [x] **IMPROVE**: `assert-preserved-set` capturou um arquivo a mais e evitou que a branch nascesse divergente da main.
 
-- [ ] T012 [OPS] [US-001] Publicar a branch de trabalho no remoto a partir de .claude/scripts/phase0/assert-orphan-root.test.js — Refs: US-001, FR-002, NFR-001, AC-002, AC-006 — Depends: T011
-  - [ ] **PREP**: Confirmar que a branch remota ainda não existe, para que a publicação não exija sobrescrita.
-  - [ ] **EXECUTE**: Publicar `refactor/v1-cli-first`. Marcar o horário de término para a medição de NFR-001.
-  - [ ] **VERIFY**: Executar `assert-orphan-root.test.js` contra a referência remota e confirmar que o histórico publicado tem um commit sem pai.
-  - [ ] **EVIDENCE**: Registrar a saída da publicação, o horário de término e o intervalo decorrido desde T009 na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao procedimento ou justificar ausência.
+- [x] T012 [OPS] [US-001] Publicar a branch de trabalho no remoto a partir de .claude/scripts/phase0/assert-orphan-root.test.js — Refs: US-001, FR-002, NFR-001, AC-002, AC-006 — Depends: T011
+  - [x] **PREP**: Branch remota inexistente, publicação sem sobrescrita.
+  - [x] **EXECUTE**: `git push -u origin refactor/v1-cli-first` — nova branch remota; horário de término gravado.
+  - [x] **VERIFY**: `assert-orphan-root` em GREEN contra a referência publicada.
+  - [x] **EVIDENCE**: Saída da publicação e intervalo de 70s registrados na seção 12.
+  - [x] **IMPROVE**: Nenhuma melhoria necessária: a publicação seguiu sem sobrescrita nem force-push.
 
 #### Fase 4 — GREEN e fechamento
 
-- [ ] T013 [TEST] [TDD] [US-001] [US-002] Executar a suíte completa de asserções em .claude/scripts/phase0/ — Refs: US-001, US-002, FR-001, FR-002, FR-003, FR-004, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011 — Depends: T005, T007, T012
-  - [ ] **PREP**: Reunir as sete asserções e confirmar que todas estiveram em RED antes das operações correspondentes.
-  - [ ] **EXECUTE**: Executar os sete scripts em sequência sobre a branch publicada.
-  - [ ] **VERIFY**: Os sete retornam código zero. Qualquer falha reabre a fase correspondente em vez de ser registrada como ressalva.
-  - [ ] **EVIDENCE**: Registrar as sete saídas de GREEN na seção 12, ao lado das saídas de RED correspondentes.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada à suíte ou justificar ausência.
+- [x] T013 [TEST] [TDD] [US-001] [US-002] Executar a suíte completa de asserções em .claude/scripts/phase0/ — Refs: US-001, US-002, FR-001, FR-002, FR-003, FR-004, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011 — Depends: T005, T007, T012
+  - [x] **PREP**: Sete asserções reunidas, todas com RED registrado antes das operações.
+  - [x] **EXECUTE**: `node .claude/scripts/phase0/run-all.test.js` sobre a branch publicada.
+  - [x] **VERIFY**: GREEN nas sete, exit 0.
+  - [x] **EVIDENCE**: Saídas de GREEN registradas na seção 12, ao lado das de RED.
+  - [x] **IMPROVE**: `run-all` passou a existir como ponto único de entrada da suíte.
 
-- [ ] T014 [DOC] [US-001] [US-002] Registrar o relatório final da fase na seção 12 de specs/in-progress/0001-phase-0-preparacao-limpeza/spec.md — Refs: US-001, US-002, NFR-001, NFR-002, NFR-003, AC-006, AC-007, AC-010 — Depends: T013
-  - [ ] **PREP**: Reunir as evidências de T001 a T013.
-  - [ ] **EXECUTE**: Consolidar o relatório com os oito itens do checklist de AC-010, incluindo o clone limpo de `archived` para comprovar que a v0.2.8 continua recuperável e o tempo decorrido entre T009 e T012.
-  - [ ] **VERIFY**: Os oito itens retornam positivo e cada um aponta a evidência que o sustenta.
-  - [ ] **EVIDENCE**: Relatório completo registrado na seção 12, com a ausência de `PROJECT.md` declarada e atribuída à Phase 1.
-  - [ ] **IMPROVE**: Registrar a retrospectiva da fase, incluindo o que a suíte de asserções pegou e o que passou despercebido.
+- [x] T014 [DOC] [US-001] [US-002] Registrar o relatório final da fase na seção 12 de specs/review/0001-phase-0-preparacao-limpeza/spec.md — Refs: US-001, US-002, NFR-001, NFR-002, NFR-003, AC-006, AC-007, AC-010 — Depends: T013
+  - [x] **PREP**: Evidências de T001 a T013 reunidas.
+  - [x] **EXECUTE**: Oito itens conferidos, incluindo clone limpo de `archived` com 1010 testes da v0.2.8 passando.
+  - [x] **VERIFY**: Os oito itens retornam positivo.
+  - [x] **EVIDENCE**: Relatório completo na seção 12, com a ausência de `PROJECT.md` declarada.
+  - [x] **IMPROVE**: A fase expôs sete limitações do framework e três defeitos do próprio plano, todos registrados na seção 13 em vez de contornados em silêncio.
 
 ### 15. Ordem de execução
 
