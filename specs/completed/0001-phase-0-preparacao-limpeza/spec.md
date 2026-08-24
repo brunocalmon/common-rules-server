@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0001 |
 | Slug | 0001-phase-0-preparacao-limpeza |
-| Status | Reviewing |
+| Status | Complete |
 | Effort | 3 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Operações git irreversíveis (branch órfã, congelamento de histórico) sobre o repositório real. Baixo volume, alto custo de erro. |
@@ -573,7 +573,7 @@ O estado passou a viver em `.git/phase0-run-state.json`, fora da árvore version
 
 #### Rastreabilidade
 
-`node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/review/0001-phase-0-preparacao-limpeza/spec.md .` → **OK, 20 de 20 IDs cobertos**.
+`node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/completed/0001-phase-0-preparacao-limpeza/spec.md .` → **OK, 20 de 20 IDs cobertos**.
 
 #### Matriz de verificação
 
@@ -608,8 +608,8 @@ O estado passou a viver em `.git/phase0-run-state.json`, fora da árvore version
 
 #### Gate do Ato I — Definição
 
-- **Resultado**: READY (2026-08-24, rodada 2)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0001-phase-0-preparacao-limpeza/spec.md`
+- **Resultado**: READY (2026-08-24, rodada 2). Aceite final em 2026-08-24, rodada 3: ver `Aceite final` ao fim desta seção.
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/completed/0001-phase-0-preparacao-limpeza/spec.md`
 
 **Rodada 1 — 2026-08-24 — NOT READY (histórico)**
 
@@ -641,6 +641,7 @@ Estrutural: VALID DRAFT. Cobertura: 2 US, 4 FR, 3 NFR, 11 AC; mínimo de 3 AC po
 | W8 | A Definition of Done exigia revisão de `PROJECT.md`, arquivo que não existe no repositório | Resolvido — a ausência é declarada e atribuída à Phase 1 |
 | N4 | `.gitignore` não é enumerado na lista de remoção | Aceito — cai na regra geral de preservação; a Phase 1 cria o seu antes de instalar dependências |
 | N5 | O validador rejeita um quantificador universal comum do português | Contornado, não corrigido — ver abaixo |
+| N6 | O mesmo defeito reincidiu no aceite, desta vez com o quantificador aparecendo como sufixo de uma palavra maior, e reincidiu outra vez ao redigir esta própria nota | Contornado — as frases foram reescritas; o defeito segue no validador |
 
 **N5 — defeito do validador, registrado para tratamento fora desta spec.**
 `validate_spec.mjs` procura marcadores de pendência com uma expressão regular de três literais ingleses e aplica a ela a flag de case-insensitive. O primeiro desses literais, em minúsculas, é uma palavra comum do português — o quantificador universal usado em frases como "cada caminho" e "o restante". A checagem passa a rejeitar textos corretos escritos no idioma que o próprio contrato do framework obriga. Nesta spec o vocabulário foi ajustado para sinônimos exatos, de modo que o gate passa sem perda de sentido, mas o defeito permanece no script e atingirá qualquer spec futura em português. A correção pertence ao validador, não a esta spec. Uma segunda consequência ficou evidente ao redigir este parágrafo: descrever o problema citando os literais também reprova a spec, o que impede documentar o defeito no artefato que ele afeta.
@@ -648,7 +649,7 @@ Estrutural: VALID DRAFT. Cobertura: 2 US, 4 FR, 3 NFR, 11 AC; mínimo de 3 AC po
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-24) — estrutura válida e RED observado nas sete asserções antes de qualquer operação.
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/review/0001-phase-0-preparacao-limpeza/spec.md --allow-draft`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0001-phase-0-preparacao-limpeza/spec.md --allow-draft`
 - **Contagens**: 14 tarefas, 8 predecessores TDD, 0 tarefas `[CODE]`, 70 itens de checklist, 20 de 20 IDs da spec cobertos.
 - **RED comprovado**: T001 a T007 materializaram as sete asserções em `.claude/scripts/phase0/` e todas falharam antes de qualquer operação, por ausência do comportamento. A evidência, a prova de sensibilidade e a de discriminação estão na seção 12.
 - **Rastreabilidade**: `check_traceability.mjs` reporta 20 de 20 IDs cobertos.
@@ -774,7 +775,7 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
   - [x] **EVIDENCE**: Saídas de GREEN registradas na seção 12, ao lado das de RED.
   - [x] **IMPROVE**: `run-all` passou a existir como ponto único de entrada da suíte.
 
-- [x] T014 [DOC] [US-001] [US-002] Registrar o relatório final da fase na seção 12 de specs/review/0001-phase-0-preparacao-limpeza/spec.md — Refs: US-001, US-002, NFR-001, NFR-002, NFR-003, AC-006, AC-007, AC-010 — Depends: T013
+- [x] T014 [DOC] [US-001] [US-002] Registrar o relatório final da fase na seção 12 de specs/completed/0001-phase-0-preparacao-limpeza/spec.md — Refs: US-001, US-002, NFR-001, NFR-002, NFR-003, AC-006, AC-007, AC-010 — Depends: T013
   - [x] **PREP**: Evidências de T001 a T013 reunidas.
   - [x] **EXECUTE**: Oito itens conferidos, incluindo clone limpo de `archived` com 1010 testes da v0.2.8 passando.
   - [x] **VERIFY**: Os oito itens retornam positivo.
@@ -834,8 +835,24 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
 - [x] Todas as tarefas da seção 14 estão concluídas — 14 de 14, 70 de 70 itens de checklist.
 - [x] A branch de trabalho está publicada, com raiz órfã única e árvore restrita ao conjunto preservado. O texto anterior exigia "um único commit", verdade apenas no instante de T011: a branch cresce legitimamente depois disso, e a invariante é a raiz sem pai somada à ausência de ancestral comum com a main.
 - [x] O impacto em `PROJECT.md` foi tratado. O arquivo não existe no repositório em 2026-08-24; a Phase 0 não o cria, porque descrever a finalidade do produto novo cabe à Phase 1. A ausência fica registrada na evidência de T014.
-- [ ] `archived` está publicada, congelada e protegida contra escrita. **Publicada**: sim, em `aac477a`. **Congelada por regra**: sim, PR-002, com `assert-baseline-untouched` detectando qualquer escrita. **Protegida tecnicamente**: não. A tentativa de aplicar proteção falhou com `403 Resource not accessible by personal access token`, tanto pela API de branch protection quanto pela de rulesets: o token fine-grained em uso não tem `administration: write`. O repositório é público, de modo que o recurso está disponível no plano — a lacuna é de permissão, não de produto. O item exige ação da pessoa responsável pelo repositório, por uma destas vias:
-  - conceder `administration: write` ao token e repetir `gh api -X PUT repos/<owner>/<repo>/branches/archived/protection` com `enforce_admins: true`, `allow_force_pushes: false`, `allow_deletions: false` e `lock_branch: true`;
-  - ou aplicar a regra pela interface do GitHub, em Settings → Branches, bloqueando force-push e deleção de `archived`.
+- [x] `archived` está publicada, congelada e protegida contra escrita. **Publicada**: sim, em `aac477a`. **Congelada por regra**: sim, PR-002, com `assert-baseline-untouched` detectando qualquer escrita. **Protegida tecnicamente**: sim, por ruleset `protected` (id 21321914), `enforcement: active`, alvo `refs/heads/archived`, regras `deletion` e `non_fast_forward`, sem nenhum ator de bypass. A proteção passou de detectiva a preventiva: force-push e deleção são recusados pelo servidor.
 
-  Enquanto isso não ocorrer, a proteção é detectiva e não preventiva: `assert-baseline-untouched` acusa uma escrita depois do fato, mas nada impede `git push --force origin archived` de destruir a única cópia da v0.2.8.
+  A primeira verificação deste item concluiu erroneamente que a branch não estava protegida, porque consultou apenas a API de branch protection legada, que responde 404 para regras criadas como ruleset. O endpoint correto para a pergunta "quais regras valem para esta branch" é `repos/<owner>/<repo>/rules/branches/<branch>`, que reporta as duas regras em vigor.
+
+---
+
+#### Aceite final — 2026-08-24
+
+`node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs` READY · `validate_tasks.mjs` READY · `verify_acceptance.mjs` QA PASSED nos onze ACs · `check_traceability.mjs` OK em 20 de 20 IDs · `run-all.test.js` GREEN nas sete asserções · Definition of Done sem item aberto.
+
+O aceite conferiu cada afirmação contra o repositório em vez de reler a evidência registrada, e isso expôs quatro defeitos que a entrega não tinha visto:
+
+| ID | Achado | Estado |
+| --- | --- | --- |
+| A1 | O cabeçalho declarava `Delivery Gate: Passed` enquanto a seção 13 registrava `Pending`; uma substituição de texto falhou em silêncio e a entrega foi reportada como concluída sem conferência | Resolvido |
+| A2 | Os onze ACs não tinham resultado: a matriz da seção 12 nunca fora atualizada após a renumeração, apontava para T002, T005 e T007, trazia comandos extintos e registrava número de tarefa onde o auditor exige resultado | Resolvido — 24 linhas reescritas |
+| A3 | A Definition of Done afirmava "um único commit", "árvore restrita a `specs/`" e "evidência de T007", tudo obsoleto | Resolvido |
+| A4 | A Definition of Done afirmava `archived` protegida contra escrita, e a branch não estava protegida | Resolvido — ruleset `protected` aplicado pela pessoa responsável |
+
+Sobre A4, uma falha de abordagem vale registro: a primeira verificação concluiu que a branch não estava protegida consultando apenas a API de branch protection legada, que responde 404 para regras criadas como ruleset. A pergunta "quais regras valem para esta branch" se responde em `repos/<owner>/<repo>/rules/branches/<branch>`, e foi esse endpoint que confirmou `deletion` e `non_fast_forward` ativos, sem ator de bypass.
+

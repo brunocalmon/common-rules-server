@@ -11,7 +11,7 @@
 | Prioridade | Não priorizado |
 | Milestones | |
 | Criado em | 2026-08-24 |
-| Spec promovida | specs/review/0001-phase-0-preparacao-limpeza/spec.md (Definition Gate: Passed) |
+| Spec promovida | specs/completed/0001-phase-0-preparacao-limpeza/spec.md (Definition Gate: Passed) |
 
 ## Ideia original
 
