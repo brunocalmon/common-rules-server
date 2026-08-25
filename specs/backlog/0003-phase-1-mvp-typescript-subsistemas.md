@@ -88,6 +88,17 @@ Os três restantes — `orchestration-briefing`, `completion-gate` e `format-aft
 
 **Fora de escopo em 1b.** Approval workflow, que é 1c. Detecção de backends de agente, que é 1d. Seleção de modelo, que é 1e. Tradução para Cursor e Antigravity.
 
+**Refatiamento por dimensionamento.** A medição contra o código congelado em `archived` mostrou que a 1b não cabia: `hook_service.py` tinha 494 linhas e 13 funções só para traduzir hooks, e `mcp_server.py` tinha 536, contra 207 linhas em três módulos que a fatia 1a inteira produziu. Eram dois subsistemas independentes numa fatia só.
+
+A separação é por ponto de entrada. A 1b entrega os sete hooks, a detecção, o registro, a idempotência e a ponte `uv`, tendo o comando `common-rules setup` como entrada. O servidor MCP vira a fatia 1f, expondo a mesma lógica já funcionando e coberta por testes.
+
+O critério é a própria decisão de que o projeto é primordialmente CLI e o MCP permanece enxuto: a superfície secundária não precede a lógica que expõe.
+
+| Fatia | Entrega | Estado |
+| --- | --- | --- |
+| 1b | Hooks, detecção, registro e ponte `uv`, via CLI | **SPEC-0003** |
+| 1f | Servidor MCP com a tool `setup` única | A especificar |
+
 **Anotação sem efeito nesta fatia.** A pessoa responsável mencionou querer renomear a ferramenta para `maestro`, e pediu explicitamente que isso não fosse considerado agora. Fica registrado como captura futura: é renomeação que toca nome de pacote, binário, `PROJECT.md`, `STACK.md` e duas specs concluídas.
 
 ## Referências relacionadas
