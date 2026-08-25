@@ -11,7 +11,8 @@
     "common-rules": "dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "hooks"
   ],
   "dependencies": {
     "@promovaweb/specsfy": "0.10.2",

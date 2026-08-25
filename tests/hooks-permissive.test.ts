@@ -4,8 +4,9 @@ import { mkdtempSync, readFileSync, writeFileSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve, join } from "node:path";
 import { readHook } from "../src/hooks/source";
+import { translateForClaudeCode } from "../src/hooks/claude-code";
 
-const CORPUS = resolve(__dirname, "../specs/defined/0003-fatia-1b-setup-hooks/research/hooks-v028");
+const CORPUS = resolve(__dirname, "../hooks");
 
 // Executa o guard de verdade. Verificar que o texto gerado contém a string
 // esperada não prova bloqueio: foi assim que o defeito da v0.2.8 passou.
@@ -13,7 +14,7 @@ function rodarGuard(nome: string, comando: string): number {
   const hook = readHook(readFileSync(resolve(CORPUS, `${nome}.md`), "utf8"));
   const dir = mkdtempSync(join(tmpdir(), "guard-"));
   const alvo = join(dir, "guard.sh");
-  writeFileSync(alvo, hook.script);
+  writeFileSync(alvo, translateForClaudeCode(hook).script);
   chmodSync(alvo, 0o755);
   try {
     execFileSync("bash", [alvo], { input: JSON.stringify({ command: comando }), encoding: "utf8" });

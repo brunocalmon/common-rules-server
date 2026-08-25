@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0003 |
 | Slug | 0003-fatia-1b-setup-hooks |
-| Status | Planned |
+| Status | Implementing |
 | Effort | 6 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Tradução de sete hooks para formato nativo, com três bloqueantes cujo erro de escape é falha de segurança silenciosa. A v0.2.8 gastou 494 linhas nisso e registrou dois defeitos críticos no caminho. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | Pending |
+| Delivery Gate | In Progress |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega é um comando de terminal que escreve arquivos de configuração, sem tela. |
 | Atualizada em | 2026-08-24 |
@@ -68,7 +68,7 @@ Nenhuma documentação externa. As fontes são do próprio repositório, congela
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/planned/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
+- `specs/in-progress/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
 
 #### Dúvidas respondidas
 
@@ -308,8 +308,9 @@ Feature: Guarda contra escape duplo
   Scenario: O script chega ao alvo idêntico ao original
     Given um hook cujo script contém aspas, barras invertidas e cifrões
     When ele é traduzido e depois lido de volta do arquivo de configuração
-    Then o script recuperado é idêntico ao original, byte a byte
-    And executá-lo produz o mesmo resultado que executar a fonte
+    Then o fragmento aparece dentro do comando recuperado, byte a byte
+    And o invólucro fornece HOOK_COMMAND a partir do JSON do evento
+    And o invólucro emite a decisão que o fragmento definiu
     And o guard recuperado continua recusando o comando que a fonte recusava
 ```
 
@@ -357,7 +358,7 @@ Feature: Fidelidade sobre o corpus real
   Scenario: Nenhum dos sete se corrompe na tradução
     Given os sete hooks portados, com seus scripts originais
     When cada um é traduzido e lido de volta do arquivo de configuração
-    Then os sete scripts recuperados são idênticos aos originais, byte a byte
+    Then os sete fragmentos aparecem dentro dos comandos recuperados, byte a byte
     And nenhum ganhou ou perdeu barra invertida, aspa ou cifrão
     And a comparação cobre o corpus real, e não apenas um exemplo construído
 ```
@@ -367,7 +368,7 @@ Feature: Fidelidade sobre o corpus real
 #### Funcionais
 
 - **FR-001**: O comando deve detectar evidência de uso do alvo e escrever configuração somente quando ela existir, relatando o alvo ignorado e a evidência ausente quando não existir.
-- **FR-002**: O comando deve traduzir cada hook do formato canônico para o formato nativo do alvo, preservando o evento declarado e o conteúdo do script sem alteração.
+- **FR-002**: O comando deve traduzir cada hook do formato canônico para o formato nativo do alvo, preservando o evento declarado e embutindo o fragmento do hook sem alteração alguma dentro do invólucro que o torna executável.
 - **FR-003**: O comando deve preservar a semântica de bloqueio: hook declarado bloqueante interrompe a ação no alvo, e hook não bloqueante apenas observa.
 - **FR-004**: O comando deve gravar, dentro do projeto, um registro nomeando cada hook instalado, seu destino, sua versão e a data.
 - **FR-005**: O comando deve instalar os sete hooks portados, sem instalar os três devolvidos ao `specsfy`.
@@ -506,6 +507,37 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Evidência T014 e T015 — leitura e tradução — 2026-08-24
+
+| Verificação | Comando | Resultado |
+| --- | --- | --- |
+| Tipos | `npx tsc --noEmit` | exit 0 |
+| Compilação | `npm run build` | exit 0 |
+| Suíte | `npm run test:tdd` | 59 de 61 aprovando; os quatro arquivos de `hooks/` em GREEN |
+| Guard executado | `bash` com o script traduzido e o JSON do evento no stdin | `rm -rf /` sai com 2 e a mensagem do guard; `rm dist/cli.js` sai com 0 |
+
+**O corpus mudou de lugar.** Os sete hooks estavam sendo lidos de `specs/<estado>/…/research/`, e os testes quebraram com `ENOENT` na transição de `defined` para `in-progress`. O caminho de uma spec muda conforme ela avança, de modo que código não pode depender dele: `specs/` é registro, não fonte. O corpus passou para `hooks/` na raiz do pacote, declarado em `files` do manifesto, e a cópia em `research/` permanece como evidência de proveniência.
+
+**O preâmbulo extrai o comando em vez de casar contra o JSON.** O evento bruto carrega prosa — mensagem de commit, prompt — e um guard que dispara sobre texto que apenas menciona `rm -rf` atrapalha trabalho comum. Guard que atrapalha é desligado, e depois não guarda coisa alguma. A v0.2.8 registrou essa lição e o preâmbulo a preserva.
+
+
+#### Contrato de fragmento, descoberto na implementação
+
+O bloco de código dentro do Markdown de cada hook é **fragmento, e não script completo**. Ele lê variáveis que alguém precisa fornecer e comunica por variáveis que alguém precisa emitir:
+
+| Fornecido pelo invólucro | Definido pelo fragmento |
+| --- | --- |
+| `HOOK_INPUT`, o JSON bruto do evento | `decision`, entre `allow`, `ask` e `deny` |
+| `HOOK_COMMAND`, extraído desse JSON | `message`, uma linha explicando a decisão |
+| `HOOK_FILE`, `HOOK_EVENT`, `HOOK_TRANSCRIPT`, `PROJECT_DIR` | |
+
+O fragmento de `guard-destructive` termina no último `fi` sem imprimir nada: sozinho, ele nunca bloquearia coisa alguma.
+
+A redação anterior de `AC-010` e `AC-013` exigia que o script recuperado fosse **idêntico** ao original. Com invólucro, ele é **contido**. A exigência de fidelidade não afrouxou: continua sendo byte a byte, agora sobre o fragmento embutido, que é onde o defeito da v0.2.8 morava.
+
+A descoberta veio de executar o guard e vê-lo devolver zero para `rm -rf /`. O dimensionamento anterior lera frontmatter e eventos, e não o contrato de execução — ler estrutura não é o mesmo que ler comportamento.
+
+
 #### Evidência T001 a T013 — asserções em RED — 2026-08-24
 
 Treze arquivos em `tests/`, um por cenário da seção 6. `npm run test:tdd` reprova os treze e mantém verdes os treze da fatia 1a.
@@ -558,7 +590,7 @@ Nenhum RED decorre de sintaxe, importação malformada ou ambiente. Onze arquivo
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/planned/0003-fatia-1b-setup-hooks/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/in-progress/0003-fatia-1b-setup-hooks/spec.md`
 - **Cobertura**: 3 US, 8 FR, 3 NFR, 13 AC, 6 DEC; mínimo de 3 AC por ID satisfeito, sem ID inexistente citado em `**Cobre**`.
 - **Research**: `load_research.mjs` em `PASSED`, com `R-001` verificado e oito artefatos indexados.
 
@@ -575,7 +607,7 @@ Nenhum RED decorre de sintaxe, importação malformada ou ambiente. Onze arquivo
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/planned/0003-fatia-1b-setup-hooks/spec.md`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/in-progress/0003-fatia-1b-setup-hooks/spec.md`
 - **Contagens**: 23 tarefas, 13 predecessores TDD, 7 tarefas `[CODE]`, 115 itens de checklist, 27 de 27 IDs cobertos.
 - **RED comprovado**: os treze cenários têm asserção reprovando antes de qualquer código de produção. Onze por módulo inexistente e um por asserção nomeada; nenhum por sintaxe, importação ou ambiente.
 
@@ -700,19 +732,21 @@ Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `
 
 #### Fase 2 — Tradução e leitura
 
-- [ ] T014 [CODE] [US-002] Implementar em src/hooks/source.ts — Refs: US-002, FR-002, FR-005 — Depends: T009, T010, T013
-  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Ler o frontmatter e o corpo de cada hook e devolver estrutura tipada com nome, evento, bloqueio e script.
-  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que a leitura devolve os sete com o script intacto.
-  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+- [x] T014 [CODE] [US-002] Implementar em src/hooks/source.ts — Refs: US-002, FR-002, FR-005 — Depends: T009, T010, T013
+  - [x] **PREP**: RED confirmado em T009, T010 e T013; `docs/` reconstruído antes da alteração.
+  - [x] **EXECUTE**: `src/hooks/source.ts` lê frontmatter e corpo e devolve estrutura tipada com nome, evento, bloqueio e script. Extrai só o bloco de código: a prosa explica por que o hook existe e não deve chegar ao arquivo de configuração.
+  - [x] **VERIFY**: `npx tsc --noEmit` em exit 0 e a leitura dos sete hooks devolve nome, evento e bloqueio corretos, com o fragmento íntegro.
+  - [x] **EVIDENCE**: Comandos e o contrato de fragmento descoberto, registrados na seção 12.
+  - [x] **IMPROVE**: A leitura não traduz e não escreve. Separar os três é o que permite verificar a fidelidade do fragmento sem tocar o disco.
+  <!-- specsfy:evidence {"task": "T014", "refs": ["US-002", "FR-002", "FR-005"], "files": ["src/hooks/source.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
 
-- [ ] T015 [CODE] [US-002] Implementar em src/hooks/claude-code.ts — Refs: US-002, FR-002, FR-003, FR-006, NFR-003 — Depends: T002, T003, T009, T010, T013, T014
-  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Converter a estrutura canônica no formato nativo do alvo, preservando evento, bloqueio e script sem alteração. Não escreve arquivo: devolve o conteúdo, que é o que torna a fidelidade verificável sem tocar o disco.
-  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que os casos de tradução, escape e corpus passam a GREEN.
-  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+- [x] T015 [CODE] [US-002] Implementar em src/hooks/claude-code.ts — Refs: US-002, FR-002, FR-003, FR-006, NFR-003 — Depends: T002, T003, T009, T010, T013, T014
+  - [x] **PREP**: RED confirmado em T002, T003, T009, T010 e T013; `docs/` reconstruído.
+  - [x] **EXECUTE**: `src/hooks/claude-code.ts` mapeia os três eventos canônicos para os nomes do alvo e embute o fragmento entre preâmbulo e pós-âmbulo. O preâmbulo extrai `HOOK_COMMAND` do JSON do evento em vez de casar contra o JSON inteiro, porque o bruto carrega prosa e um guard que dispara sobre texto acaba desligado. O pós-âmbulo emite `decision` e `message`.
+  - [x] **VERIFY**: Os quatro arquivos de `hooks/` passam a GREEN, com 59 de 61 testes aprovando. O guard traduzido, executado como subprocesso, recusa `rm -rf /` com código 2 e a mensagem do próprio guard, e permite `rm dist/cli.js` com código 0.
+  - [x] **EVIDENCE**: Comandos, saídas dos dois casos e o empacotamento do corpus, registrados na seção 12.
+  - [x] **IMPROVE**: O corpus dos sete hooks saiu de `specs/` para `hooks/` na raiz do pacote. Dentro de `specs/` o caminho muda a cada transição de estado, e os testes quebraram exatamente por isso — registro não é código.
+  <!-- specsfy:evidence {"task": "T015", "refs": ["US-002", "FR-002", "FR-003", "FR-006", "NFR-003"], "files": ["src/hooks/claude-code.ts", "package.json"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
 
 - [ ] T016 [CODE] [US-001] Implementar em src/hooks/detect.ts — Refs: US-001, FR-001, NFR-001 — Depends: T001, T006, T011
   - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.

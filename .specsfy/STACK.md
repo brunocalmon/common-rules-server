@@ -47,3 +47,17 @@ executa código de terceiros durante a instalação, e a documentação do próp
 erro de tipo, e a asserção que verifica a existência do binário passaria sobre
 uma compilação quebrada. Verificado por mutação: build com erro sai com código 1
 e não cria `dist/`; build limpo sai com zero e cria.
+
+### Hooks empacotados com o produto
+
+Os sete hooks portados da v0.2.8 vivem em `hooks/`, na raiz do pacote, e são
+declarados em `files` do manifesto. Não vivem dentro de `specs/`: o caminho de
+uma spec muda conforme ela avança de estado, e código que dependesse dele
+quebraria a cada transição — como de fato quebrou, com `ENOENT`, ao mover a
+SPEC-0003 de `defined` para `in-progress`.
+
+O bloco de código dentro de cada `.md` é fragmento, e não script completo. Ele
+lê `HOOK_COMMAND`, `HOOK_FILE` e `HOOK_INPUT`, que o invólucro fornece, e
+comunica por `decision` e `message`, que o invólucro emite. Sozinho, o fragmento
+de um guard termina no último `fi` sem imprimir nada e não bloquearia coisa
+alguma.

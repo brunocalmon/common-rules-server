@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { translateForClaudeCode, renderSettings, extractScripts } from "../src/hooks/claude-code";
+import { translateForClaudeCode, renderSettings, extractScripts, unwrap } from "../src/hooks/claude-code";
 import type { Hook } from "../src/hooks/source";
 
 // Script deliberadamente hostil: aspas simples e duplas, barras invertidas,
@@ -13,20 +13,20 @@ describe("AC-010 — o escape sobrevive à ida e à volta", () => {
   // SPECSFY: US-002 FR-002 NFR-003 AC-010
   it("recupera o script idêntico ao original, byte a byte", () => {
     const settings = renderSettings([translateForClaudeCode(hook)]);
-    expect(extractScripts(settings)).toEqual([HOSTIL]);
+    expect(unwrap(extractScripts(settings)[0] ?? "")).toBe(HOSTIL);
   });
 
   // SPECSFY: US-002 FR-002 NFR-003 AC-010
   it("não ganha nem perde barra invertida", () => {
-    const recuperado = extractScripts(renderSettings([translateForClaudeCode(hook)]))[0] ?? "";
+    const recuperado = unwrap(extractScripts(renderSettings([translateForClaudeCode(hook)]))[0] ?? "");
     const conta = (s: string) => (s.match(/\\/g) ?? []).length;
     expect(conta(recuperado)).toBe(conta(HOSTIL));
   });
 
   // SPECSFY: US-002 FR-006 NFR-003 AC-010
   it("mantém o guard recuperado recusando o que a fonte recusava", () => {
-    const recuperado = extractScripts(renderSettings([translateForClaudeCode(hook)]))[0] ?? "";
-    expect(recuperado).toContain("exit 2");
-    expect(recuperado).toBe(HOSTIL);
+    const completo = extractScripts(renderSettings([translateForClaudeCode(hook)]))[0] ?? "";
+    expect(completo).toContain("HOOK_COMMAND=");
+    expect(unwrap(completo)).toBe(HOSTIL);
   });
 });
