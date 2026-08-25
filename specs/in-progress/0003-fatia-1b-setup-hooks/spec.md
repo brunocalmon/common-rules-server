@@ -507,6 +507,22 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Evidência T019 — orquestração do setup — 2026-08-24
+
+`npx tsc --noEmit`, `npm run build` e `build_documentation --check` em exit 0. Os seis arquivos que ainda não carregavam passaram a carregar e aprovam: a suíte foi de 65 para **89 testes, com 87 aprovando**, e 25 de 26 arquivos ficaram verdes. As duas reprovações restantes são de `setup-surface.test.ts`, que aguarda o despacho de T020.
+
+| Caminho | Comportamento observado |
+| --- | --- |
+| Instalação | sete hooks, escrevendo `.claude/settings.json` e `.common-rules/install.json` |
+| Ensaio | sete planejados, zero escritos, registro nulo |
+| Reexecução com registro anterior | relata inalterado, registro segue com sete entradas |
+| Sem evidência do alvo | relata o alvo ignorado e o que faltou, e sai com zero |
+
+O último merece nota: sair com zero é deliberado, porque `AC-006` fixa que não configurar não é falha. Um projeto que não usa o alvo não tem problema algum a resolver, e tratá-lo como erro faria a integração contínua reprovar por uma condição normal.
+
+A carga dos hooks resolve `hooks/` a partir do módulo compilado, e não do diretório de trabalho. Resolver pelo diretório corrente faria o comando depender de onde foi invocado, e ele precisa funcionar de qualquer subdiretório do projeto.
+
+
 #### Evidência T018 — ponte para o subsistema Python — 2026-08-24
 
 `npx tsc --noEmit`, `npm run build` e `build_documentation --check` em exit 0. `setup-bridge.test.ts` passou a carregar e seus quatro casos aprovam; a suíte foi de 61 para 65 testes, com 63 aprovando.
@@ -839,12 +855,13 @@ Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `
 
 #### Fase 4 — Orquestração e superfície
 
-- [ ] T019 [CODE] [US-001] [US-003] Implementar em src/setup/run.ts — Refs: US-001, US-003, FR-001, FR-005, FR-007, NFR-001, NFR-002 — Depends: T001, T005, T006, T007, T012, T015, T016, T017
-  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Encadear detecção, tradução, escrita e registro, preservando bloco de terceiro e oferecendo o modo de ensaio.
-  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que instalação, idempotência e ensaio passam a GREEN.
-  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+- [x] T019 [CODE] [US-001] [US-003] Implementar em src/setup/run.ts — Refs: US-001, US-003, FR-001, FR-005, FR-007, NFR-001, NFR-002 — Depends: T001, T005, T006, T007, T012, T015, T016, T017
+  - [x] **PREP**: RED confirmado em T001, T005, T006, T007 e T012; `build_documentation --check` em exit 0 antes da alteração.
+  - [x] **EXECUTE**: `src/setup/run.ts` encadeia detecção, carga dos hooks empacotados, tradução, escrita e registro. Devolve o que faria quando falta evidência do alvo e quando está em ensaio, e reconhece estado já configurado comparando conjunto e versão.
+  - [x] **VERIFY**: `npx tsc --noEmit` em exit 0. Os seis arquivos que não carregavam passaram a carregar e aprovam: a suíte foi de 65 para **89 testes, com 87 aprovando**, e 25 de 26 arquivos ficaram verdes. Os quatro caminhos foram exercitados diretamente: instala sete e escreve dois caminhos; ensaio planeja sete e escreve zero, sem gravar registro; reexecução relata inalterado com sete entradas; sem alvo relata o que faltou e sai com zero.
+  - [x] **EVIDENCE**: Comandos e a tabela dos quatro caminhos, registrados na seção 12.
+  - [x] **IMPROVE**: A carga lê de `hooks/` na raiz, resolvido a partir do módulo compilado. Ler de um caminho relativo ao diretório de trabalho faria o comando depender de onde foi invocado, e ele precisa funcionar de qualquer subdiretório do projeto.
+  <!-- specsfy:evidence {"task": "T019", "refs": ["US-001", "US-003", "FR-001", "FR-005", "FR-007", "NFR-001", "NFR-002"], "files": ["src/setup/run.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}]} -->
 
 - [ ] T020 [CODE] [US-001] [US-003] Implementar em src/cli.ts — Refs: US-001, US-003, FR-001, FR-005 — Depends: T001, T004, T011, T019
   - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.

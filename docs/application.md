@@ -16,6 +16,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/hooks/source.ts | Hook, EVENTS, scalar, scriptFrom, readHook |
 | Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem |
 | Outras fontes | src/setup/record.ts | RecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
+| Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, loadHooks, runSetup |
 | Outras fontes | src/version.ts | readVersion |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
