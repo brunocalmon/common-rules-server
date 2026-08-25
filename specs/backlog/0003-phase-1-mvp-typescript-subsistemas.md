@@ -66,6 +66,30 @@ Decisões desta fatia: pacote `@brunocalmon/common-rules` com binário `common-r
 
 `codex` na lista de backends suportados continua em aberto, adiado para a fatia 1d.
 
+## Decisões da fatia 1b, refinadas em 2026-08-24
+
+O `setup` da v0.2.8 existia para resolver `{{PLACEHOLDER}}` dentro de 47 recursos e colocar guidance por IDE. Os recursos foram removidos na Phase 0 e o specsfy assumiu o motor de skills, de modo que o propósito precisou ser redefinido antes de especificar.
+
+**Trabalho do setup.** Ligar subsistemas ao ciclo do agente e proteger o repositório. É o que só o common-rules pode fazer: ele não reimplementa `context-mode` nem `code-review-graph`, mas é quem os conecta.
+
+**Hooks distribuídos.** Sete, dos dez que a v0.2.8 tinha:
+
+| Grupo | Hooks | Motivo |
+| --- | --- | --- |
+| Integração de subsistema | `context-mode-pretooluse`, `context-mode-posttooluse`, `context-mode-stop`, `code-review-graph-update` | Ligam os subsistemas ao ciclo do agente |
+| Guardrails | `guard-destructive`, `guard-secrets` | Segurança, independente de motor de skills |
+| Autoria | `protect-authorship` | Preserva a autoria dos commits |
+
+Os três restantes — `orchestration-briefing`, `completion-gate` e `format-after-edit` — ficam fora: pressupõem o kit de recursos que deixou de existir, e orquestração é território do specsfy. As fontes seguem consultáveis em `archived`.
+
+**Persistência.** O `setup` grava um registro do que fez: quais hooks instalou, em qual alvo, quando e em que versão. Sem memória ele não seria idempotente nem reversível, e não responderia "o que essa ferramenta mexeu na minha máquina". Não guarda cache de resolução de dependências: `doctor` resolve em milissegundos e cache divergente reintroduz a diferença silenciosa que a coluna de origem existe para expor.
+
+**Alvo de IDE.** Apenas Claude Code, com detecção — o `setup` só escreve se o projeto evidenciar uso, e relata o que ignorou. Cursor e Antigravity viram fatia própria. A 1a mostrou que fatia estreita expõe defeito que fatia larga encobre; com três tradutores simultâneos, um erro em um deles ficaria coberto pelos outros dois passando.
+
+**Fora de escopo em 1b.** Approval workflow, que é 1c. Detecção de backends de agente, que é 1d. Seleção de modelo, que é 1e. Tradução para Cursor e Antigravity.
+
+**Anotação sem efeito nesta fatia.** A pessoa responsável mencionou querer renomear a ferramenta para `maestro`, e pediu explicitamente que isso não fosse considerado agora. Fica registrado como captura futura: é renomeação que toca nome de pacote, binário, `PROJECT.md`, `STACK.md` e duas specs concluídas.
+
 ## Referências relacionadas
 
 - Nenhuma referência relevante encontrada.
