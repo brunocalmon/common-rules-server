@@ -507,6 +507,22 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Evidência T018 — ponte para o subsistema Python — 2026-08-24
+
+`npx tsc --noEmit`, `npm run build` e `build_documentation --check` em exit 0. `setup-bridge.test.ts` passou a carregar e seus quatro casos aprovam; a suíte foi de 61 para 65 testes, com 63 aprovando.
+
+| Estado do ambiente | Instalaria | Escreve no global | Recusa |
+| --- | --- | --- | --- |
+| cópia local presente | nada | não | não |
+| presente só no `PATH` | nada | não | não |
+| ausente nas duas origens, com `uv` | `code-review-graph==2.3.7` | não | não |
+| ausente nas duas origens, sem `uv` | nada | não | sim, nomeando `uv` |
+
+`touchesGlobal` é falso nos quatro. A ponte usa ambiente virtual dentro do projeto e nunca `uv tool install`, que gravaria em `~/.local/share/uv/tools/`, fora dele. O ambiente da máquina é gerido por um playbook declarativo cuja regra é que nada se instala manualmente, e uma ferramenta que instalasse por conta própria disputaria com a única fonte da verdade do ambiente em vez de informá-la.
+
+A ponte devolve o especificador em vez de instalar por padrão. O ambiente virtual custa cerca de 262 MB, medidos durante o refinamento da fatia, e criá-lo sem pedido explícito surpreenderia quem só queria configurar hooks.
+
+
 #### Evidência T017 — registro de instalação — 2026-08-24
 
 `npx tsc --noEmit`, `npm run build` e `build_documentation --check` em exit 0. O registro foi exercitado em memória:
@@ -813,12 +829,13 @@ Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `
   - [x] **IMPROVE**: Cada entrada guarda o evento além do caminho. Remover exige localizar a entrada dentro do arquivo do alvo, e não apagar o arquivo: ele pode conter configuração de terceiro que a escrita preservou.
   <!-- specsfy:evidence {"task": "T017", "refs": ["US-003", "FR-004", "NFR-002"], "files": ["src/setup/record.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}]} -->
 
-- [ ] T018 [CODE] [US-001] Implementar em src/setup/bridge.ts — Refs: US-001, FR-008, NFR-001 — Depends: T005, T006, T008
-  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Criar a cópia local do subsistema Python na versão fixada, dentro do projeto, recusando quando `uv` faltar.
-  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que o caso da ponte passa a GREEN.
-  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+- [x] T018 [CODE] [US-001] Implementar em src/setup/bridge.ts — Refs: US-001, FR-008, NFR-001 — Depends: T005, T006, T008
+  - [x] **PREP**: RED confirmado em T005, T006 e T008; `build_documentation --check` em exit 0 antes da alteração.
+  - [x] **EXECUTE**: `src/setup/bridge.ts` cria a cópia local do subsistema Python na versão fixada, dentro do projeto, e recusa nomeando `uv` quando ele falta. Usa ambiente virtual do projeto e nunca `uv tool install`, que gravaria fora dele.
+  - [x] **VERIFY**: `npx tsc --noEmit` em exit 0 e `setup-bridge.test.ts` passa a carregar, com os quatro casos aprovando. A suíte foi de 61 para 65 testes, com 63 aprovando. A decisão discrimina cópia local presente, presença só no PATH, ausência com `uv` e ausência sem `uv`.
+  - [x] **EVIDENCE**: Comandos e a tabela dos quatro casos, registrados na seção 12.
+  - [x] **IMPROVE**: A ponte devolve o especificador que instalaria em vez de instalar por padrão. Um ambiente virtual Python custa cerca de 262 MB, e criá-lo sem pedido explícito surpreenderia quem só queria configurar hooks.
+  <!-- specsfy:evidence {"task": "T018", "refs": ["US-001", "FR-008", "NFR-001"], "files": ["src/setup/bridge.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}]} -->
 
 #### Fase 4 — Orquestração e superfície
 
