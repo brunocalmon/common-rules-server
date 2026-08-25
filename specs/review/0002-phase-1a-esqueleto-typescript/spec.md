@@ -50,7 +50,11 @@ O valor não é o comando `--version`. É ter chão firme e a premissa das depen
 
 #### Researchs executados
 
-- **R-001** [critical] As quatro dependências do plano existem e são instaláveis como descrito — Verdict: refuted — Confidence: high — Evidence: seção `Fontes e contexto consultados` — Budget: 1/1. Três dos quatro nomes estavam errados e um não é pacote npm. A decisão de modelo de dependências foi revista em consequência.
+- **R-001** [critical] As três dependências do projeto resolvem para os identificadores e as camadas registrados em DEC-002 — Verdict: verified — Confidence: high — Evidence: research/pi-dev/consulta.md#impacto-na-spec — Budget: 1/1.
+
+O claim registrado é o fato de que a spec depende: `@promovaweb/specsfy` 0.10.2 e `context-mode` 1.0.169 na camada npm, `code-review-graph` 2.3.7 exigido do ambiente, e `pi` como agente da camada 3, sob o pacote `@earendil-works/pi-coding-agent`.
+
+A mesma verificação **refutou** a premissa original do backlog, que tratava as quatro como dependências npm fixadas sob os nomes `specsfy`, `context-mode`, `pi.dev` e `code-review-graph`. Três desses nomes estavam errados, um não é pacote npm, e `pi` sequer é subsistema. DEC-002 registra a revisão.
 
 #### Fontes e contexto consultados
 
@@ -66,7 +70,7 @@ O valor não é o comando `--version`. É ter chão firme e a premissa das depen
 
 #### Artefatos de pesquisa armazenados
 
-Nenhum artefato externo. A consulta a `pi.dev` produziu apenas os identificadores registrados acima, confirmados de forma independente por `npm view @earendil-works/pi-coding-agent`, cuja saída é o registro público e não conteúdo da página.
+- `specs/review/0002-phase-1a-esqueleto-typescript/research/pi-dev/consulta.md` — consulta a `https://pi.dev/` em 2026-08-24, com proveniência, identidade do pacote, candidato descartado e impacto na spec. Nenhum trecho da página foi reproduzido: os identificadores foram confirmados de forma independente por `npm view`, cuja saída é o registro público.
 
 #### Dúvidas respondidas
 
@@ -606,6 +610,22 @@ A falha é da mesma família de duas outras já registradas nesta sessão: subst
 - **Resultado**: Passed (2026-08-24)
 - **Verificação**: `npm run build` e `npx tsc --noEmit` em exit 0; suíte com 13 arquivos e 43 testes aprovando; `npm run verify` em exit 0 a partir de clone recém-obtido; `doctor` aprovando o ambiente completo com exit 0 e reprovando com exit 1 ao remover `code-review-graph` do `PATH`.
 - **Auditorias**: `verify_acceptance.mjs` em `QA: PASSED`; `verify_evidence.mjs` em `PASSED (strict)`; `check_traceability.mjs` em `OK` com 25 de 25 IDs cobertos em 13 arquivos; `monitor_context --check` em `CURRENT`.
+
+**Achados do aceite final**
+
+| ID | Achado | Estado |
+| --- | --- | --- |
+| A1 | `R-001` não seguia o contrato `ResearchClaim`: a evidência apontava para prosa em vez de âncora local, e não havia artefato em `research/` apesar da consulta a `pi.dev` | Resolvido — artefato indexado com proveniência, e o claim reformulado para o fato verificado do qual a spec depende |
+| A2 | O enforcement do repositório reprovava `research:0001`, porque a Phase 0 consultou a API do GitHub durante o aceite sem indexar evidência | Resolvido — consulta indexada retroativamente em `research/github-api/` |
+| A3 | O enforcement reprova `trace:0001` por colisão de identificadores entre specs | **Aberto** — ver abaixo |
+
+**A3, em detalhe.** `check_traceability.mjs` varre a árvore inteira e não distingue a qual spec um marcador `SPECSFY` pertence. SPEC-0001 e SPEC-0002 usam o mesmo esquema, e a segunda tem mais identificadores que a primeira: `FR-005` a `FR-007` e `AC-012` a `AC-013` existem só aqui.
+
+A renomeação das asserções da Phase 0 para `.cjs`, feita para resolver o problema na direção original, apenas o inverteu. Antes, os arquivos da Phase 0 eram creditados a esta fatia e produziam o órfão `AC-011`; agora os arquivos desta fatia são creditados à Phase 0 e produzem cinco órfãos.
+
+Nenhuma escolha de extensão resolve. Se ambos os conjuntos forem varridos, o lado com menos identificadores acumula órfãos; se um for escondido, o outro perde cobertura. A correção pertence ao auditor, que precisaria de escopo por spec — um prefixo no marcador ou uma lista de caminhos declarada pela própria spec.
+
+Esta fatia passa em todas as suas verificações. O que reprova é uma checagem sobre a spec anterior, causada por uma limitação do framework.
 
 **Achados do gate de conclusão**
 

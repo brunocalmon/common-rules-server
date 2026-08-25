@@ -49,7 +49,9 @@ Não há CHANGELOG, aviso de quebra de compatibilidade, guia de migração ou pu
 
 #### Researchs executados
 
-Nenhuma research material. As decisões vieram do refinamento do backlog e da rodada de validação registrada na seção 13.
+- **R-001** [critical] A branch `archived` está protegida contra escrita e deleção no remoto — Verdict: verified — Confidence: high — Evidence: research/github-api/protecao-de-branch.md#configuração-verificada — Budget: 1/1.
+
+As demais decisões vieram do refinamento do backlog e das rodadas de validação registradas na seção 13, sem consulta externa.
 
 #### Fontes e contexto consultados
 
@@ -59,11 +61,11 @@ Nenhuma research material. As decisões vieram do refinamento do backlog e da ro
 
 #### Documentação consultada
 
-Nenhuma documentação externa.
+- API REST do GitHub, consultada em 2026-08-24 durante o aceite, para verificar a proteção de `archived`. Dois endpoints, com achado sobre a diferença entre proteção legada e ruleset. Evidência local indexada abaixo.
 
 #### Artefatos de pesquisa armazenados
 
-Nenhum artefato externo. Não houve consulta a API ou documentação de terceiros.
+- `specs/completed/0001-phase-0-preparacao-limpeza/research/github-api/protecao-de-branch.md` — consulta à API do GitHub em 2026-08-24, com os dois endpoints, a configuração verificada do ruleset e o impacto na Definition of Done. Indexado retroativamente: o enforcement do repositório apontou a ausência, e a consulta de fato ocorreu durante o aceite.
 
 #### Dúvidas respondidas
 
