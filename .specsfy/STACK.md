@@ -22,7 +22,7 @@ Conteúdo humano, fora do bloco reconstruído. Cada linha cita uma fonte execut�
 | Subsistema npm | `@promovaweb/specsfy` 0.10.2 | Motor de skills e regras do processo | `package.json` (`dependencies`) |
 | Subsistema npm | `context-mode` 1.0.169 | Gestão de janela de contexto entre sessões | `package.json` (`dependencies`) |
 | Subsistema Python | `code-review-graph` 2.3.7 | Análise de relações de código e call graphs | Exigido do ambiente; instalado por `uv`, ausente do npm |
-| Backend de agente | `pi`, `claude`, `cursor-agent`, `codex`, `agy`, `goose`, `dsh`, Ollama | Execução delegada pelo Orchestrator | Detectados em tempo de execução; nenhum é dependência declarada |
+| Backend de agente | `pi`, `claude`, `cursor-agent`, `codex`, `agy`, `goose`, `dsh`, Ollama | Execução delegada pelo Orchestrator, em fatia futura | **Nada os detecta hoje**: `src/doctor.ts` cobre apenas as três dependências do projeto. A detecção pertence à fatia 1d, e nenhum deles é dependência declarada |
 
 ### Regra de resolução das dependências do projeto
 
@@ -39,7 +39,8 @@ projeto. A ordem local antes de global honra as duas restrições.
 
 Toda instalação de dependência usa `--ignore-scripts`. Script de ciclo de vida
 executa código de terceiros durante a instalação, e a documentação do próprio
-`pi` recomenda o flag. Registrado como regra em `.specsfy/RULES.md`.
+`pi` recomenda o flag. O registro canônico da regra fica em `.specsfy/RULES.md`,
+criado por T020 desta mesma fatia.
 
 ### Compilação não deixa artefato quando falha
 

@@ -623,12 +623,13 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
 
 #### Fase 5 — Contexto persistente e fechamento
 
-- [ ] T017 [DOC] [US-001] Registrar a stack introduzida por esta fatia em .specsfy/STACK.md — Refs: US-001, FR-001, FR-003, AC-001, AC-003 — Depends: T012, T013, T016
-  - [ ] **PREP**: Levantar o que a fatia de fato introduziu: TypeScript, ESM, Vitest, as três dependências fixadas e a exigência de `uv` para `code-review-graph`.
-  - [ ] **EXECUTE**: Registrar cada tecnologia com sua evidência no repositório, sem apagar conteúdo humano preexistente.
-  - [ ] **VERIFY**: O arquivo cita manifesto e configuração como evidência, e o monitor de contexto deixa de apontar pendência de stack.
-  - [ ] **EVIDENCE**: Registrar o comando do monitor e seu resultado na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao registro ou justificar ausência.
+- [x] T017 [DOC] [US-001] Registrar a stack introduzida por esta fatia em .specsfy/STACK.md — Refs: US-001, FR-001, FR-003, AC-001, AC-003 — Depends: T012, T013, T016
+  - [x] **PREP**: Levantado o que a fatia entregou. Parte do registro já existia, porque o monitor de contexto exigiu STACK.md em T012 e T014 antes de deixar fechar aquelas tarefas.
+  - [x] **EXECUTE**: Cada linha do arquivo foi conferida contra manifesto, configuração e ambiente. Onze afirmações verificadas por script; duas estavam falsas e foram corrigidas.
+  - [x] **VERIFY**: As onze afirmações passam a corresponder às fontes. O bloco reconstruído sobrevive a nova execução do gerador sem apagar o conteúdo humano, e o monitor retorna CURRENT.
+  - [x] **EVIDENCE**: Conferência item a item e as duas correções, registradas na seção 12.
+  - [x] **IMPROVE**: A conferência passou a ser por script contra as fontes, e não por leitura. Foi assim que as duas afirmações falsas apareceram — nenhuma delas seria notada relendo o texto, porque ambas descreviam algo plausível.
+  <!-- specsfy:evidence {"task": "T017", "refs": ["US-001", "FR-001", "FR-003", "AC-001", "AC-003"], "files": [".specsfy/STACK.md"], "commands": [{"run": "node .claude/skills/specsfy-aux-stack/scripts/update_stack.mjs --project .", "exit": 0}, {"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check --acknowledge-project-no-change", "exit": 0}]} -->
 
 - [ ] T018 [DOC] [US-001] [US-002] Criar PROJECT.md descrevendo a finalidade e os limites do produto novo — Refs: US-001, US-002, FR-005, FR-006, AC-010 — Depends: T016
   - [ ] **PREP**: Confirmar que o arquivo não existe, e que a Phase 0 atribuiu a esta fase a tarefa de descrever o produto novo.
