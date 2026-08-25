@@ -39,8 +39,7 @@ projeto. A ordem local antes de global honra as duas restrições.
 
 Toda instalação de dependência usa `--ignore-scripts`. Script de ciclo de vida
 executa código de terceiros durante a instalação, e a documentação do próprio
-`pi` recomenda o flag. O registro canônico da regra fica em `.specsfy/RULES.md`,
-criado por T020 desta mesma fatia.
+`pi` recomenda o flag. O registro canônico da regra fica em `.specsfy/RULES.md`.
 
 ### Compilação não deixa artefato quando falha
 

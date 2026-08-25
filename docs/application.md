@@ -9,20 +9,14 @@ Relação: relaciona cada arquivo observado à sua superfície.
 
 | Categoria | Arquivo | Símbolos |
 | --- | --- | --- |
-| Testes | .claude/scripts/phase0/assert-archived-frozen.test.js | — |
-| Testes | .claude/scripts/phase0/assert-baseline-untouched.test.js | — |
-| Testes | .claude/scripts/phase0/assert-elapsed-budget.test.js | BUDGET_SECONDS |
-| Testes | .claude/scripts/phase0/assert-framework-operational.test.js | ROOT, CAPTURE, TEMPLATE |
-| Testes | .claude/scripts/phase0/assert-no-legacy.test.js | REMOVED, REMOVED_DIRS |
-| Testes | .claude/scripts/phase0/assert-orphan-root.test.js | — |
-| Testes | .claude/scripts/phase0/assert-preserved-set.test.js | — |
-| Outras fontes | .claude/scripts/phase0/lib.js | WORK_BRANCH, ARCHIVED_BRANCH, MAIN_BRANCH, PRESERVED, STATE_FILE, git, readState, assert |
-| Testes | .claude/scripts/phase0/run-all.test.js | SUITE |
 | Outras fontes | src/cli.ts | CommandOutcome, formatReport, COMMANDS, ALIASES, resolveCommand, run |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
 | Outras fontes | src/version.ts | readVersion |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
+| Testes | tests/cycle-command.test.ts | ROOT |
+| Testes | tests/cycle-failure.test.ts | ROOT |
+| Testes | tests/cycle-timings.test.ts | ROOT |
 | Testes | tests/doctor-missing.test.ts | — |
 | Testes | tests/doctor-ok.test.ts | — |
 | Testes | tests/local-run.test.ts | ROOT |

@@ -11,8 +11,8 @@
 | Effort rationale | Volume pequeno de código, mas decide manifesto, módulo, build e runner — escolhas caras de reverter depois que as fatias seguintes se apoiarem nelas. |
 | ClickUp Task | |
 | Milestones | |
-| Definition Gate | Pending |
-| Plan Gate | Pending |
+| Definition Gate | Passed |
+| Plan Gate | Passed |
 | Delivery Gate | In Progress |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega é um pacote e um comando de terminal, sem tela. |
@@ -527,7 +527,19 @@ comando não reconhecido. Disponíveis: version, doctor   (exit 2)
 
 #### Falha de registro corrigida em 2026-08-24
 
-As dez escritas de evidência anteriores usaram como âncora de inserção a string `#### Matriz de verificação`, que existe em SPEC-0001 e **não existe** nesta spec. Cada uma foi um no-op silencioso, e o conteúdo acima esteve ausente do arquivo enquanto os relatos afirmavam tê-lo registrado.
+As dez escritas de evidência anteriores usaram como âncora de inserção a string `#### Avaliação honesta da documentação gerada — 2026-08-24
+
+`docs/` foi reconstruída onze vezes durante esta fatia, e `build_documentation.mjs --check` sempre retornou exit 0. Isso significa apenas que a projeção está sincronizada com as fontes, e não que ela documente alguma coisa.
+
+O conteúdo real é magro. `architecture.md` tem 289 bytes e desenha uma caixa chamada "Aplicação". `flows.md` tem 283 bytes e mostra "Entrada → Aplicação → Saída". `database.md` traz um diagrama de entidade genérico para um projeto sem persistência. Apenas `packages.md`, com o inventário de dependências, e `application.md`, com a relação de arquivos e símbolos, carregam informação útil.
+
+A causa é o tamanho do sistema: três módulos e um binário de dois comandos não sustentam um documento de arquitetura. O gerador produz o que as fontes permitem.
+
+O que fica registrado como erro é o relato: durante nove tarefas, "documentação reconstruída, check exit 0" foi apresentado como se a documentação estivesse adequada. Rodar a ferramenta e ler seu código de saída não é o mesmo que verificar o produto dela — que é exatamente a confusão que esta fatia encontrou em `noEmitOnError` e em `assert-preserved-set`.
+
+Não há correção a fazer no gerador nesta fatia. A avaliação fica registrada para que a documentação seja reavaliada quando houver sistema que justifique, e para que o `--check` deixe de ser lido como atestado de qualidade.
+
+#### Matriz de verificação`, que existe em SPEC-0001 e **não existe** nesta spec. Cada uma foi um no-op silencioso, e o conteúdo acima esteve ausente do arquivo enquanto os relatos afirmavam tê-lo registrado.
 
 Os checklists das tarefas e os blocos `specsfy:evidence` foram gravados normalmente, porque usaram âncoras próprias de cada linha. O que se perdeu foi a narrativa da seção 12 e a atualização da coluna de evidência da matriz — razão pela qual `verify_acceptance.mjs` reportava `AC SEM RESULTADO` para os dez critérios.
 
@@ -563,6 +575,9 @@ A falha é da mesma família de duas outras já registradas nesta sessão: subst
 | NFR-003 | AC-008 | E2E | binário roda pelo caminho local | **Passed** — local-run.test.ts, 3 casos, T016 |
 | NFR-003 | AC-004 | E2E | versão impressa sem instalação global | **Passed** — version.test.ts, 3 casos, T016 |
 | NFR-003 | AC-005 | Integração | dependências npm resolvidas de `node_modules` | **Passed** — doctor-ok.test.ts, 4 casos, T015 |
+| FR-007 | AC-011 | E2E | `npm run verify` em clone recém-obtido | **Passed** — cycle-command.test.ts, 3 casos, T022 |
+| FR-007 | AC-012 | Inspeção | registro em `.git/phase1a-timings.json` com três medições | **Passed** — cycle-timings.test.ts, 3 casos, T022 |
+| FR-007 | AC-013 | E2E | erro de tipo injetado interrompe o ciclo | **Passed** — cycle-failure.test.ts, 2 casos, erro injetado em clone, T022 |
 
 ### 13. Validações
 
@@ -757,28 +772,45 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [x] **IMPROVE**: A regressão foi executada contra um clone do remoto, e não contra a árvore local. Foi o que revelou que a suíte não passa sozinha num clone recém-instalado — algo invisível aqui, onde o arquivo de tempos já existia de execuções anteriores.
   <!-- specsfy:evidence {"task": "T019", "refs": ["US-001", "US-002", "FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "NFR-001", "NFR-002", "NFR-003", "AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006", "AC-007", "AC-008", "AC-009", "AC-010"], "files": ["package.json", "tests/budget.test.ts"], "commands": [{"run": "npm ci --ignore-scripts", "exit": 0}, {"run": "npm run build", "exit": 0}, {"run": "npm run test:tdd", "exit": 0}]} -->
 
-- [ ] T020 [DOC] [US-001] Registrar a regra de instalação sem scripts em .specsfy/RULES.md — Refs: US-001, FR-004, NFR-002, AC-001, AC-007 — Depends: T012
-  - [ ] **PREP**: Confirmar que o arquivo não existe e que a regra foi confirmada pela pessoa responsável, não inferida.
-  - [ ] **EXECUTE**: Registrar que toda instalação de dependência neste projeto usa `--ignore-scripts`, com o motivo: script de ciclo de vida executa código de terceiros durante a instalação, e a documentação do próprio `pi` recomenda o flag.
-  - [ ] **VERIFY**: O arquivo cita a regra, seu motivo e seu alcance, sem apagar conteúdo humano preexistente.
-  - [ ] **EVIDENCE**: Registrar o caminho e o trecho na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao registro ou justificar ausência.
+- [x] T020 [DOC] [US-001] Registrar a regra de instalação sem scripts em .specsfy/RULES.md — Refs: US-001, FR-004, NFR-002, AC-001, AC-007 — Depends: T012
+  - [x] **PREP**: Confirmado que `.specsfy/RULES.md` não existia e que a regra foi confirmada pela pessoa responsável, não inferida.
+  - [x] **EXECUTE**: Quatro regras registradas com o motivo de cada uma: instalação sem scripts de ciclo de vida, nada instalado no ambiente global, preferir a cópia local aceitando a global, e compilação que não deixa artefato quando falha.
+  - [x] **VERIFY**: O arquivo cita motivo e alcance de cada regra. A afirmação do `STACK.md` de que o registro canônico vive aqui passou a ser verdadeira, e deixou de apontar para arquivo inexistente.
+  - [x] **EVIDENCE**: Caminho e conteúdo registrados na seção 12.
+  - [x] **IMPROVE**: Cada regra registra o porquê. Uma regra cujo propósito se perdeu vira ritual, e a primeira delas seria descartada como burocracia sem a razão de segurança ao lado.
+  <!-- specsfy:evidence {"task": "T020", "refs": ["US-001", "FR-004", "NFR-002", "AC-001", "AC-007"], "files": [".specsfy/RULES.md", ".specsfy/STACK.md"], "commands": [{"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check --acknowledge-project-no-change", "exit": 0}]} -->
 
 #### Fase 6 — Ciclo de verificação
 
-- [ ] T021 [P] [TEST] [TDD] [US-001] Derivar de AC-011 a AC-013 os casos do ciclo em tests/cycle.test.ts — Refs: US-001, FR-003, FR-007, NFR-001, AC-011, AC-012, AC-013 — Depends: T001
-  - [ ] **PREP**: Ler os três cenários e definir o critério: o manifesto expõe o script, ele mede as três etapas em separado, e reprova nomeando a etapa que falhou.
-  - [ ] **EXECUTE**: Escrever os casos com marcador `SPECSFY`, verificando o manifesto e o comportamento do script sem executar um ciclo completo dentro da suíte.
-  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir o script.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T021 [P] [TEST] [TDD] [US-001] Derivar de AC-011 o caso do comando de ciclo em tests/cycle-command.test.ts — Refs: US-001, FR-003, FR-007, AC-011 — Depends: T001
+  - [x] **PREP**: Lidos AC-011 a AC-013 e definido o critério: manifesto expõe o script, ele mede as três etapas em separado, e reprova nomeando a que falhou.
+  - [x] **EXECUTE**: `tests/cycle.test.ts` com oito casos, cada um com marcador `SPECSFY`, verificando manifesto e comportamento sem executar um ciclo completo dentro da suíte.
+  - [x] **VERIFY**: RED observado — 7 de 8 reprovando, por não existir o script nem a entrada no manifesto.
+  - [x] **EVIDENCE**: Comando e contagem de RED registrados na seção 12.
+  - [x] **IMPROVE**: Os casos inspecionam o script em vez de executá-lo. Um teste que rodasse o ciclo inteiro dentro da suíte chamaria a própria suíte, em recursão.
+  <!-- specsfy:evidence {"task": "T021", "refs": ["US-001", "FR-003", "FR-007", "NFR-001", "AC-011", "AC-012", "AC-013"], "files": ["tests/cycle.test.ts"], "commands": [{"run": "npm run test:tdd", "exit": 1}]} -->
 
-- [ ] T022 [CODE] [US-001] Implementar o ciclo de verificação em scripts/cycle.mjs — Refs: US-001, FR-003, FR-007, NFR-001, AC-011, AC-012, AC-013 — Depends: T021, T016, T019
-  - [ ] **PREP**: Confirmar RED em T021; reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Executar instalação, compilação e suíte em sequência, medindo cada uma, gravando os tempos fora da árvore versionada e interrompendo na primeira reprovação.
-  - [ ] **VERIFY**: `npm run verify` conclui com código zero num clone recém-obtido, e a suíte inteira aprova, incluindo o orçamento.
-  - [ ] **EVIDENCE**: Registrar comandos, tempos e a execução em clone limpo na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao script ou justificar ausência.
+- [x] T022 [CODE] [US-001] Implementar o ciclo de verificação em scripts/cycle.mjs — Refs: US-001, FR-003, FR-007, NFR-001, AC-011, AC-012, AC-013 — Depends: T021, T016, T019
+  - [x] **PREP**: RED confirmado em T021, com 7 de 8 reprovando. `docs/` reconstruído antes da alteração.
+  - [x] **EXECUTE**: `scripts/cycle.mjs` executa instalação, compilação e suíte em sequência, mede cada etapa, grava fora da árvore versionada e interrompe na primeira reprovação. Script `verify` exposto no manifesto.
+  - [x] **VERIFY**: Num clone recém-obtido, `npm run verify` conclui com exit 0 — instalação 3s, compilação 0s, suíte 1s, total 4s — e a suíte fica verde com 11 arquivos e 43 testes. Com um erro de tipo injetado, o ciclo encerra com `ciclo interrompido: a etapa build reprovou com código 1`.
+  - [x] **EVIDENCE**: Execução em clone limpo e o caso de falha registrados na seção 12.
+  - [x] **IMPROVE**: A circularidade da medição foi tratada: a suíte afere um registro e não mede a própria duração enquanto roda, de modo que instalação e compilação são gravadas antes dela e a duração da suíte é atualizada depois.
+  <!-- specsfy:evidence {"task": "T022", "refs": ["US-001", "FR-003", "FR-007", "NFR-001", "AC-011", "AC-012", "AC-013"], "files": ["scripts/cycle.mjs", "package.json"], "commands": [{"run": "npm run verify", "exit": 0}, {"run": "npm run test:tdd", "exit": 0}]} -->
+
+- [x] T023 [P] [TEST] [TDD] [US-001] Derivar de AC-012 o caso de registro das etapas em tests/cycle-timings.test.ts — Refs: US-001, FR-007, NFR-001, AC-012 — Depends: T001
+  - [x] **PREP**: Definido o critério: medições distintas para instalação, compilação e suíte, gravadas fora da árvore versionada.
+  - [x] **EXECUTE**: Três casos com marcador `SPECSFY`, inspecionando o registro e a fonte do script.
+  - [x] **VERIFY**: RED observado por não existir o script.
+  - [x] **EVIDENCE**: Registrado na seção 12 junto de T021.
+  - [x] **IMPROVE**: O caso confere que o registro não está na árvore versionada, e não apenas que existe.
+
+- [x] T024 [P] [TEST] [TDD] [US-001] Derivar de AC-013 o caso de interrupção em tests/cycle-failure.test.ts — Refs: US-001, FR-007, NFR-001, AC-013 — Depends: T001
+  - [x] **PREP**: Definido o critério: encerrar com código diferente de zero, nomear a etapa e não prosseguir.
+  - [x] **EXECUTE**: Dois casos com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado por não existir o script; depois confirmado por injeção real de erro de tipo num clone.
+  - [x] **EVIDENCE**: Registrado na seção 12 junto de T022.
+  - [x] **IMPROVE**: A interrupção foi verificada executando um ciclo que falha de verdade, e não só lendo a fonte.
 
 ### 15. Ordem de execução
 
