@@ -11,7 +11,7 @@
 | Prioridade | Não priorizado |
 | Milestones | |
 | Criado em | 2026-08-24 |
-| Spec promovida | specs/review/0002-phase-1a-esqueleto-typescript/spec.md (fatia 1a) |
+| Spec promovida | specs/completed/0002-phase-1a-esqueleto-typescript/spec.md (fatia 1a) |
 
 ## Ideia original
 
@@ -56,7 +56,7 @@ A Phase 1 empacotava seis entregas. Cada uma é comparável em tamanho à Phase 
 
 | Fatia | Entrega | Estado |
 | --- | --- | --- |
-| 1a | Esqueleto executável: manifesto, build, runner, dependências resolvidas | SPEC-0002 |
+| 1a | Esqueleto executável: manifesto, build, runner, dependências resolvidas | **SPEC-0002, concluída** |
 | 1b | Setup híbrido MCP + CLI | A especificar |
 | 1c | Approval workflow interativo e JSON | A especificar |
 | 1d | Detecção de backends e graceful degradation | A especificar |

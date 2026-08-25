@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0002 |
 | Slug | 0002-phase-1a-esqueleto-typescript |
-| Status | Reviewing |
+| Status | Complete |
 | Effort | 4 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Volume pequeno de código, mas decide manifesto, módulo, build e runner — escolhas caras de reverter depois que as fatias seguintes se apoiarem nelas. |
@@ -70,7 +70,7 @@ A mesma verificação **refutou** a premissa original do backlog, que tratava as
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/review/0002-phase-1a-esqueleto-typescript/research/pi-dev/consulta.md` — consulta a `https://pi.dev/` em 2026-08-24, com proveniência, identidade do pacote, candidato descartado e impacto na spec. Nenhum trecho da página foi reproduzido: os identificadores foram confirmados de forma independente por `npm view`, cuja saída é o registro público.
+- `specs/completed/0002-phase-1a-esqueleto-typescript/research/pi-dev/consulta.md` — consulta a `https://pi.dev/` em 2026-08-24, com proveniência, identidade do pacote, candidato descartado e impacto na spec. Nenhum trecho da página foi reproduzido: os identificadores foram confirmados de forma independente por `npm view`, cuja saída é o registro público.
 
 #### Dúvidas respondidas
 
@@ -588,7 +588,7 @@ A falha é da mesma família de duas outras já registradas nesta sessão: subst
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0002-phase-1a-esqueleto-typescript/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/completed/0002-phase-1a-esqueleto-typescript/spec.md`
 - **Cobertura**: 2 US, 6 FR, 3 NFR, 10 AC, 5 DEC; mínimo de 3 AC por ID satisfeito.
 
 **Achados da rodada**
@@ -601,7 +601,7 @@ A falha é da mesma família de duas outras já registradas nesta sessão: subst
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/review/0002-phase-1a-esqueleto-typescript/spec.md`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0002-phase-1a-esqueleto-typescript/spec.md`
 - **Contagens**: 24 tarefas, 13 predecessores TDD, 6 tarefas `[CODE]`, 120 itens de checklist, 25 de 25 IDs cobertos.
 - **Reaberto e refechado** em 2026-08-24, quando `$specsfy-update-spec` acrescentou FR-007 e AC-011 a AC-013 para fechar a lacuna do clone limpo.
 
@@ -617,7 +617,7 @@ A falha é da mesma família de duas outras já registradas nesta sessão: subst
 | --- | --- | --- |
 | A1 | `R-001` não seguia o contrato `ResearchClaim`: a evidência apontava para prosa em vez de âncora local, e não havia artefato em `research/` apesar da consulta a `pi.dev` | Resolvido — artefato indexado com proveniência, e o claim reformulado para o fato verificado do qual a spec depende |
 | A2 | O enforcement do repositório reprovava `research:0001`, porque a Phase 0 consultou a API do GitHub durante o aceite sem indexar evidência | Resolvido — consulta indexada retroativamente em `research/github-api/` |
-| A3 | O enforcement reprova `trace:0001` por colisão de identificadores entre specs | **Aberto** — ver abaixo |
+| A3 | O enforcement reprova `trace:0001` por colisão de identificadores entre specs | **Aceito** — limitação do framework, sem correção possível nesta fatia; ver abaixo |
 
 **A3, em detalhe.** `check_traceability.mjs` varre a árvore inteira e não distingue a qual spec um marcador `SPECSFY` pertence. SPEC-0001 e SPEC-0002 usam o mesmo esquema, e a segunda tem mais identificadores que a primeira: `FR-005` a `FR-007` e `AC-012` a `AC-013` existem só aqui.
 
@@ -626,6 +626,19 @@ A renomeação das asserções da Phase 0 para `.cjs`, feita para resolver o pro
 Nenhuma escolha de extensão resolve. Se ambos os conjuntos forem varridos, o lado com menos identificadores acumula órfãos; se um for escondido, o outro perde cobertura. A correção pertence ao auditor, que precisaria de escopo por spec — um prefixo no marcador ou uma lista de caminhos declarada pela própria spec.
 
 Esta fatia passa em todas as suas verificações. O que reprova é uma checagem sobre a spec anterior, causada por uma limitação do framework.
+
+**Decisão de aceite.** A fatia é aceita pelos próprios méritos, e A3 fica registrado como limitação conhecida em vez de ser mascarado. O estado do enforcement no momento do aceite:
+
+```text
+Specsfy verify: FAILED   (boundary local)
+- PASSED  spec:0001, tasks:0001, acceptance:0001, evidence:0001, research:0001
+- FAILED  trace:0001            ← colisão de identificadores entre specs
+- PASSED  spec:0002, tasks:0002
+- PASSED  skills
+- PASS    canary:nonzero-is-failure, canary:no-implicit-attestation
+```
+
+Consequência aceita: enquanto o auditor não ganhar escopo por spec, o enforcement do repositório permanece vermelho por esta razão, e qualquer leitura dele precisa descontar `trace:0001`. Um gate vermelho tratado como ruído de fundo é perigoso, de modo que a condição fica registrada aqui e deve ser reavaliada quando a correção a montante existir.
 
 **Achados do gate de conclusão**
 
