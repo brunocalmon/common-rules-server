@@ -507,6 +507,37 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Evidência T020 — despacho e conflito com a fatia 1a — 2026-08-24
+
+`npx tsc --noEmit`, `npm run build`, `npm run test:tdd` e `build_documentation --check` em exit 0. **Suíte inteira verde: 26 arquivos, 89 testes.**
+
+Saída real do binário:
+
+```text
+$ common-rules setup
+7 hooks instalados em .claude/settings.json
+  code-review-graph-update — evento PostToolUse, em .claude/settings.json
+  context-mode-posttooluse — evento PostToolUse, em .claude/settings.json
+  context-mode-pretooluse — evento PreToolUse, em .claude/settings.json
+  context-mode-stop — evento Stop, em .claude/settings.json
+  guard-destructive — evento PreToolUse, em .claude/settings.json
+  guard-secrets — evento PreToolUse, em .claude/settings.json
+  protect-authorship — evento PreToolUse, em .claude/settings.json
+                                                          (exit 0)
+
+$ common-rules setup            # em projeto sem evidência do alvo
+alvo claude-code ignorado: sem evidência de uso de claude-code; nenhum de
+.claude/settings.json, .claude/settings.local.json, .claude/ está presente
+                                                          (exit 0)
+```
+
+**Conflito com a fatia 1a, resolvido em `$specsfy-update-spec`.** Ao entregar `setup`, `tests/surface.test.ts` da SPEC-0002 reprovou: ela afirmava que o esqueleto tinha **exatamente** dois comandos e listava `setup` entre os proibidos.
+
+A asserção estava certa sobre a entrega daquela fatia e errada como invariante. O que a 1a queria garantir era que o esqueleto não contrabandeasse orquestração, aprovação ou seleção de modelo; o que ela escreveu foi um retrato do momento, que passa a mentir assim que o produto cresce. `AC-010` da SPEC-0002 e seu teste passaram a afirmar a propriedade, e `setup` saiu da lista de proibidos porque deixou de ser futuro.
+
+É a terceira ocorrência do mesmo padrão nesta sessão, depois das três asserções da Phase 0 que comparavam `HEAD` de uma branch que cresce. Asserção que descreve um instante da entrega envelhece mal; a que descreve a propriedade sobrevive.
+
+
 #### Evidência T019 — orquestração do setup — 2026-08-24
 
 `npx tsc --noEmit`, `npm run build` e `build_documentation --check` em exit 0. Os seis arquivos que ainda não carregavam passaram a carregar e aprovam: a suíte foi de 65 para **89 testes, com 87 aprovando**, e 25 de 26 arquivos ficaram verdes. As duas reprovações restantes são de `setup-surface.test.ts`, que aguarda o despacho de T020.
@@ -863,12 +894,13 @@ Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `
   - [x] **IMPROVE**: A carga lê de `hooks/` na raiz, resolvido a partir do módulo compilado. Ler de um caminho relativo ao diretório de trabalho faria o comando depender de onde foi invocado, e ele precisa funcionar de qualquer subdiretório do projeto.
   <!-- specsfy:evidence {"task": "T019", "refs": ["US-001", "US-003", "FR-001", "FR-005", "FR-007", "NFR-001", "NFR-002"], "files": ["src/setup/run.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}]} -->
 
-- [ ] T020 [CODE] [US-001] [US-003] Implementar em src/cli.ts — Refs: US-001, US-003, FR-001, FR-005 — Depends: T001, T004, T011, T019
-  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Acrescentar o despacho do comando de configuração, sem lógica de instalação no arquivo.
-  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que o caso de superfície passa a GREEN e a suíte inteira fica verde.
-  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+- [x] T020 [CODE] [US-001] [US-003] Implementar em src/cli.ts — Refs: US-001, US-003, FR-001, FR-005 — Depends: T001, T004, T011, T019
+  - [x] **PREP**: RED confirmado em T001, T004 e T011; `build_documentation --check` em exit 0 antes da alteração.
+  - [x] **EXECUTE**: `src/cli.ts` ganhou o despacho de `setup`, sem lógica de instalação: ele chama a orquestração e formata a saída. `src/setup/env.ts` isola a única parte que observa o sistema de arquivos, para que a decisão de detecção continue recebendo o resultado por parâmetro.
+  - [x] **VERIFY**: `npx tsc --noEmit` em exit 0 e a **suíte inteira verde: 26 arquivos, 89 testes**. O binário instala sete hooks e sai com zero, relata o alvo ignorado e sai com zero num projeto sem evidência, e recusa comando desconhecido com código 2 nomeando os três disponíveis.
+  - [x] **EVIDENCE**: Comandos, saída real do binário e o conflito com a fatia 1a, registrados na seção 12.
+  - [x] **IMPROVE**: A observação do sistema de arquivos saiu para `env.ts`. Deixá-la dentro da detecção faria a decisão depender da máquina, e é justamente a injeção que permite exercitar os cinco casos de `AC-006`.
+  <!-- specsfy:evidence {"task": "T020", "refs": ["US-001", "US-003", "FR-001", "FR-005"], "files": ["src/cli.ts", "src/setup/env.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}, {"run": "npm run test:tdd", "exit": 0}, {"run": "node dist/cli.js setup", "exit": 0}]} -->
 
 #### Fase 5 — Contexto e fechamento
 

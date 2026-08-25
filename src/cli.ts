@@ -2,6 +2,8 @@
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 import { defaultEnvironment, inspectDependencies } from "./doctor.js";
+import { runSetup, TARGET_SETTINGS } from "./setup/run.js";
+import { detectEnvironment } from "./setup/env.js";
 import { readVersion } from "./version.js";
 
 export interface CommandOutcome {
@@ -27,9 +29,18 @@ function formatReport(): CommandOutcome {
  * modelo pertencem às fatias seguintes. `surface.test.ts` reprova se algum
  * deles vazar para cá antes da hora.
  */
+/** Formata o resultado do setup, sem decidir nada sobre ele. */
+function formatSetup(): CommandOutcome {
+  const r = runSetup({ env: detectEnvironment(), write: true });
+  if (r.installed.length === 0) return { output: r.report, exitCode: r.exitCode };
+  const linhas = r.installed.map((h) => `  ${h.name} — evento ${h.event}, em ${TARGET_SETTINGS}`);
+  return { output: [r.report, ...linhas].join("\n"), exitCode: r.exitCode };
+}
+
 export const COMMANDS: Record<string, () => CommandOutcome> = {
   version: () => ({ output: readVersion(), exitCode: 0 }),
   doctor: formatReport,
+  setup: formatSetup,
 };
 
 const ALIASES: Record<string, string> = {
@@ -37,6 +48,7 @@ const ALIASES: Record<string, string> = {
   "-v": "version",
   version: "version",
   doctor: "doctor",
+  setup: "setup",
 };
 
 /** Resolve o argumento recebido para um comando conhecido, ou null. */

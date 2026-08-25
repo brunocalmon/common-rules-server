@@ -297,8 +297,8 @@ Feature: Limite do esqueleto
   Scenario: Apenas dois comandos existem
     Given o binário compilado
     When a pessoa lista os comandos disponíveis
-    Then apenas identificação de versão e verificação de dependências são oferecidas
-    And nenhum comando de setup, orquestração, aprovação ou seleção de modelo existe
+    Then identificação de versão e verificação de dependências são oferecidas
+    And nenhum comando de orquestração, aprovação ou seleção de modelo existe
 ```
 
 #### AC-011 — Um clone recém-obtido fica verde com um comando
@@ -917,3 +917,13 @@ Registradas na seção 13, todas reversíveis nesta fatia.
 - [x] `common-rules doctor` aprova o ambiente completo com exit 0 e reprova com exit 1 ao remover `code-review-graph` do `PATH`, nomeando-a e explicando que vem de `uv`.
 - [x] `.specsfy/STACK.md` registra a stack introduzida por esta fatia: TypeScript, ESM, Vitest, as **duas** dependências de subsistema fixadas por npm e o subsistema Python exigido do ambiente. O texto anterior falava em três fixadas, o que contradizia DEC-002.
 - [x] `PROJECT.md` foi criado em T018, com onze fatos conferidos por script contra manifesto, árvore, git e a API do GitHub.
+
+#### Nota de manutenção — 2026-08-24, após a conclusão
+
+`AC-010` exigia que existissem **apenas** dois comandos, e `tests/surface.test.ts` listava `setup` entre os proibidos. A fatia 1b entregou `setup`, e o teste reprovou.
+
+A asserção estava certa sobre a entrega desta fatia e errada como invariante. O que a 1a queria garantir era que o esqueleto não contrabandeasse orquestração, aprovação ou seleção de modelo; o que ela escreveu foi um retrato do momento, que passa a mentir assim que o produto cresce.
+
+O cenário passou a afirmar que os dois comandos desta fatia existem e que os das fatias seguintes não, e `setup` saiu da lista de proibidos porque deixou de ser futuro. A guarda continua valendo para `orchestrate`, `approve`, `model`, `agent`, `serve` e `mcp`.
+
+É o mesmo defeito já corrigido três vezes nas asserções da Phase 0, que comparavam `HEAD` de uma branch que cresce. Vale como padrão: asserção que descreve um instante da entrega envelhece mal, e a que descreve a propriedade sobrevive.
