@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0003 |
 | Slug | 0003-fatia-1b-setup-hooks |
-| Status | Implementing |
+| Status | Reviewing |
 | Effort | 6 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Tradução de sete hooks para formato nativo, com três bloqueantes cujo erro de escape é falha de segurança silenciosa. A v0.2.8 gastou 494 linhas nisso e registrou dois defeitos críticos no caminho. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | In Progress |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega é um comando de terminal que escreve arquivos de configuração, sem tela. |
 | Atualizada em | 2026-08-24 |
@@ -68,7 +68,7 @@ Nenhuma documentação externa. As fontes são do próprio repositório, congela
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/in-progress/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
+- `specs/review/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
 
 #### Dúvidas respondidas
 
@@ -688,39 +688,45 @@ Nenhum RED decorre de sintaxe, importação malformada ou ambiente. Onze arquivo
 
 | Requisito | Cenário BDD | Nível | Comando de verificação | Evidência |
 | --- | --- | --- | --- | --- |
-| FR-001 | AC-001 | Integração | `npm run test:tdd` — detecção com evidência presente | Pending |
-| FR-001 | AC-006 | Integração | `npm run test:tdd` — detecção com evidência ausente | Pending |
-| FR-002 | AC-001 | Unidade | tradução dos quatro hooks de integração | Pending |
-| FR-002 | AC-009 | Unidade | semântica de bloqueio preservada na tradução | Pending |
-| FR-002 | AC-010 | Contrato | ida e volta byte a byte do script | Pending |
-| FR-003 | AC-002 | Execução | guards recusam a ação protegida | Pending |
-| FR-003 | AC-003 | Execução | guards permitem trabalho ordinário | Pending |
-| FR-003 | AC-009 | Unidade | bloqueante e não bloqueante produzem entradas distintas | Pending |
-| FR-004 | AC-004 | Integração | registro nomeia os sete com destino e versão | Pending |
-| FR-004 | AC-007 | Integração | ensaio não grava registro | Pending |
-| FR-005 | AC-001 | Integração | os sete instalados, os três de orquestração ausentes | Pending |
-| FR-005 | AC-004 | Integração | registro cobre exatamente os sete | Pending |
-| FR-006 | AC-002 | Execução | recusa observada por execução | Pending |
-| FR-006 | AC-003 | Execução | permissão observada por execução | Pending |
-| FR-007 | AC-005 | Integração | segunda execução não altera nada | Pending |
-| FR-007 | AC-007 | Integração | ensaio relata sem escrever | Pending |
-| FR-007 | AC-011 | Execução | superfície limitada aos três comandos | Pending |
-| FR-008 | AC-008 | Integração | ponte cria cópia local na versão fixada | Pending |
-| NFR-001 | AC-001 | Integração | árvore do diretório pessoal inalterada | Pending |
-| NFR-001 | AC-006 | Integração | nada escrito quando o alvo não é usado | Pending |
-| NFR-001 | AC-008 | Integração | ponte não escreve fora do projeto | Pending |
-| NFR-002 | AC-005 | Integração | registro permite reconhecer estado | Pending |
-| NFR-002 | AC-007 | Integração | ensaio deixa o estado intacto | Pending |
-| NFR-002 | AC-011 | Integração | cada entrada do registro aponta caminho existente | Pending |
-| NFR-003 | AC-009 | Unidade | bloqueio preservado | Pending |
-| NFR-003 | AC-010 | Contrato | escape sobrevive à ida e à volta | Pending |
+| FR-001 | AC-001 | Integração | `npm run test:tdd` — detecção com evidência presente | **Passed** — setup-install e setup-writes, 9 casos, T019 e T023 |
+| FR-001 | AC-006 | Integração | `npm run test:tdd` — detecção com evidência ausente | **Passed** — setup-detect, 5 casos, e o binário sai com 0 sem alvo, T016 |
+| FR-002 | AC-001 | Unidade | tradução dos quatro hooks de integração | **Passed** — setup-install e setup-writes, 9 casos, T019 e T023 |
+| FR-002 | AC-009 | Unidade | semântica de bloqueio preservada na tradução | **Passed** — hooks-translate, 3 casos, T015 |
+| FR-002 | AC-010 | Contrato | ida e volta byte a byte do script | **Passed** — hooks-escape, 3 casos, ida e volta byte a byte, T015 |
+| FR-003 | AC-002 | Execução | guards recusam a ação protegida | **Passed** — hooks-blocking, 3 casos por execução de subprocesso, T015 |
+| FR-003 | AC-003 | Execução | guards permitem trabalho ordinário | **Passed** — hooks-permissive, 3 casos por execução, T015 |
+| FR-003 | AC-009 | Unidade | bloqueante e não bloqueante produzem entradas distintas | **Passed** — hooks-translate, 3 casos, T015 |
+| FR-004 | AC-004 | Integração | registro nomeia os sete com destino e versão | **Passed** — setup-record, 4 casos, T017 e T019 |
+| FR-004 | AC-007 | Integração | ensaio não grava registro | **Passed** — setup-dryrun e setup-writes, 4 casos, zero arquivos escritos, T019 e T023 |
+| FR-005 | AC-001 | Integração | os sete instalados, os três de orquestração ausentes | **Passed** — setup-install e setup-writes, 9 casos, T019 e T023 |
+| FR-005 | AC-004 | Integração | registro cobre exatamente os sete | **Passed** — setup-record, 4 casos, T017 e T019 |
+| FR-006 | AC-002 | Execução | recusa observada por execução | **Passed** — hooks-blocking, 3 casos por execução de subprocesso, T015 |
+| FR-006 | AC-003 | Execução | permissão observada por execução | **Passed** — hooks-permissive, 3 casos por execução, T015 |
+| FR-007 | AC-005 | Integração | segunda execução não altera nada | **Passed** — setup-idempotent, 4 casos, e o binário relata inalterado na 2ª execução, T023 |
+| FR-007 | AC-007 | Integração | ensaio relata sem escrever | **Passed** — setup-dryrun e setup-writes, 4 casos, zero arquivos escritos, T019 e T023 |
+| FR-007 | AC-011 | Execução | superfície limitada aos três comandos | **Passed** — setup-surface, 3 casos, T020 |
+| FR-008 | AC-008 | Integração | ponte cria cópia local na versão fixada | **Passed** — setup-bridge, 4 casos, touchesGlobal falso nos quatro, T018 |
+| NFR-001 | AC-001 | Integração | árvore do diretório pessoal inalterada | **Passed** — setup-install e setup-writes, 9 casos, T019 e T023 |
+| NFR-001 | AC-006 | Integração | nada escrito quando o alvo não é usado | **Passed** — setup-detect, 5 casos, e o binário sai com 0 sem alvo, T016 |
+| NFR-001 | AC-008 | Integração | ponte não escreve fora do projeto | **Passed** — setup-bridge, 4 casos, touchesGlobal falso nos quatro, T018 |
+| NFR-002 | AC-005 | Integração | registro permite reconhecer estado | **Passed** — setup-idempotent, 4 casos, e o binário relata inalterado na 2ª execução, T023 |
+| NFR-002 | AC-007 | Integração | ensaio deixa o estado intacto | **Passed** — setup-dryrun e setup-writes, 4 casos, zero arquivos escritos, T019 e T023 |
+| NFR-002 | AC-011 | Integração | cada entrada do registro aponta caminho existente | **Passed** — setup-surface, 3 casos, T020 |
+| NFR-003 | AC-009 | Unidade | bloqueio preservado | **Passed** — hooks-translate, 3 casos, T015 |
+| NFR-003 | AC-010 | Contrato | escape sobrevive à ida e à volta | **Passed** — hooks-escape, 3 casos, ida e volta byte a byte, T015 |
+| FR-004 | AC-012 | Integração | `setup-revert.test.ts` — cada entrada aponta o que foi escrito | **Passed** — 4 casos, T017 e T019 |
+| FR-007 | AC-012 | Integração | reversão pelo registro e reinstalação | **Passed** — 4 casos, T019 |
+| NFR-002 | AC-012 | Integração | o registro descreve cada remoção | **Passed** — entradas com destino, evento e nome, T017 |
+| FR-002 | AC-013 | Contrato | `hooks-corpus.test.ts` — os sete reais, byte a byte | **Passed** — 3 casos, T015 |
+| FR-005 | AC-013 | Contrato | o corpus tem exatamente os sete portados | **Passed** — T015 |
+| NFR-003 | AC-013 | Contrato | contagem de caracteres hostis preservada em cada um | **Passed** — T015 |
 
 ### 13. Validações
 
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/in-progress/0003-fatia-1b-setup-hooks/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0003-fatia-1b-setup-hooks/spec.md`
 - **Cobertura**: 3 US, 8 FR, 3 NFR, 13 AC, 6 DEC; mínimo de 3 AC por ID satisfeito, sem ID inexistente citado em `**Cobre**`.
 - **Research**: `load_research.mjs` em `PASSED`, com `R-001` verificado e oito artefatos indexados.
 
@@ -737,7 +743,7 @@ Nenhum RED decorre de sintaxe, importação malformada ou ambiente. Onze arquivo
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/in-progress/0003-fatia-1b-setup-hooks/spec.md`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/review/0003-fatia-1b-setup-hooks/spec.md`
 - **Contagens**: 23 tarefas, 13 predecessores TDD, 7 tarefas `[CODE]`, 115 itens de checklist, 27 de 27 IDs cobertos.
 - **RED comprovado**: os treze cenários têm asserção reprovando antes de qualquer código de produção. Onze por módulo inexistente e um por asserção nomeada; nenhum por sintaxe, importação ou ambiente.
 
@@ -750,8 +756,19 @@ Nenhum RED decorre de sintaxe, importação malformada ou ambiente. Onze arquivo
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Pending
-- **Verificação**: suíte verde, guards exercitados por execução, escape verificado byte a byte e árvore do diretório pessoal inalterada.
+- **Resultado**: Passed (2026-08-24)
+- **Verificação**: `npm run build` e `npx tsc --noEmit` em exit 0; suíte com **27 arquivos e 94 testes aprovando**; `npm run verify` em exit 0 a partir de clone limpo, em 6s contra orçamento de 300; diretório pessoal com 45 entradas antes e depois da suíte.
+- **Auditorias**: `verify_acceptance` em `QA: PASSED` para os treze; `verify_evidence` em `PASSED (strict)`; `check_traceability` em `OK`; `load_research` em `PASSED`; `build_documentation --check` em exit 0.
+- **Guards**: quatro chamadas de subprocesso em `hooks-blocking` e `hooks-permissive`, e sete usos de `unwrap` conferindo a ida e a volta em `hooks-escape` e `hooks-corpus`.
+
+**Achados do gate de conclusão**
+
+| ID | Achado | Estado |
+| --- | --- | --- |
+| E1 | A coluna de evidência da matriz seguia em `Pending` nas 26 linhas, e `verify_acceptance` reprovava os treze critérios | Resolvido — mesma omissão que o gate da SPEC-0002 encontrou, agora conferida antes de fechar |
+| E2 | `AC-012` e `AC-013` não tinham linha na matriz, por terem sido criados durante a validação, depois de ela existir | Resolvido — seis linhas acrescentadas |
+
+Ambos são de registro, e não de comportamento: a fatia estava verde e a matriz não dizia. É a terceira vez na sessão em que uma seção escrita antes de uma mudança posterior deixa de acompanhá-la, depois da estrutura de arquivos da seção 8 e da lista de comandos proibidos da SPEC-0002.
 
 #### Suposições
 
@@ -989,14 +1006,14 @@ Registradas na seção 13, todas reversíveis nesta fatia.
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
-- [ ] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
-- [ ] Todos os cenários `AC` aplicáveis passam.
-- [ ] Todos os requisitos possuem evidência de verificação registrada na seção 12.
-- [ ] Todas as tarefas da seção 14 estão concluídas.
-- [ ] Os três guards foram exercitados por execução, recusando o que devem recusar e permitindo trabalho ordinário.
-- [ ] O escape foi verificado byte a byte na ida e na volta.
-- [ ] A árvore do diretório pessoal permanece inalterada após a execução dos testes.
-- [ ] `.specsfy/STACK.md` registra o que esta fatia introduziu, ou a ausência de mudança estrutural fica justificada.
-- [ ] `PROJECT.md` passa a listar o comando de configuração entre as capacidades, e a remover a menção de que ele não existe.
+- [x] `Definition Gate` está `Passed`.
+- [x] `Plan Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
+- [x] Todos os cenários `AC` aplicáveis passam — `verify_acceptance` em `QA: PASSED` para os treze.
+- [x] Todos os requisitos possuem evidência de verificação registrada na matriz da seção 12.
+- [x] Todas as tarefas da seção 14 estão concluídas — 23 de 23, com 149 de 149 itens.
+- [x] Os três guards foram exercitados por execução: `rm -rf /` sai com 2 e a mensagem do guard, e `rm dist/cli.js` sai com 0.
+- [x] O escape foi verificado byte a byte na ida e na volta, sobre um exemplo hostil construído e sobre os sete hooks reais.
+- [x] A árvore do diretório pessoal permanece inalterada: 45 entradas antes e depois da suíte.
+- [x] `.specsfy/STACK.md` registra os sete módulos com evidência, o alvo suportado e os caminhos de estado; cada módulo citado foi conferido por script contra o disco.
+- [x] `PROJECT.md` lista `common-rules setup` entre as capacidades, e a única menção restante na lista de ausências descreve o servidor MCP, não o comando.
