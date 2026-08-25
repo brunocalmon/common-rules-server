@@ -3,7 +3,7 @@
 | Metainformação | Valor |
 | --- | --- |
 | ID | BACKLOG-0003 |
-| Status | Captured |
+| Status | Promoted |
 | Produto | A esclarecer |
 | Épico | A esclarecer |
 | Funcionalidade | A esclarecer |
@@ -11,7 +11,7 @@
 | Prioridade | Não priorizado |
 | Milestones | |
 | Criado em | 2026-08-24 |
-| Spec promovida | Nenhuma |
+| Spec promovida | specs/defined/0002-phase-1a-esqueleto-typescript/spec.md (fatia 1a) |
 
 ## Ideia original
 
@@ -32,6 +32,39 @@ CLI TypeScript funcional; setup único configura tudo (dependências, hooks, .en
 ## Contexto
 
 Estratégia ágil: MVP rápido antes de adicionar complexidade. Phase 1 entrega subsistemas existentes integrados. Phase 2+ (graceful degradation refinement, multi-agente orchestration, etc). Dependências gerenciadas via npm com 'common-rules wins' em conflitos. Approval workflow detecta context (terminal vs JSON stdin). Model selection é análise completa, não heurística.
+
+## Dependências verificadas em 2026-08-24
+
+O backlog assumia quatro dependências fixadas via npm. A verificação contra o registro e contra a máquina mostrou que três dessas afirmações estavam erradas. Decisão confirmada: npm fixa o que é npm, e o setup exige `uv` para o que é Python, falhando quando ausente.
+
+| Nome no backlog | Pacote real | Versão | Forma |
+| --- | --- | --- | --- |
+| `specsfy` | `@promovaweb/specsfy` | 0.10.2 | npm, com escopo |
+| `context-mode` | `context-mode` | 1.0.169 | npm |
+| `pi.dev` | `@earendil-works/pi-coding-agent` | 0.84.3 | npm, binário `pi` |
+| `code-review-graph` | `code-review-graph` | 2.3.7 | **Python**, instalado por `uv tool` |
+
+`pi` expõe `-p` para modo print e `--mode json`, que é o consumo headless previsto para o Orchestrator. `@mariozechner/pi` foi descartado: é um gerenciador de pods vLLM, não o agente.
+
+## Backends de agente presentes nesta máquina
+
+`claude`, `cursor-agent` e `codex` (`@openai/codex@0.149.1`). Ausentes: `pi`, `agy`, `ollama`, `aider`, `goose`. A inclusão de `codex` na lista suportada continua em aberto.
+
+## Fatiamento decidido em 2026-08-24
+
+A Phase 1 empacotava seis entregas. Cada uma é comparável em tamanho à Phase 0, que rendeu 14 tarefas e 93 itens de checklist sendo uma única coisa estreita. Decisão: esqueleto primeiro, capacidades depois.
+
+| Fatia | Entrega | Estado |
+| --- | --- | --- |
+| 1a | Esqueleto executável: manifesto, build, runner, dependências resolvidas | SPEC-0002 |
+| 1b | Setup híbrido MCP + CLI | A especificar |
+| 1c | Approval workflow interativo e JSON | A especificar |
+| 1d | Detecção de backends e graceful degradation | A especificar |
+| 1e | Seleção de modelo pelo Orchestrator | A especificar |
+
+Decisões desta fatia: pacote `@brunocalmon/common-rules` com binário `common-rules`, porque `common-rules` sem escopo está ocupado no npm por um pacote abandonado desde 2023. Runner Vitest. ESM e Node maior ou igual a 20 como defaults reversíveis.
+
+`codex` na lista de backends suportados continua em aberto, adiado para a fatia 1d.
 
 ## Referências relacionadas
 
