@@ -488,11 +488,160 @@ Nenhuma que bloqueie esta fatia.
 
 ### 14. Tarefas
 
-A seção é preenchida por `$specsfy-05-tasks` depois do Definition Gate.
+#### Fase 1 — Bootstrap do runner
+
+As dez asserções da fase seguinte rodam em Vitest, que vem do manifesto que elas verificam. A saída é separar os dois papéis: esta tarefa instala apenas o runner, sem nenhum campo de produto, de modo que as asserções reprovem por ausência real e não por falta de ferramenta.
+
+- [ ] T001 [OPS] [US-001] Criar .gitignore e um package.json de bootstrap contendo apenas Vitest e o script test:tdd — Refs: US-001, FR-003 — Depends: none
+  - [ ] **PREP**: Confirmar que o projeto não tem manifesto, e que a Phase 0 removeu o `.gitignore` antigo junto com o restante da v0.2.8.
+  - [ ] **EXECUTE**: Escrever `.gitignore` cobrindo `node_modules/` e `dist/`; escrever `package.json` com `private: true`, `devDependencies.vitest` e `scripts.test:tdd`, sem nome, binário, tipo de módulo ou dependências de produto; instalar.
+  - [ ] **VERIFY**: `npm run test:tdd` executa o Vitest e reporta ausência de teste, o que prova o runner operante sem afirmar nada sobre o produto.
+  - [ ] **EVIDENCE**: Registrar comando, saída e a lista de campos deliberadamente ausentes do manifesto de bootstrap na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao bootstrap ou justificar ausência.
+
+#### Fase 2 — Asserções em RED
+
+Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escreve num arquivo distinto, por isso executam em paralelo.
+
+- [ ] T002 [P] [TEST] [TDD] [US-001] Derivar do AC-001 o caso de instalação limpa em tests/manifest.test.ts — Refs: US-001, FR-001, FR-003, FR-004, NFR-002, AC-001 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-001 e definir as asserções: nome do pacote, presença das três dependências e ausência de faixa de versão.
+  - [ ] **EXECUTE**: Escrever o caso lendo o manifesto do disco, com marcador `SPECSFY` declarando os IDs.
+  - [ ] **VERIFY**: Executar `npm run test:tdd` e observar RED por ausência dos campos de produto no manifesto de bootstrap.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e a asserção que falhou na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T003 [P] [TEST] [TDD] [US-001] Derivar do AC-002 o caso de build executável em tests/build.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-002 e definir o critério: existe em `dist/` o arquivo que o campo de binário do manifesto declara.
+  - [ ] **EXECUTE**: Escrever o caso que resolve o alvo do binário pelo manifesto e verifica sua presença, com marcador `SPECSFY`.
+  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir campo de binário nem `dist/`.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T004 [P] [TEST] [TDD] [US-001] Derivar do AC-003 o caso de contrato do runner em tests/scripts.test.ts — Refs: US-001, FR-003, NFR-001, AC-003 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-003 e definir o critério: o manifesto expõe `test:tdd` e ele invoca Vitest, como o enforcement do framework exige em projeto Node.
+  - [ ] **EXECUTE**: Escrever o caso verificando o script e o runner que ele chama, com marcador `SPECSFY`.
+  - [ ] **VERIFY**: Executar a suíte. O script já existe desde T001; a asserção que reprova é a de o manifesto ser o de produto e não o de bootstrap.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e a asserção que falhou na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T005 [P] [TEST] [TDD] [US-001] Derivar do AC-004 o caso de impressão da versão em tests/version.test.ts — Refs: US-001, FR-001, FR-002, FR-005, NFR-003, AC-004 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-004 e definir o critério: a saída do binário compilado contém exatamente a versão do manifesto e o código de saída é zero.
+  - [ ] **EXECUTE**: Escrever o caso executando o binário como subprocesso, com marcador `SPECSFY`.
+  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir binário compilado.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T006 [P] [TEST] [TDD] [US-002] Derivar do AC-005 o caso de ambiente aprovado em tests/doctor-ok.test.ts — Refs: US-002, FR-006, NFR-002, NFR-003, AC-005 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-005 e definir o critério: as quatro dependências recebem veredito individual, as npm reportam versão encontrada e o código de saída é zero.
+  - [ ] **EXECUTE**: Escrever o caso injetando um ambiente controlado completo, para que o resultado não dependa da máquina, com marcador `SPECSFY`.
+  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir o módulo de verificação.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T007 [P] [TEST] [TDD] [US-002] Derivar do AC-006 o caso de dependência ausente em tests/doctor-missing.test.ts — Refs: US-002, FR-004, FR-006, AC-006 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-006 e definir o critério: a saída nomeia `code-review-graph`, explica que vem de `uv` e não do npm, e o código de saída difere de zero.
+  - [ ] **EXECUTE**: Escrever o caso com um PATH controlado sem a ferramenta, sem desinstalar nada da máquina, com marcador `SPECSFY`.
+  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir o módulo de verificação.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T008 [P] [TEST] [TDD] [US-001] Derivar do AC-007 o caso de versões fixas em tests/pinning.test.ts — Refs: US-001, FR-004, NFR-002, AC-007 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-007 e definir o critério: nenhuma dependência declarada aceita prefixo de intervalo, e as versões conferem com as verificadas em 2026-08-24.
+  - [ ] **EXECUTE**: Escrever o caso inspecionando cada versão declarada, com marcador `SPECSFY`.
+  - [ ] **VERIFY**: Executar a suíte e observar RED por não existirem dependências de produto no manifesto de bootstrap.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T009 [P] [TEST] [TDD] [US-001] [US-002] Derivar do AC-008 o caso de execução local em tests/local-run.test.ts — Refs: US-001, US-002, FR-001, FR-002, FR-005, NFR-003, AC-008 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-008 e definir o critério: o binário responde ao ser invocado pelo caminho do projeto, sem instalação global do próprio pacote.
+  - [ ] **EXECUTE**: Escrever o caso executando o alvo do binário por caminho relativo, com marcador `SPECSFY`.
+  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir alvo de binário.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T010 [P] [TEST] [TDD] [US-001] Derivar do AC-009 o caso de orçamento do ciclo em tests/budget.test.ts — Refs: US-001, FR-002, FR-003, NFR-001, AC-009 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-009 e definir o critério: a soma dos tempos registrados de instalação, build e suíte fica abaixo de cinco minutos.
+  - [ ] **EXECUTE**: Escrever o caso lendo os tempos registrados pela execução das etapas, falhando quando algum estiver ausente, com marcador `SPECSFY`.
+  - [ ] **VERIFY**: Executar a suíte e observar RED por não haver tempos registrados.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T011 [P] [TEST] [TDD] [US-001] [US-002] Derivar do AC-010 o caso de limite do esqueleto em tests/surface.test.ts — Refs: US-001, US-002, FR-005, FR-006, AC-010 — Depends: T001
+  - [ ] **PREP**: Ler o Gherkin de AC-010 e definir o critério: apenas identificação de versão e verificação de dependências são oferecidas.
+  - [ ] **EXECUTE**: Escrever o caso verificando a superfície de comandos e a ausência de setup, orquestração, aprovação e seleção de modelo, com marcador `SPECSFY`.
+  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir superfície de comandos.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+#### Fase 3 — Fundação
+
+- [ ] T012 [CODE] [US-001] Promover o bootstrap a manifesto de produto em package.json — Refs: US-001, FR-001, FR-003, FR-004, NFR-002, AC-001, AC-007 — Depends: T002, T003, T004, T008
+  - [ ] **PREP**: Confirmar RED em T002, T004 e T008; reconstruir `docs/` com `$specsfy-documentator` e conferir que a reconstrução está atual.
+  - [ ] **EXECUTE**: Declarar nome `@brunocalmon/common-rules`, binário `common-rules`, `type: module`, `engines.node` maior ou igual a 20 e as três dependências em versão exata.
+  - [ ] **VERIFY**: `npm run test:tdd` — os casos de manifesto, contrato do runner e fixação passam a GREEN; os demais continuam em RED por dependerem de build e código.
+  - [ ] **EVIDENCE**: Registrar comando, transição de RED para GREEN por caso e arquivos alterados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao manifesto ou justificar ausência.
+
+- [ ] T013 [CODE] [US-001] Configurar TypeScript e o build em tsconfig.json — Refs: US-001, FR-002, NFR-001, AC-002, AC-009 — Depends: T003, T005, T010, T012
+  - [ ] **PREP**: Confirmar RED em T003 e T010; reconstruir `docs/` com `$specsfy-documentator` antes de alterar produção.
+  - [ ] **EXECUTE**: Configurar a compilação ESM para `dist/` e declarar o script de build, com o alvo do binário coincidindo com o declarado no manifesto.
+  - [ ] **VERIFY**: `npm run build` conclui com código zero e o caso de build passa a GREEN.
+  - [ ] **EVIDENCE**: Registrar comandos, tempos de build para o orçamento e arquivos gerados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada à configuração ou justificar ausência.
+
+- [ ] T014 [CODE] [US-001] Implementar a leitura da versão em src/version.ts — Refs: US-001, FR-005, NFR-003, AC-004 — Depends: T005, T009, T011, T013
+  - [ ] **PREP**: Confirmar RED em T005 e T009; reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Ler a versão do manifesto e devolvê-la, sem imprimir, para que o valor seja testável sem capturar saída de terminal.
+  - [ ] **VERIFY**: `npm run test:tdd` — o caso de versão passa a GREEN após o despacho de T016.
+  - [ ] **EVIDENCE**: Registrar comando, resultado e arquivo na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao módulo ou justificar ausência.
+
+- [ ] T015 [CODE] [US-002] Implementar a verificação de dependências em src/doctor.ts — Refs: US-002, FR-004, FR-006, NFR-002, NFR-003, AC-005, AC-006 — Depends: T006, T007, T008, T013
+  - [ ] **PREP**: Confirmar RED em T006 e T007; reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Resolver as três dependências npm a partir de `node_modules`, sondar `code-review-graph` no PATH e devolver um resultado por dependência com nome, origem, versão encontrada e veredito. Receber o ambiente por parâmetro, para que o teste não dependa da máquina.
+  - [ ] **VERIFY**: `npm run test:tdd` — os casos de ambiente aprovado e de dependência ausente passam a GREEN.
+  - [ ] **EVIDENCE**: Registrar comando, os dois vereditos e o arquivo na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao módulo ou justificar ausência.
+
+#### Fase 4 — Superfície
+
+- [ ] T016 [CODE] [US-001] [US-002] Implementar o despacho dos dois comandos em src/cli.ts — Refs: US-001, US-002, FR-005, FR-006, AC-008, AC-010 — Depends: T006, T009, T011, T014, T015
+  - [ ] **PREP**: Confirmar RED em T009 e T011 e GREEN nos módulos de versão e verificação; reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Interpretar o argumento, despachar para versão ou verificação, formatar a saída e definir o código de saída. Nenhuma lógica de verificação vive aqui.
+  - [ ] **VERIFY**: `npm run build` seguido de `npm run test:tdd` — os casos de execução local e de limite do esqueleto passam a GREEN, e a suíte inteira fica verde.
+  - [ ] **EVIDENCE**: Registrar comandos, suíte completa em GREEN e arquivos na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao despacho ou justificar ausência.
+
+#### Fase 5 — Contexto persistente e fechamento
+
+- [ ] T017 [DOC] [US-001] Registrar a stack introduzida por esta fatia em .specsfy/STACK.md — Refs: US-001, FR-001, FR-003, AC-001, AC-003 — Depends: T012, T013, T016
+  - [ ] **PREP**: Levantar o que a fatia de fato introduziu: TypeScript, ESM, Vitest, as três dependências fixadas e a exigência de `uv` para `code-review-graph`.
+  - [ ] **EXECUTE**: Registrar cada tecnologia com sua evidência no repositório, sem apagar conteúdo humano preexistente.
+  - [ ] **VERIFY**: O arquivo cita manifesto e configuração como evidência, e o monitor de contexto deixa de apontar pendência de stack.
+  - [ ] **EVIDENCE**: Registrar o comando do monitor e seu resultado na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao registro ou justificar ausência.
+
+- [ ] T018 [DOC] [US-001] [US-002] Criar PROJECT.md descrevendo a finalidade e os limites do produto novo — Refs: US-001, US-002, FR-005, FR-006, AC-010 — Depends: T016
+  - [ ] **PREP**: Confirmar que o arquivo não existe, e que a Phase 0 atribuiu a esta fase a tarefa de descrever o produto novo.
+  - [ ] **EXECUTE**: Registrar história, finalidade, capacidades atuais e limites, deixando explícito que hoje existem apenas dois comandos e que setup, aprovação, detecção e seleção de modelo pertencem às fatias seguintes.
+  - [ ] **VERIFY**: O conteúdo corresponde ao que a fatia entregou, sem prometer capacidade inexistente.
+  - [ ] **EVIDENCE**: Registrar o caminho e a conferência contra a superfície real na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao documento ou justificar ausência.
+
+- [ ] T019 [TEST] [US-001] [US-002] Executar regressão e rastreabilidade pelos scripts declarados em package.json — Refs: US-001, US-002, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010 — Depends: T016, T017, T018
+  - [ ] **PREP**: Reunir os dez casos e confirmar que cada um esteve em RED antes da implementação correspondente.
+  - [ ] **EXECUTE**: Executar `npm ci`, `npm run build` e `npm run test:tdd` a partir de um clone limpo, medindo cada etapa para o orçamento.
+  - [ ] **VERIFY**: As três etapas concluem com código zero, a suíte fica verde e o auditor de rastreabilidade cobre os IDs da spec.
+  - [ ] **EVIDENCE**: Registrar comandos, tempos, contagens e o resultado do auditor na seção 12.
+  - [ ] **IMPROVE**: Registrar a retrospectiva da fatia, incluindo o que a suíte pegou e o que passou.
 
 ### 15. Ordem de execução
 
-Definida junto das tarefas, depois do Definition Gate.
+- Caminho crítico: T001 → T002 e T003 → T012 → T013 → T015 → T016 → T019.
+- Tarefas paralelas: T002 a T011 executam em paralelo, porque cada uma escreve num arquivo distinto de `tests/` e nenhuma depende do resultado das outras.
+- Barreira deliberada: T001 precede toda a fase de asserções. Sem runner instalado não há como observar RED, e sem RED observado não se escreve produção.
+- Ordem interna da fundação: o manifesto precede o build, que precede os módulos, porque cada um resolve o alvo declarado pelo anterior. T016 vem por último na superfície, porque só ele torna a suíte inteira verde.
+- Estratégia de MVP: a própria fatia já é o mínimo. Reduzi-la mais entregaria um pacote que instala e não executa, o que não prova chão firme nem exercita a premissa das dependências.
 
 ## Ato III — Entregar e validar
 
