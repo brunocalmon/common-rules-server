@@ -96,7 +96,7 @@ O critério é a própria decisão de que o projeto é primordialmente CLI e o M
 
 | Fatia | Entrega | Estado |
 | --- | --- | --- |
-| 1b | Hooks, detecção, registro e ponte `uv`, via CLI | **SPEC-0003** |
+| 1b | Hooks, detecção, registro e ponte `uv`, via CLI | **SPEC-0003, concluída** |
 | 1f | Servidor MCP com a tool `setup` única | A especificar |
 
 **Anotação sem efeito nesta fatia.** A pessoa responsável mencionou querer renomear a ferramenta para `maestro`, e pediu explicitamente que isso não fosse considerado agora. Fica registrado como captura futura: é renomeação que toca nome de pacote, binário, `PROJECT.md`, `STACK.md` e duas specs concluídas.

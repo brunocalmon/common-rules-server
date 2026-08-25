@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0003 |
 | Slug | 0003-fatia-1b-setup-hooks |
-| Status | Reviewing |
+| Status | Complete |
 | Effort | 6 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Tradução de sete hooks para formato nativo, com três bloqueantes cujo erro de escape é falha de segurança silenciosa. A v0.2.8 gastou 494 linhas nisso e registrou dois defeitos críticos no caminho. |
@@ -68,7 +68,7 @@ Nenhuma documentação externa. As fontes são do próprio repositório, congela
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/review/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
+- `specs/completed/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
 
 #### Dúvidas respondidas
 
@@ -723,10 +723,28 @@ Nenhum RED decorre de sintaxe, importação malformada ou ambiente. Onze arquivo
 
 ### 13. Validações
 
+#### Aceite final — 2026-08-24
+
+`validate_spec` READY · `validate_tasks` READY · `verify_acceptance` QA PASSED nos treze · `verify_evidence` PASSED strict · `check_traceability` OK · `load_research` PASSED · `build_documentation --check` exit 0.
+
+Estrutura conferida: pacote restrito a `spec.md` e `research/`, três atos na ordem, slug igual ao diretório, treze ACs, nenhum ID inexistente citado em `**Cobre**` e nenhum abaixo do mínimo de três cenários.
+
+**A colisão de identificadores compõe, e isso ficou mensurável.** O enforcement do repositório reprova `trace:0001` e `trace:0002`, e passa em `trace:0003`:
+
+| Spec | Identificadores mais altos | Marcadores órfãos |
+| --- | --- | --- |
+| SPEC-0003 | `US-003`, `FR-008`, `AC-013` | nenhum |
+| SPEC-0002 | `US-002`, `FR-007`, `AC-013` | `FR-008`, `US-003` |
+| SPEC-0001 | `US-002`, `FR-004`, `AC-011` | sete |
+
+Somente a spec com o maior conjunto passa, porque o auditor varre a árvore inteira sem saber a qual spec um marcador pertence. Cada fatia nova, tendo mais identificadores que as anteriores, transforma os marcadores próprios em órfãos delas.
+
+A decisão registrada em SPEC-0002 foi aceitar a limitação e documentar o vermelho em vez de mascará-lo. Ela continua valendo, e o quadro acima acrescenta o que não se sabia então: o efeito não é estático. Com 1c, 1d, 1e e 1f, a tendência é que toda spec anterior reprove, e o enforcement do repositório deixe de distinguir defeito real de colisão. A correção a montante — escopo por spec no auditor — passa de conveniência a necessidade antes das fatias seguintes.
+
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0003-fatia-1b-setup-hooks/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/completed/0003-fatia-1b-setup-hooks/spec.md`
 - **Cobertura**: 3 US, 8 FR, 3 NFR, 13 AC, 6 DEC; mínimo de 3 AC por ID satisfeito, sem ID inexistente citado em `**Cobre**`.
 - **Research**: `load_research.mjs` em `PASSED`, com `R-001` verificado e oito artefatos indexados.
 
@@ -743,7 +761,7 @@ Nenhum RED decorre de sintaxe, importação malformada ou ambiente. Onze arquivo
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/review/0003-fatia-1b-setup-hooks/spec.md`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0003-fatia-1b-setup-hooks/spec.md`
 - **Contagens**: 23 tarefas, 13 predecessores TDD, 7 tarefas `[CODE]`, 115 itens de checklist, 27 de 27 IDs cobertos.
 - **RED comprovado**: os treze cenários têm asserção reprovando antes de qualquer código de produção. Onze por módulo inexistente e um por asserção nomeada; nenhum por sintaxe, importação ou ambiente.
 
