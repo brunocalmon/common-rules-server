@@ -507,6 +507,17 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Dois verificadores que discordam, encontrado em T016
+
+Ao fechar T016, `monitor_context --check` retornou `CURRENT` enquanto `build_documentation --check` retornava exit 1, e `docs/application.md` não mencionava `src/hooks/detect.ts`. A documentação estava desatualizada e um dos dois verificadores dizia que não.
+
+A causa aparente é o que cada um mede. O monitor avalia caminhos alterados em relação ao git, de modo que, depois de um commit, ele deixa de ver mudança pendente e responde `CURRENT` mesmo com a projeção defasada. O `--check` do documentator compara a projeção com as fontes, e é esse que responde à pergunta que interessa.
+
+O efeito prático atravessa a sessão inteira: `CURRENT` foi tratado como prova de documentação atual em várias tarefas, e não é. A partir daqui, fechar tarefa exige `build_documentation --check` em exit 0, e o monitor passa a ser sinal complementar.
+
+É a terceira vez nesta sessão que rodar uma ferramenta foi confundido com verificar o que ela produz — depois do `--check` do documentator lido como atestado de qualidade e do `tsc` que emitia `dist/` mesmo reprovando.
+
+
 #### Evidência T016 — detecção do alvo — 2026-08-24
 
 `npx tsc --noEmit` e `npm run build` em exit 0. A decisão foi exercitada contra cinco ambientes injetados:
