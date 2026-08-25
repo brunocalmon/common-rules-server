@@ -595,12 +595,13 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [x] **IMPROVE**: O critério de verificação da tarefa foi corrigido para o que ela consegue provar. Prometia build com código zero, impossível antes de existir fonte; passou a provar que a configuração resolve, e a produção do binário ficou em T016, onde de fato acontece.
   <!-- specsfy:evidence {"task": "T013", "refs": ["US-001", "FR-002", "NFR-001", "AC-002", "AC-009"], "files": ["tsconfig.json"], "commands": [{"run": "npx tsc --showConfig", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}]} -->
 
-- [ ] T014 [CODE] [US-001] Implementar a leitura da versão em src/version.ts — Refs: US-001, FR-005, NFR-003, AC-004 — Depends: T005, T009, T011, T013
-  - [ ] **PREP**: Confirmar RED em T005 e T009; reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Ler a versão do manifesto e devolvê-la, sem imprimir, para que o valor seja testável sem capturar saída de terminal.
-  - [ ] **VERIFY**: `npm run test:tdd` — o caso de versão passa a GREEN após o despacho de T016.
-  - [ ] **EVIDENCE**: Registrar comando, resultado e arquivo na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao módulo ou justificar ausência.
+- [x] T014 [CODE] [US-001] Implementar a leitura da versão em src/version.ts — Refs: US-001, FR-005, NFR-003, AC-004 — Depends: T005, T009, T011, T013
+  - [x] **PREP**: RED confirmado em T005 e T009, 2 de 3 em cada. `docs/` reconstruído antes da alteração.
+  - [x] **EXECUTE**: `src/version.ts` lê a versão do manifesto e a devolve sem imprimir, com o caminho injetável para que o teste não dependa da posição do arquivo na máquina. Resolve o manifesto um nível acima do módulo compilado, o que vale no repositório e no pacote publicado, já que `files` inclui apenas `dist`.
+  - [x] **VERIFY**: `npm run build` em exit 0 e o módulo compilado devolve `1.0.0`, idêntico ao manifesto. As asserções de `version.test.ts` seguem em RED por exercitarem o binário de ponta a ponta, e passam a GREEN em T016, quando o despacho as liga — como o próprio critério da tarefa previa.
+  - [x] **EVIDENCE**: Comandos, verificação em runtime e as duas correções que a execução exigiu, registrados na seção 12.
+  - [x] **IMPROVE**: `noEmitOnError` passou a constar do `tsconfig.json`. Sem ele o `tsc` emitia `dist/` mesmo reprovando por tipo, o que faria a asserção de binário existente passar sobre uma compilação quebrada. Verificado por mutação, e não por leitura.
+  <!-- specsfy:evidence {"task": "T014", "refs": ["US-001", "FR-005", "NFR-003", "AC-004"], "files": ["src/version.ts", "tsconfig.json", "package.json"], "commands": [{"run": "npm run build", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}, {"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check --acknowledge-project-no-change", "exit": 0}]} -->
 
 - [ ] T015 [CODE] [US-002] Implementar a verificação de dependências em src/doctor.ts — Refs: US-002, FR-004, FR-006, NFR-002, NFR-003, AC-005, AC-006 — Depends: T006, T007, T008, T013
   - [ ] **PREP**: Confirmar RED em T006 e T007; reconstruir `docs/` com `$specsfy-documentator`.

@@ -18,6 +18,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | .claude/scripts/phase0/assert-preserved-set.test.js | — |
 | Outras fontes | .claude/scripts/phase0/lib.js | WORK_BRANCH, ARCHIVED_BRANCH, MAIN_BRANCH, PRESERVED, STATE_FILE, git, readState, assert |
 | Testes | .claude/scripts/phase0/run-all.test.js | SUITE |
+| Outras fontes | src/version.ts | readVersion |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
 | Testes | tests/doctor-missing.test.ts | — |

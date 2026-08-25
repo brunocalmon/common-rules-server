@@ -17,6 +17,7 @@ Conteúdo humano, fora do bloco reconstruído. Cada linha cita uma fonte execut�
 | Camada | Tecnologia | Responsabilidade | Evidência |
 | --- | --- | --- | --- |
 | Módulo | ESM | Formato de módulo do pacote e da compilação | `package.json` (`"type": "module"`) |
+| Ferramenta | `@types/node` 26.3.0 | Tipos do runtime Node para a compilação estrita | `package.json` (`devDependencies`) |
 | Runtime | Node maior ou igual a 20 | Versão mínima suportada | `package.json` (`engines.node`) |
 | Subsistema npm | `@promovaweb/specsfy` 0.10.2 | Motor de skills e regras do processo | `package.json` (`dependencies`) |
 | Subsistema npm | `context-mode` 1.0.169 | Gestão de janela de contexto entre sessões | `package.json` (`dependencies`) |
@@ -39,3 +40,10 @@ projeto. A ordem local antes de global honra as duas restrições.
 Toda instalação de dependência usa `--ignore-scripts`. Script de ciclo de vida
 executa código de terceiros durante a instalação, e a documentação do próprio
 `pi` recomenda o flag. Registrado como regra em `.specsfy/RULES.md`.
+
+### Compilação não deixa artefato quando falha
+
+`tsconfig.json` declara `noEmitOnError`. Sem isso, `tsc` emite `dist/` mesmo com
+erro de tipo, e a asserção que verifica a existência do binário passaria sobre
+uma compilação quebrada. Verificado por mutação: build com erro sai com código 1
+e não cria `dist/`; build limpo sai com zero e cria.

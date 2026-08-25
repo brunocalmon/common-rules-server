@@ -7,6 +7,7 @@
 | --- | --- | --- | --- | --- | --- |
 | npm | produção | @promovaweb/specsfy | 0.10.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy |
 | npm | produção | context-mode | 1.0.169 | MCP plugin that saves 98% of your context window. Works with Claude Code, Gemini CLI, VS Code Copilot, OpenCode, and Codex CLI. Sandboxed code execution, FTS5 knowledge base, and intent-driven search. | https://github.com/mksglu/context-mode |
+| npm | desenvolvimento | @types/node | 26.3.0 | TypeScript definitions for node | https://github.com/DefinitelyTyped/DefinitelyTyped |
 | npm | desenvolvimento | typescript | 7.0.2 | TypeScript is a language for application scale JavaScript development | https://github.com/microsoft/TypeScript |
 | npm | desenvolvimento | vitest | 4.1.11 | Next generation testing framework powered by Vite | https://github.com/vitest-dev/vitest |
 | npm | transitiva | @clack/core | 1.4.3 | Finalidade não descrita nos metadados locais. | https://github.com/bombshell-dev/clack |
@@ -40,6 +41,7 @@
 | npm | transitiva | @types/chai | 5.2.3 | TypeScript definitions for chai | https://github.com/DefinitelyTyped/DefinitelyTyped |
 | npm | transitiva | @types/deep-eql | 4.0.2 | TypeScript definitions for deep-eql | https://github.com/DefinitelyTyped/DefinitelyTyped |
 | npm | transitiva | @types/estree | 1.0.9 | TypeScript definitions for estree | https://github.com/DefinitelyTyped/DefinitelyTyped |
+| npm | transitiva | @types/node | 26.3.0 | TypeScript definitions for node | https://github.com/DefinitelyTyped/DefinitelyTyped |
 | npm | transitiva | @typescript/typescript-aix-ppc64 | 7.0.2 | Finalidade não descrita nos metadados locais. |  |
 | npm | transitiva | @typescript/typescript-darwin-arm64 | 7.0.2 | Finalidade não descrita nos metadados locais. |  |
 | npm | transitiva | @typescript/typescript-darwin-x64 | 7.0.2 | Finalidade não descrita nos metadados locais. |  |
@@ -272,6 +274,7 @@
 | npm | transitiva | turndown-plugin-gfm | 1.0.2 | Turndown plugin to add GitHub Flavored Markdown extensions. | https://github.com/domchristie/turndown-plugin-gfm |
 | npm | transitiva | type-is | 2.1.0 | Infer the content-type of a request. | jshttp/type-is |
 | npm | transitiva | typescript | 7.0.2 | TypeScript is a language for application scale JavaScript development | https://github.com/microsoft/TypeScript |
+| npm | transitiva | undici-types | 8.3.0 | A stand-alone types package for Undici | https://github.com/nodejs/undici |
 | npm | transitiva | unicode-emoji-modifier-base | 1.0.0 | The set of Unicode symbols that can serve as a base for emoji modifiers, i.e. those with the `Emoji_Modifier_Base` property set to `Yes`. | https://github.com/mathiasbynens/unicode-emoji-modifier-base |
 | npm | transitiva | unpipe | 1.0.0 | Unpipe a stream from all destinations | stream-utils/unpipe |
 | npm | transitiva | util-deprecate | 1.0.2 | The Node.js `util.deprecate()` function with browser support | git://github.com/TooTallNate/util-deprecate |
