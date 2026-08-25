@@ -1,0 +1,34 @@
+# Dependências npm resolvidas localmente.
+node_modules/
+
+# Saída do build TypeScript.
+dist/
+
+# Ambiente virtual Python do subsistema code-review-graph.
+# Criado sob pedido pela ponte uv da fatia 1b e nunca versionado: mede cerca de
+# 262 MB, e um commit acidental seria caro de desfazer.
+.venv-crg/
+
+# Estado de execução da Phase 0, gravado dentro de .git e fora da árvore.
+# Listado aqui por clareza; .git já não é versionado.
+
+# Lockfile das skills Specsfy. A Phase 0 decidiu mantê-lo fora do índice para
+# que o conjunto preservado ficasse idêntico ao da main; versioná-lo é decisão
+# de outra fatia.
+.specsfy/skills-lock.json
+
+# Projeção gerada por `specsfy progress`, reconstruível a partir das specs.
+/specs.md
+
+# Variáveis de ambiente locais.
+.env
+.env.*
+!.env.example
+
+# Caches de ferramentas.
+.vitest/
+*.tsbuildinfo
+
+# Artefatos de editor e sistema operacional.
+.DS_Store
+*.swp

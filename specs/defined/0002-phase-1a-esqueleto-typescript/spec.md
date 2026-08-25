@@ -496,12 +496,12 @@ Nenhuma que bloqueie esta fatia.
 
 As dez asserções da fase seguinte rodam em Vitest, que vem do manifesto que elas verificam. A saída é separar os dois papéis: esta tarefa instala apenas o runner, sem nenhum campo de produto, de modo que as asserções reprovem por ausência real e não por falta de ferramenta.
 
-- [ ] T001 [OPS] [US-001] Criar .gitignore e um package.json de bootstrap contendo apenas Vitest e o script test:tdd — Refs: US-001, FR-003 — Depends: none
-  - [ ] **PREP**: Confirmar que o projeto não tem manifesto, e que a Phase 0 removeu o `.gitignore` antigo junto com o restante da v0.2.8.
-  - [ ] **EXECUTE**: Escrever `.gitignore` cobrindo `node_modules/`, `dist/` e o ambiente virtual Python local, antes de qualquer instalação, para que nada de gerado alcance o índice; escrever `package.json` com `private: true`, `devDependencies.vitest` e `scripts.test:tdd`, sem nome, binário, tipo de módulo ou dependências de produto; instalar.
-  - [ ] **VERIFY**: `npm run test:tdd` executa o Vitest e reporta ausência de teste, o que prova o runner operante sem afirmar nada sobre o produto.
-  - [ ] **EVIDENCE**: Registrar comando, saída e a lista de campos deliberadamente ausentes do manifesto de bootstrap na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao bootstrap ou justificar ausência.
+- [x] T001 [OPS] [US-001] Criar .gitignore, o package.json de bootstrap e o escopo do runner em vitest.config.ts — Refs: US-001, FR-003 — Depends: none
+  - [x] **PREP**: Confirmado em 2026-08-24 — sem `package.json`, sem `.gitignore`, árvore de trabalho com 119 arquivos e nenhum de código.
+  - [x] **EXECUTE**: `.gitignore` escrito antes da instalação, cobrindo `node_modules/`, `dist/`, `.venv-crg/`, `.specsfy/skills-lock.json` e `specs.md`. `package.json` de bootstrap com `private: true`, `vitest` 4.1.11 e `test:tdd`, sem nome, binário, tipo de módulo ou dependência de produto. `npm install --ignore-scripts` — 44 pacotes em 22s, zero vulnerabilidades. `vitest.config.ts` restringindo o escopo a `tests/`.
+  - [x] **VERIFY**: `npm run test:tdd` reporta `No test files found` com o escopo `tests/**/*.test.ts`, o que prova o runner operante sem afirmar nada sobre o produto. `git status` mostra apenas arquivos do projeto; nada de gerado escapou do `.gitignore`.
+  - [x] **EVIDENCE**: Comandos, saídas e a lacuna de planejamento revelada pela execução registrados na seção 12.
+  - [x] **IMPROVE**: O escopo do runner entrou nesta tarefa. O plano listava `vitest.config.ts` na estrutura de arquivos da seção 8 mas não criava tarefa para ele, e sem escopo o runner é inutilizável neste repositório.
 
 #### Fase 2 — Asserções em RED
 
@@ -639,9 +639,17 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [ ] **EVIDENCE**: Registrar comandos, tempos, contagens e o resultado do auditor na seção 12.
   - [ ] **IMPROVE**: Registrar a retrospectiva da fatia, incluindo o que a suíte pegou e o que passou.
 
+- [ ] T020 [DOC] [US-001] Registrar a regra de instalação sem scripts em .specsfy/RULES.md — Refs: US-001, FR-004, NFR-002, AC-001, AC-007 — Depends: T012
+  - [ ] **PREP**: Confirmar que o arquivo não existe e que a regra foi confirmada pela pessoa responsável, não inferida.
+  - [ ] **EXECUTE**: Registrar que toda instalação de dependência neste projeto usa `--ignore-scripts`, com o motivo: script de ciclo de vida executa código de terceiros durante a instalação, e a documentação do próprio `pi` recomenda o flag.
+  - [ ] **VERIFY**: O arquivo cita a regra, seu motivo e seu alcance, sem apagar conteúdo humano preexistente.
+  - [ ] **EVIDENCE**: Registrar o caminho e o trecho na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao registro ou justificar ausência.
+
 ### 15. Ordem de execução
 
 - Caminho crítico: T001 → T002 e T003 → T012 → T013 → T015 → T016 → T019.
+- T020 registra em `.specsfy/RULES.md` a regra de instalar sempre com `--ignore-scripts`, confirmada pela pessoa responsável durante o planejamento.
 - Tarefas paralelas: T002 a T011 executam em paralelo, porque cada uma escreve num arquivo distinto de `tests/` e nenhuma depende do resultado das outras.
 - Barreira deliberada: T001 precede toda a fase de asserções. Sem runner instalado não há como observar RED, e sem RED observado não se escreve produção.
 - Ordem interna da fundação: o manifesto precede o build, que precede os módulos, porque cada um resolve o alvo declarado pelo anterior. T016 vem por último na superfície, porque só ele torna a suíte inteira verde.

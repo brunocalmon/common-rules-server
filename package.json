@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "description": "Manifesto de bootstrap da Phase 1a. Instala apenas o runner de testes, sem nenhum campo de produto, para que as asserções de T002 a T011 reprovem por ausência real e não por falta de ferramenta. T012 o promove a manifesto de produto.",
+  "devDependencies": {
+    "vitest": "4.1.11"
+  },
+  "scripts": {
+    "test:tdd": "vitest run"
+  }
+}
