@@ -1,5 +1,5 @@
 // Guarda o risco de a v0.2.8 continuar alcançável a partir da linha nova.
-const { git, refExists, assert, WORK_BRANCH, MAIN_BRANCH } = require("./lib");
+const { git, refExists, assert, WORK_BRANCH, MAIN_BRANCH } = require("./lib.cjs");
 
 assert("assert-orphan-root", [
   // SPECSFY: US-001 FR-002 AC-002

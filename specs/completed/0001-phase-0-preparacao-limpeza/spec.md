@@ -452,17 +452,17 @@ A Phase 0 entrega um estado de repositório, e esse estado é asseverável. Cada
 
 **Localização**: `.claude/scripts/phase0/`, dentro do conjunto preservado, para que as asserções sobrevivam à limpeza e possam ser reexecutadas na branch nova. A Phase 1 remove esse diretório quando a fase estiver encerrada.
 
-**Escopo das asserções**: cada script guarda uma operação irreversível. Não são exercício de conformidade — `assert-archived-frozen.test.js` é o que impede apagar a v0.2.8 sem cópia, e `assert-preserved-set.test.js` é o que impede perder o registro de decisões junto com o código antigo.
+**Escopo das asserções**: cada script guarda uma operação irreversível. Não são exercício de conformidade — `assert-archived-frozen.check.js` é o que impede apagar a v0.2.8 sem cópia, e `assert-preserved-set.check.js` é o que impede perder o registro de decisões junto com o código antigo.
 
 | Script | O que assevera | Guarda qual risco |
 | --- | --- | --- |
-| `assert-archived-frozen.test.js` | `archived` existe, iguala a main e não recebeu commit posterior | Apagar a v0.2.8 sem cópia íntegra |
-| `assert-orphan-root.test.js` | Um commit, sem pai, sem ancestral comum com a main | Histórico da v0.2.8 alcançável pela linha nova |
-| `assert-preserved-set.test.js` | Os quatro caminhos preservados estão presentes e idênticos aos da main | Perder specs ou o framework durante a limpeza |
-| `assert-no-legacy.test.js` | Nenhum caminho versionado fora do conjunto preservado | Resíduo do produto antigo na branch nova |
-| `assert-framework-operational.test.js` | Uma captura de inbox real é criada na branch | Preservação insuficiente para operar |
-| `assert-baseline-untouched.test.js` | main e `archived` mantêm os SHAs registrados no congelamento | Escrita acidental na linha que deveria ficar intocada |
-| `assert-elapsed-budget.test.js` | O intervalo entre início e fim da sequência fica abaixo de trezentos segundos | Orçamento de tempo verificado por leitura humana |
+| `assert-archived-frozen.check.js` | `archived` existe, iguala a main e não recebeu commit posterior | Apagar a v0.2.8 sem cópia íntegra |
+| `assert-orphan-root.check.js` | Um commit, sem pai, sem ancestral comum com a main | Histórico da v0.2.8 alcançável pela linha nova |
+| `assert-preserved-set.check.js` | Os quatro caminhos preservados estão presentes e idênticos aos da main | Perder specs ou o framework durante a limpeza |
+| `assert-no-legacy.check.js` | Nenhum caminho versionado fora do conjunto preservado | Resíduo do produto antigo na branch nova |
+| `assert-framework-operational.check.js` | Uma captura de inbox real é criada na branch | Preservação insuficiente para operar |
+| `assert-baseline-untouched.check.js` | main e `archived` mantêm os SHAs registrados no congelamento | Escrita acidental na linha que deveria ficar intocada |
+| `assert-elapsed-budget.check.js` | O intervalo entre início e fim da sequência fica abaixo de trezentos segundos | Orçamento de tempo verificado por leitura humana |
 
 As duas últimas foram acrescentadas depois que a validação de tarefas apontou IDs abaixo do mínimo de predecessores. A revisão do que faltava mostrou que não era carência de contagem: nada verificava mecanicamente que a baseline permanecia intocada durante a sequência destrutiva, e NFR-001 dependia de alguém ler um cronômetro. DEC-008 registra o raciocínio.
 
@@ -476,14 +476,14 @@ As sete asserções foram escritas antes de qualquer operação e observadas fal
 
 | Asserção | Comando | RED observado | Causa da falha |
 | --- | --- | --- | --- |
-| `assert-archived-frozen.test.js` | `node .claude/scripts/phase0/assert-archived-frozen.test.js` | exit 1 — 5 de 5 | `archived` não existe; baseline não registrada |
-| `assert-orphan-root.test.js` | idem | exit 1 — 4 de 4 | branch de trabalho não existe |
-| `assert-preserved-set.test.js` | idem | exit 1 — 5 de 5 | branch de trabalho não existe |
-| `assert-no-legacy.test.js` | idem | exit 1 — 5 de 5 | branch de trabalho não existe |
-| `assert-framework-operational.test.js` | idem | exit 1 — 3 de 4 | branch não existe; a captura real já passa na main |
-| `assert-baseline-untouched.test.js` | idem | exit 1 — 5 de 5 | `.git/phase0-run-state.json` ausente |
-| `assert-elapsed-budget.test.js` | idem | exit 1 — 4 de 4 | horários não registrados |
-| `run-all.test.js` | idem | exit 1 — 7 de 7 | agregado das anteriores |
+| `assert-archived-frozen.check.js` | `node .claude/scripts/phase0/assert-archived-frozen.check.js` | exit 1 — 5 de 5 | `archived` não existe; baseline não registrada |
+| `assert-orphan-root.check.js` | idem | exit 1 — 4 de 4 | branch de trabalho não existe |
+| `assert-preserved-set.check.js` | idem | exit 1 — 5 de 5 | branch de trabalho não existe |
+| `assert-no-legacy.check.js` | idem | exit 1 — 5 de 5 | branch de trabalho não existe |
+| `assert-framework-operational.check.js` | idem | exit 1 — 3 de 4 | branch não existe; a captura real já passa na main |
+| `assert-baseline-untouched.check.js` | idem | exit 1 — 5 de 5 | `.git/phase0-run-state.json` ausente |
+| `assert-elapsed-budget.check.js` | idem | exit 1 — 4 de 4 | horários não registrados |
+| `run-all.check.js` | idem | exit 1 — 7 de 7 | agregado das anteriores |
 
 #### Prova de sensibilidade e discriminação
 
@@ -500,8 +500,8 @@ O repositório de simulação foi descartado; a prova está registrada aqui.
 
 | Verificação | Comando | Resultado |
 | --- | --- | --- |
-| Barreira da fase | `node .claude/scripts/phase0/assert-archived-frozen.test.js` | **GREEN**, 5 de 5, exit 0 |
-| Baseline intocada | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` | **GREEN**, 5 de 5, exit 0 |
+| Barreira da fase | `node .claude/scripts/phase0/assert-archived-frozen.check.js` | **GREEN**, 5 de 5, exit 0 |
+| Baseline intocada | `node .claude/scripts/phase0/assert-baseline-untouched.check.js` | **GREEN**, 5 de 5, exit 0 |
 
 **Defeito de asserção corrigido durante a verificação.** `assert-baseline-untouched` reprovou em `origin/main`, e a causa era a própria asserção: ela comparava a referência remota contra o SHA da `main` local, o que testa se local e remoto coincidem — propriedade que nunca foi requisito e que diverge legitimamente enquanto houver commit local não publicado. A intenção declarada é que `origin/main` não se mova. A baseline passou a registrar `originMainSha` em separado e a comparação usa esse valor. A correção foi exercitada com SHA forjado e voltou a RED nomeando a divergência, o que mostra que continua discriminando.
 
@@ -579,30 +579,30 @@ O estado passou a viver em `.git/phase0-run-state.json`, fora da árvore version
 
 | Requisito | Cenário BDD | Nível | Comando de verificação | Evidência |
 | --- | --- | --- | --- | --- |
-| FR-001 | AC-001 | Execução | `node .claude/scripts/phase0/assert-archived-frozen.test.js` | **Passed** — GREEN 5/5 em T008 |
-| FR-001 | AC-005 | Execução | `node .claude/scripts/phase0/assert-archived-frozen.test.js` — condição de SHA congelado | **Passed** — GREEN em T008 e T013 |
+| FR-001 | AC-001 | Execução | `node .claude/scripts/phase0/assert-archived-frozen.check.js` | **Passed** — GREEN 5/5 em T008 |
+| FR-001 | AC-005 | Execução | `node .claude/scripts/phase0/assert-archived-frozen.check.js` — condição de SHA congelado | **Passed** — GREEN em T008 e T013 |
 | FR-001 | AC-008 | Execução | clone limpo de `archived` + `uv run pytest` | **Passed** — 1010 passed, 20 skipped em T014 |
-| FR-002 | AC-002 | Execução | `node .claude/scripts/phase0/assert-orphan-root.test.js` | **Passed** — GREEN 4/4 em T011 e T012 |
-| FR-002 | AC-006 | Execução | `node .claude/scripts/phase0/assert-elapsed-budget.test.js` | **Passed** — 70s de 300s em T012 |
-| FR-002 | AC-007 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` | **Passed** — GREEN 5/5 em T013 |
-| FR-003 | AC-003 | Execução | `node .claude/scripts/phase0/assert-preserved-set.test.js` | **Passed** — GREEN 5/5 em T011 |
+| FR-002 | AC-002 | Execução | `node .claude/scripts/phase0/assert-orphan-root.check.js` | **Passed** — GREEN 4/4 em T011 e T012 |
+| FR-002 | AC-006 | Execução | `node .claude/scripts/phase0/assert-elapsed-budget.check.js` | **Passed** — 70s de 300s em T012 |
+| FR-002 | AC-007 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.check.js` | **Passed** — GREEN 5/5 em T013 |
+| FR-003 | AC-003 | Execução | `node .claude/scripts/phase0/assert-preserved-set.check.js` | **Passed** — GREEN 5/5 em T011 |
 | FR-003 | AC-008 | Inspeção | `git ls-tree -r archived -- specs .claude .specsfy .agents` | **Passed** — 119 arquivos em T014 |
-| FR-003 | AC-009 | Execução | `node .claude/scripts/phase0/assert-preserved-set.test.js` | **Passed** — GREEN em T011 |
-| FR-003 | AC-011 | Execução | `node .claude/scripts/phase0/assert-framework-operational.test.js` | **Passed** — captura real criada em T011 |
-| FR-004 | AC-004 | Execução | `node .claude/scripts/phase0/assert-no-legacy.test.js` | **Passed** — GREEN 5/5 em T011 |
-| FR-004 | AC-006 | Execução | `node .claude/scripts/phase0/assert-elapsed-budget.test.js` | **Passed** — 70s em T012 |
-| FR-004 | AC-009 | Execução | `node .claude/scripts/phase0/assert-no-legacy.test.js` — condição de ausência de `.py` | **Passed** — 0 arquivos `.py` em T011 |
-| NFR-001 | AC-006 | Medição | `node .claude/scripts/phase0/assert-elapsed-budget.test.js` | **Passed** — 70s de 300s em T012 |
-| NFR-001 | AC-007 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` | **Passed** — GREEN em T013 |
-| NFR-001 | AC-010 | Execução | `node .claude/scripts/phase0/run-all.test.js` | **Passed** — GREEN nas 7 em T013 |
-| NFR-002 | AC-001 | Execução | `node .claude/scripts/phase0/assert-archived-frozen.test.js` — árvore idêntica | **Passed** — GREEN em T008 |
-| NFR-002 | AC-007 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` + `git reflog main` | **Passed** — main sem escrita entre 21:09:54 e 21:11:04, em T013 |
+| FR-003 | AC-009 | Execução | `node .claude/scripts/phase0/assert-preserved-set.check.js` | **Passed** — GREEN em T011 |
+| FR-003 | AC-011 | Execução | `node .claude/scripts/phase0/assert-framework-operational.check.js` | **Passed** — captura real criada em T011 |
+| FR-004 | AC-004 | Execução | `node .claude/scripts/phase0/assert-no-legacy.check.js` | **Passed** — GREEN 5/5 em T011 |
+| FR-004 | AC-006 | Execução | `node .claude/scripts/phase0/assert-elapsed-budget.check.js` | **Passed** — 70s em T012 |
+| FR-004 | AC-009 | Execução | `node .claude/scripts/phase0/assert-no-legacy.check.js` — condição de ausência de `.py` | **Passed** — 0 arquivos `.py` em T011 |
+| NFR-001 | AC-006 | Medição | `node .claude/scripts/phase0/assert-elapsed-budget.check.js` | **Passed** — 70s de 300s em T012 |
+| NFR-001 | AC-007 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.check.js` | **Passed** — GREEN em T013 |
+| NFR-001 | AC-010 | Execução | `node .claude/scripts/phase0/run-all.check.js` | **Passed** — GREEN nas 7 em T013 |
+| NFR-002 | AC-001 | Execução | `node .claude/scripts/phase0/assert-archived-frozen.check.js` — árvore idêntica | **Passed** — GREEN em T008 |
+| NFR-002 | AC-007 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.check.js` + `git reflog main` | **Passed** — main sem escrita entre 21:09:54 e 21:11:04, em T013 |
 | NFR-002 | AC-008 | Execução | clone limpo de `archived` em diretório novo | **Passed** — v0.2.8 executável em T014 |
-| NFR-003 | AC-005 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` — sem commit posterior | **Passed** — GREEN em T013 |
+| NFR-003 | AC-005 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.check.js` — sem commit posterior | **Passed** — GREEN em T013 |
 | NFR-003 | AC-008 | Inspeção | `git ls-remote --heads origin archived` | **Passed** — `aac477a` íntegra em T014 |
-| NFR-003 | AC-009 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.test.js` | **Passed** — nenhuma escrita em main ou `archived` em T013 |
-| NFR-003 | AC-010 | Execução | `node .claude/scripts/phase0/run-all.test.js` | **Passed** — GREEN nas 7 em T013 |
-| NFR-003 | AC-011 | Execução | `node .claude/scripts/phase0/assert-framework-operational.test.js` | **Passed** — framework opera sem alterar main em T011 |
+| NFR-003 | AC-009 | Execução | `node .claude/scripts/phase0/assert-baseline-untouched.check.js` | **Passed** — nenhuma escrita em main ou `archived` em T013 |
+| NFR-003 | AC-010 | Execução | `node .claude/scripts/phase0/run-all.check.js` | **Passed** — GREEN nas 7 em T013 |
+| NFR-003 | AC-011 | Execução | `node .claude/scripts/phase0/assert-framework-operational.check.js` | **Passed** — framework opera sem alterar main em T011 |
 
 ### 13. Validações
 
@@ -662,14 +662,14 @@ Estrutural: VALID DRAFT. Cobertura: 2 US, 4 FR, 3 NFR, 11 AC; mínimo de 3 AC po
 | P2 | Nenhuma tarefa declarava caminho de arquivo | Resolvido — cada tarefa nomeia seu script |
 | P3 | `Evidence Contract: 1` reprovava por procurar `verify_evidence.mjs` sob `.agents/skills/`, enquanto esta instalação usa `.claude/skills/` | Contornado por DEC-007; a correção pertence ao validador |
 | P4 | Cinco IDs abaixo do mínimo de predecessores TDD | Resolvido — a análise expôs duas lacunas reais de verificação; ver DEC-008 |
-| P5 | O auditor de rastreabilidade só reconhece arquivo cujo nome pareça de teste | Resolvido — asserções renomeadas para `*.test.js`; a convenção é razoável e a nomenclatura anterior é que estava fora dela |
+| P5 | O auditor de rastreabilidade só reconhece arquivo cujo nome pareça de teste | Resolvido à época renomeando para `*.test.js`; revisto depois — ver a nota de manutenção ao fim desta seção |
 | P6 | Um marcador por arquivo contava como um caso, agrupando condições distintas | Resolvido — cada condição recebeu marcador próprio, que é a granularidade correta |
 | P7 | O estado de execução seria comitado e reprovaria `assert-preserved-set` | Resolvido — movido para `.git/phase0-run-state.json`; ver seção 12 |
 
 #### Gate do Ato III — Entrega
 
 - **Resultado**: Passed (2026-08-24)
-- **Verificação**: `node .claude/scripts/phase0/run-all.test.js` em GREEN nas sete asserções; clone limpo de `archived` com 1010 testes da v0.2.8 passando; os oito itens do checklist de T014 positivos.
+- **Verificação**: `node .claude/scripts/phase0/run-all.check.js` em GREEN nas sete asserções; clone limpo de `archived` com 1010 testes da v0.2.8 passando; os oito itens do checklist de T014 positivos.
 - **Auditoria de aceite**: `node .claude/skills/specsfy-06-tdd-bdd/scripts/verify_acceptance.mjs` — os onze ACs registram resultado na matriz da seção 12.
 
 ### 14. Tarefas
@@ -678,58 +678,58 @@ Estrutural: VALID DRAFT. Cobertura: 2 US, 4 FR, 3 NFR, 11 AC; mínimo de 3 AC po
 
 As sete asserções são escritas antes de qualquer operação e observadas falhando. Nenhuma depende das outras, e cada uma cria um arquivo distinto, por isso executam em paralelo.
 
-- [x] T001 [P] [TEST] [TDD] [US-002] Escrever a asserção de congelamento em .claude/scripts/phase0/assert-archived-frozen.test.js — Refs: US-002, FR-001, NFR-002, NFR-003, AC-001, AC-005, AC-008 — Depends: none
+- [x] T001 [P] [TEST] [TDD] [US-002] Escrever a asserção de congelamento em .claude/scripts/phase0/assert-archived-frozen.check.js — Refs: US-002, FR-001, NFR-002, NFR-003, AC-001, AC-005, AC-008 — Depends: none
   - [x] **PREP**: Ler AC-001, AC-005 e AC-008 e definir as três condições: `archived` existe, iguala a main e não recebeu commit posterior ao registrado.
   - [x] **EXECUTE**: Escrever o script em shell POSIX, sem dependência externa, saindo com código diferente de zero em qualquer condição não satisfeita.
-  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-archived-frozen.test.js` saiu com código 1 e 5 de 5 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
+  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-archived-frozen.check.js` saiu com código 1 e 5 de 5 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
   - [x] **EVIDENCE**: Comando, saída e código registrados na seção 12, junto da prova de sensibilidade e discriminação.
   - [x] **IMPROVE**: Cada condição recebeu marcador `SPECSFY` próprio e mensagem que nomeia a causa, para que a falha diga o que quebrou em vez de apenas que quebrou.
 
-- [x] T002 [P] [TEST] [TDD] [US-001] Escrever a asserção de raiz órfã em .claude/scripts/phase0/assert-orphan-root.test.js — Refs: US-001, FR-002, AC-002 — Depends: none
+- [x] T002 [P] [TEST] [TDD] [US-001] Escrever a asserção de raiz órfã em .claude/scripts/phase0/assert-orphan-root.check.js — Refs: US-001, FR-002, AC-002 — Depends: none
   - [x] **PREP**: Ler AC-002 e definir as três condições: um único commit, ausência de pai e ausência de ancestral comum com a main.
   - [x] **EXECUTE**: Escrever o script usando `git rev-list` e `git merge-base`, tratando a ausência de ancestral comum como sucesso e não como erro do git.
-  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-orphan-root.test.js` saiu com código 1 e 4 de 4 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
+  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-orphan-root.check.js` saiu com código 1 e 4 de 4 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
   - [x] **EVIDENCE**: Comando, saída e código registrados na seção 12, junto da prova de sensibilidade e discriminação.
   - [x] **IMPROVE**: Cada condição recebeu marcador `SPECSFY` próprio e mensagem que nomeia a causa, para que a falha diga o que quebrou em vez de apenas que quebrou.
 
-- [x] T003 [P] [TEST] [TDD] [US-001] Escrever a asserção do conjunto preservado em .claude/scripts/phase0/assert-preserved-set.test.js — Refs: US-001, FR-003, FR-004, NFR-003, AC-003, AC-009 — Depends: none
+- [x] T003 [P] [TEST] [TDD] [US-001] Escrever a asserção do conjunto preservado em .claude/scripts/phase0/assert-preserved-set.check.js — Refs: US-001, FR-003, FR-004, NFR-003, AC-003, AC-009 — Depends: none
   - [x] **PREP**: Ler AC-003 e AC-009 e definir a comparação: a listagem de `specs/`, `.claude/`, `.specsfy/` e `.agents` na branch precisa coincidir com a da main, arquivo a arquivo.
   - [x] **EXECUTE**: Escrever o script comparando `git ls-files` dos quatro caminhos entre a branch e a main, e falhando se qualquer caminho estiver ausente ou vazio.
-  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-preserved-set.test.js` saiu com código 1 e 5 de 5 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
+  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-preserved-set.check.js` saiu com código 1 e 5 de 5 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
   - [x] **EVIDENCE**: Comando, saída e código registrados na seção 12, junto da prova de sensibilidade e discriminação.
   - [x] **IMPROVE**: Cada condição recebeu marcador `SPECSFY` próprio e mensagem que nomeia a causa, para que a falha diga o que quebrou em vez de apenas que quebrou.
 
-- [x] T004 [P] [TEST] [TDD] [US-001] Escrever a asserção de ausência de resíduo em .claude/scripts/phase0/assert-no-legacy.test.js — Refs: US-001, FR-004, AC-004, AC-009 — Depends: none
+- [x] T004 [P] [TEST] [TDD] [US-001] Escrever a asserção de ausência de resíduo em .claude/scripts/phase0/assert-no-legacy.check.js — Refs: US-001, FR-004, AC-004, AC-009 — Depends: none
   - [x] **PREP**: Ler AC-004 e listar as condições: nenhum caminho versionado fora do conjunto preservado, nenhum arquivo `.py` e ausência dos artefatos nomeados no cenário.
   - [x] **EXECUTE**: Escrever o script filtrando `git ls-files` por prefixo e verificando os artefatos nomeados um a um.
-  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-no-legacy.test.js` saiu com código 1 e 5 de 5 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
+  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-no-legacy.check.js` saiu com código 1 e 5 de 5 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
   - [x] **EVIDENCE**: Comando, saída e código registrados na seção 12, junto da prova de sensibilidade e discriminação.
   - [x] **IMPROVE**: Cada condição recebeu marcador `SPECSFY` próprio e mensagem que nomeia a causa, para que a falha diga o que quebrou em vez de apenas que quebrou.
 
-- [x] T005 [P] [TEST] [TDD] [US-001] Escrever a asserção de framework operante em .claude/scripts/phase0/assert-framework-operational.test.js — Refs: US-001, FR-003, NFR-003, AC-011 — Depends: none
+- [x] T005 [P] [TEST] [TDD] [US-001] Escrever a asserção de framework operante em .claude/scripts/phase0/assert-framework-operational.check.js — Refs: US-001, FR-003, NFR-003, AC-011 — Depends: none
   - [x] **PREP**: Ler AC-011 e definir o critério: uma captura de inbox real é criada, resolvendo template em `.specsfy/templates/`, sem etapa de instalação.
   - [x] **EXECUTE**: Escrever o script que invoca o script de captura de uma skill Specsfy, confere o arquivo gerado e o remove ao final para não poluir `specs/inbox/`.
-  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-framework-operational.test.js` saiu com código 1 e 3 de 4 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
+  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-framework-operational.check.js` saiu com código 1 e 3 de 4 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
   - [x] **EVIDENCE**: Comando, saída e código registrados na seção 12, junto da prova de sensibilidade e discriminação.
   - [x] **IMPROVE**: Cada condição recebeu marcador `SPECSFY` próprio e mensagem que nomeia a causa, para que a falha diga o que quebrou em vez de apenas que quebrou.
 
-- [x] T006 [P] [TEST] [TDD] [US-001] [US-002] Escrever a asserção de baseline intocada em .claude/scripts/phase0/assert-baseline-untouched.test.js — Refs: US-001, US-002, FR-001, FR-002, NFR-001, NFR-002, AC-007 — Depends: none
+- [x] T006 [P] [TEST] [TDD] [US-001] [US-002] Escrever a asserção de baseline intocada em .claude/scripts/phase0/assert-baseline-untouched.check.js — Refs: US-001, US-002, FR-001, FR-002, NFR-001, NFR-002, AC-007 — Depends: none
   - [x] **PREP**: Ler AC-007 e definir o critério: os SHAs da main e de `archived` registrados no congelamento permanecem inalterados durante e após a sequência destrutiva.
   - [x] **EXECUTE**: Escrever o script que lê a baseline registrada e compara com o estado atual das duas referências, local e remota, falhando ao detectar qualquer escrita.
-  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-baseline-untouched.test.js` saiu com código 1 e 5 de 5 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
+  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-baseline-untouched.check.js` saiu com código 1 e 5 de 5 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
   - [x] **EVIDENCE**: Comando, saída e código registrados na seção 12, junto da prova de sensibilidade e discriminação.
   - [x] **IMPROVE**: Cada condição recebeu marcador `SPECSFY` próprio e mensagem que nomeia a causa, para que a falha diga o que quebrou em vez de apenas que quebrou.
 
-- [x] T007 [P] [TEST] [TDD] [US-001] Escrever a asserção de orçamento de tempo em .claude/scripts/phase0/assert-elapsed-budget.test.js — Refs: US-001, NFR-001, AC-006, AC-007 — Depends: none
+- [x] T007 [P] [TEST] [TDD] [US-001] Escrever a asserção de orçamento de tempo em .claude/scripts/phase0/assert-elapsed-budget.check.js — Refs: US-001, NFR-001, AC-006, AC-007 — Depends: none
   - [x] **PREP**: Ler AC-006 e NFR-001 e definir o critério: o intervalo entre os horários registrados no início e no fim da sequência é inferior a trezentos segundos.
   - [x] **EXECUTE**: Escrever o script que lê os dois horários registrados e falha quando o intervalo excede o orçamento ou quando algum horário está ausente.
-  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-elapsed-budget.test.js` saiu com código 1 e 4 de 4 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
+  - [x] **VERIFY**: RED observado — `node .claude/scripts/phase0/assert-elapsed-budget.check.js` saiu com código 1 e 4 de 4 condições não satisfeitas, por ausência do comportamento e não por erro de ambiente.
   - [x] **EVIDENCE**: Comando, saída e código registrados na seção 12, junto da prova de sensibilidade e discriminação.
   - [x] **IMPROVE**: Cada condição recebeu marcador `SPECSFY` próprio e mensagem que nomeia a causa, para que a falha diga o que quebrou em vez de apenas que quebrou.
 
 #### Fase 2 — Congelar
 
-- [x] T008 [OPS] [US-002] Criar e publicar `archived` a partir da main, verificando com .claude/scripts/phase0/assert-archived-frozen.test.js — Refs: US-002, FR-001, NFR-002, AC-001 — Depends: T001, T006
+- [x] T008 [OPS] [US-002] Criar e publicar `archived` a partir da main, verificando com .claude/scripts/phase0/assert-archived-frozen.check.js — Refs: US-002, FR-001, NFR-002, AC-001 — Depends: T001, T006
   - [x] **PREP**: Conteúdo rastreado sem modificação pendente; `archived` inexistente local e remotamente; `main` em `aac477a`.
   - [x] **EXECUTE**: `git branch archived main` e `git push origin archived` — nova branch remota criada; baseline gravada em `.git/phase0-run-state.json`.
   - [x] **VERIFY**: `assert-archived-frozen` GREEN nas 5 condições. A barreira está satisfeita e a remoção pode começar.
@@ -738,28 +738,28 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
 
 #### Fase 3 — Nascer limpo
 
-- [x] T009 [OPS] [US-001] Criar a branch de trabalho com raiz órfã, verificando com .claude/scripts/phase0/assert-orphan-root.test.js — Refs: US-001, FR-002, NFR-001, AC-002, AC-007 — Depends: T002, T008
+- [x] T009 [OPS] [US-001] Criar a branch de trabalho com raiz órfã, verificando com .claude/scripts/phase0/assert-orphan-root.check.js — Refs: US-001, FR-002, NFR-001, AC-002, AC-007 — Depends: T002, T008
   - [x] **PREP**: Confirmado T008 em GREEN; horário de início gravado em `.git/phase0-run-state.json`.
   - [x] **EXECUTE**: `git checkout --orphan refactor/v1-cli-first` — branch sem commits.
   - [x] **VERIFY**: `assert-orphan-root` em RED parcial, correto para o ponto sem commit.
   - [x] **EVIDENCE**: Horário de início e saída parcial registrados na seção 12.
   - [x] **IMPROVE**: A baseline da main passou a ser gravada aqui, e não no congelamento, para não confundir dois instantes distintos.
 
-- [x] T010 [OPS] [US-001] Reduzir a árvore ao conjunto preservado, verificando com .claude/scripts/phase0/assert-no-legacy.test.js — Refs: US-001, FR-003, FR-004, AC-003, AC-004, AC-009 — Depends: T003, T004, T009
+- [x] T010 [OPS] [US-001] Reduzir a árvore ao conjunto preservado, verificando com .claude/scripts/phase0/assert-no-legacy.check.js — Refs: US-001, FR-003, FR-004, AC-003, AC-004, AC-009 — Depends: T003, T004, T009
   - [x] **PREP**: Quatro caminhos preservados presentes e não vazios: 8, 97, 14 arquivos e o symlink.
   - [x] **EXECUTE**: Índice esvaziado, 20 caminhos removidos do topo, quatro caminhos reindexados — 120 entradas.
   - [x] **VERIFY**: `git status` sem entrada fora do conjunto preservado.
   - [x] **EVIDENCE**: Listagem do índice e da árvore registradas na seção 12.
   - [x] **IMPROVE**: A remoção incluiu arquivos não rastreados, para que a regra valesse na árvore inteira e não só no índice.
 
-- [x] T011 [OPS] [US-001] Registrar o commit raiz da branch de trabalho, verificando com .claude/scripts/phase0/assert-preserved-set.test.js — Refs: US-001, FR-002, FR-003, FR-004, AC-002, AC-003, AC-004 — Depends: T010
+- [x] T011 [OPS] [US-001] Registrar o commit raiz da branch de trabalho, verificando com .claude/scripts/phase0/assert-preserved-set.check.js — Refs: US-001, FR-002, FR-003, FR-004, AC-002, AC-003, AC-004 — Depends: T010
   - [x] **PREP**: Resultado de T010 confirmado.
   - [x] **EXECUTE**: Commit raiz `53f9949` com 119 arquivos.
   - [x] **VERIFY**: Quatro asserções em GREEN após corrigir a inclusão indevida de `.specsfy/skills-lock.json`.
   - [x] **EVIDENCE**: Saídas de GREEN e o SHA do commit raiz registrados na seção 12.
   - [x] **IMPROVE**: `assert-preserved-set` capturou um arquivo a mais e evitou que a branch nascesse divergente da main.
 
-- [x] T012 [OPS] [US-001] Publicar a branch de trabalho no remoto a partir de .claude/scripts/phase0/assert-orphan-root.test.js — Refs: US-001, FR-002, NFR-001, AC-002, AC-006 — Depends: T011
+- [x] T012 [OPS] [US-001] Publicar a branch de trabalho no remoto a partir de .claude/scripts/phase0/assert-orphan-root.check.js — Refs: US-001, FR-002, NFR-001, AC-002, AC-006 — Depends: T011
   - [x] **PREP**: Branch remota inexistente, publicação sem sobrescrita.
   - [x] **EXECUTE**: `git push -u origin refactor/v1-cli-first` — nova branch remota; horário de término gravado.
   - [x] **VERIFY**: `assert-orphan-root` em GREEN contra a referência publicada.
@@ -770,7 +770,7 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
 
 - [x] T013 [TEST] [TDD] [US-001] [US-002] Executar a suíte completa de asserções em .claude/scripts/phase0/ — Refs: US-001, US-002, FR-001, FR-002, FR-003, FR-004, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011 — Depends: T005, T007, T012
   - [x] **PREP**: Sete asserções reunidas, todas com RED registrado antes das operações.
-  - [x] **EXECUTE**: `node .claude/scripts/phase0/run-all.test.js` sobre a branch publicada.
+  - [x] **EXECUTE**: `node .claude/scripts/phase0/run-all.check.js` sobre a branch publicada.
   - [x] **VERIFY**: GREEN nas sete, exit 0.
   - [x] **EVIDENCE**: Saídas de GREEN registradas na seção 12, ao lado das de RED.
   - [x] **IMPROVE**: `run-all` passou a existir como ponto único de entrada da suíte.
@@ -786,7 +786,7 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
 
 - Caminho crítico: T001 e T006 → T008 → T009 → T010 → T011 → T012 → T013 → T014.
 - Tarefas paralelas: T001 a T007 executam em paralelo, porque criam arquivos distintos e nenhuma depende do resultado das outras.
-- Barreira deliberada: T008 separa a Fase 1 da Fase 3. A limpeza é irreversível, e nenhuma remoção começa antes de `assert-archived-frozen.test.js` alcançar GREEN.
+- Barreira deliberada: T008 separa a Fase 1 da Fase 3. A limpeza é irreversível, e nenhuma remoção começa antes de `assert-archived-frozen.check.js` alcançar GREEN.
 - Estratégia de MVP: não se aplica. A fase é indivisível — uma branch de trabalho parcialmente limpa não entrega valor nem pode ser usada pela Phase 1.
 
 ## Ato III — Entregar e validar
@@ -822,7 +822,7 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
 - **DEC-004**: A substituição da main fica fora da Phase 0. *Razão*: a troca só faz sentido com a branch estabilizada, o que depende da Phase 1. *Trade-off*: o repositório fica com duas linhas por um período; aceito por ser reversível até a troca.
 - **DEC-006**: A verificação é feita por scripts de asserção em Node puro, arquivos `.js` CommonJS sem dependência, guardados em `.claude/scripts/phase0/`. *Razão*: o escopo proíbe instalar dependências, e o Node já é pré-requisito das próprias skills Specsfy, de modo que nada novo entra; scripts sem `node_modules` sobrevivem à limpeza que precisam verificar. *Alternativas*: shell POSIX — foi a primeira escolha e satisfazia as duas restrições acima, mas o auditor `check_traceability.mjs` varre um conjunto fechado de extensões que inclui `.js` e exclui `.sh`, o que tornaria as asserções corretas e invisíveis ao Delivery Gate; Node com Vitest — descartada por antecipar a tooling da Phase 1 e exigir instalação; checklist puramente manual — descartada porque operação irreversível merece guarda executável.
 - **DEC-007**: `.agents` passa a ser link simbólico para `.claude` e entra no conjunto preservado. *Razão*: esta instalação usa o layout do Claude Code, enquanto os scripts e a documentação do framework resolvem caminhos sob `.agents/skills/`; sem o link, o validador de tarefas reprova por não encontrar `verify_evidence.mjs` e os comandos documentados nas skills falham. *Trade-off*: é acomodação local a um defeito do framework, não correção dele; a correção pertence ao validador, que deveria aceitar os dois layouts.
-- **DEC-008**: A contagem de asserções é definida pelos riscos da fase, e o mínimo do validador é tratado como sinal, não como cota a preencher. *Razão*: o plano começou com cinco asserções e ficou abaixo do mínimo em cinco IDs. A análise do que faltava expôs duas lacunas reais, não burocráticas: nada verificava mecanicamente que a main e `archived` permaneciam intocadas durante a sequência destrutiva — o risco mais grave da fase —, e o orçamento de tempo dependia de leitura humana de cronômetro. Fechadas as duas, o mínimo passou a ser atendido sem asserção supérflua. *Consequência*: `assert-baseline-untouched.test.js` e `assert-elapsed-budget.test.js` existem porque guardam algo, e não porque o validador pedia número.
+- **DEC-008**: A contagem de asserções é definida pelos riscos da fase, e o mínimo do validador é tratado como sinal, não como cota a preencher. *Razão*: o plano começou com cinco asserções e ficou abaixo do mínimo em cinco IDs. A análise do que faltava expôs duas lacunas reais, não burocráticas: nada verificava mecanicamente que a main e `archived` permaneciam intocadas durante a sequência destrutiva — o risco mais grave da fase —, e o orçamento de tempo dependia de leitura humana de cronômetro. Fechadas as duas, o mínimo passou a ser atendido sem asserção supérflua. *Consequência*: `assert-baseline-untouched.check.js` e `assert-elapsed-budget.check.js` existem porque guardam algo, e não porque o validador pedia número.
 - **DEC-005**: `archived` é congelada antes de qualquer remoção. *Razão*: a limpeza é irreversível e a ordem inversa perderia a v0.2.8. *Alternativa*: congelar ao final — descartada por não haver o que congelar depois.
 
 ### 18. Definition of Done
@@ -843,7 +843,7 @@ As sete asserções são escritas antes de qualquer operação e observadas falh
 
 #### Aceite final — 2026-08-24
 
-`node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs` READY · `validate_tasks.mjs` READY · `verify_acceptance.mjs` QA PASSED nos onze ACs · `check_traceability.mjs` OK em 20 de 20 IDs · `run-all.test.js` GREEN nas sete asserções · Definition of Done sem item aberto.
+`node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs` READY · `validate_tasks.mjs` READY · `verify_acceptance.mjs` QA PASSED nos onze ACs · `check_traceability.mjs` OK em 20 de 20 IDs · `run-all.check.js` GREEN nas sete asserções · Definition of Done sem item aberto.
 
 O aceite conferiu cada afirmação contra o repositório em vez de reler a evidência registrada, e isso expôs quatro defeitos que a entrega não tinha visto:
 
@@ -856,3 +856,14 @@ O aceite conferiu cada afirmação contra o repositório em vez de reler a evid�
 
 Sobre A4, uma falha de abordagem vale registro: a primeira verificação concluiu que a branch não estava protegida consultando apenas a API de branch protection legada, que responde 404 para regras criadas como ruleset. A pergunta "quais regras valem para esta branch" se responde em `repos/<owner>/<repo>/rules/branches/<branch>`, e foi esse endpoint que confirmou `deletion` e `non_fast_forward` ativos, sem ator de bypass.
 
+#### Nota de manutenção — 2026-08-24, após a conclusão
+
+As asserções desta fase foram renomeadas de `*.test.js` para `*.cjs`, e `lib.js` para `lib.cjs`. Duas razões independentes convergiram.
+
+A primeira é a colisão de identificadores. SPEC-0001 e SPEC-0002 usam o mesmo esquema — `US-001`, `FR-001`, `AC-001` —, e `check_traceability.mjs` varre a árvore inteira sem distinguir a qual spec um marcador pertence. Com as asserções desta fase nomeadas como teste, o auditor as creditava à fatia seguinte e reportava `MARCADORES ÓRFÃOS: AC-011`. A extensão `.cjs` está fora da lista que ele varre.
+
+A segunda é mais grave e passou despercebida por sete tarefas. Quando SPEC-0002 declarou `"type": "module"` no manifesto, cada arquivo `.js` do projeto passou a ser tratado como ESM, e estas asserções são CommonJS. **A suíte desta fase esteve quebrada desde então**, com `ReferenceError: require is not defined`, sem que ninguém a reexecutasse. `.cjs` restaura o tratamento correto independentemente do campo `type`.
+
+Na mesma revisão, `assert-no-legacy` foi corrigida. Ela comparava `HEAD` da branch de trabalho, que cresce legitimamente conforme o produto avança, de modo que cada arquivo novo passava a contar como resíduo da v0.2.8. Passou a comparar o commit raiz, que é o momento a que AC-004 se refere. É o mesmo defeito já corrigido em `assert-preserved-set` e `assert-orphan-root`, e que escapou nesta terceira.
+
+A suíte volta a passar nas sete asserções. O estado entregue pela fase não mudou; a correção é do instrumento.

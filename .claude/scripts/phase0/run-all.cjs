@@ -17,7 +17,7 @@ const failures = [];
 for (const name of SUITE) {
   // SPECSFY: US-001 US-002 AC-010
   try {
-    execFileSync("node", [resolve(__dirname, `${name}.test.js`)], { stdio: ["ignore", "pipe", "pipe"] });
+    execFileSync("node", [resolve(__dirname, `${name}.cjs`)], { stdio: ["ignore", "pipe", "pipe"] });
     console.log(`  ✓ ${name}`);
   } catch (error) {
     const detail = String(error.stdout || "").split("\n").filter((l) => l.includes("✗")).length;

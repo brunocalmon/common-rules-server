@@ -1,5 +1,5 @@
 // Mecaniza a verificação de NFR-001, que antes dependia de alguém ler um cronômetro.
-const { readState, assert, STATE_FILE } = require("./lib");
+const { readState, assert, STATE_FILE } = require("./lib.cjs");
 
 const BUDGET_SECONDS = 300;
 const at = (key) => {

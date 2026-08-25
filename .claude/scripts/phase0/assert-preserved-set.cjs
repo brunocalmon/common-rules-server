@@ -5,7 +5,7 @@
 // com a main compararia dois alvos móveis e passaria a acusar divergência a cada
 // commit legítimo da branch nova — a propriedade descrita por AC-003 pertence ao
 // momento da redução, não à vida inteira da branch.
-const { git, filesIn, refExists, assert, WORK_BRANCH, ARCHIVED_BRANCH } = require("./lib");
+const { git, filesIn, refExists, assert, WORK_BRANCH, ARCHIVED_BRANCH } = require("./lib.cjs");
 
 const root = () => git(["rev-list", "--max-parents=0", WORK_BRANCH]);
 

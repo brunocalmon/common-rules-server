@@ -1,6 +1,6 @@
 // Guarda o risco de apagar a v0.2.8 sem cópia íntegra.
 // Precisa alcançar GREEN antes de qualquer remoção começar (T008 é barreira).
-const { refExists, sha, filesIn, readState, assert, ARCHIVED_BRANCH, MAIN_BRANCH } = require("./lib");
+const { refExists, sha, filesIn, readState, assert, ARCHIVED_BRANCH, MAIN_BRANCH } = require("./lib.cjs");
 
 assert("assert-archived-frozen", [
   // SPECSFY: US-002 FR-001 AC-001

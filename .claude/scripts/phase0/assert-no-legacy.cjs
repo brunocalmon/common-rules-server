@@ -1,5 +1,5 @@
 // Guarda o risco de resíduo do produto antigo sobreviver na branch nova.
-const { filesIn, refExists, assert, WORK_BRANCH, PRESERVED } = require("./lib");
+const { filesIn, refExists, assert, WORK_BRANCH, PRESERVED } = require("./lib.cjs");
 
 const REMOVED = [
   "pyproject.toml", "uv.lock", ".python-version", ".coverage",
@@ -8,7 +8,16 @@ const REMOVED = [
 ];
 const REMOVED_DIRS = ["src", ".docs", "tools", ".github", ".pytest_cache", "dist"];
 
-const tree = () => (refExists(WORK_BRANCH) ? filesIn(WORK_BRANCH) : null);
+// Compara o commit raiz, e não HEAD. A branch cresce legitimamente depois da
+// Phase 0, e medir HEAD faria cada arquivo novo do produto contar como resíduo
+// da v0.2.8. A propriedade descrita por AC-004 pertence ao momento da redução.
+const { git } = require("./lib.cjs");
+const root = () => git(["rev-list", "--max-parents=0", WORK_BRANCH]);
+const tree = () => {
+  if (!refExists(WORK_BRANCH)) return null;
+  const sha = root();
+  return sha ? filesIn(sha.split("\n")[0]) : null;
+};
 
 assert("assert-no-legacy", [
   // SPECSFY: US-001 FR-004 AC-004

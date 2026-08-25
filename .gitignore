@@ -32,3 +32,10 @@ dist/
 # Artefatos de editor e sistema operacional.
 .DS_Store
 *.swp
+
+# Configuração pessoal do Obsidian. Entrou por engano num `git add -A` durante
+# T013 e foi removida do índice; não pertence ao projeto.
+.obsidian/
+
+# Lockfile de skills na raiz, gerado pelo instalador do Specsfy.
+/skills-lock.json

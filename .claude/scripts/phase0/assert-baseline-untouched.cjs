@@ -6,7 +6,7 @@
 // aí que essas referências param de se mover. `mainSha` é gravado no início da
 // sequência destrutiva (T009): entre o congelamento e o início da sequência a
 // main ainda recebe legitimamente o commit de evidência do próprio T008.
-const { git, sha, readState, assert, MAIN_BRANCH, ARCHIVED_BRANCH, STATE_FILE } = require("./lib");
+const { git, sha, readState, assert, MAIN_BRANCH, ARCHIVED_BRANCH, STATE_FILE } = require("./lib.cjs");
 
 const compare = (branch, key) => () => {
   const state = readState();

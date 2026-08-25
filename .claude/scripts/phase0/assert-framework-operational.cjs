@@ -3,7 +3,7 @@
 const { execFileSync } = require("node:child_process");
 const { existsSync, rmSync } = require("node:fs");
 const { resolve } = require("node:path");
-const { filesIn, refExists, assert, WORK_BRANCH } = require("./lib");
+const { filesIn, refExists, assert, WORK_BRANCH } = require("./lib.cjs");
 
 const ROOT = resolve(__dirname, "../../..");
 const CAPTURE = resolve(ROOT, ".claude/skills/specsfy-01-inbox/scripts/capturar_inbox.mjs");
