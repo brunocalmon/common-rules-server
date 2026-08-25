@@ -507,6 +507,25 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Evidência T017 — registro de instalação — 2026-08-24
+
+`npx tsc --noEmit`, `npm run build` e `build_documentation --check` em exit 0. O registro foi exercitado em memória:
+
+| Verificação | Resultado |
+| --- | --- |
+| Caminho | `.common-rules/install.json`, dentro do projeto |
+| Ida e volta | preserva o conteúdo sem perda |
+| Entradas a remover | duas, cada uma com destino, evento e nome |
+| Mesmo conjunto e mesma versão | reconhece |
+| Versão diferente | recusa |
+| Conjunto diferente | recusa |
+| Registro ausente | recusa |
+
+A comparação recusa por versão além de por conjunto. Sem isso, uma instalação feita por versão anterior do pacote seria tomada por atual, e a idempotência de `AC-005` viraria a omissão de uma atualização necessária.
+
+Cada entrada guarda o evento além do caminho, porque desfazer exige localizar a entrada dentro do arquivo do alvo. Apagar o arquivo destruiria configuração de terceiro que a escrita preservou, e a seção 7 exige preservá-la.
+
+
 #### Dois verificadores que discordam, encontrado em T016
 
 Ao fechar T016, `monitor_context --check` retornou `CURRENT` enquanto `build_documentation --check` retornava exit 1, e `docs/application.md` não mencionava `src/hooks/detect.ts`. A documentação estava desatualizada e um dos dois verificadores dizia que não.
@@ -786,12 +805,13 @@ Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `
 
 #### Fase 3 — Registro e ponte
 
-- [ ] T017 [CODE] [US-003] Implementar em src/setup/record.ts — Refs: US-003, FR-004, NFR-002 — Depends: T004, T007, T012
-  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Ler, gravar e comparar o registro de instalação, com hook, destino, versão e data.
-  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que os casos de registro e reversão passam a GREEN.
-  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+- [x] T017 [CODE] [US-003] Implementar em src/setup/record.ts — Refs: US-003, FR-004, NFR-002 — Depends: T004, T007, T012
+  - [x] **PREP**: RED confirmado em T004, T007 e T012; `docs/` reconstruído e `build_documentation --check` em exit 0 antes da alteração.
+  - [x] **EXECUTE**: `src/setup/record.ts` lê, grava e compara o registro, com nome, destino, versão, data e evento por entrada. Recebe o objeto em memória em vez de um caminho, para que a leitura seja verificável sem tocar o disco.
+  - [x] **VERIFY**: `npx tsc --noEmit` em exit 0. O registro preserva a ida e a volta, lista as entradas com destino, evento e nome, e a comparação discrimina quatro casos: mesmo conjunto aprova, versão diferente recusa, conjunto diferente recusa e registro ausente recusa. `setup-record.test.ts` segue em RED por importar `src/setup/run`, que só existe em T019.
+  - [x] **EVIDENCE**: Comandos e a tabela dos quatro casos de comparação, registrados na seção 12.
+  - [x] **IMPROVE**: Cada entrada guarda o evento além do caminho. Remover exige localizar a entrada dentro do arquivo do alvo, e não apagar o arquivo: ele pode conter configuração de terceiro que a escrita preservou.
+  <!-- specsfy:evidence {"task": "T017", "refs": ["US-003", "FR-004", "NFR-002"], "files": ["src/setup/record.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}]} -->
 
 - [ ] T018 [CODE] [US-001] Implementar em src/setup/bridge.ts — Refs: US-001, FR-008, NFR-001 — Depends: T005, T006, T008
   - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.

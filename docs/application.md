@@ -14,6 +14,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/hooks/claude-code.ts | TranslatedHook, EVENT_MAP, translateForClaudeCode, wrap, unwrap, FRAGMENT_START, FRAGMENT_END, PREAMBLE |
 | Outras fontes | src/hooks/detect.ts | TargetEnvironment, Detection, TARGET, EVIDENCE, detectTarget |
 | Outras fontes | src/hooks/source.ts | Hook, EVENTS, scalar, scriptFrom, readHook |
+| Outras fontes | src/setup/record.ts | RecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
 | Outras fontes | src/version.ts | readVersion |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
