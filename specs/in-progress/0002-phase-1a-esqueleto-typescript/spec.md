@@ -639,12 +639,13 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [x] **IMPROVE**: O documento ganhou uma seção dedicada ao que ainda não existe, com a mesma proeminência da lista de capacidades. Sem ela, a descrição da finalidade se leria como descrição do presente — que foi exatamente o erro que T017 encontrou no registro da stack.
   <!-- specsfy:evidence {"task": "T018", "refs": ["US-001", "US-002", "FR-005", "FR-006", "AC-010"], "files": ["PROJECT.md"], "commands": [{"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}, {"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check", "exit": 0}]} -->
 
-- [ ] T019 [TEST] [US-001] [US-002] Executar regressão e rastreabilidade pelos scripts declarados em package.json — Refs: US-001, US-002, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010 — Depends: T016, T017, T018
-  - [ ] **PREP**: Reunir os dez casos e confirmar que cada um esteve em RED antes da implementação correspondente.
-  - [ ] **EXECUTE**: Executar `npm ci`, `npm run build` e `npm run test:tdd` a partir de um clone limpo, medindo cada etapa para o orçamento.
-  - [ ] **VERIFY**: As três etapas concluem com código zero, a suíte fica verde e o auditor de rastreabilidade cobre os IDs da spec.
-  - [ ] **EVIDENCE**: Registrar comandos, tempos, contagens e o resultado do auditor na seção 12.
-  - [ ] **IMPROVE**: Registrar a retrospectiva da fatia, incluindo o que a suíte pegou e o que passou.
+- [x] T019 [TEST] [US-001] [US-002] Executar regressão e rastreabilidade pelos scripts declarados em package.json — Refs: US-001, US-002, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010 — Depends: T016, T017, T018
+  - [x] **PREP**: Dez casos reunidos, cada um com RED registrado antes da implementação correspondente, conforme as evidências de T002 a T011.
+  - [x] **EXECUTE**: Clone limpo do remoto, seguido de `npm ci --ignore-scripts`, `npm run build` e `npm run test:tdd`, medindo cada etapa.
+  - [x] **VERIFY**: As três etapas concluem com exit 0 e a suíte fica verde no clone — 10 arquivos, 35 testes. O binário responde `--version` e `doctor`. Ciclo em 4s, contra orçamento de 300. A rastreabilidade cobre 21 de 21 IDs, mas o auditor devolve `GAPS` por contaminação entre specs.
+  - [x] **EVIDENCE**: Tempos, contagens, saída do binário e os dois achados do clone, registrados na seção 12.
+  - [x] **IMPROVE**: A regressão foi executada contra um clone do remoto, e não contra a árvore local. Foi o que revelou que a suíte não passa sozinha num clone recém-instalado — algo invisível aqui, onde o arquivo de tempos já existia de execuções anteriores.
+  <!-- specsfy:evidence {"task": "T019", "refs": ["US-001", "US-002", "FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "NFR-001", "NFR-002", "NFR-003", "AC-001", "AC-002", "AC-003", "AC-004", "AC-005", "AC-006", "AC-007", "AC-008", "AC-009", "AC-010"], "files": ["package.json", "tests/budget.test.ts"], "commands": [{"run": "npm ci --ignore-scripts", "exit": 0}, {"run": "npm run build", "exit": 0}, {"run": "npm run test:tdd", "exit": 0}]} -->
 
 - [ ] T020 [DOC] [US-001] Registrar a regra de instalação sem scripts em .specsfy/RULES.md — Refs: US-001, FR-004, NFR-002, AC-001, AC-007 — Depends: T012
   - [ ] **PREP**: Confirmar que o arquivo não existe e que a regra foi confirmada pela pessoa responsável, não inferida.
