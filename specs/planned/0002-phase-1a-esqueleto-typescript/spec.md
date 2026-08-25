@@ -5,14 +5,14 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0002 |
 | Slug | 0002-phase-1a-esqueleto-typescript |
-| Status | Defined |
+| Status | Planned |
 | Effort | 4 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Volume pequeno de código, mas decide manifesto, módulo, build e runner — escolhas caras de reverter depois que as fatias seguintes se apoiarem nelas. |
 | ClickUp Task | |
 | Milestones | |
 | Definition Gate | Passed |
-| Plan Gate | Pending |
+| Plan Gate | Passed |
 | Delivery Gate | Pending |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega é um pacote e um comando de terminal, sem tela. |
@@ -459,7 +459,7 @@ O ponto sensível é a injeção do ambiente. Um teste de `doctor` que consulte 
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/defined/0002-phase-1a-esqueleto-typescript/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/planned/0002-phase-1a-esqueleto-typescript/spec.md`
 - **Cobertura**: 2 US, 6 FR, 3 NFR, 10 AC, 5 DEC; mínimo de 3 AC por ID satisfeito.
 
 **Achados da rodada**
@@ -472,7 +472,7 @@ O ponto sensível é a injeção do ambiente. Um teste de `doctor` que consulte 
 #### Gate do Ato II — Plano
 
 - **Resultado**: Pending
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/defined/0002-phase-1a-esqueleto-typescript/spec.md`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/planned/0002-phase-1a-esqueleto-typescript/spec.md`
 
 #### Gate do Ato III — Entrega
 
@@ -507,75 +507,75 @@ As dez asserções da fase seguinte rodam em Vitest, que vem do manifesto que el
 
 Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escreve num arquivo distinto, por isso executam em paralelo.
 
-- [ ] T002 [P] [TEST] [TDD] [US-001] Derivar do AC-001 o caso de instalação limpa em tests/manifest.test.ts — Refs: US-001, FR-001, FR-003, FR-004, NFR-002, AC-001 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-001 e definir as asserções: nome do pacote, presença das três dependências e ausência de faixa de versão.
-  - [ ] **EXECUTE**: Escrever o caso lendo o manifesto do disco, com marcador `SPECSFY` declarando os IDs.
-  - [ ] **VERIFY**: Executar `npm run test:tdd` e observar RED por ausência dos campos de produto no manifesto de bootstrap.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e a asserção que falhou na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T002 [P] [TEST] [TDD] [US-001] Derivar do AC-001 o caso de instalação limpa em tests/manifest.test.ts — Refs: US-001, FR-001, FR-003, FR-004, NFR-002, AC-001 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-001 e definir as asserções: nome do pacote, presença das três dependências e ausência de faixa de versão.
+  - [x] **EXECUTE**: Escrever o caso lendo o manifesto do disco, com marcador `SPECSFY` declarando os IDs.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova 2 de 4 em `tests/manifest.test.ts`, por nome e dependências de produto ausentes do manifesto de bootstrap.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
-- [ ] T003 [P] [TEST] [TDD] [US-001] Derivar do AC-002 o caso de build executável em tests/build.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-002 e definir o critério: existe em `dist/` o arquivo que o campo de binário do manifesto declara.
-  - [ ] **EXECUTE**: Escrever o caso que resolve o alvo do binário pelo manifesto e verifica sua presença, com marcador `SPECSFY`.
-  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir campo de binário nem `dist/`.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T003 [P] [TEST] [TDD] [US-001] Derivar do AC-002 o caso de build executável em tests/build.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-002 e definir o critério: existe em `dist/` o arquivo que o campo de binário do manifesto declara.
+  - [x] **EXECUTE**: Escrever o caso que resolve o alvo do binário pelo manifesto e verifica sua presença, com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova 4 de 4 em `tests/build.test.ts`, por campo de binário e dist/ inexistentes.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
-- [ ] T004 [P] [TEST] [TDD] [US-001] Derivar do AC-003 o caso de contrato do runner em tests/scripts.test.ts — Refs: US-001, FR-003, NFR-001, AC-003 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-003 e definir o critério: o manifesto expõe `test:tdd` e ele invoca Vitest, como o enforcement do framework exige em projeto Node.
-  - [ ] **EXECUTE**: Escrever o caso verificando o script e o runner que ele chama, com marcador `SPECSFY`.
-  - [ ] **VERIFY**: Executar a suíte. O script já existe desde T001; a asserção que reprova é a de o manifesto ser o de produto e não o de bootstrap.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e a asserção que falhou na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T004 [P] [TEST] [TDD] [US-001] Derivar do AC-003 o caso de contrato do runner em tests/scripts.test.ts — Refs: US-001, FR-003, NFR-001, AC-003 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-003 e definir o critério: o manifesto expõe `test:tdd` e ele invoca Vitest, como o enforcement do framework exige em projeto Node.
+  - [x] **EXECUTE**: Escrever o caso verificando o script e o runner que ele chama, com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova 1 de 3 em `tests/scripts.test.ts`, por script de build ainda não declarado.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
-- [ ] T005 [P] [TEST] [TDD] [US-001] Derivar do AC-004 o caso de impressão da versão em tests/version.test.ts — Refs: US-001, FR-001, FR-002, FR-005, NFR-003, AC-004 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-004 e definir o critério: a saída do binário compilado contém exatamente a versão do manifesto e o código de saída é zero.
-  - [ ] **EXECUTE**: Escrever o caso executando o binário como subprocesso, com marcador `SPECSFY`.
-  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir binário compilado.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T005 [P] [TEST] [TDD] [US-001] Derivar do AC-004 o caso de impressão da versão em tests/version.test.ts — Refs: US-001, FR-001, FR-002, FR-005, NFR-003, AC-004 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-004 e definir o critério: a saída do binário compilado contém exatamente a versão do manifesto e o código de saída é zero.
+  - [x] **EXECUTE**: Escrever o caso executando o binário como subprocesso, com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova 3 de 3 em `tests/version.test.ts`, por sem versão no manifesto e sem binário compilado.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
-- [ ] T006 [P] [TEST] [TDD] [US-002] Derivar do AC-005 o caso de ambiente aprovado em tests/doctor-ok.test.ts — Refs: US-002, FR-006, NFR-002, NFR-003, AC-005 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-005 e definir o critério: as três dependências do projeto recebem veredito individual, cada uma reporta camada, origem resolvida e versão, e o código de saída é zero.
-  - [ ] **EXECUTE**: Escrever o caso injetando um ambiente controlado completo, para que o resultado não dependa da máquina, com marcador `SPECSFY`.
-  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir o módulo de verificação.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T006 [P] [TEST] [TDD] [US-002] Derivar do AC-005 o caso de ambiente aprovado em tests/doctor-ok.test.ts — Refs: US-002, FR-006, NFR-002, NFR-003, AC-005 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-005 e definir o critério: as três dependências do projeto recebem veredito individual, cada uma reporta camada, origem resolvida e versão, e o código de saída é zero.
+  - [x] **EXECUTE**: Escrever o caso injetando um ambiente controlado completo, para que o resultado não dependa da máquina, com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova arquivo inteiro em `tests/doctor-ok.test.ts`, por módulo src/doctor inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
-- [ ] T007 [P] [TEST] [TDD] [US-002] Derivar do AC-006 o caso de dependência ausente em tests/doctor-missing.test.ts — Refs: US-002, FR-004, FR-006, AC-006 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-006 e definir o critério: a saída nomeia `code-review-graph`, explica que vem de `uv` e não do npm, e o código de saída difere de zero.
-  - [ ] **EXECUTE**: Escrever o caso com um PATH controlado sem a ferramenta, sem desinstalar nada da máquina, com marcador `SPECSFY`.
-  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir o módulo de verificação.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T007 [P] [TEST] [TDD] [US-002] Derivar do AC-006 o caso de dependência ausente em tests/doctor-missing.test.ts — Refs: US-002, FR-004, FR-006, AC-006 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-006 e definir o critério: a saída nomeia `code-review-graph`, explica que vem de `uv` e não do npm, e o código de saída difere de zero.
+  - [x] **EXECUTE**: Escrever o caso com um PATH controlado sem a ferramenta, sem desinstalar nada da máquina, com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova arquivo inteiro em `tests/doctor-missing.test.ts`, por módulo src/doctor inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
-- [ ] T008 [P] [TEST] [TDD] [US-001] Derivar do AC-007 o caso de versões fixas em tests/pinning.test.ts — Refs: US-001, FR-004, NFR-002, AC-007 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-007 e definir o critério: nenhuma dependência declarada aceita prefixo de intervalo, e as versões conferem com as verificadas em 2026-08-24.
-  - [ ] **EXECUTE**: Escrever o caso inspecionando cada versão declarada, com marcador `SPECSFY`.
-  - [ ] **VERIFY**: Executar a suíte e observar RED por não existirem dependências de produto no manifesto de bootstrap.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T008 [P] [TEST] [TDD] [US-001] Derivar do AC-007 o caso de versões fixas em tests/pinning.test.ts — Refs: US-001, FR-004, NFR-002, AC-007 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-007 e definir o critério: nenhuma dependência declarada aceita prefixo de intervalo, e as versões conferem com as verificadas em 2026-08-24.
+  - [x] **EXECUTE**: Escrever o caso inspecionando cada versão declarada, com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova 2 de 3 em `tests/pinning.test.ts`, por nenhuma dependência de produto declarada.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
-- [ ] T009 [P] [TEST] [TDD] [US-001] [US-002] Derivar do AC-008 o caso de execução local em tests/local-run.test.ts — Refs: US-001, US-002, FR-001, FR-002, FR-005, NFR-003, AC-008 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-008 e definir o critério: o binário responde ao ser invocado pelo caminho do projeto, sem instalação global do próprio pacote.
-  - [ ] **EXECUTE**: Escrever o caso executando o alvo do binário por caminho relativo, com marcador `SPECSFY`.
-  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir alvo de binário.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T009 [P] [TEST] [TDD] [US-001] [US-002] Derivar do AC-008 o caso de execução local em tests/local-run.test.ts — Refs: US-001, US-002, FR-001, FR-002, FR-005, NFR-003, AC-008 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-008 e definir o critério: o binário responde ao ser invocado pelo caminho do projeto, sem instalação global do próprio pacote.
+  - [x] **EXECUTE**: Escrever o caso executando o alvo do binário por caminho relativo, com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova 3 de 3 em `tests/local-run.test.ts`, por sem binário e sem subsistemas em node_modules.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
-- [ ] T010 [P] [TEST] [TDD] [US-001] Derivar do AC-009 o caso de orçamento do ciclo em tests/budget.test.ts — Refs: US-001, FR-002, FR-003, NFR-001, AC-009 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-009 e definir o critério: a soma dos tempos registrados de instalação, build e suíte fica abaixo de cinco minutos.
-  - [ ] **EXECUTE**: Escrever o caso lendo os tempos registrados pela execução das etapas, falhando quando algum estiver ausente, com marcador `SPECSFY`.
-  - [ ] **VERIFY**: Executar a suíte e observar RED por não haver tempos registrados.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T010 [P] [TEST] [TDD] [US-001] Derivar do AC-009 o caso de orçamento do ciclo em tests/budget.test.ts — Refs: US-001, FR-002, FR-003, NFR-001, AC-009 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-009 e definir o critério: a soma dos tempos registrados de instalação, build e suíte fica abaixo de cinco minutos.
+  - [x] **EXECUTE**: Escrever o caso lendo os tempos registrados pela execução das etapas, falhando quando algum estiver ausente, com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova 4 de 4 em `tests/budget.test.ts`, por tempos das etapas não registrados.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
-- [ ] T011 [P] [TEST] [TDD] [US-001] [US-002] Derivar do AC-010 o caso de limite do esqueleto em tests/surface.test.ts — Refs: US-001, US-002, FR-005, FR-006, AC-010 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-010 e definir o critério: apenas identificação de versão e verificação de dependências são oferecidas.
-  - [ ] **EXECUTE**: Escrever o caso verificando a superfície de comandos e a ausência de setup, orquestração, aprovação e seleção de modelo, com marcador `SPECSFY`.
-  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir superfície de comandos.
-  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+- [x] T011 [P] [TEST] [TDD] [US-001] [US-002] Derivar do AC-010 o caso de limite do esqueleto em tests/surface.test.ts — Refs: US-001, US-002, FR-005, FR-006, AC-010 — Depends: T001
+  - [x] **PREP**: Ler o Gherkin de AC-010 e definir o critério: apenas identificação de versão e verificação de dependências são oferecidas.
+  - [x] **EXECUTE**: Escrever o caso verificando a superfície de comandos e a ausência de setup, orquestração, aprovação e seleção de modelo, com marcador `SPECSFY`.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova arquivo inteiro em `tests/surface.test.ts`, por módulo src/cli inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
 
 #### Fase 3 — Fundação
 
