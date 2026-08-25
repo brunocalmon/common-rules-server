@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0002 |
 | Slug | 0002-phase-1a-esqueleto-typescript |
-| Status | Planned |
+| Status | Implementing |
 | Effort | 4 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Volume pequeno de código, mas decide manifesto, módulo, build e runner — escolhas caras de reverter depois que as fatias seguintes se apoiarem nelas. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | Pending |
+| Delivery Gate | In Progress |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega é um pacote e um comando de terminal, sem tela. |
 | Atualizada em | 2026-08-24 |
@@ -459,7 +459,7 @@ O ponto sensível é a injeção do ambiente. Um teste de `doctor` que consulte 
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/planned/0002-phase-1a-esqueleto-typescript/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/in-progress/0002-phase-1a-esqueleto-typescript/spec.md`
 - **Cobertura**: 2 US, 6 FR, 3 NFR, 10 AC, 5 DEC; mínimo de 3 AC por ID satisfeito.
 
 **Achados da rodada**
@@ -472,7 +472,7 @@ O ponto sensível é a injeção do ambiente. Um teste de `doctor` que consulte 
 #### Gate do Ato II — Plano
 
 - **Resultado**: Pending
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/planned/0002-phase-1a-esqueleto-typescript/spec.md`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/in-progress/0002-phase-1a-esqueleto-typescript/spec.md`
 
 #### Gate do Ato III — Entrega
 
@@ -579,12 +579,13 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
 
 #### Fase 3 — Fundação
 
-- [ ] T012 [CODE] [US-001] Promover o bootstrap a manifesto de produto em package.json — Refs: US-001, FR-001, FR-003, FR-004, NFR-002, AC-001, AC-007 — Depends: T002, T003, T004, T008
-  - [ ] **PREP**: Confirmar RED em T002, T004 e T008; reconstruir `docs/` com `$specsfy-documentator` e conferir que a reconstrução está atual.
-  - [ ] **EXECUTE**: Declarar nome `@brunocalmon/common-rules`, binário `common-rules`, `type: module`, `engines.node` maior ou igual a 20 e as três dependências em versão exata.
-  - [ ] **VERIFY**: `npm run test:tdd` — os casos de manifesto, contrato do runner e fixação passam a GREEN; os demais continuam em RED por dependerem de build e código.
-  - [ ] **EVIDENCE**: Registrar comando, transição de RED para GREEN por caso e arquivos alterados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao manifesto ou justificar ausência.
+- [x] T012 [CODE] [US-001] Promover o bootstrap a manifesto de produto em package.json — Refs: US-001, FR-001, FR-003, FR-004, NFR-002, AC-001, AC-007 — Depends: T002, T003, T004, T008
+  - [x] **PREP**: RED confirmado em T002, T004 e T008. `docs/` e `.specsfy/PACKAGES.md` reconstruídos por `$specsfy-documentator`, com `--check` em exit 0.
+  - [x] **EXECUTE**: `package.json` promovido a manifesto de produto — nome `@brunocalmon/common-rules`, versão 1.0.0, `type: module`, `engines.node` maior ou igual a 20, binário `common-rules` apontando para `dist/cli.js`, e as duas dependências de subsistema em versão exata. `private: true` mantido, porque publicar está fora de escopo. `npm install --ignore-scripts` em 6s.
+  - [x] **VERIFY**: `npm run test:tdd` — de 21 reprovações para 9. Os casos de manifesto, contrato do runner e fixação passaram a GREEN; build, versão, execução local, orçamento e superfície seguem em RED por dependerem de compilação e código.
+  - [x] **EVIDENCE**: Comandos, transição por caso e a pendência de stack que o monitor apontou, registrados na seção 12.
+  - [x] **IMPROVE**: `private: true` foi preservado no manifesto de produto como guarda contra publicação acidental, já que publicar pertence a outra fatia. Nenhum teste exigia isso; é decisão de segurança do próprio manifesto.
+  <!-- specsfy:evidence {"task": "T012", "refs": ["US-001", "FR-001", "FR-003", "FR-004", "NFR-002", "AC-001", "AC-007"], "files": ["package.json", "package-lock.json", ".specsfy/STACK.md"], "commands": [{"run": "npm install --ignore-scripts", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}, {"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check", "exit": 0}]} -->
 
 - [ ] T013 [CODE] [US-001] Configurar TypeScript e o build em tsconfig.json — Refs: US-001, FR-002, NFR-001, AC-002, AC-009 — Depends: T003, T005, T010, T012
   - [ ] **PREP**: Confirmar RED em T003 e T010; reconstruir `docs/` com `$specsfy-documentator` antes de alterar produção.

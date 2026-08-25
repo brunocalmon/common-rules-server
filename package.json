@@ -1,10 +1,28 @@
 {
+  "name": "@brunocalmon/common-rules",
+  "version": "1.0.0",
+  "description": "Wrapper de linha de comando que orquestra subsistemas e agentes de codificação a partir de um contrato verificável de dependências.",
   "private": true,
-  "description": "Manifesto de bootstrap da Phase 1a. Instala apenas o runner de testes, sem nenhum campo de produto, para que as asserções de T002 a T011 reprovem por ausência real e não por falta de ferramenta. T012 o promove a manifesto de produto.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "common-rules": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@promovaweb/specsfy": "0.10.2",
+    "context-mode": "1.0.169"
+  },
   "devDependencies": {
+    "typescript": "7.0.2",
     "vitest": "4.1.11"
   },
   "scripts": {
+    "build": "tsc",
     "test:tdd": "vitest run"
   }
 }
