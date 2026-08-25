@@ -18,6 +18,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/setup/env.ts | detectEnvironment |
 | Outras fontes | src/setup/record.ts | RecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
 | Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, loadHooks, runSetup |
+| Outras fontes | src/setup/write.ts | writeSettings, writeRecordFile, readRecordFile |
 | Outras fontes | src/version.ts | readVersion |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
@@ -43,6 +44,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/setup-record.test.ts | — |
 | Testes | tests/setup-revert.test.ts | — |
 | Testes | tests/setup-surface.test.ts | PROIBIDOS |
+| Testes | tests/setup-writes.test.ts | projeto |
 | Testes | tests/surface.test.ts | PROIBIDOS |
 | Testes | tests/version.test.ts | ROOT |
 | Outras fontes | vitest.config.ts | — |

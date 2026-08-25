@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 26.
+- Arquivos de teste: 27.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -33,6 +33,7 @@
 | tests/setup-record.test.ts |
 | tests/setup-revert.test.ts |
 | tests/setup-surface.test.ts |
+| tests/setup-writes.test.ts |
 | tests/surface.test.ts |
 | tests/version.test.ts |
 <!-- specsfy:documentator:end -->

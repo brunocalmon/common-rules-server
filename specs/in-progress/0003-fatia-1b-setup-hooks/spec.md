@@ -507,6 +507,26 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Evidência T021 a T023 — fechamento — 2026-08-24
+
+| Verificação | Resultado |
+| --- | --- |
+| `npm run verify` em clone limpo | exit 0 — install 4s, build 0s, test 2s, total **6s** de 300 |
+| Suíte | **27 arquivos, 94 testes, todos aprovando** |
+| `build_documentation --check` | exit 0 |
+| Diretório pessoal antes e depois | inalterado |
+| Módulos citados no `STACK.md` | todos existem, conferido por script |
+| Comandos citados no `PROJECT.md` | todos existem no binário |
+
+**Defeito principal: o comando relatava instalação e não escrevia nada.** `runSetup` calculava a lista de caminhos escritos e devolvia tudo pronto, mas não continha uma única chamada de escrita. O clone limpo mostrou `.claude/settings.json` e `.common-rules/install.json` ausentes depois de `setup` reportar sete hooks instalados.
+
+Os oitenta e nove testes existentes não pegaram porque **todos verificavam o retorno da função, e nenhum conferia o disco**. É a mesma classe de vazio que a SPEC-0002 encontrou nas asserções que passavam sobre conjunto vazio: a verificação media o que era conveniente medir. `src/setup/write.ts` passou a gravar, preservando chave de terceiro no arquivo do alvo, e `tests/setup-writes.test.ts` verifica o disco em projeto descartável.
+
+**Defeito secundário: a idempotência não valia na prática.** O despacho chamava a orquestração sem passar o registro anterior, de modo que a comparação de `matches` nunca era exercitada pelo binário. O resultado em disco era idempotente por efeito da fusão, mas o relato dizia "instalados" a cada execução e o registro ganhava data nova. O despacho passou a ler o registro, e a segunda execução relata `já estava configurado`.
+
+Ambos atravessaram sete tarefas de implementação. Nenhum teria sido encontrado sem executar o produto a partir de um clone limpo, que é a razão de T023 existir.
+
+
 #### Evidência T020 — despacho e conflito com a fatia 1a — 2026-08-24
 
 `npx tsc --noEmit`, `npm run build`, `npm run test:tdd` e `build_documentation --check` em exit 0. **Suíte inteira verde: 26 arquivos, 89 testes.**
@@ -904,26 +924,29 @@ Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `
 
 #### Fase 5 — Contexto e fechamento
 
-- [ ] T021 [DOC] [US-001] Registrar em .specsfy/STACK.md o que esta fatia introduziu — Refs: US-001, FR-001, FR-002, AC-001, AC-009 — Depends: T019
-  - [ ] **PREP**: Levantar o que mudou de fato: módulos de tradução e registro, e o alvo suportado.
-  - [ ] **EXECUTE**: Registrar cada item com sua evidência no repositório, sem apagar conteúdo humano.
-  - [ ] **VERIFY**: Cada afirmação conferida por script contra as fontes, e o monitor de contexto em CURRENT.
-  - [ ] **EVIDENCE**: Conferência item a item registrada na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+- [x] T021 [DOC] [US-001] Registrar em .specsfy/STACK.md o que esta fatia introduziu — Refs: US-001, FR-001, FR-002, AC-001, AC-009 — Depends: T019
+  - [x] **PREP**: Levantado o que a fatia introduziu: sete módulos, o alvo suportado e os dois arquivos de estado.
+  - [x] **EXECUTE**: Registrados em `.specsfy/STACK.md` os sete módulos com responsabilidade e evidência, o alvo Claude Code, os caminhos de estado e a razão de separar decidir, traduzir e escrever.
+  - [x] **VERIFY**: Cada módulo citado foi conferido por script contra o disco: nenhum inexistente. `hooks/` com sete arquivos, declarado em `files`, e `.venv-crg/` gitignorado.
+  - [x] **EVIDENCE**: Conferência item a item registrada na seção 12.
+  - [x] **IMPROVE**: A separação entre decidir, traduzir e escrever ganhou parágrafo próprio, com o motivo. Sem ele a estrutura pareceria preferência estilística, quando é a mitigação do defeito que derrubou a v0.2.8.
+  <!-- specsfy:evidence {"task": "T021", "refs": ["US-001", "FR-001", "FR-002"], "files": [".specsfy/STACK.md"], "commands": [{"run": "node .claude/skills/specsfy-aux-stack/scripts/update_stack.mjs --project .", "exit": 0}]} -->
 
-- [ ] T022 [DOC] [US-001] [US-003] Atualizar PROJECT.md com o comando de configuração — Refs: US-001, US-003, FR-001, FR-005, AC-011 — Depends: T020
-  - [ ] **PREP**: Confirmar que `PROJECT.md` ainda lista o setup entre o que não existe.
-  - [ ] **EXECUTE**: Mover o setup da lista de ausências para a de capacidades, com a saída real do comando, e manter as demais fatias na lista do que ainda não existe.
-  - [ ] **VERIFY**: Nenhum comando citado falta no binário, conferido por script.
-  - [ ] **EVIDENCE**: Conferência registrada na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+- [x] T022 [DOC] [US-001] [US-003] Atualizar PROJECT.md com o comando de configuração — Refs: US-001, US-003, FR-001, FR-005, AC-011 — Depends: T020
+  - [x] **PREP**: Confirmado que `PROJECT.md` listava o setup entre o que não existe.
+  - [x] **EXECUTE**: O setup passou para a lista de capacidades, com saída real do comando. O servidor MCP entrou na lista do que ainda não existe, com a distinção de que a lógica existe e falta a superfície de protocolo.
+  - [x] **VERIFY**: Nenhum comando citado falta no binário, conferido por script. A única menção restante a setup na lista de ausências descreve o servidor MCP, e não o comando.
+  - [x] **EVIDENCE**: Conferência registrada na seção 12.
+  - [x] **IMPROVE**: A entrada do MCP explicita que a lógica já existe e o que falta é a superfície. Listá-lo como simplesmente ausente sugeriria trabalho maior do que o restante.
+  <!-- specsfy:evidence {"task": "T022", "refs": ["US-001", "US-003", "FR-001", "FR-005"], "files": ["PROJECT.md"], "commands": [{"run": "npm run build", "exit": 0}]} -->
 
-- [ ] T023 [TEST] [US-001] [US-002] [US-003] Executar regressão e isolamento pelos scripts declarados em package.json — Refs: US-001, US-002, US-003, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013 — Depends: T020, T021, T022
-  - [ ] **PREP**: Reunir os treze casos e confirmar que cada um esteve em RED antes da implementação correspondente.
-  - [ ] **EXECUTE**: Executar `npm run verify` a partir de clone limpo e comparar a árvore do diretório pessoal antes e depois.
-  - [ ] **VERIFY**: Suíte verde, guards exercitados por execução, escape conferido byte a byte e diretório pessoal inalterado.
-  - [ ] **EVIDENCE**: Comandos, contagens e a comparação de árvore registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar a retrospectiva da fatia.
+- [x] T023 [TEST] [US-001] [US-002] [US-003] Executar regressão e isolamento pelos scripts declarados em package.json — Refs: US-001, US-002, US-003, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013 — Depends: T020, T021, T022
+  - [x] **PREP**: Treze casos reunidos, cada um com RED registrado antes da implementação.
+  - [x] **EXECUTE**: Clone limpo do remoto, `npm run verify`, suíte completa e execução do binário, com comparação do diretório pessoal antes e depois.
+  - [x] **VERIFY**: Ciclo em 6s contra orçamento de 300; **27 arquivos e 94 testes aprovando**; diretório pessoal inalterado. A regressão encontrou dois defeitos, descritos abaixo, ambos corrigidos e cobertos por teste novo.
+  - [x] **EVIDENCE**: Comandos, tempos e os dois defeitos registrados na seção 12.
+  - [x] **IMPROVE**: Foi acrescentado `tests/setup-writes.test.ts`, que verifica o disco em projeto descartável. A ausência dessa verificação é o que permitiu o defeito principal atravessar sete tarefas.
+  <!-- specsfy:evidence {"task": "T023", "refs": ["US-001", "US-002", "US-003", "FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "NFR-001", "NFR-002", "NFR-003"], "files": ["src/setup/write.ts", "tests/setup-writes.test.ts", "src/cli.ts"], "commands": [{"run": "npm run verify", "exit": 0}, {"run": "npm run test:tdd", "exit": 0}]} -->
 
 ### 15. Ordem de execução
 

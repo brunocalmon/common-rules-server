@@ -7,12 +7,15 @@ import { renderSettings, translateForClaudeCode, type Settings, type TranslatedH
 import { bridgePythonSubsystem, type BridgeEnvironment } from "./bridge.js";
 import { matches, readRecord, RECORD_PATH, type InstallRecord, type RecordEntry } from "./record.js";
 import { readVersion } from "../version.js";
+import { writeRecordFile, writeSettings } from "./write.js";
 
 /** Onde o arquivo do alvo é escrito, relativo ao projeto. */
 export const TARGET_SETTINGS = ".claude/settings.json";
 
 export interface SetupOptions {
   env: TargetEnvironment;
+  /** Raiz do projeto onde escrever. */
+  root?: string;
   /** Falso apenas para inspecionar; nada é escrito de qualquer forma quando `dryRun`. */
   write: boolean;
   dryRun?: boolean;
@@ -88,7 +91,15 @@ export function runSetup(opts: SetupOptions): SetupResult {
     name: h.name, target: TARGET_SETTINGS, version, installedAt: agora, event: h.event,
   }));
   const record: InstallRecord = { target: TARGET, version, hooks: entradas };
-  const written = [TARGET_SETTINGS, RECORD_PATH];
+  // Escreve de fato. Antes desta linha o comando relatava instalação sem
+  // produzir arquivo algum, e nenhum teste pegava porque todos verificavam o
+  // retorno da função e não o disco. A regressão em clone limpo pegou.
+  const written: string[] = [];
+  if (opts.write) {
+    const root = opts.root ?? process.cwd();
+    written.push(writeSettings(root, TARGET_SETTINGS, settings));
+    written.push(writeRecordFile(root, RECORD_PATH, record));
+  }
 
   const ponte = opts.bridgeEnv
     ? bridgePythonSubsystem({ env: opts.bridgeEnv, execute: false })

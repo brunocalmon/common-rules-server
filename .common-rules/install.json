@@ -1,0 +1,55 @@
+{
+  "target": "claude-code",
+  "version": "1.0.0",
+  "hooks": [
+    {
+      "name": "code-review-graph-update",
+      "target": ".claude/settings.json",
+      "version": "1.0.0",
+      "installedAt": "1970-01-01T00:00:00.000Z",
+      "event": "PostToolUse"
+    },
+    {
+      "name": "context-mode-posttooluse",
+      "target": ".claude/settings.json",
+      "version": "1.0.0",
+      "installedAt": "1970-01-01T00:00:00.000Z",
+      "event": "PostToolUse"
+    },
+    {
+      "name": "context-mode-pretooluse",
+      "target": ".claude/settings.json",
+      "version": "1.0.0",
+      "installedAt": "1970-01-01T00:00:00.000Z",
+      "event": "PreToolUse"
+    },
+    {
+      "name": "context-mode-stop",
+      "target": ".claude/settings.json",
+      "version": "1.0.0",
+      "installedAt": "1970-01-01T00:00:00.000Z",
+      "event": "Stop"
+    },
+    {
+      "name": "guard-destructive",
+      "target": ".claude/settings.json",
+      "version": "1.0.0",
+      "installedAt": "1970-01-01T00:00:00.000Z",
+      "event": "PreToolUse"
+    },
+    {
+      "name": "guard-secrets",
+      "target": ".claude/settings.json",
+      "version": "1.0.0",
+      "installedAt": "1970-01-01T00:00:00.000Z",
+      "event": "PreToolUse"
+    },
+    {
+      "name": "protect-authorship",
+      "target": ".claude/settings.json",
+      "version": "1.0.0",
+      "installedAt": "1970-01-01T00:00:00.000Z",
+      "event": "PreToolUse"
+    }
+  ]
+}

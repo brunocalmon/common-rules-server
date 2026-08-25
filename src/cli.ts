@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { defaultEnvironment, inspectDependencies } from "./doctor.js";
 import { runSetup, TARGET_SETTINGS } from "./setup/run.js";
 import { detectEnvironment } from "./setup/env.js";
+import { readRecordFile } from "./setup/write.js";
+import { RECORD_PATH } from "./setup/record.js";
 import { readVersion } from "./version.js";
 
 export interface CommandOutcome {
@@ -31,7 +33,12 @@ function formatReport(): CommandOutcome {
  */
 /** Formata o resultado do setup, sem decidir nada sobre ele. */
 function formatSetup(): CommandOutcome {
-  const r = runSetup({ env: detectEnvironment(), write: true });
+  // Ler o registro anterior é o que faz a idempotência valer na prática: sem
+  // isto o comando reinstala e relata instalação a cada execução, ainda que o
+  // resultado em disco seja o mesmo.
+  const root = process.cwd();
+  const previous = readRecordFile(root, RECORD_PATH);
+  const r = runSetup({ env: detectEnvironment(root), root, write: true, previous });
   if (r.installed.length === 0) return { output: r.report, exitCode: r.exitCode };
   const linhas = r.installed.map((h) => `  ${h.name} — evento ${h.event}, em ${TARGET_SETTINGS}`);
   return { output: [r.report, ...linhas].join("\n"), exitCode: r.exitCode };

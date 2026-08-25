@@ -1,0 +1,76 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "code-review-graph-update",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"after-file-edit\"\n\n# >>> fragmento do hook\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+          }
+        ]
+      },
+      {
+        "matcher": "context-mode-posttooluse",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"after-file-edit\"\n\n# >>> fragmento do hook\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "context-mode-pretooluse",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"before-shell\"\n\n# >>> fragmento do hook\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+          }
+        ]
+      },
+      {
+        "matcher": "guard-destructive",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"before-shell\"\n\n# >>> fragmento do hook\ncmd=\"$HOOK_COMMAND\"\n\n# Command position: start of string, or immediately after a separator.\nPOS='(^|[;&|]|&&|\\|\\|)[[:space:]]*'\n\nif printf '%s' \"$cmd\" | grep -qE \"${POS}rm[[:space:]]+(-[a-zA-Z]*[[:space:]]+)*-?[a-zA-Z]*[rRf][a-zA-Z]*[[:space:]]+/[[:space:]]*$\"; then\n  decision=deny\n  message=\"Blocked: this deletes from the filesystem root.\"\n\nelif printf '%s' \"$cmd\" | grep -qE \"${POS}rm[[:space:]]+-[a-zA-Z]*(rf|fr|Rf|fR)\"; then\n  decision=ask\n  message=\"Recursive force delete. Confirm the path is what you intend before continuing.\"\n\nelif printf '%s' \"$cmd\" | grep -qE \"${POS}git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space:]]+(--force([[:space:]]|$)|-f([[:space:]]|$))\"; then\n  decision=ask\n  message=\"Force push rewrites published history and can discard commits other people have. Confirm the branch and that nobody else is on it.\"\n\nelif printf '%s' \"$cmd\" | grep -qE \"${POS}git[[:space:]]+(reset[[:space:]]+--hard|clean[[:space:]]+-[a-zA-Z]*f|checkout[[:space:]]+\\.[[:space:]]*$)\"; then\n  decision=ask\n  message=\"This discards uncommitted work permanently. Confirm nothing in the working tree is worth keeping.\"\n\nelif printf '%s' \"$cmd\" | grep -qiE '(psql|mysql|mariadb|sqlite3|mongo|mongosh|redis-cli|clickhouse)' \\\n  && printf '%s' \"$cmd\" | grep -qiE '(drop[[:space:]]+(table|database|schema)|truncate[[:space:]]+table|delete[[:space:]]+from[^;]*$)'; then\n  decision=ask\n  message=\"Destructive database statement. Confirm the target is not production and that a backup exists.\"\nfi\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac",
+            "blocking": true
+          }
+        ]
+      },
+      {
+        "matcher": "guard-secrets",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"before-shell\"\n\n# >>> fragmento do hook\nreason='Blocked: this command would print credentials into the transcript, where they cannot be recalled. Read the file with an editor tool, or reference the variable without displaying it.'\n\n# A display command whose target really is a credential file. The trailing\n# boundary matters: without it, \".env\" also matches \"notes.environment\".\nif printf '%s' \"$HOOK_COMMAND\" | grep -qE \\\n  '(^|[;&|]|&&|\\|\\|)[[:space:]]*(cat|less|more|head|tail|bat|xxd|od|strings)([[:space:]]+-[^[:space:]]+)*[[:space:]]+[^[:space:]]*(\\.env([.[:space:]\"'\"'\"']|$)|id_rsa|id_ed25519|id_ecdsa|\\.pem([[:space:]\"'\"'\"']|$)|\\.p12|\\.pfx|\\.netrc|credentials|secrets?\\.(ya?ml|json|toml))'\nthen\n  decision=deny\n  message=\"$reason\"\nfi\n\n# Wholesale environment dumps. Anchored to command position so a commit message\n# or prompt that merely mentions printenv is not treated as running it.\nif printf '%s' \"$HOOK_COMMAND\" | grep -qE \\\n  '(^|[;&|]|&&|\\|\\|)[[:space:]]*(printenv|env)([[:space:]]*$|[[:space:]]*\\|)'\nthen\n  decision=deny\n  message=\"$reason\"\nfi\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac",
+            "blocking": true
+          }
+        ]
+      },
+      {
+        "matcher": "protect-authorship",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"before-shell\"\n\n# >>> fragmento do hook\ncmd=\"$HOOK_COMMAND\"\n\ncase \"$cmd\" in\n  *\"git commit\"*)\n    trailer=$(printf '%s' \"$cmd\" | grep -io 'co-authored-by:[^\"]*' || printf '')\n    case \"$trailer\" in\n      *[Cc]laude*|*[Aa]nthropic*|*[Cc]ursor*|*[Cc]opilot*|*[Gg]emini*|*[Aa]ntigravity*|*noreply@*)\n        decision=deny\n        message=\"Blocked: this commit message credits an AI agent as co-author. Commit authorship belongs to the person who owns the work. Remove the trailer and commit again.\"\n        ;;\n    esac\n    ;;\nesac\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac",
+            "blocking": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "context-mode-stop",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"stop\"\n\n# >>> fragmento do hook\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+          }
+        ]
+      }
+    ]
+  }
+}
