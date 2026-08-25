@@ -26,13 +26,13 @@
 
 A branch de trabalho nasceu com 119 arquivos, e nenhum deles é código. Não há manifesto, build, runner de testes nem ponto de entrada: a v1.0 não compila nem executa, porque ainda não existe.
 
-Há um segundo problema, menos visível e mais caro. O plano inteiro da v1.0 se apoia em quatro ferramentas tratadas como dependências fixadas, e essa premissa nunca foi exercitada neste repositório. A verificação de 2026-08-24 já mostrou que três dos quatro nomes registrados no backlog estavam errados: `specsfy` é `@promovaweb/specsfy`, `pi.dev` é `@earendil-works/pi-coding-agent`, e `code-review-graph` sequer é um pacote npm — é Python instalado por `uv`. Construir setup, orquestração e seleção de modelo sobre uma premissa não exercitada repetiria o erro que a Phase 0 encontrou no `.gitignore`, quando o conjunto que a fase prometia preservar não existia em git.
+Há um segundo problema, menos visível e mais caro. O plano da v1.0 tratava quatro ferramentas como dependências fixadas, e essa premissa nunca foi exercitada neste repositório. A verificação de 2026-08-24 mostrou que três dos quatro nomes estavam errados e que a categoria era uma só quando deveria ser duas: `specsfy` é `@promovaweb/specsfy`, `code-review-graph` sequer é pacote npm — é Python instalado por `uv` — e `pi` não é subsistema, é agente, intercambiável por desenho e pertencente a outra camada. Construir setup, orquestração e seleção de modelo sobre uma premissa não exercitada repetiria o erro que a Phase 0 encontrou no `.gitignore`, quando o conjunto que a fase prometia preservar não existia em git.
 
 #### Resultado desejado
 
-Um pacote mínimo que instala, compila, testa e executa, e que prova de forma executável que as quatro dependências são alcançáveis.
+Um pacote mínimo que instala, compila, testa e executa, e que prova de forma executável que as três dependências do projeto são alcançáveis.
 
-Ao fim desta fatia, `npm install` seguido de `npm run build` produz um binário `common-rules` que responde `--version`, e `common-rules doctor` reporta cada uma das quatro dependências, saindo com código diferente de zero quando alguma faltar. Nada além disso: sem setup, sem orquestração, sem aprovação, sem seleção de modelo.
+Ao fim desta fatia, `npm install` seguido de `npm run build` produz um binário `common-rules` que responde `--version`, e `common-rules doctor` reporta cada uma das três dependências do projeto, saindo com código diferente de zero quando alguma faltar. Nada além disso: sem setup, sem orquestração, sem aprovação, sem seleção de modelo.
 
 O valor não é o comando `--version`. É ter chão firme e a premissa das dependências exercitada antes que qualquer capacidade se apoie nela.
 
@@ -42,9 +42,9 @@ O valor não é o comando `--version`. É ter chão firme e a premissa das depen
 - `npm run build` produz um ponto de entrada executável em `dist/`.
 - `npm run test:tdd` executa a suíte Vitest e passa.
 - `common-rules --version` imprime exatamente a versão declarada no manifesto.
-- `common-rules doctor` reporta as quatro dependências e sai com zero quando todas estão presentes.
+- `common-rules doctor` reporta as três dependências do projeto e sai com zero quando todas estão presentes.
 - `common-rules doctor` sai com código diferente de zero, nomeando a ausente, quando `code-review-graph` não está no PATH.
-- As três dependências npm estão fixadas em versão exata, sem faixa.
+- As duas dependências npm estão fixadas em versão exata, sem faixa.
 
 ### 2. Research e esclarecimentos
 
@@ -70,6 +70,10 @@ Nenhum artefato externo. A consulta a `pi.dev` produziu apenas os identificadore
 
 #### Dúvidas respondidas
 
+- **Q**: O `common-rules` deve instalar as ferramentas ou apenas usar o que o ambiente já tem? → **A**: Depende da camada. Agentes são detectados e nunca instalados. As três dependências do projeto seguem uma regra única: preferir a cópia local, aceitar a global, nunca instalar globalmente. A ponte que cria a cópia local é explícita e vive na fatia 1b.
+- **Q**: `code-review-graph` é Python; dá para instalá-lo pelo `package.json`? → **A**: Dá, e foi verificado: `uv venv` seguido de `uv pip install code-review-graph==2.3.7` produz o binário funcional dentro do projeto, sem tocar em `~/.local/share/uv/tools/`. O ambiente resultante mede cerca de 262 MB, e por isso a cópia local é criada sob pedido, e não a cada `npm install`.
+- **Q**: Por que não usar `postinstall` para isso? → **A**: Porque escreveria no ambiente global durante um `npm install`, seria desligado por `--ignore-scripts`, quebraria CI sem `uv` e faria este projeto ditar a versão de uma ferramenta compartilhada. Ver DEC-002.
+
 - **Q**: Como fica o modelo de dependências, se `code-review-graph` é Python? → **A**: npm fixa as três que são npm; o setup exige `uv` para `code-review-graph` e falha quando ausente. Nesta fatia, apenas a verificação de alcance é implementada; a exigência no setup pertence à fatia 1b.
 - **Q**: Qual pacote é o `pi.dev`? → **A**: `@earendil-works/pi-coding-agent`, versão 0.84.3, binário `pi`. `@mariozechner/pi` foi descartado: é um gerenciador de pods vLLM.
 - **Q**: Qual runner de testes? → **A**: Vitest.
@@ -87,16 +91,16 @@ Nenhuma que bloqueie esta fatia. A inclusão de `codex` na lista de backends sup
 - Manifesto `package.json` com nome `@brunocalmon/common-rules`, binário `common-rules`, `type: module` e `engines.node`.
 - Configuração TypeScript e build que produz um ponto de entrada executável em `dist/`.
 - Vitest instalado e exposto pelo script `test:tdd`, exigido pelo contrato do framework em projeto Node.
-- As três dependências npm declaradas em versão exata: `@promovaweb/specsfy`, `context-mode` e `@earendil-works/pi-coding-agent`.
+- As duas dependências npm declaradas em versão exata: `@promovaweb/specsfy` e `context-mode`. Elas são subsistemas do produto, resolvidos de `node_modules`, e é daí que vem a garantia de versão.
 - Comando `common-rules --version`, que imprime a versão do manifesto.
-- Comando `common-rules doctor`, que reporta o alcance das quatro dependências e sai com código diferente de zero quando alguma falta.
-- `.gitignore` para o projeto Node, removido pela Phase 0 e necessário antes da primeira instalação.
+- Comando `common-rules doctor`, que reporta o alcance das três dependências do projeto e sai com código diferente de zero quando alguma falta.
+- `.gitignore` cobrindo tudo que a instalação e o build geram e que não pertence ao repositório: `node_modules/`, `dist/` e o ambiente virtual Python local. O venv de `code-review-graph` mede cerca de 262 MB, de modo que versioná-lo por descuido seria um estrago difícil de desfazer.
 
 #### Fora de escopo
 
 - `setup`, em qualquer forma, CLI ou MCP. É a fatia 1b.
 - Approval workflow. É a fatia 1c.
-- Detecção de backends de agente além das quatro dependências, e a lista de backends suportados. É a fatia 1d.
+- Detecção de backends de agente — `pi`, `claude`, `cursor-agent`, `codex`, `agy`, `goose`, `dsh` e Ollama — e a lista de suportados. É a fatia 1d. Agentes nunca são instalados por esta ferramenta.
 - Seleção de modelo. É a fatia 1e.
 - Orquestração, subagentes, delegação, hooks, regras e skills próprias.
 - Instalar `code-review-graph` ou `uv`. Esta fatia apenas verifica alcance; exigir instalação pertence ao setup.
@@ -126,12 +130,12 @@ Como **pessoa que desenvolve a v1.0**, quero **um pacote mínimo que passe por i
 **Teste independente**: A partir de um clone limpo, `npm ci && npm run build && npm run test:tdd` conclui sem erro e `common-rules --version` imprime a versão do manifesto.
 **Requisitos**: FR-001, FR-002, FR-003, FR-005
 
-#### US-002 — Saber se o ambiente alcança as quatro dependências
+#### US-002 — Saber se o ambiente alcança as três dependências do projeto
 
 Como **pessoa que desenvolve a v1.0**, quero **um comando que reporte o alcance de cada dependência**, para **descobrir uma ausência agora, e não no meio da orquestração**.
 
 **Por que P1**: A Phase 0 mostrou o custo de construir sobre premissa não exercitada. Esta é a menor prova executável de que o plano se sustenta.
-**Teste independente**: `common-rules doctor` lista as quatro dependências com veredito individual, sai com zero num ambiente completo e com código diferente de zero nomeando a ausente quando `code-review-graph` não está no PATH.
+**Teste independente**: `common-rules doctor` lista as três dependências do projeto com veredito e origem resolvida, sai com zero num ambiente completo e com código diferente de zero nomeando a ausente quando `code-review-graph` não existe em nenhuma das duas origens.
 **Requisitos**: FR-004, FR-006
 
 ### 6. Cenários BDD de aceite
@@ -148,7 +152,7 @@ Feature: Instalação a partir de clone limpo
     Given um clone limpo da branch de trabalho
     When a pessoa executa a instalação de dependências
     Then a instalação conclui com código zero
-    And as três dependências npm aparecem em node_modules nas versões exatas declaradas
+    And as duas dependências npm aparecem em node_modules nas versões exatas declaradas
     And nenhuma dependência do manifesto declara faixa de versão
 ```
 
@@ -207,11 +211,11 @@ Feature: Identificação da versão
 Feature: Verificação de dependências
 
   Scenario: Ambiente completo é aprovado
-    Given as três dependências npm instaladas
-    And code-review-graph alcançável no PATH
+    Given as duas dependências npm resolvíveis, local ou globalmente
+    And code-review-graph alcançável em alguma das duas origens
     When a pessoa executa o comando doctor
-    Then a saída lista as quatro dependências com veredito individual
-    And cada dependência npm aparece com a versão encontrada
+    Then a saída lista as três dependências do projeto com veredito individual
+    And cada dependência aparece com a camada, a origem resolvida e a versão encontrada
     And o comando sai com código zero
 ```
 
@@ -224,8 +228,8 @@ Feature: Verificação de dependências
 Feature: Ausência de dependência
 
   Scenario: code-review-graph indisponível reprova a verificação
-    Given as três dependências npm instaladas
-    And code-review-graph ausente do PATH
+    Given as duas dependências npm resolvíveis
+    And code-review-graph ausente tanto do projeto quanto do PATH
     When a pessoa executa o comando doctor
     Then a saída nomeia code-review-graph como ausente
     And explica que se trata de ferramenta Python instalada por uv, e não de pacote npm
@@ -259,7 +263,7 @@ Feature: Isolamento do ambiente
     Given um clone limpo, instalado e compilado
     When a pessoa executa o binário pelo caminho local do projeto
     Then o comando responde sem exigir instalação global do próprio pacote
-    And as três dependências npm são resolvidas de node_modules
+    And as duas dependências npm são resolvidas de node_modules e não do PATH global
 ```
 
 #### AC-009 — Instalação, build e testes cabem no orçamento
@@ -299,21 +303,21 @@ Feature: Limite do esqueleto
 - **FR-001**: O projeto deve declarar um manifesto com nome `@brunocalmon/common-rules`, binário `common-rules`, módulo ESM e versão mínima de Node.
 - **FR-002**: O projeto deve compilar TypeScript para um ponto de entrada executável em `dist/`, alvo do campo de binário.
 - **FR-003**: O projeto deve expor o script `test:tdd` executando Vitest.
-- **FR-004**: O projeto deve declarar as três dependências npm em versão exata, sem faixa.
+- **FR-004**: O projeto deve declarar as duas dependências npm de subsistema em versão exata, sem faixa.
 - **FR-005**: O binário deve imprimir a versão declarada no manifesto quando invocado com o argumento de versão, saindo com zero.
-- **FR-006**: O binário deve reportar, no comando `doctor`, o alcance de cada uma das quatro dependências, saindo com zero quando todas estão presentes e com código diferente de zero quando alguma falta, nomeando-a.
+- **FR-006**: O binário deve reportar, no comando `doctor`, o alcance de cada uma das três dependências do projeto e a origem que resolveu para cada uma, local ou global, saindo com zero quando todas estão presentes e com código diferente de zero quando alguma falta, nomeando-a.
 
 #### Não funcionais
 
 - **NFR-001**: **Tempo do ciclo**. Instalação com cache frio, build e suíte concluem em menos de cinco minutos somados. **Verificação**: medição do tempo decorrido das três etapas, registrada na seção 12.
 - **NFR-002**: **Reprodutibilidade**. Nenhuma dependência declarada aceita faixa de versão, de modo que duas máquinas instalem o mesmo conteúdo. **Verificação**: inspeção programática do manifesto, falhando ao encontrar prefixo de intervalo.
-- **NFR-003**: **Isolamento**. O pacote executa a partir do projeto, sem exigir instalação global de si mesmo nem das dependências npm. **Verificação**: execução do binário pelo caminho local em clone limpo.
+- **NFR-003**: **Isolamento**. O pacote executa a partir do projeto, e os subsistemas npm são resolvidos de `node_modules`, não do PATH global. **Verificação**: execução do binário pelo caminho local em clone limpo.
 
 #### Erros e casos-limite
 
 - `code-review-graph` ausente do PATH → `doctor` reprova nomeando a ferramenta e explicando que vem de `uv`, não do npm. Não tentar instalar.
-- Dependência npm ausente de `node_modules` → `doctor` reprova nomeando o pacote e orientando a instalação local. Não instalar por conta própria.
-- Versão instalada divergente da declarada → `doctor` reporta ambas e reprova, porque divergência silenciosa é o problema que a fixação existe para evitar.
+- Dependência do projeto ausente nas duas origens → `doctor` reprova nomeando o pacote e a camada, e aponta a ponte explícita da fatia 1b. Não instalar por conta própria, nem local nem globalmente.
+- Versão resolvida divergente da declarada → `doctor` reporta a origem, a versão encontrada e a esperada, e reprova. Divergência silenciosa é o problema que a fixação existe para evitar, e ela é mais provável justamente quando a resolução caiu na cópia global.
 - Node abaixo da versão mínima → o manifesto declara o requisito e a instalação avisa; o binário não tenta contornar.
 - `dist/` ausente ao invocar o binário → mensagem indicando que o build não foi executado, em vez de erro de módulo não encontrado.
 
@@ -336,7 +340,7 @@ Três camadas, deliberadamente rasas nesta fatia:
 | --- | --- | --- |
 | Ponto de entrada | Interpretar o argumento, despachar e definir o código de saída | `src/cli.ts` |
 | Versão | Ler a versão do manifesto | `src/version.ts` |
-| Verificação de dependências | Resolver as três npm e sondar `code-review-graph` no PATH | `src/doctor.ts` |
+| Verificação de dependências | Resolver cada dependência do projeto preferindo a cópia local e aceitando a global, relatando a origem | `src/doctor.ts` |
 
 O ponto de entrada não contém lógica de verificação, e a verificação não imprime — devolve um resultado que o ponto de entrada formata. Essa separação é o que permite testar `doctor` sem capturar saída de terminal.
 
@@ -479,8 +483,8 @@ O ponto sensível é a injeção do ambiente. Um teste de `doctor` que consulte 
 
 - Módulo ESM, por ser o padrão de um projeto TypeScript novo em Node 22 e por `context-mode` e `pi` já serem ESM. Reversível enquanto nenhuma fatia depender do formato.
 - Node maior ou igual a 20, a linha LTS, embora a máquina de desenvolvimento use 22.
-- As versões fixadas são as verificadas em 2026-08-24: `@promovaweb/specsfy` 0.10.2, `context-mode` 1.0.169 e `@earendil-works/pi-coding-agent` 0.84.3.
-- `uv` e `code-review-graph` são pré-requisitos do ambiente. Esta fatia verifica alcance e nunca instala.
+- As versões fixadas são as verificadas em 2026-08-24: `@promovaweb/specsfy` 0.10.2 e `context-mode` 1.0.169 na camada npm, e `code-review-graph` 2.3.7 na camada Python. `@earendil-works/pi-coding-agent` 0.84.3 permanece registrado como identidade do agente `pi`, que pertence à camada 3 e não é fixado por este projeto.
+- `uv` está disponível para a ponte da fatia 1b. Esta fatia apenas resolve e relata, sem instalar em nenhuma origem.
 
 #### Decisões abertas
 
@@ -494,7 +498,7 @@ As dez asserções da fase seguinte rodam em Vitest, que vem do manifesto que el
 
 - [ ] T001 [OPS] [US-001] Criar .gitignore e um package.json de bootstrap contendo apenas Vitest e o script test:tdd — Refs: US-001, FR-003 — Depends: none
   - [ ] **PREP**: Confirmar que o projeto não tem manifesto, e que a Phase 0 removeu o `.gitignore` antigo junto com o restante da v0.2.8.
-  - [ ] **EXECUTE**: Escrever `.gitignore` cobrindo `node_modules/` e `dist/`; escrever `package.json` com `private: true`, `devDependencies.vitest` e `scripts.test:tdd`, sem nome, binário, tipo de módulo ou dependências de produto; instalar.
+  - [ ] **EXECUTE**: Escrever `.gitignore` cobrindo `node_modules/`, `dist/` e o ambiente virtual Python local, antes de qualquer instalação, para que nada de gerado alcance o índice; escrever `package.json` com `private: true`, `devDependencies.vitest` e `scripts.test:tdd`, sem nome, binário, tipo de módulo ou dependências de produto; instalar.
   - [ ] **VERIFY**: `npm run test:tdd` executa o Vitest e reporta ausência de teste, o que prova o runner operante sem afirmar nada sobre o produto.
   - [ ] **EVIDENCE**: Registrar comando, saída e a lista de campos deliberadamente ausentes do manifesto de bootstrap na seção 12.
   - [ ] **IMPROVE**: Registrar melhoria aplicada ao bootstrap ou justificar ausência.
@@ -532,7 +536,7 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
 
 - [ ] T006 [P] [TEST] [TDD] [US-002] Derivar do AC-005 o caso de ambiente aprovado em tests/doctor-ok.test.ts — Refs: US-002, FR-006, NFR-002, NFR-003, AC-005 — Depends: T001
-  - [ ] **PREP**: Ler o Gherkin de AC-005 e definir o critério: as quatro dependências recebem veredito individual, as npm reportam versão encontrada e o código de saída é zero.
+  - [ ] **PREP**: Ler o Gherkin de AC-005 e definir o critério: as três dependências do projeto recebem veredito individual, cada uma reporta camada, origem resolvida e versão, e o código de saída é zero.
   - [ ] **EXECUTE**: Escrever o caso injetando um ambiente controlado completo, para que o resultado não dependa da máquina, com marcador `SPECSFY`.
   - [ ] **VERIFY**: Executar a suíte e observar RED por não existir o módulo de verificação.
   - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
@@ -598,7 +602,7 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
 
 - [ ] T015 [CODE] [US-002] Implementar a verificação de dependências em src/doctor.ts — Refs: US-002, FR-004, FR-006, NFR-002, NFR-003, AC-005, AC-006 — Depends: T006, T007, T008, T013
   - [ ] **PREP**: Confirmar RED em T006 e T007; reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Resolver as três dependências npm a partir de `node_modules`, sondar `code-review-graph` no PATH e devolver um resultado por dependência com nome, origem, versão encontrada e veredito. Receber o ambiente por parâmetro, para que o teste não dependa da máquina.
+  - [ ] **EXECUTE**: Resolver cada dependência do projeto na ordem local e depois global — `node_modules` antes do PATH para as npm, ambiente virtual do projeto antes do PATH para a Python — e devolver um resultado por dependência com nome, camada, origem resolvida, versão e veredito. Receber o ambiente por parâmetro, para que o teste não dependa da máquina.
   - [ ] **VERIFY**: `npm run test:tdd` — os casos de ambiente aprovado e de dependência ausente passam a GREEN.
   - [ ] **EVIDENCE**: Registrar comando, os dois vereditos e o arquivo na seção 12.
   - [ ] **IMPROVE**: Registrar melhoria aplicada ao módulo ou justificar ausência.
@@ -658,8 +662,9 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
 - **Uma das versões fixadas sai do registro ou é despublicada** → a instalação quebra sem aviso. Mitigação: o lockfile é versionado, e `doctor` reporta divergência entre declarado e instalado.
 - **ESM cria atrito com dependência que só ofereça CommonJS** → integração travada numa fatia posterior. Mitigação: as três dependências foram verificadas como ESM ou com binário próprio; a decisão está registrada como suposição reversível enquanto nenhuma fatia depender dela.
 - **`doctor` passar a testar o ambiente em vez do código** → suíte verde numa máquina e vermelha noutra. Mitigação: ambiente injetado nos testes, conforme a seção 11.
+- **Resolução cair na cópia global sem que ninguém perceba** → duas máquinas rodam versões diferentes achando que rodam a mesma. Mitigação: `doctor` sempre relata a origem resolvida, e divergência de versão reprova.
 - **O esqueleto crescer além do escopo** → a fatia perde a função de provar chão firme depressa. Mitigação: AC-010 verifica que apenas dois comandos existem.
-- **`code-review-graph` seguir fora do npm indefinidamente** → o modelo de duas classes se torna permanente. Aceito: a decisão registrada admite a exigência de `uv` no setup, na fatia 1b.
+- **`code-review-graph` seguir fora do npm indefinidamente** → o modelo de três camadas se torna permanente. Aceito: a ponte `uv` explícita da fatia 1b resolve sem exigir que o pacote migre de ecossistema.
 
 #### Suposições
 
@@ -668,7 +673,17 @@ Registradas na seção 13, todas reversíveis nesta fatia.
 ### 17. Decisões
 
 - **DEC-001**: O pacote se chama `@brunocalmon/common-rules`, com binário `common-rules`. *Razão*: `common-rules` sem escopo está ocupado no npm por um pacote de expressões regulares sem atualização desde 2023. *Trade-off*: perde-se a forma curta do comando de instalação; o nome do comando não muda, porque o escopo restringe o pacote e não o binário.
-- **DEC-002**: As dependências seguem duas classes. npm fixa `@promovaweb/specsfy`, `context-mode` e `@earendil-works/pi-coding-agent`; `code-review-graph` é exigido do ambiente e verificado. *Razão*: `code-review-graph` é Python instalado por `uv` e não existe no npm, de modo que a premissa original do backlog era irrealizável. *Alternativa*: tratar tudo como CLI externa detectada — descartada por abrir mão da reprodutibilidade onde ela é possível.
+- **DEC-002**: As dependências seguem três camadas, e as do projeto seguem uma única regra de resolução.
+
+  *Camada 1, subsistema npm*: `@promovaweb/specsfy` e `context-mode`, declarados em versão exata. *Camada 2, subsistema Python*: `code-review-graph`, que não existe no npm e é instalado por `uv` num ambiente virtual do projeto. *Camada 3, backend de agente*: `pi`, `claude`, `cursor-agent`, `codex`, `agy`, `goose`, `dsh` e Ollama, detectados por capacidade, nunca instalados, e pertencentes à fatia 1d.
+
+  *Regra de resolução das camadas 1 e 2*: preferir a cópia local do projeto; aceitar a global quando não houver local; nunca instalar no ambiente global. O `doctor` sempre relata qual origem resolveu, de modo que a diferença entre máquinas seja visível em vez de silenciosa.
+
+  *Razão*: fixar versão só garante alguma coisa quando o binário executado é o do projeto. Ao mesmo tempo, o ambiente de destino é gerido por um playbook declarativo cuja regra é que nada se instala manualmente, e `uv tool install` escreve em `~/.local/share/uv/tools/`, fora do projeto. Preferir o local honra a fixação; aceitar o global evita baixar 262 MB de ambiente Python quando o playbook já proveu a ferramenta; nunca instalar global preserva a autoridade do playbook sobre o sistema.
+
+  *Correção de uma versão anterior desta decisão*: `pi` estava na camada 1. Estava errado — `pi` é agente, não subsistema. Fixá-lo criaria uma segunda cópia enquanto o Orchestrator continuaria invocando o binário do PATH, pagando divergência sem ganhar reprodutibilidade.
+
+  *Alternativa descartada*: `postinstall` instalando o que faltar. Escreveria no ambiente global durante um `npm install`, seria desligado por `--ignore-scripts` — flag que a própria documentação do `pi` recomenda —, quebraria CI sem `uv` e faria este projeto ditar a versão de uma ferramenta global usada por outros trabalhos. A ponte `uv` permanece, movida para invocação explícita na fatia 1b.
 - **DEC-003**: O runner é Vitest, exposto por `test:tdd`. *Razão*: recomendação do contrato do framework, TypeScript nativo e o script que o enforcement exige em projeto Node.
 - **DEC-004**: A Phase 1 foi fatiada em 1a a 1e, e esta fatia entrega apenas o esqueleto. *Razão*: as seis entregas do backlog são cada uma comparável à Phase 0, que rendeu 14 tarefas sendo uma única coisa estreita; uma spec única produziria gates que não se sustentariam honestamente.
 - **DEC-005**: A verificação de dependências é comando, não documento. *Razão*: a Phase 0 encontrou uma premissa falsa que estava escrita como verdade em três lugares. Premissa exercitada por comando falha alto e cedo.
