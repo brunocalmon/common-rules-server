@@ -11,7 +11,7 @@
 | Prioridade | Não priorizado |
 | Milestones | |
 | Criado em | 2026-08-24 |
-| Spec promovida | specs/in-progress/0002-phase-1a-esqueleto-typescript/spec.md (fatia 1a) |
+| Spec promovida | specs/review/0002-phase-1a-esqueleto-typescript/spec.md (fatia 1a) |
 
 ## Ideia original
 

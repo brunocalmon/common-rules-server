@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0002 |
 | Slug | 0002-phase-1a-esqueleto-typescript |
-| Status | Implementing |
+| Status | Reviewing |
 | Effort | 4 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Volume pequeno de código, mas decide manifesto, módulo, build e runner — escolhas caras de reverter depois que as fatias seguintes se apoiarem nelas. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | In Progress |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega é um pacote e um comando de terminal, sem tela. |
 | Atualizada em | 2026-08-24 |
@@ -584,7 +584,7 @@ A falha é da mesma família de duas outras já registradas nesta sessão: subst
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/in-progress/0002-phase-1a-esqueleto-typescript/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0002-phase-1a-esqueleto-typescript/spec.md`
 - **Cobertura**: 2 US, 6 FR, 3 NFR, 10 AC, 5 DEC; mínimo de 3 AC por ID satisfeito.
 
 **Achados da rodada**
@@ -596,13 +596,23 @@ A falha é da mesma família de duas outras já registradas nesta sessão: subst
 
 #### Gate do Ato II — Plano
 
-- **Resultado**: Pending
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/in-progress/0002-phase-1a-esqueleto-typescript/spec.md`
+- **Resultado**: Passed (2026-08-24)
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/review/0002-phase-1a-esqueleto-typescript/spec.md`
+- **Contagens**: 24 tarefas, 13 predecessores TDD, 6 tarefas `[CODE]`, 120 itens de checklist, 25 de 25 IDs cobertos.
+- **Reaberto e refechado** em 2026-08-24, quando `$specsfy-update-spec` acrescentou FR-007 e AC-011 a AC-013 para fechar a lacuna do clone limpo.
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Pending
-- **Verificação**: suíte Vitest verde, build executável e `doctor` aprovando o ambiente, com evidência na seção 12.
+- **Resultado**: Passed (2026-08-24)
+- **Verificação**: `npm run build` e `npx tsc --noEmit` em exit 0; suíte com 13 arquivos e 43 testes aprovando; `npm run verify` em exit 0 a partir de clone recém-obtido; `doctor` aprovando o ambiente completo com exit 0 e reprovando com exit 1 ao remover `code-review-graph` do `PATH`.
+- **Auditorias**: `verify_acceptance.mjs` em `QA: PASSED`; `verify_evidence.mjs` em `PASSED (strict)`; `check_traceability.mjs` em `OK` com 25 de 25 IDs cobertos em 13 arquivos; `monitor_context --check` em `CURRENT`.
+
+**Achados do gate de conclusão**
+
+| ID | Achado | Estado |
+| --- | --- | --- |
+| E1 | As seções de gate do Ato II e do Ato III registravam `Pending` enquanto o cabeçalho declarava `Passed` | Resolvido — mesma inconsistência que o aceite da Phase 0 encontrou, agora conferida antes de fechar |
+| E2 | A Definition of Done falava em "três dependências fixadas"; apenas duas são fixadas por npm, e `code-review-graph` é exigido do ambiente | Resolvido — texto alinhado a DEC-002 |
 
 #### Suposições
 
@@ -864,13 +874,13 @@ Registradas na seção 13, todas reversíveis nesta fatia.
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
-- [ ] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
-- [ ] Todos os cenários `AC` aplicáveis passam.
-- [ ] Todos os requisitos possuem evidência de verificação registrada na seção 12.
-- [ ] Todas as tarefas da seção 14 estão concluídas.
-- [ ] `npm ci`, `npm run build` e `npm run test:tdd` concluem com código zero a partir de clone limpo.
-- [ ] `common-rules doctor` aprova o ambiente completo e reprova nomeando a ausente quando `code-review-graph` sai do PATH.
-- [ ] `.specsfy/STACK.md` registra a stack introduzida por esta fatia: TypeScript, ESM, Vitest e as três dependências fixadas.
-- [ ] `PROJECT.md` é criado ou revisado, porque esta fatia introduz o produto novo no repositório.
+- [x] `Definition Gate` está `Passed`.
+- [x] `Plan Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
+- [x] Todos os cenários `AC` aplicáveis passam — `verify_acceptance.mjs` em `QA: PASSED` para os treze.
+- [x] Todos os requisitos possuem evidência de verificação registrada na seção 12.
+- [x] Todas as tarefas da seção 14 estão concluídas — 24 de 24, com 120 de 120 itens de checklist.
+- [x] `npm ci`, `npm run build` e `npm run test:tdd` concluem com código zero a partir de clone limpo, verificado em clone descartável.
+- [x] `common-rules doctor` aprova o ambiente completo com exit 0 e reprova com exit 1 ao remover `code-review-graph` do `PATH`, nomeando-a e explicando que vem de `uv`.
+- [x] `.specsfy/STACK.md` registra a stack introduzida por esta fatia: TypeScript, ESM, Vitest, as **duas** dependências de subsistema fixadas por npm e o subsistema Python exigido do ambiente. O texto anterior falava em três fixadas, o que contradizia DEC-002.
+- [x] `PROJECT.md` foi criado em T018, com onze fatos conferidos por script contra manifesto, árvore, git e a API do GitHub.
