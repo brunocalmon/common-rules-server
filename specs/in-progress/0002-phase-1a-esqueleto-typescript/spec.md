@@ -631,12 +631,13 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [x] **IMPROVE**: A conferência passou a ser por script contra as fontes, e não por leitura. Foi assim que as duas afirmações falsas apareceram — nenhuma delas seria notada relendo o texto, porque ambas descreviam algo plausível.
   <!-- specsfy:evidence {"task": "T017", "refs": ["US-001", "FR-001", "FR-003", "AC-001", "AC-003"], "files": [".specsfy/STACK.md"], "commands": [{"run": "node .claude/skills/specsfy-aux-stack/scripts/update_stack.mjs --project .", "exit": 0}, {"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check --acknowledge-project-no-change", "exit": 0}]} -->
 
-- [ ] T018 [DOC] [US-001] [US-002] Criar PROJECT.md descrevendo a finalidade e os limites do produto novo — Refs: US-001, US-002, FR-005, FR-006, AC-010 — Depends: T016
-  - [ ] **PREP**: Confirmar que o arquivo não existe, e que a Phase 0 atribuiu a esta fase a tarefa de descrever o produto novo.
-  - [ ] **EXECUTE**: Registrar história, finalidade, capacidades atuais e limites, deixando explícito que hoje existem apenas dois comandos e que setup, aprovação, detecção e seleção de modelo pertencem às fatias seguintes.
-  - [ ] **VERIFY**: O conteúdo corresponde ao que a fatia entregou, sem prometer capacidade inexistente.
-  - [ ] **EVIDENCE**: Registrar o caminho e a conferência contra a superfície real na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao documento ou justificar ausência.
+- [x] T018 [DOC] [US-001] [US-002] Criar PROJECT.md descrevendo a finalidade e os limites do produto novo — Refs: US-001, US-002, FR-005, FR-006, AC-010 — Depends: T016
+  - [x] **PREP**: Confirmado que `PROJECT.md` não existia. A Phase 0 atribuiu a esta fatia a descrição do produto novo, e a partir de T014 o monitor passou a cobrar a revisão a cada tarefa de produção.
+  - [x] **EXECUTE**: `PROJECT.md` registra o que existe — dois comandos, três módulos, três dependências em três camadas —, a lista explícita do que **não** existe, os limites deliberados, a história da v0.2.8 congelada em `archived` e o mapa de onde cada decisão vive.
+  - [x] **VERIFY**: Onze fatos conferidos por script contra manifesto, árvore, git e a API do GitHub; todos correspondem. Uma segunda checagem confirmou que nenhum comando citado no documento deixa de existir no binário.
+  - [x] **EVIDENCE**: Conferência item a item registrada na seção 12.
+  - [x] **IMPROVE**: O documento ganhou uma seção dedicada ao que ainda não existe, com a mesma proeminência da lista de capacidades. Sem ela, a descrição da finalidade se leria como descrição do presente — que foi exatamente o erro que T017 encontrou no registro da stack.
+  <!-- specsfy:evidence {"task": "T018", "refs": ["US-001", "US-002", "FR-005", "FR-006", "AC-010"], "files": ["PROJECT.md"], "commands": [{"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}, {"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check", "exit": 0}]} -->
 
 - [ ] T019 [TEST] [US-001] [US-002] Executar regressão e rastreabilidade pelos scripts declarados em package.json — Refs: US-001, US-002, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010 — Depends: T016, T017, T018
   - [ ] **PREP**: Reunir os dez casos e confirmar que cada um esteve em RED antes da implementação correspondente.
