@@ -587,12 +587,13 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [x] **IMPROVE**: `private: true` foi preservado no manifesto de produto como guarda contra publicação acidental, já que publicar pertence a outra fatia. Nenhum teste exigia isso; é decisão de segurança do próprio manifesto.
   <!-- specsfy:evidence {"task": "T012", "refs": ["US-001", "FR-001", "FR-003", "FR-004", "NFR-002", "AC-001", "AC-007"], "files": ["package.json", "package-lock.json", ".specsfy/STACK.md"], "commands": [{"run": "npm install --ignore-scripts", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}, {"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check", "exit": 0}]} -->
 
-- [ ] T013 [CODE] [US-001] Configurar TypeScript e o build em tsconfig.json — Refs: US-001, FR-002, NFR-001, AC-002, AC-009 — Depends: T003, T005, T010, T012
-  - [ ] **PREP**: Confirmar RED em T003 e T010; reconstruir `docs/` com `$specsfy-documentator` antes de alterar produção.
-  - [ ] **EXECUTE**: Configurar a compilação ESM para `dist/` e declarar o script de build, com o alvo do binário coincidindo com o declarado no manifesto.
-  - [ ] **VERIFY**: `npm run build` conclui com código zero e o caso de build passa a GREEN.
-  - [ ] **EVIDENCE**: Registrar comandos, tempos de build para o orçamento e arquivos gerados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada à configuração ou justificar ausência.
+- [x] T013 [CODE] [US-001] Configurar TypeScript e o build em tsconfig.json — Refs: US-001, FR-002, NFR-001, AC-002, AC-009 — Depends: T003, T005, T010, T012
+  - [x] **PREP**: RED confirmado em T003, com 2 de 4 reprovando, e em T010, com 3 de 4. `docs/` reconstruído antes da alteração, com `--check` em exit 0.
+  - [x] **EXECUTE**: `tsconfig.json` com `module` e `moduleResolution` em `nodenext`, saída em `dist/`, raiz `src/`, modo estrito e `verbatimModuleSyntax`. O script de build já fora declarado em T012, e o alvo `dist/cli.js` coincide com o campo de binário do manifesto.
+  - [x] **VERIFY**: `npx tsc --showConfig` sai com exit 0 e resolve `nodenext`, `outDir` em `./dist` e `rootDir` em `./src`. `npm run build` ainda reprova com TS18003, por ausência de fonte — comportamento esperado e corrigido em T016.
+  - [x] **EVIDENCE**: Comandos, configuração resolvida e o defeito de plano revelado pela execução, registrados na seção 12.
+  - [x] **IMPROVE**: O critério de verificação da tarefa foi corrigido para o que ela consegue provar. Prometia build com código zero, impossível antes de existir fonte; passou a provar que a configuração resolve, e a produção do binário ficou em T016, onde de fato acontece.
+  <!-- specsfy:evidence {"task": "T013", "refs": ["US-001", "FR-002", "NFR-001", "AC-002", "AC-009"], "files": ["tsconfig.json"], "commands": [{"run": "npx tsc --showConfig", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}]} -->
 
 - [ ] T014 [CODE] [US-001] Implementar a leitura da versão em src/version.ts — Refs: US-001, FR-005, NFR-003, AC-004 — Depends: T005, T009, T011, T013
   - [ ] **PREP**: Confirmar RED em T005 e T009; reconstruir `docs/` com `$specsfy-documentator`.
