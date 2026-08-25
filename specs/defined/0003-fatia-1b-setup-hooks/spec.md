@@ -5,13 +5,13 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0003 |
 | Slug | 0003-fatia-1b-setup-hooks |
-| Status | Draft |
+| Status | Defined |
 | Effort | 6 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Tradução de sete hooks para formato nativo, com três bloqueantes cujo erro de escape é falha de segurança silenciosa. A v0.2.8 gastou 494 linhas nisso e registrou dois defeitos críticos no caminho. |
 | ClickUp Task | |
 | Milestones | |
-| Definition Gate | Pending |
+| Definition Gate | Passed |
 | Plan Gate | Pending |
 | Delivery Gate | Pending |
 | Evidence Contract | 1 |
@@ -68,7 +68,7 @@ Nenhuma documentação externa. As fontes são do próprio repositório, congela
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/draft/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
+- `specs/defined/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
 
 #### Dúvidas respondidas
 
@@ -234,10 +234,10 @@ Feature: Idempotência
 
 #### AC-006 — Sem evidência do alvo, nada é escrito
 
-**Cobre**: US-001, FR-001, FR-007, FR-008, NFR-001
+**Cobre**: US-001, FR-001, FR-008, NFR-001
 
 ```gherkin
-@US-001 @FR-001 @FR-007 @FR-008 @NFR-001 @AC-006
+@US-001 @FR-001 @FR-008 @NFR-001 @AC-006
 Feature: Recusa de configurar alvo não usado
 
   Scenario: Projeto sem sinal de uso do alvo permanece intocado
@@ -251,10 +251,10 @@ Feature: Recusa de configurar alvo não usado
 
 #### AC-007 — A execução seca não escreve
 
-**Cobre**: US-003, FR-004, FR-005, NFR-002
+**Cobre**: US-003, FR-004, FR-005, FR-007, NFR-002
 
 ```gherkin
-@US-003 @FR-004 @FR-005 @NFR-002 @AC-007
+@US-003 @FR-004 @FR-005 @FR-007 @NFR-002 @AC-007
 Feature: Ensaio antes de escrever
 
   Scenario: O modo de ensaio relata sem alterar
@@ -267,10 +267,10 @@ Feature: Ensaio antes de escrever
 
 #### AC-008 — A ponte cria a cópia local quando falta
 
-**Cobre**: US-001, FR-008, NFR-001, NFR-003
+**Cobre**: US-001, FR-008, NFR-001
 
 ```gherkin
-@US-001 @FR-008 @NFR-001 @NFR-003 @AC-008
+@US-001 @FR-008 @NFR-001 @AC-008
 Feature: Ponte para o subsistema Python
 
   Scenario: A ferramenta ausente das duas origens é criada dentro do projeto
@@ -279,7 +279,6 @@ Feature: Ponte para o subsistema Python
     Then a cópia é criada dentro do projeto, na versão fixada
     And nada é escrito no ambiente global
     And a verificação de dependências passa a resolvê-la com origem local
-    And a versão instalada coincide exatamente com a fixada, sem faixa
 ```
 
 #### AC-009 — A tradução preserva a semântica de bloqueio
@@ -316,10 +315,10 @@ Feature: Guarda contra escape duplo
 
 #### AC-011 — A fatia não entrega capacidade de outra
 
-**Cobre**: US-001, US-003, FR-001, FR-007, NFR-002, NFR-003
+**Cobre**: US-001, US-003, FR-001, FR-005
 
 ```gherkin
-@US-001 @US-003 @FR-001 @FR-007 @NFR-002 @NFR-003 @AC-011
+@US-001 @US-003 @FR-001 @FR-005 @AC-011
 Feature: Limite da fatia
 
   Scenario: Nenhuma superfície das fatias seguintes aparece
@@ -327,6 +326,40 @@ Feature: Limite da fatia
     When a pessoa lista os comandos disponíveis
     Then existem identificação de versão, verificação de dependências e configuração
     And não existe servidor MCP, aprovação, detecção de agente ou seleção de modelo
+```
+
+#### AC-012 — O registro permite desfazer o que foi feito
+
+**Cobre**: US-003, FR-004, FR-007, NFR-002
+
+```gherkin
+@US-003 @FR-004 @FR-007 @NFR-002 @AC-012
+Feature: Reversibilidade pelo registro
+
+  Scenario: Cada entrada aponta algo que existe e pode ser removido
+    Given uma configuração executada e registrada
+    When a pessoa percorre as entradas do registro
+    Then cada uma nomeia um caminho que existe
+    And o hook nomeado está presente naquele caminho
+    When as entradas são removidas exatamente como o registro as descreve
+    Then a configuração do alvo volta ao estado anterior
+    And executar a configuração de novo reinstala os sete
+```
+
+#### AC-013 — Os sete hooks reais sobrevivem à ida e à volta
+
+**Cobre**: US-002, FR-002, FR-005, NFR-003
+
+```gherkin
+@US-002 @FR-002 @FR-005 @NFR-003 @AC-013
+Feature: Fidelidade sobre o corpus real
+
+  Scenario: Nenhum dos sete se corrompe na tradução
+    Given os sete hooks portados, com seus scripts originais
+    When cada um é traduzido e lido de volta do arquivo de configuração
+    Then os sete scripts recuperados são idênticos aos originais, byte a byte
+    And nenhum ganhou ou perdeu barra invertida, aspa ou cifrão
+    And a comparação cobre o corpus real, e não apenas um exemplo construído
 ```
 
 ### 7. Requisitos
@@ -339,7 +372,7 @@ Feature: Limite da fatia
 - **FR-004**: O comando deve gravar, dentro do projeto, um registro nomeando cada hook instalado, seu destino, sua versão e a data.
 - **FR-005**: O comando deve instalar os sete hooks portados, sem instalar os três devolvidos ao `specsfy`.
 - **FR-006**: Os três hooks bloqueantes devem recusar a ação que protegem e permitir trabalho ordinário sobre os mesmos arquivos.
-- **FR-007**: O comando deve ser idempotente, reconhecendo estado já configurado, deixando-o inalterado e relatando essa condição, e deve oferecer modo de ensaio que relata sem escrever.
+- **FR-007**: O comando não deve produzir efeito que a pessoa não pediu: reexecutar sobre estado já configurado deixa tudo inalterado e relata essa condição, e o modo de ensaio relata o que faria sem escrever nada.
 - **FR-008**: O comando deve oferecer a ponte que cria a cópia local de `code-review-graph` na versão fixada, dentro do projeto, quando ela estiver ausente das duas origens, sem escrever no ambiente global.
 
 #### Não funcionais
@@ -506,13 +539,25 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 #### Gate do Ato I — Definição
 
-- **Resultado**: Pending
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/draft/0003-fatia-1b-setup-hooks/spec.md --allow-draft`
+- **Resultado**: READY (2026-08-24)
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/defined/0003-fatia-1b-setup-hooks/spec.md`
+- **Cobertura**: 3 US, 8 FR, 3 NFR, 13 AC, 6 DEC; mínimo de 3 AC por ID satisfeito, sem ID inexistente citado em `**Cobre**`.
+- **Research**: `load_research.mjs` em `PASSED`, com `R-001` verificado e oito artefatos indexados.
+
+**Achados da rodada**
+
+| ID | Achado | Severidade | Estado |
+| --- | --- | --- | --- |
+| D1 | Quatro declarações de cobertura eram infladas: `AC-008` e `AC-011` declaravam `NFR-003` sem exercitar fidelidade de tradução, `AC-011` declarava `NFR-002` sem exercitar reversibilidade, e `AC-006` declarava `FR-007` sem exercitar reexecução nem ensaio | BLOCKER | Resolvido — declarações removidas e substituídas por `AC-012` e `AC-013`, que exercitam o que declaram |
+| D2 | `FR-007` empacotava duas obrigações, idempotência e modo de ensaio, contra a regra de uma obrigação por requisito | WARNING | Resolvido — reescrito como a obrigação única de não produzir efeito não pedido, que é o que ambas as metades expressam |
+| D3 | A lente de segurança confirma que os três guards têm cenário de recusa e de permissão em par, e que dez asserções exigem execução em vez de inspeção de texto | NOTE | Aceito — é a mitigação direta do defeito crítico da v0.2.8, em que o escape consumido duas vezes passou por revisão porque o arquivo gerado parecia correto |
+
+**Sobre D1.** As quatro inflações vieram de três rodadas sucessivas de ampliar cobertura para satisfazer o mínimo, e não de análise do que cada cenário exercita. É o mesmo defeito que a SPEC-0002 encontrou nos próprios testes, onde duas asserções passavam por vacuidade sobre conjunto vazio. A correção seguiu o mesmo caminho de lá: escrever cenário real em vez de esticar o existente.
 
 #### Gate do Ato II — Plano
 
 - **Resultado**: Pending
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/draft/0003-fatia-1b-setup-hooks/spec.md`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/defined/0003-fatia-1b-setup-hooks/spec.md`
 
 #### Gate do Ato III — Entrega
 
