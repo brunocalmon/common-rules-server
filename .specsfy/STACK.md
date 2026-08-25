@@ -61,3 +61,30 @@ lê `HOOK_COMMAND`, `HOOK_FILE` e `HOOK_INPUT`, que o invólucro fornece, e
 comunica por `decision` e `message`, que o invólucro emite. Sozinho, o fragmento
 de um guard termina no último `fi` sem imprimir nada e não bloquearia coisa
 alguma.
+
+### Configuração de hooks, introduzida pela fatia 1b
+
+| Camada | Item | Responsabilidade | Evidência |
+| --- | --- | --- | --- |
+| Módulo | `src/hooks/source.ts` | Lê frontmatter e fragmento de cada hook | `src/hooks/source.ts` |
+| Módulo | `src/hooks/claude-code.ts` | Traduz para o formato do alvo e envolve o fragmento | `src/hooks/claude-code.ts` |
+| Módulo | `src/hooks/detect.ts` | Decide se há evidência de uso do alvo | `src/hooks/detect.ts` |
+| Módulo | `src/setup/run.ts` | Encadeia detecção, tradução, escrita e registro | `src/setup/run.ts` |
+| Módulo | `src/setup/record.ts` | Lê, grava e compara o registro de instalação | `src/setup/record.ts` |
+| Módulo | `src/setup/bridge.ts` | Cria a cópia local do subsistema Python | `src/setup/bridge.ts` |
+| Módulo | `src/setup/env.ts` | Observa o sistema de arquivos para alimentar a detecção | `src/setup/env.ts` |
+| Alvo | Claude Code | Único alvo suportado; Cursor e Antigravity ficam para fatia própria | `src/hooks/detect.ts` |
+| Estado | `.common-rules/install.json` | Registro do que foi instalado, dentro do projeto | `src/setup/record.ts` |
+| Estado | `.claude/settings.json` | Onde as entradas de hook são escritas | `src/setup/run.ts` |
+
+### Separação entre decidir, traduzir e escrever
+
+Cada uma vive em módulo próprio, e a razão é concreta. A tradução devolve
+conteúdo e não escreve, de modo que a fidelidade do fragmento é verificável sem
+tocar o disco. Na v0.2.8 escape e escrita estavam no mesmo caminho, o escape foi
+consumido duas vezes e todos os guards passaram a permitir tudo — defeito que
+sobreviveu à revisão porque o arquivo gerado parecia correto.
+
+Pela mesma razão, `env.ts` é a única parte que observa o sistema de arquivos: a
+decisão de detecção recebe o resultado por parâmetro e pode ser exercitada
+contra ambientes construídos.

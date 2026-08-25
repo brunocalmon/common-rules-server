@@ -13,6 +13,7 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 | --- | --- |
 | `common-rules --version` | Imprime a versão declarada no manifesto |
 | `common-rules doctor` | Relata as três dependências do projeto, com camada, origem resolvida e versão |
+| `common-rules setup` | Instala os sete hooks no editor detectado e registra o que escreveu |
 
 Exemplo real de `doctor`:
 
@@ -22,14 +23,29 @@ ok      context-mode — camada npm, origem local, versão 1.0.169
 ok      code-review-graph — camada python, origem global, versão 2.3.7
 ```
 
-Três módulos em `src/`, dez arquivos de teste, 35 casos. Ciclo completo de
-instalação, compilação e suíte em sete segundos.
+Dez módulos em `src/`, vinte e seis arquivos de teste, 89 casos.
+
+O `setup` liga os subsistemas ao ciclo do agente e protege o repositório. Sete
+hooks: quatro conectam `context-mode` e `code-review-graph`, dois barram comando
+destrutivo e exibição de credencial, e um preserva a autoria dos commits. Ele só
+escreve quando há evidência de uso do editor, grava um registro do que fez e
+reexecutar não duplica nada.
+
+Exemplo real de `setup`:
+
+```text
+7 hooks instalados em .claude/settings.json
+  guard-destructive — evento PreToolUse, em .claude/settings.json
+  guard-secrets — evento PreToolUse, em .claude/settings.json
+  ...
+```
 
 ## O que ainda não existe
 
 Esta lista importa tanto quanto a anterior. Nada abaixo está implementado:
 
-- **Setup**, em qualquer forma, de linha de comando ou MCP.
+- **Servidor MCP**, com a tool `setup` única. A lógica existe e é exposta pelo CLI; falta a superfície de protocolo.
+
 - **Fluxo de aprovação** antes de execução.
 - **Detecção de backends de agente** — `pi`, `claude`, `cursor-agent`, `codex`,
   `agy`, `goose`, `dsh` e Ollama. O `doctor` cobre somente as três dependências
