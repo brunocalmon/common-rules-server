@@ -507,6 +507,23 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Evidência T016 — detecção do alvo — 2026-08-24
+
+`npx tsc --noEmit` e `npm run build` em exit 0. A decisão foi exercitada contra cinco ambientes injetados:
+
+| Caso | Resultado |
+| --- | --- |
+| `.claude/settings.json` presente | reconhece, nomeando a evidência |
+| apenas o diretório `.claude/` | reconhece |
+| nada presente | recusa, nomeando o que faltou |
+| sinalizador presente e nenhum arquivo | recusa |
+| arquivo presente e sinalizador ausente | recusa |
+
+Os dois últimos são os ambíguos, e ambos recusam. Reconhecer o alvo com base em apenas metade da evidência levaria a escrever configuração num editor que a pessoa talvez não use, e AC-006 fixa que não configurar não é falha.
+
+`setup-detect.test.ts` continua em RED porque importa `src/setup/run`, que só existe em T019. É a mesma decomposição de peças e ligação da fatia 1a, e fica declarado em vez de silenciado.
+
+
 #### Evidência T014 e T015 — leitura e tradução — 2026-08-24
 
 | Verificação | Comando | Resultado |
@@ -748,12 +765,13 @@ Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `
   - [x] **IMPROVE**: O corpus dos sete hooks saiu de `specs/` para `hooks/` na raiz do pacote. Dentro de `specs/` o caminho muda a cada transição de estado, e os testes quebraram exatamente por isso — registro não é código.
   <!-- specsfy:evidence {"task": "T015", "refs": ["US-002", "FR-002", "FR-003", "FR-006", "NFR-003"], "files": ["src/hooks/claude-code.ts", "package.json"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
 
-- [ ] T016 [CODE] [US-001] Implementar em src/hooks/detect.ts — Refs: US-001, FR-001, NFR-001 — Depends: T001, T006, T011
-  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Decidir se há evidência de uso do alvo e devolver a decisão com o motivo, sem escrever nada.
-  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que o caso de ausência de evidência passa a GREEN.
-  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+- [x] T016 [CODE] [US-001] Implementar em src/hooks/detect.ts — Refs: US-001, FR-001, NFR-001 — Depends: T001, T006, T011
+  - [x] **PREP**: RED confirmado em T001, T006 e T011; `docs/` reconstruído antes da alteração.
+  - [x] **EXECUTE**: `src/hooks/detect.ts` decide se há evidência de uso do alvo e devolve a decisão com o motivo, sem escrever nada. A evidência é a presença de `.claude/settings.json`, `settings.local.json` ou o próprio diretório.
+  - [x] **VERIFY**: `npx tsc --noEmit` em exit 0 e a decisão discrimina os cinco casos, inclusive os dois ambíguos: sinalizador sem arquivo e arquivo sem sinalizador reprovam ambos. `setup-detect.test.ts` segue em RED por importar `src/setup/run`, que só existe em T019.
+  - [x] **EVIDENCE**: Comandos e a tabela dos cinco casos, registrados na seção 12.
+  - [x] **IMPROVE**: A decisão carrega o motivo, e não só o veredito. Um `false` sem explicação obrigaria quem executa a adivinhar o que faltou, e o relato de AC-006 exige nomear a evidência ausente.
+  <!-- specsfy:evidence {"task": "T016", "refs": ["US-001", "FR-001", "NFR-001"], "files": ["src/hooks/detect.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
 
 #### Fase 3 — Registro e ponte
 
