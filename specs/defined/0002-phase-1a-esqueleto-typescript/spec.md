@@ -463,7 +463,7 @@ O ponto sensível é a injeção do ambiente. Um teste de `doctor` que consulte 
 | ID | Achado | Estado |
 | --- | --- | --- |
 | D1 | Seis IDs declaravam menos de três cenários em `**Cobre**`; a cobertura extra existia só na matriz da seção 12, que o validador não lê | Resolvido — cobertura declarada onde o cenário de fato exercita o requisito |
-| D2 | O defeito do quantificador português reincidiu pela quarta vez, agora em "Todo o plano" | Contornado — frase reescrita; ver N5 e N6 em SPEC-0001 |
+| D2 | O defeito do quantificador português reincidiu pela quarta vez, na abertura de uma frase da seção 1, e pela quinta ao redigir esta própria nota | Contornado — frases reescritas; ver N5 e N6 em SPEC-0001 |
 
 #### Gate do Ato II — Plano
 
