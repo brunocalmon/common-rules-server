@@ -5,14 +5,14 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0003 |
 | Slug | 0003-fatia-1b-setup-hooks |
-| Status | Defined |
+| Status | Planned |
 | Effort | 6 |
 | Effort updated at | 2026-08-24 |
 | Effort rationale | Tradução de sete hooks para formato nativo, com três bloqueantes cujo erro de escape é falha de segurança silenciosa. A v0.2.8 gastou 494 linhas nisso e registrou dois defeitos críticos no caminho. |
 | ClickUp Task | |
 | Milestones | |
 | Definition Gate | Passed |
-| Plan Gate | Pending |
+| Plan Gate | Passed |
 | Delivery Gate | Pending |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega é um comando de terminal que escreve arquivos de configuração, sem tela. |
@@ -68,7 +68,7 @@ Nenhuma documentação externa. As fontes são do próprio repositório, congela
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/defined/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
+- `specs/planned/0003-fatia-1b-setup-hooks/research/hooks-v028/` — cópias literais dos sete hooks portados, mais um índice com proveniência, dimensionamento medido e a justificativa dos três descartados. Código do próprio projeto; a fonte normativa continua sendo este `spec.md`.
 
 #### Dúvidas respondidas
 
@@ -506,6 +506,24 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Evidência T001 a T013 — asserções em RED — 2026-08-24
+
+Treze arquivos em `tests/`, um por cenário da seção 6. `npm run test:tdd` reprova os treze e mantém verdes os treze da fatia 1a.
+
+| Origem do RED | Arquivos | Natureza |
+| --- | --- | --- |
+| Módulo inexistente | onze | `src/hooks/source`, `claude-code`, `detect`, `src/setup/run`, `record`, `bridge` |
+| Asserção nomeada | `setup-surface.test.ts` | `COMMANDS` expõe `doctor` e `version`, e o esperado é `doctor`, `setup` e `version` |
+
+Nenhum RED decorre de sintaxe, importação malformada ou ambiente. Onze arquivos falham na carga porque o módulo sob teste ainda não existe, que é o RED canônico de um ciclo test-first, e um falha com asserção nomeada porque `src/cli.ts` já existe desde a fatia 1a.
+
+**Os guards são exercitados por execução.** `hooks-blocking.test.ts` e `hooks-permissive.test.ts` escrevem o script do hook num diretório temporário, dão permissão de execução e o rodam como subprocesso, medindo o código de saída. Verificar que o texto gerado contém a string esperada não provaria bloqueio: foi assim que o defeito crítico da v0.2.8 passou por revisão. Os dois arquivos formam par, recusar o perigoso e permitir o ordinário, e nenhum passa sozinho.
+
+**O corpus real é usado, e não apenas um exemplo construído.** `hooks-escape.test.ts` usa um script deliberadamente hostil, com aspas simples e duplas, barras invertidas, cifrões e substituição de comando. `hooks-corpus.test.ts` percorre os sete hooks portados e compara byte a byte, mais a contagem de caracteres hostis em cada um. Um exemplo construído prova que o caso pensado funciona; o corpus prova que o caso não pensado também.
+
+**Falha de âncora barrada antes de gravar.** A primeira tentativa de registrar esta evidência usou como âncora a string `#### Matriz de verificação`, que existe em SPEC-0001 e SPEC-0002 e não existe aqui. É a terceira vez nesta sessão que uma substituição assume âncora sem conferir. Desta vez a asserção de escrita interrompeu antes de qualquer gravação, em vez de perder o conteúdo em silêncio como aconteceu na SPEC-0002.
+
+
 | Requisito | Cenário BDD | Nível | Comando de verificação | Evidência |
 | --- | --- | --- | --- | --- |
 | FR-001 | AC-001 | Integração | `npm run test:tdd` — detecção com evidência presente | Pending |
@@ -540,7 +558,7 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-24)
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/defined/0003-fatia-1b-setup-hooks/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/planned/0003-fatia-1b-setup-hooks/spec.md`
 - **Cobertura**: 3 US, 8 FR, 3 NFR, 13 AC, 6 DEC; mínimo de 3 AC por ID satisfeito, sem ID inexistente citado em `**Cobre**`.
 - **Research**: `load_research.mjs` em `PASSED`, com `R-001` verificado e oito artefatos indexados.
 
@@ -556,8 +574,17 @@ O ponto sensível é o mesmo que derrubou a v0.2.8. Verificar que o texto gerado
 
 #### Gate do Ato II — Plano
 
-- **Resultado**: Pending
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/defined/0003-fatia-1b-setup-hooks/spec.md`
+- **Resultado**: Passed (2026-08-24)
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/planned/0003-fatia-1b-setup-hooks/spec.md`
+- **Contagens**: 23 tarefas, 13 predecessores TDD, 7 tarefas `[CODE]`, 115 itens de checklist, 27 de 27 IDs cobertos.
+- **RED comprovado**: os treze cenários têm asserção reprovando antes de qualquer código de produção. Onze por módulo inexistente e um por asserção nomeada; nenhum por sintaxe, importação ou ambiente.
+
+**Achados do planejamento**
+
+| ID | Achado | Estado |
+| --- | --- | --- |
+| P1 | A estrutura de arquivos da seção 8 é anterior a `AC-012` e `AC-013`, criados na validação, e nomeia dois arquivos que nenhum cenário exige | Registrado — o plano usa treze arquivos, um por cenário; a seção 8 não é editável nesta etapa |
+| P2 | Uma substituição de texto assumiu âncora inexistente nesta spec, pela terceira vez na sessão | Resolvido — a asserção de escrita interrompeu antes de gravar, em vez de perder o conteúdo em silêncio |
 
 #### Gate do Ato III — Entrega
 
@@ -576,11 +603,186 @@ Nenhuma que bloqueie esta fatia.
 
 ### 14. Tarefas
 
-A seção é preenchida por `$specsfy-05-tasks` depois do Definition Gate.
+#### Fase 1 — Asserções em RED
+
+Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `tests/` e nenhuma depende das outras, por isso executam em paralelo.
+
+- [x] T001 [P] [TEST] [TDD] [US-001] Derivar de AC-001 o caso em tests/setup-install.test.ts — Refs: US-001, FR-001, FR-002, FR-004, NFR-001, AC-001 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-001 e definir o critério: a instalação escreve as quatro entradas de integração, cria o registro e não toca nada fora do projeto.
+  - [x] **EXECUTE**: Escrever o caso em `tests/setup-install.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulo `src/setup/run` inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T002 [P] [TEST] [TDD] [US-002] Derivar de AC-002 o caso em tests/hooks-blocking.test.ts — Refs: US-002, FR-003, FR-006, AC-002 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-002 e definir o critério: os três guards recusam a ação que protegem, verificado executando o script e não lendo seu texto.
+  - [x] **EXECUTE**: Escrever o caso em `tests/hooks-blocking.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulo `src/hooks/source` inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T003 [P] [TEST] [TDD] [US-002] Derivar de AC-003 o caso em tests/hooks-permissive.test.ts — Refs: US-002, FR-003, FR-006, AC-003 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-003 e definir o critério: os guards permitem trabalho ordinário sobre os mesmos arquivos que protegem.
+  - [x] **EXECUTE**: Escrever o caso em `tests/hooks-permissive.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulo `src/hooks/source` inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T004 [P] [TEST] [TDD] [US-003] Derivar de AC-004 o caso em tests/setup-record.test.ts — Refs: US-003, FR-001, FR-004, FR-005, AC-004 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-004 e definir o critério: o registro nomeia os sete hooks com destino, versão, data e o alvo escolhido.
+  - [x] **EXECUTE**: Escrever o caso em `tests/setup-record.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulos `src/setup/record` e `run` inexistentes.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T005 [P] [TEST] [TDD] [US-003] Derivar de AC-005 o caso em tests/setup-idempotent.test.ts — Refs: US-003, FR-005, FR-007, FR-008, NFR-002, AC-005 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-005 e definir o critério: a segunda execução deixa tudo idêntico, não duplica entrada e não recria a cópia local.
+  - [x] **EXECUTE**: Escrever o caso em `tests/setup-idempotent.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulo `src/setup/run` inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T006 [P] [TEST] [TDD] [US-001] Derivar de AC-006 o caso em tests/setup-detect.test.ts — Refs: US-001, FR-001, FR-008, NFR-001, AC-006 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-006 e definir o critério: sem evidência do alvo nada é escrito, o relato nomeia o que faltou e o comando não falha.
+  - [x] **EXECUTE**: Escrever o caso em `tests/setup-detect.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulos `src/hooks/detect` e `src/setup/run` inexistentes.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T007 [P] [TEST] [TDD] [US-003] Derivar de AC-007 o caso em tests/setup-dryrun.test.ts — Refs: US-003, FR-004, FR-005, FR-007, NFR-002, AC-007 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-007 e definir o critério: o ensaio lista os sete e seus destinos sem criar arquivo nem gravar registro.
+  - [x] **EXECUTE**: Escrever o caso em `tests/setup-dryrun.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulo `src/setup/run` inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T008 [P] [TEST] [TDD] [US-001] Derivar de AC-008 o caso em tests/setup-bridge.test.ts — Refs: US-001, FR-008, NFR-001, AC-008 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-008 e definir o critério: a ponte cria a cópia local na versão fixada, dentro do projeto, sem tocar o ambiente global.
+  - [x] **EXECUTE**: Escrever o caso em `tests/setup-bridge.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulo `src/setup/bridge` inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T009 [P] [TEST] [TDD] [US-002] Derivar de AC-009 o caso em tests/hooks-translate.test.ts — Refs: US-002, FR-002, FR-003, FR-006, NFR-003, AC-009 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-009 e definir o critério: bloqueante produz entrada que interrompe e não bloqueante produz entrada que apenas observa.
+  - [x] **EXECUTE**: Escrever o caso em `tests/hooks-translate.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulos `src/hooks/claude-code` e `source` inexistentes.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T010 [P] [TEST] [TDD] [US-002] Derivar de AC-010 o caso em tests/hooks-escape.test.ts — Refs: US-002, FR-002, FR-006, NFR-003, AC-010 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-010 e definir o critério: um script com aspas, barras e cifrões volta idêntico do arquivo de configuração e continua recusando.
+  - [x] **EXECUTE**: Escrever o caso em `tests/hooks-escape.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulo `src/hooks/claude-code` inexistente.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T011 [P] [TEST] [TDD] [US-001] [US-003] Derivar de AC-011 o caso em tests/setup-surface.test.ts — Refs: US-001, US-003, FR-001, FR-005, AC-011 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-011 e definir o critério: a superfície tem os três comandos e nenhum das fatias seguintes.
+  - [x] **EXECUTE**: Escrever o caso em `tests/setup-surface.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por asserção nomeada: `COMMANDS` expõe `doctor` e `version`, sem `setup`.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T012 [P] [TEST] [TDD] [US-003] Derivar de AC-012 o caso em tests/setup-revert.test.ts — Refs: US-003, FR-004, FR-007, NFR-002, AC-012 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-012 e definir o critério: cada entrada do registro aponta caminho existente, remover pelo registro restaura o estado e reexecutar reinstala.
+  - [x] **EXECUTE**: Escrever o caso em `tests/setup-revert.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulos `src/setup/run` e `record` inexistentes.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+- [x] T013 [P] [TEST] [TDD] [US-002] Derivar de AC-013 o caso em tests/hooks-corpus.test.ts — Refs: US-002, FR-002, FR-005, NFR-003, AC-013 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-013 e definir o critério: os sete hooks reais voltam idênticos byte a byte, e não apenas um exemplo construído.
+  - [x] **EXECUTE**: Escrever o caso em `tests/hooks-corpus.test.ts`, com marcador `SPECSFY` por asserção e o sistema de arquivos injetado, para que nenhum teste toque o projeto real.
+  - [x] **VERIFY**: RED observado — `npm run test:tdd` reprova por módulos `src/hooks/source` e `claude-code` inexistentes.
+  - [x] **EVIDENCE**: Comando, contagem e causa registrados na seção 12.
+  - [x] **IMPROVE**: Cada asserção recebeu marcador `SPECSFY` próprio, e o ambiente é injetado onde a verificação dependeria da máquina.
+
+#### Fase 2 — Tradução e leitura
+
+- [ ] T014 [CODE] [US-002] Implementar em src/hooks/source.ts — Refs: US-002, FR-002, FR-005 — Depends: T009, T010, T013
+  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Ler o frontmatter e o corpo de cada hook e devolver estrutura tipada com nome, evento, bloqueio e script.
+  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que a leitura devolve os sete com o script intacto.
+  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+
+- [ ] T015 [CODE] [US-002] Implementar em src/hooks/claude-code.ts — Refs: US-002, FR-002, FR-003, FR-006, NFR-003 — Depends: T002, T003, T009, T010, T013, T014
+  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Converter a estrutura canônica no formato nativo do alvo, preservando evento, bloqueio e script sem alteração. Não escreve arquivo: devolve o conteúdo, que é o que torna a fidelidade verificável sem tocar o disco.
+  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que os casos de tradução, escape e corpus passam a GREEN.
+  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+
+- [ ] T016 [CODE] [US-001] Implementar em src/hooks/detect.ts — Refs: US-001, FR-001, NFR-001 — Depends: T001, T006, T011
+  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Decidir se há evidência de uso do alvo e devolver a decisão com o motivo, sem escrever nada.
+  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que o caso de ausência de evidência passa a GREEN.
+  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+
+#### Fase 3 — Registro e ponte
+
+- [ ] T017 [CODE] [US-003] Implementar em src/setup/record.ts — Refs: US-003, FR-004, NFR-002 — Depends: T004, T007, T012
+  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Ler, gravar e comparar o registro de instalação, com hook, destino, versão e data.
+  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que os casos de registro e reversão passam a GREEN.
+  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+
+- [ ] T018 [CODE] [US-001] Implementar em src/setup/bridge.ts — Refs: US-001, FR-008, NFR-001 — Depends: T005, T006, T008
+  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Criar a cópia local do subsistema Python na versão fixada, dentro do projeto, recusando quando `uv` faltar.
+  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que o caso da ponte passa a GREEN.
+  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+
+#### Fase 4 — Orquestração e superfície
+
+- [ ] T019 [CODE] [US-001] [US-003] Implementar em src/setup/run.ts — Refs: US-001, US-003, FR-001, FR-005, FR-007, NFR-001, NFR-002 — Depends: T001, T005, T006, T007, T012, T015, T016, T017
+  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Encadear detecção, tradução, escrita e registro, preservando bloco de terceiro e oferecendo o modo de ensaio.
+  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que instalação, idempotência e ensaio passam a GREEN.
+  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+
+- [ ] T020 [CODE] [US-001] [US-003] Implementar em src/cli.ts — Refs: US-001, US-003, FR-001, FR-005 — Depends: T001, T004, T011, T019
+  - [ ] **PREP**: Confirmar RED nos predecessores e reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Acrescentar o despacho do comando de configuração, sem lógica de instalação no arquivo.
+  - [ ] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` mostrando que o caso de superfície passa a GREEN e a suíte inteira fica verde.
+  - [ ] **EVIDENCE**: Registrar comandos, transição por caso e arquivos alterados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+
+#### Fase 5 — Contexto e fechamento
+
+- [ ] T021 [DOC] [US-001] Registrar em .specsfy/STACK.md o que esta fatia introduziu — Refs: US-001, FR-001, FR-002, AC-001, AC-009 — Depends: T019
+  - [ ] **PREP**: Levantar o que mudou de fato: módulos de tradução e registro, e o alvo suportado.
+  - [ ] **EXECUTE**: Registrar cada item com sua evidência no repositório, sem apagar conteúdo humano.
+  - [ ] **VERIFY**: Cada afirmação conferida por script contra as fontes, e o monitor de contexto em CURRENT.
+  - [ ] **EVIDENCE**: Conferência item a item registrada na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+
+- [ ] T022 [DOC] [US-001] [US-003] Atualizar PROJECT.md com o comando de configuração — Refs: US-001, US-003, FR-001, FR-005, AC-011 — Depends: T020
+  - [ ] **PREP**: Confirmar que `PROJECT.md` ainda lista o setup entre o que não existe.
+  - [ ] **EXECUTE**: Mover o setup da lista de ausências para a de capacidades, com a saída real do comando, e manter as demais fatias na lista do que ainda não existe.
+  - [ ] **VERIFY**: Nenhum comando citado falta no binário, conferido por script.
+  - [ ] **EVIDENCE**: Conferência registrada na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou justificar ausência.
+
+- [ ] T023 [TEST] [US-001] [US-002] [US-003] Executar regressão e isolamento pelos scripts declarados em package.json — Refs: US-001, US-002, US-003, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013 — Depends: T020, T021, T022
+  - [ ] **PREP**: Reunir os treze casos e confirmar que cada um esteve em RED antes da implementação correspondente.
+  - [ ] **EXECUTE**: Executar `npm run verify` a partir de clone limpo e comparar a árvore do diretório pessoal antes e depois.
+  - [ ] **VERIFY**: Suíte verde, guards exercitados por execução, escape conferido byte a byte e diretório pessoal inalterado.
+  - [ ] **EVIDENCE**: Comandos, contagens e a comparação de árvore registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar a retrospectiva da fatia.
 
 ### 15. Ordem de execução
 
-Definida junto das tarefas, depois do Definition Gate.
+- Caminho crítico: T009, T010 e T013 → T014 → T015 → T019 → T020 → T023.
+- Tarefas paralelas: T001 a T013, porque cada uma escreve num arquivo distinto de `tests/` e nenhuma depende do resultado das outras.
+- Barreira deliberada: T015 precede toda escrita em disco. A tradução devolve conteúdo e não escreve, de modo que a fidelidade do escape é verificada antes de existir qualquer caminho que grave arquivo. Foi a ausência dessa separação que deixou o defeito crítico da v0.2.8 passar por revisão.
+- Divergência revelada pelo planejamento: a estrutura de arquivos da seção 8 lista onze arquivos de teste e nomeia `hooks-source.test.ts` e `setup-isolation.test.ts`, que nenhum cenário exige. O plano usa treze, um por cenário, acrescentando `setup-install`, `hooks-permissive`, `setup-revert` e `hooks-corpus`. A lista da seção 8 é anterior a AC-012 e AC-013, criados durante a validação.
+- Estratégia de MVP: não se aplica. Instalar parte dos hooks entrega proteção parcial, que é pior que nenhuma por sugerir cobertura inexistente.
 
 ## Ato III — Entregar e validar
 
