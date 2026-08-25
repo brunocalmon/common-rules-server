@@ -24,6 +24,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test:tdd": "vitest run"
+    "test:tdd": "vitest run",
+    "verify": "node scripts/cycle.mjs"
   }
 }

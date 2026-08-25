@@ -11,8 +11,8 @@
 | Effort rationale | Volume pequeno de código, mas decide manifesto, módulo, build e runner — escolhas caras de reverter depois que as fatias seguintes se apoiarem nelas. |
 | ClickUp Task | |
 | Milestones | |
-| Definition Gate | Passed |
-| Plan Gate | Passed |
+| Definition Gate | Pending |
+| Plan Gate | Pending |
 | Delivery Gate | In Progress |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega é um pacote e um comando de terminal, sem tela. |
@@ -94,6 +94,7 @@ Nenhuma que bloqueie esta fatia. A inclusão de `codex` na lista de backends sup
 - As duas dependências npm declaradas em versão exata: `@promovaweb/specsfy` e `context-mode`. Elas são subsistemas do produto, resolvidos de `node_modules`, e é daí que vem a garantia de versão.
 - Comando `common-rules --version`, que imprime a versão do manifesto.
 - Comando `common-rules doctor`, que reporta o alcance das três dependências do projeto e sai com código diferente de zero quando alguma falta.
+- Script `verify`, que executa instalação, compilação e suíte em sequência, registra o tempo de cada etapa e permite que um clone recém-obtido fique verde com um comando.
 - `.gitignore` cobrindo tudo que a instalação e o build geram e que não pertence ao repositório: `node_modules/`, `dist/` e o ambiente virtual Python local. O venv de `code-review-graph` mede cerca de 262 MB, de modo que versioná-lo por descuido seria um estrago difícil de desfazer.
 
 #### Fora de escopo
@@ -296,6 +297,53 @@ Feature: Limite do esqueleto
     And nenhum comando de setup, orquestração, aprovação ou seleção de modelo existe
 ```
 
+#### AC-011 — Um clone recém-obtido fica verde com um comando
+
+**Cobre**: US-001, FR-003, FR-007, NFR-001
+
+```gherkin
+@US-001 @FR-003 @FR-007 @NFR-001 @AC-011
+Feature: Ciclo de verificação em clone novo
+
+  Scenario: O script de ciclo deixa a suíte verde sem passo manual
+    Given um clone recém-obtido, sem dependências instaladas e sem tempos registrados
+    When a pessoa executa o script de verificação
+    Then instalação, compilação e suíte concluem com código zero
+    And o tempo de cada etapa fica registrado
+    And a suíte inteira aprova, incluindo a asserção de orçamento
+```
+
+#### AC-012 — O ciclo registra as três etapas
+
+**Cobre**: FR-007, NFR-001, US-001
+
+```gherkin
+@US-001 @FR-007 @NFR-001 @AC-012
+Feature: Registro das etapas do ciclo
+
+  Scenario: Cada etapa tem seu tempo medido em separado
+    Given o script de verificação concluído
+    When a pessoa inspeciona o registro de tempos
+    Then existem medições distintas para instalação, compilação e suíte
+    And a soma fica abaixo do orçamento declarado
+```
+
+#### AC-013 — O ciclo falha alto quando uma etapa reprova
+
+**Cobre**: FR-007, NFR-001, US-001
+
+```gherkin
+@US-001 @FR-007 @NFR-001 @AC-013
+Feature: Interrupção do ciclo
+
+  Scenario: Uma etapa que reprova interrompe a sequência
+    Given uma compilação que falha
+    When a pessoa executa o script de verificação
+    Then o script encerra com código diferente de zero
+    And nomeia a etapa que reprovou
+    And não prossegue para a etapa seguinte
+```
+
 ### 7. Requisitos
 
 #### Funcionais
@@ -306,6 +354,7 @@ Feature: Limite do esqueleto
 - **FR-004**: O projeto deve declarar as duas dependências npm de subsistema em versão exata, sem faixa.
 - **FR-005**: O binário deve imprimir a versão declarada no manifesto quando invocado com o argumento de versão, saindo com zero.
 - **FR-006**: O binário deve reportar, no comando `doctor`, o alcance de cada uma das três dependências do projeto e a origem que resolveu para cada uma, local ou global, saindo com zero quando todas estão presentes e com código diferente de zero quando alguma falta, nomeando-a.
+- **FR-007**: O projeto deve expor um script que execute instalação, compilação e suíte em sequência e registre o tempo de cada etapa, de modo que um clone recém-obtido alcance a suíte verde sem passo manual.
 
 #### Não funcionais
 
@@ -714,6 +763,22 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [ ] **VERIFY**: O arquivo cita a regra, seu motivo e seu alcance, sem apagar conteúdo humano preexistente.
   - [ ] **EVIDENCE**: Registrar o caminho e o trecho na seção 12.
   - [ ] **IMPROVE**: Registrar melhoria aplicada ao registro ou justificar ausência.
+
+#### Fase 6 — Ciclo de verificação
+
+- [ ] T021 [P] [TEST] [TDD] [US-001] Derivar de AC-011 a AC-013 os casos do ciclo em tests/cycle.test.ts — Refs: US-001, FR-003, FR-007, NFR-001, AC-011, AC-012, AC-013 — Depends: T001
+  - [ ] **PREP**: Ler os três cenários e definir o critério: o manifesto expõe o script, ele mede as três etapas em separado, e reprova nomeando a etapa que falhou.
+  - [ ] **EXECUTE**: Escrever os casos com marcador `SPECSFY`, verificando o manifesto e o comportamento do script sem executar um ciclo completo dentro da suíte.
+  - [ ] **VERIFY**: Executar a suíte e observar RED por não existir o script.
+  - [ ] **EVIDENCE**: Registrar comando, saída de RED e código de saída na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao caso ou justificar ausência.
+
+- [ ] T022 [CODE] [US-001] Implementar o ciclo de verificação em scripts/cycle.mjs — Refs: US-001, FR-003, FR-007, NFR-001, AC-011, AC-012, AC-013 — Depends: T021, T016, T019
+  - [ ] **PREP**: Confirmar RED em T021; reconstruir `docs/` com `$specsfy-documentator`.
+  - [ ] **EXECUTE**: Executar instalação, compilação e suíte em sequência, medindo cada uma, gravando os tempos fora da árvore versionada e interrompendo na primeira reprovação.
+  - [ ] **VERIFY**: `npm run verify` conclui com código zero num clone recém-obtido, e a suíte inteira aprova, incluindo o orçamento.
+  - [ ] **EVIDENCE**: Registrar comandos, tempos e a execução em clone limpo na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ao script ou justificar ausência.
 
 ### 15. Ordem de execução
 
