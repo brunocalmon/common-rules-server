@@ -613,12 +613,13 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
 
 #### Fase 4 — Superfície
 
-- [ ] T016 [CODE] [US-001] [US-002] Implementar o despacho dos dois comandos em src/cli.ts — Refs: US-001, US-002, FR-005, FR-006, AC-008, AC-010 — Depends: T006, T009, T011, T014, T015
-  - [ ] **PREP**: Confirmar RED em T009 e T011 e GREEN nos módulos de versão e verificação; reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Interpretar o argumento, despachar para versão ou verificação, formatar a saída e definir o código de saída. Nenhuma lógica de verificação vive aqui.
-  - [ ] **VERIFY**: `npm run build` seguido de `npm run test:tdd` — os casos de execução local e de limite do esqueleto passam a GREEN, e a suíte inteira fica verde.
-  - [ ] **EVIDENCE**: Registrar comandos, suíte completa em GREEN e arquivos na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao despacho ou justificar ausência.
+- [x] T016 [CODE] [US-001] [US-002] Implementar o despacho dos dois comandos em src/cli.ts — Refs: US-001, US-002, FR-005, FR-006, AC-008, AC-010 — Depends: T006, T009, T011, T014, T015
+  - [x] **PREP**: RED confirmado em T009 e T011; `surface.test.ts` sequer carregava, por `src/cli` inexistente. Módulos de versão e verificação já compilando. `docs/` reconstruído antes da alteração.
+  - [x] **EXECUTE**: `src/cli.ts` interpreta o argumento, despacha para versão ou verificação, formata a saída e define o código de saída. Nenhuma lógica de verificação vive nele. A execução só ocorre quando o módulo é o binário invocado, de modo que importá-lo não imprime nada — é o que permite a `surface.test.ts` inspecionar a superfície sem efeito colateral.
+  - [x] **VERIFY**: `npm run build` em exit 0 e `npm run test:tdd` com **10 arquivos e 35 testes, todos aprovando**. O binário responde `--version` com `1.0.0` e exit 0, `doctor` com as três dependências e exit 0, e comando desconhecido com exit 2.
+  - [x] **EVIDENCE**: Comandos, suíte completa em GREEN e a saída real do binário, registrados na seção 12.
+  - [x] **IMPROVE**: O despacho devolve um resultado em vez de imprimir, e quem escreve é a borda do processo. Isso mantém cada comando testável sem capturar saída de terminal, e é a mesma separação aplicada em `version.ts` e `doctor.ts`.
+  <!-- specsfy:evidence {"task": "T016", "refs": ["US-001", "US-002", "FR-005", "FR-006", "AC-008", "AC-010"], "files": ["src/cli.ts"], "commands": [{"run": "npm run build", "exit": 0}, {"run": "npm run test:tdd", "exit": 0}, {"run": "node dist/cli.js --version", "exit": 0}, {"run": "node dist/cli.js doctor", "exit": 0}]} -->
 
 #### Fase 5 — Contexto persistente e fechamento
 
