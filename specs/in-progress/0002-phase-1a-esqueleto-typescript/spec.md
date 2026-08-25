@@ -603,12 +603,13 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [x] **IMPROVE**: `noEmitOnError` passou a constar do `tsconfig.json`. Sem ele o `tsc` emitia `dist/` mesmo reprovando por tipo, o que faria a asserção de binário existente passar sobre uma compilação quebrada. Verificado por mutação, e não por leitura.
   <!-- specsfy:evidence {"task": "T014", "refs": ["US-001", "FR-005", "NFR-003", "AC-004"], "files": ["src/version.ts", "tsconfig.json", "package.json"], "commands": [{"run": "npm run build", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}, {"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check --acknowledge-project-no-change", "exit": 0}]} -->
 
-- [ ] T015 [CODE] [US-002] Implementar a verificação de dependências em src/doctor.ts — Refs: US-002, FR-004, FR-006, NFR-002, NFR-003, AC-005, AC-006 — Depends: T006, T007, T008, T013
-  - [ ] **PREP**: Confirmar RED em T006 e T007; reconstruir `docs/` com `$specsfy-documentator`.
-  - [ ] **EXECUTE**: Resolver cada dependência do projeto na ordem local e depois global — `node_modules` antes do PATH para as npm, ambiente virtual do projeto antes do PATH para a Python — e devolver um resultado por dependência com nome, camada, origem resolvida, versão e veredito. Receber o ambiente por parâmetro, para que o teste não dependa da máquina.
-  - [ ] **VERIFY**: `npm run test:tdd` — os casos de ambiente aprovado e de dependência ausente passam a GREEN.
-  - [ ] **EVIDENCE**: Registrar comando, os dois vereditos e o arquivo na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ao módulo ou justificar ausência.
+- [x] T015 [CODE] [US-002] Implementar a verificação de dependências em src/doctor.ts — Refs: US-002, FR-004, FR-006, NFR-002, NFR-003, AC-005, AC-006 — Depends: T006, T007, T008, T013
+  - [x] **PREP**: RED confirmado em T006 e T007 — os dois arquivos sequer carregavam, por `src/doctor` inexistente. `docs/` reconstruído antes da alteração.
+  - [x] **EXECUTE**: `src/doctor.ts` resolve cada dependência na ordem local e depois global, e devolve nome, camada, origem, versão e veredito. O ambiente é injetado por interface; `defaultEnvironment` fornece a implementação real, que apenas lê e nunca instala.
+  - [x] **VERIFY**: `npm run test:tdd` — `doctor-ok.test.ts` e `doctor-missing.test.ts` passaram a carregar e aprovam os oito casos. A suíte foi de 24 para 32 testes, com 26 aprovando e 6 reprovando, todas dependentes do binário.
+  - [x] **EVIDENCE**: Comandos, transição dos dois arquivos e a execução contra o ambiente real, registrados na seção 12.
+  - [x] **IMPROVE**: A verificação foi exercitada também contra o ambiente real, e não só contra o injetado. Um módulo que passa apenas com ambiente forjado poderia estar correto no teste e errado na máquina.
+  <!-- specsfy:evidence {"task": "T015", "refs": ["US-002", "FR-004", "FR-006", "NFR-002", "NFR-003", "AC-005", "AC-006"], "files": ["src/doctor.ts"], "commands": [{"run": "npm run build", "exit": 0}, {"run": "node .claude/skills/specsfy-documentator/scripts/build_documentation.mjs --project . --check", "exit": 0}, {"run": "node .claude/skills/specsfy-setup/scripts/monitor_context.mjs --project . --check --acknowledge-project-no-change", "exit": 0}]} -->
 
 #### Fase 4 — Superfície
 
