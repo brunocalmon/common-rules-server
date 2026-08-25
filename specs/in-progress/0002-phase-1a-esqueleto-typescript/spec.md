@@ -425,34 +425,95 @@ O ponto sensível é a injeção do ambiente. Um teste de `doctor` que consulte 
 
 ### 12. Plano de testes e rastreabilidade
 
+#### Evidência de execução — 2026-08-24
+
+Registro por tarefa. Cada linha cita comando e resultado observado.
+
+**T001 — bootstrap do runner.** `npm install --ignore-scripts` instalou 44 pacotes em 22s, sem vulnerabilidades. `npm run test:tdd` reportou `No test files found`, provando o runner operante sem afirmar nada sobre o produto. A primeira verificação reprovou em dezesseis arquivos: o Vitest coletava as asserções da Phase 0 em `.claude/scripts/phase0/`, que se chamam `*.test.js` porque o auditor de rastreabilidade do Specsfy só reconhece arquivo cujo nome pareça de teste. A seção 8 listava `vitest.config.ts` mas nenhuma tarefa o criava; o escopo passou a integrar T001.
+
+**T002 a T011 — dez asserções em RED.** 21 asserções reprovando, 3 aprovando. Cada um dos dez cenários tem ao menos uma reprovação. As três aprovações verificam o que T001 entregou e existem de fato. Duas asserções foram refinadas por passarem por vacuidade sobre conjunto vazio de dependências; com a guarda de conjunto não vazio, as aprovações caíram de 5 para 3.
+
+**T012 — manifesto de produto.** `npm install --ignore-scripts` em 6s. Suíte de 21 reprovações para 9. `monitor_context --check` retornou `PENDING` apontando `.specsfy/STACK.md` e bloqueou o fechamento da tarefa, o que desviou a execução para `$specsfy-aux-stack` antes de prosseguir.
+
+**T013 — configuração TypeScript.** `npx tsc --showConfig` em exit 0, resolvendo `nodenext`, `outDir` `./dist` e `rootDir` `./src`. `npm run build` reprovou com **TS18003**, por ausência de fontes. A tarefa prometia build com código zero, impossível na sua posição; o critério foi corrigido para o que ela prova, e a produção do binário permaneceu em T016.
+
+**T014 — leitura da versão.** Duas correções que a execução exigiu. `@types/node` estava ausente e a compilação reprovava com TS2591 e TS2339. Mais grave: com a compilação reprovando, `tsc` **ainda assim emitia** `dist/`, o que faria a asserção de binário existente passar sobre compilação quebrada. `noEmitOnError` entrou no `tsconfig.json` e a guarda foi verificada por mutação — erro de tipo produz exit 1 sem `dist/`; build limpo produz exit 0 com `dist/`.
+
+**T015 — verificação de dependências.** `doctor-ok` e `doctor-missing` deixaram de falhar na carga; a suíte subiu de 24 para 32 testes, com 26 aprovando. Exercitado também contra o ambiente real, e não só contra o injetado:
+
+| Dependência | Camada | Origem | Versão |
+| --- | --- | --- | --- |
+| `@promovaweb/specsfy` | npm | local | 0.10.2 |
+| `context-mode` | npm | local | 1.0.169 |
+| `code-review-graph` | python | **global** | 2.3.7 |
+
+É a regra de DEC-002 operando: os subsistemas npm resolvem da cópia do projeto e o Python resolve do ambiente, porque não há cópia local. Sem a coluna de origem, duas máquinas divergiriam em silêncio.
+
+**T016 — despacho da linha de comando.** `npm run build` em exit 0 e suíte completa em **10 arquivos, 35 testes, todos aprovando**. Saída real do binário:
+
+```text
+$ node dist/cli.js --version
+1.0.0
+
+$ node dist/cli.js doctor
+ok      @promovaweb/specsfy — camada npm, origem local, versão 0.10.2
+ok      context-mode — camada npm, origem local, versão 1.0.169
+ok      code-review-graph — camada python, origem global, versão 2.3.7
+
+$ node dist/cli.js inventado
+comando não reconhecido. Disponíveis: version, doctor   (exit 2)
+```
+
+**T017 — registro da stack.** Onze afirmações conferidas por script; duas estavam falsas. O arquivo dizia que os backends de agente eram detectados em tempo de execução, e nada os detecta. Dizia que a regra de `--ignore-scripts` estava registrada em `.specsfy/RULES.md`, que não existia. Um teste do próprio script deu falso positivo, procurando `pi` como substring e casando dentro de outra palavra — refeito com limite de palavra.
+
+**T018 — descrição do produto.** `PROJECT.md` criado, com onze fatos conferidos por script contra manifesto, árvore, git e a API do GitHub. A seção do que **não** existe recebeu a mesma proeminência das capacidades reais.
+
+**T019 — regressão em clone limpo.** Clone do remoto, `npm ci --ignore-scripts` em 3s, `npm run build` em 0s, `npm run test:tdd` em 1s, todos exit 0, suíte verde com 10 arquivos e 35 testes. Ciclo em **4 segundos** contra orçamento de 300. Dois achados abaixo.
+
+#### Achados abertos
+
+**A suíte não passa sozinha num clone recém-instalado.** `budget.test.ts` lê `.git/phase1a-timings.json`, que fica fora da árvore versionada e não é clonado. Num clone onde ninguém registrou um ciclo, quatro asserções reprovam; verificado removendo o arquivo. É coerente com o texto de AC-009, que descreve alguém medindo a sequência, mas `npm ci && npm test` num clone novo reprova, e integração contínua reprovaria junto. Fechar exige comportamento que a spec não descreve e passa por `$specsfy-update-spec`.
+
+**Colisão de identificadores entre specs.** `check_traceability.mjs` varre 18 arquivos, dez desta fatia e oito da Phase 0, e devolve `MARCADORES ÓRFÃOS: AC-011`. Conferência restrita a `tests/` mostra 21 de 21 IDs cobertos pelos arquivos próprios, de modo que a cobertura não depende da contaminação. Registrado como P4 e bloqueia o Delivery Gate.
+
+#### Falha de registro corrigida em 2026-08-24
+
+As dez escritas de evidência anteriores usaram como âncora de inserção a string `#### Matriz de verificação`, que existe em SPEC-0001 e **não existe** nesta spec. Cada uma foi um no-op silencioso, e o conteúdo acima esteve ausente do arquivo enquanto os relatos afirmavam tê-lo registrado.
+
+Os checklists das tarefas e os blocos `specsfy:evidence` foram gravados normalmente, porque usaram âncoras próprias de cada linha. O que se perdeu foi a narrativa da seção 12 e a atualização da coluna de evidência da matriz — razão pela qual `verify_acceptance.mjs` reportava `AC SEM RESULTADO` para os dez critérios.
+
+A falha é da mesma família de duas outras já registradas nesta sessão: substituição de texto assumindo âncora sem conferir se ela existe. A partir daqui, toda escrita nesta spec verifica o resultado antes de seguir.
+
+#### Matriz de verificação
+
 | Requisito | Cenário BDD | Nível | Comando de verificação | Evidência |
 | --- | --- | --- | --- | --- |
-| FR-001 | AC-001 | Contrato | `npm run test:tdd` — caso de forma do manifesto | Pending |
-| FR-001 | AC-007 | Contrato | `npm run test:tdd` — caso de versões exatas | Pending |
-| FR-001 | AC-008 | E2E | execução do binário pelo caminho local | Pending |
-| FR-002 | AC-002 | E2E | `npm run build` e inspeção de `dist/` | Pending |
-| FR-002 | AC-009 | Medição | tempo de build registrado | Pending |
-| FR-002 | AC-010 | E2E | lista de comandos do binário compilado | Pending |
-| FR-003 | AC-003 | Contrato | `npm run test:tdd` — caso de presença do script | Pending |
-| FR-003 | AC-009 | Medição | tempo da suíte registrado | Pending |
-| FR-003 | AC-002 | Unidade | suíte executa sobre o build corrente | Pending |
-| FR-004 | AC-007 | Contrato | inspeção programática do manifesto | Pending |
-| FR-004 | AC-001 | Integração | versões em `node_modules` iguais às declaradas | Pending |
-| FR-004 | AC-006 | Integração | divergência de versão reprova `doctor` | Pending |
-| FR-005 | AC-004 | E2E | binário com argumento de versão | Pending |
-| FR-005 | AC-010 | E2E | apenas dois comandos oferecidos | Pending |
-| FR-005 | AC-008 | E2E | execução local sem instalação global | Pending |
-| FR-006 | AC-005 | Integração | `doctor` em ambiente completo | Pending |
-| FR-006 | AC-006 | Integração | `doctor` com PATH sem `code-review-graph` | Pending |
-| FR-006 | AC-010 | E2E | `doctor` presente na lista de comandos | Pending |
-| NFR-001 | AC-009 | Medição | tempo somado das três etapas | Pending |
-| NFR-001 | AC-002 | Medição | build isolado dentro do orçamento | Pending |
-| NFR-001 | AC-003 | Medição | suíte isolada dentro do orçamento | Pending |
-| NFR-002 | AC-007 | Contrato | nenhum prefixo de intervalo no manifesto | Pending |
-| NFR-002 | AC-001 | Integração | instalação reproduz as versões declaradas | Pending |
-| NFR-003 | AC-008 | E2E | binário roda pelo caminho local | Pending |
-| NFR-003 | AC-004 | E2E | versão impressa sem instalação global | Pending |
-| NFR-003 | AC-005 | Integração | dependências npm resolvidas de `node_modules` | Pending |
+| FR-001 | AC-001 | Contrato | `npm run test:tdd` — caso de forma do manifesto | **Passed** — manifest.test.ts, 4 casos, T012 |
+| FR-001 | AC-007 | Contrato | `npm run test:tdd` — caso de versões exatas | **Passed** — pinning.test.ts, 3 casos, T012 |
+| FR-001 | AC-008 | E2E | execução do binário pelo caminho local | **Passed** — local-run.test.ts, 3 casos, T016 |
+| FR-002 | AC-002 | E2E | `npm run build` e inspeção de `dist/` | **Passed** — build.test.ts, 4 casos, T016 |
+| FR-002 | AC-009 | Medição | tempo de build registrado | **Passed** — budget.test.ts, 4 casos, ciclo em 4s de 300, T019 |
+| FR-002 | AC-010 | E2E | lista de comandos do binário compilado | **Passed** — surface.test.ts, 3 casos, T016 |
+| FR-003 | AC-003 | Contrato | `npm run test:tdd` — caso de presença do script | **Passed** — scripts.test.ts, 3 casos, T012 |
+| FR-003 | AC-009 | Medição | tempo da suíte registrado | **Passed** — budget.test.ts, 4 casos, ciclo em 4s de 300, T019 |
+| FR-003 | AC-002 | Unidade | suíte executa sobre o build corrente | **Passed** — build.test.ts, 4 casos, T016 |
+| FR-004 | AC-007 | Contrato | inspeção programática do manifesto | **Passed** — pinning.test.ts, 3 casos, T012 |
+| FR-004 | AC-001 | Integração | versões em `node_modules` iguais às declaradas | **Passed** — manifest.test.ts, 4 casos, T012 |
+| FR-004 | AC-006 | Integração | divergência de versão reprova `doctor` | **Passed** — doctor-missing.test.ts, 4 casos, T015 |
+| FR-005 | AC-004 | E2E | binário com argumento de versão | **Passed** — version.test.ts, 3 casos, T016 |
+| FR-005 | AC-010 | E2E | apenas dois comandos oferecidos | **Passed** — surface.test.ts, 3 casos, T016 |
+| FR-005 | AC-008 | E2E | execução local sem instalação global | **Passed** — local-run.test.ts, 3 casos, T016 |
+| FR-006 | AC-005 | Integração | `doctor` em ambiente completo | **Passed** — doctor-ok.test.ts, 4 casos, T015 |
+| FR-006 | AC-006 | Integração | `doctor` com PATH sem `code-review-graph` | **Passed** — doctor-missing.test.ts, 4 casos, T015 |
+| FR-006 | AC-010 | E2E | `doctor` presente na lista de comandos | **Passed** — surface.test.ts, 3 casos, T016 |
+| NFR-001 | AC-009 | Medição | tempo somado das três etapas | **Passed** — budget.test.ts, 4 casos, ciclo em 4s de 300, T019 |
+| NFR-001 | AC-002 | Medição | build isolado dentro do orçamento | **Passed** — build.test.ts, 4 casos, T016 |
+| NFR-001 | AC-003 | Medição | suíte isolada dentro do orçamento | **Passed** — scripts.test.ts, 3 casos, T012 |
+| NFR-002 | AC-007 | Contrato | nenhum prefixo de intervalo no manifesto | **Passed** — pinning.test.ts, 3 casos, T012 |
+| NFR-002 | AC-001 | Integração | instalação reproduz as versões declaradas | **Passed** — manifest.test.ts, 4 casos, T012 |
+| NFR-003 | AC-008 | E2E | binário roda pelo caminho local | **Passed** — local-run.test.ts, 3 casos, T016 |
+| NFR-003 | AC-004 | E2E | versão impressa sem instalação global | **Passed** — version.test.ts, 3 casos, T016 |
+| NFR-003 | AC-005 | Integração | dependências npm resolvidas de `node_modules` | **Passed** — doctor-ok.test.ts, 4 casos, T015 |
 
 ### 13. Validações
 
