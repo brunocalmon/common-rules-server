@@ -27,6 +27,8 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/skills/inventory.ts | SKILLS_DIR, SkillsInspection, inspectSkills |
 | Outras fontes | src/skills/record.ts | LOCK_PATH, LockEntry, SkillRecordEntry, SkillReportRow, SkillReport, GUARANTEE_NOTE, readLock, toRecordEntries |
 | Outras fontes | src/skills/source.ts | OFFICIAL_SOURCE, resolveSource |
+| Outras fontes | src/telemetry/read.ts | readTrace |
+| Outras fontes | src/telemetry/trace.ts | TRACE_ID_LENGTH, TraceSource, generateId, nowIso, realSource |
 | Outras fontes | src/version.ts | readVersion |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
@@ -83,6 +85,23 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/skills-source-oficial.test.ts | — |
 | Testes | tests/skills-source-terceiro.test.ts | — |
 | Testes | tests/surface.test.ts | PROIBIDOS |
+| Testes | tests/trace-doctor-relata.test.ts | relatorio |
+| Testes | tests/trace-doctor-sem-registro.test.ts | — |
+| Testes | tests/trace-execucoes-distintas.test.ts | — |
+| Testes | tests/trace-fixtures.ts | INSTANTE_FIXO, ID_FIXO, EPOCA, origemFixa, projeto, gravarRegistro, registroAntigo, arvore |
+| Testes | tests/trace-forma.test.ts | — |
+| Testes | tests/trace-gerador-deterministico.test.ts | traceCom |
+| Testes | tests/trace-gerador-vazio.test.ts | registro |
+| Testes | tests/trace-hooks-e-skills.test.ts | registroCompleto |
+| Testes | tests/trace-instante-epoca.test.ts | comEpoca |
+| Testes | tests/trace-instante-injetado.test.ts | — |
+| Testes | tests/trace-marca-execucao.test.ts | registroDe |
+| Testes | tests/trace-no-relato.test.ts | — |
+| Testes | tests/trace-opacidade.test.ts | — |
+| Testes | tests/trace-padrao-producao.test.ts | semInjecao |
+| Testes | tests/trace-registro-antigo.test.ts | semTrace |
+| Testes | tests/trace-relogio-deterministico.test.ts | instanteDe |
+| Testes | tests/trace-sem-epoca.test.ts | entradas |
 | Testes | tests/version.test.ts | ROOT |
 | Outras fontes | vitest.config.ts | — |
 <!-- specsfy:documentator:end -->

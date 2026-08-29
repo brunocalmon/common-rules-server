@@ -62,7 +62,7 @@ A Phase 1 empacotava seis entregas. Cada uma é comparável em tamanho à Phase 
 | 1d | Detecção de backends e graceful degradation | A especificar |
 | 1e | Seleção de modelo pelo Orchestrator | A especificar |
 | 1f | Servidor MCP com a tool `setup` única | **SPEC-0004, concluída** |
-| 1g | Telemetria por `trace_id` no registro auditável | A especificar |
+| 1g | Telemetria por `trace_id` no registro auditável | **SPEC-0006, concluída** |
 | 1h | Instalar specsfy e mattpocock lado a lado, com registro | **SPEC-0005, concluída** |
 
 Decisões desta fatia: pacote `@brunocalmon/common-rules` com binário `common-rules`, porque `common-rules` sem escopo está ocupado no npm por um pacote abandonado desde 2023. Runner Vitest. ESM e Node maior ou igual a 20 como defaults reversíveis.

@@ -19,6 +19,7 @@ export interface DependencyResult {
 }
 
 import { reportSkills, type SkillReportRow } from "./skills/record.js";
+import { readTrace, type TraceRead } from "./telemetry/read.js";
 
 export interface Report {
   results: DependencyResult[];
@@ -27,6 +28,8 @@ export interface Report {
   skills?: SkillReportRow[];
   /** Declaração do alcance da garantia sobre os conjuntos. */
   note?: string;
+  /** Identificador da última execução registrada, quando uma raiz é informada. */
+  trace?: TraceRead;
 }
 
 /**
@@ -98,6 +101,7 @@ export function inspectDependencies(env: Environment, root?: string): Report {
     results,
     skills: conjuntos.results,
     note: conjuntos.note,
+    trace: readTrace(root),
     exitCode: dependenciasOk && conjuntos.exitCode === 0 ? 0 : 1,
   };
 }

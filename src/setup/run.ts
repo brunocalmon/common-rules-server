@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { detectTarget, TARGET, type TargetEnvironment } from "../hooks/detect.js";
 import { readHook } from "../hooks/source.js";
 import { renderSettings, translateForClaudeCode, type Settings, type TranslatedHook } from "../hooks/claude-code.js";
+import { realSource, type TraceSource } from "../telemetry/trace.js";
 import { installSkills, type Executor as SkillsExecutor } from "../skills/install.js";
 import { OFFICIAL_SOURCE } from "../skills/source.js";
 import { readLock, toRecordEntries } from "../skills/record.js";
@@ -29,6 +30,13 @@ export interface SetupOptions {
    * modo que a ponte Python só corre quando seu ambiente é fornecido.
    */
   skills?: { execute: SkillsExecutor; source?: string };
+  /**
+   * Origem do instante e do identificador. Ausente, a real é usada.
+   *
+   * Existe para dar previsibilidade aos casos sem congelar o valor em
+   * produção, que foi o defeito corrigido pela SPEC-0006.
+   */
+  trace?: TraceSource;
 }
 
 export interface SetupResult {
@@ -94,7 +102,11 @@ export function runSetup(opts: SetupOptions): SetupResult {
     };
   }
 
-  const agora = new Date(0).toISOString();
+  // Consumida uma vez por execução, e não por entrada: um identificador que
+  // muda dentro da mesma execução não correlaciona coisa alguma.
+  const origem = opts.trace ?? realSource();
+  const agora = origem.now();
+  const trace = origem.id();
   const entradas: RecordEntry[] = traduzidos.map((h) => ({
     name: h.name, target: TARGET_SETTINGS, version, installedAt: agora, event: h.event,
   }));
@@ -115,7 +127,14 @@ export function runSetup(opts: SetupOptions): SetupResult {
       ? toRecordEntries(readLock(raiz)).map((e) => ({ ...e, installedAt: agora }))
       : undefined;
 
-  const record: InstallRecord = { target: TARGET, version, hooks: entradas, ...(skills ? { skills } : {}) };
+  // O campo é omitido quando o identificador vem vazio, em vez de gravado sem
+  // conteúdo: registro com campo vazio afirma identificação que não houve.
+  const record: InstallRecord = {
+    target: TARGET, version,
+    ...(trace ? { trace } : {}),
+    hooks: entradas,
+    ...(skills ? { skills } : {}),
+  };
   // Escreve de fato. Antes desta linha o comando relatava instalação sem
   // produzir arquivo algum, e nenhum teste pegava porque todos verificavam o
   // retorno da função e não o disco. A regressão em clone limpo pegou.
@@ -131,7 +150,7 @@ export function runSetup(opts: SetupOptions): SetupResult {
 
   return {
     installed: traduzidos, planned, written, settings, record, recordPath: RECORD_PATH,
-    report: [`${traduzidos.length} hooks instalados em ${TARGET_SETTINGS}`, conjuntos?.report].filter(Boolean).join("; "),
+    report: [`${traduzidos.length} hooks instalados em ${TARGET_SETTINGS}`, conjuntos?.report, `execução ${trace}`].filter(Boolean).join("; "),
     bridged: ponte.wouldInstall !== null,
     exitCode: 0,
   };

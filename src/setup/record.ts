@@ -24,6 +24,8 @@ export interface SkillsRecordEntry {
 export interface InstallRecord {
   target: string;
   version: string;
+  /** Identificador da execução que gravou este registro. Ausente nos gravados antes da SPEC-0006. */
+  trace?: string;
   hooks: RecordEntry[];
   /** Conjuntos instalados, quando houve instalação de skills. */
   skills?: SkillsRecordEntry[];

@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 56.
+- Arquivos de teste: 73.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -64,5 +64,22 @@
 | tests/skills-source-oficial.test.ts |
 | tests/skills-source-terceiro.test.ts |
 | tests/surface.test.ts |
+| tests/trace-doctor-relata.test.ts |
+| tests/trace-doctor-sem-registro.test.ts |
+| tests/trace-execucoes-distintas.test.ts |
+| tests/trace-fixtures.ts |
+| tests/trace-forma.test.ts |
+| tests/trace-gerador-deterministico.test.ts |
+| tests/trace-gerador-vazio.test.ts |
+| tests/trace-hooks-e-skills.test.ts |
+| tests/trace-instante-epoca.test.ts |
+| tests/trace-instante-injetado.test.ts |
+| tests/trace-marca-execucao.test.ts |
+| tests/trace-no-relato.test.ts |
+| tests/trace-opacidade.test.ts |
+| tests/trace-padrao-producao.test.ts |
+| tests/trace-registro-antigo.test.ts |
+| tests/trace-relogio-deterministico.test.ts |
+| tests/trace-sem-epoca.test.ts |
 | tests/version.test.ts |
 <!-- specsfy:documentator:end -->

@@ -130,3 +130,21 @@ Specsfy recusa caminho por link.
 A entrega dá rastreabilidade, não reprodutibilidade. O lockfile registra o que
 se obteve, e não o que se deve obter: não há referência de commit nem versão do
 conjunto, e reexecutar busca a ponta.
+
+## Telemetria da execução
+
+Dois módulos em `src/telemetry/`, acrescentados pela SPEC-0006:
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/telemetry/trace.ts` | Única fonte de não determinismo: identificador hexadecimal de comprimento fixo e instante do relógio do sistema, ambos substituíveis por injeção. |
+| `src/telemetry/read.ts` | Lê o identificador da última execução registrada, distinguindo identificado, não identificado e ausente, sem escrever. |
+
+`.common-rules/install.json` ganhou o campo `trace`, com o identificador da
+execução que gravou o arquivo, e as entradas passaram a receber o instante real.
+
+Relógio e gerador são injetáveis por decisão registrada em `DEC-043`. A fatia 1b
+havia tentado o caminho oposto — congelar o instante em `new Date(0)` para dar
+previsibilidade aos casos — e o resultado foi um registro que afirmava, em toda
+máquina, que a instalação ocorrera em 1970. Determinismo de teste se obtém
+injetando a fonte, e não falsificando o valor em produção.

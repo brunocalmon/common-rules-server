@@ -12,8 +12,8 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 | Comando | O que faz |
 | --- | --- |
 | `common-rules --version` | Imprime a versão declarada no manifesto |
-| `common-rules doctor` | Relata as três dependências do projeto, com camada, origem resolvida e versão, e os conjuntos de skills registrados, nomeando o que divergiu |
-| `common-rules setup` | Instala os sete hooks no editor detectado, instala os conjuntos de skills e registra o que escreveu |
+| `common-rules doctor` | Relata as três dependências do projeto, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, e o identificador da última execução |
+| `common-rules setup` | Instala os sete hooks no editor detectado, instala os conjuntos de skills e registra o que escreveu, identificando a execução e o momento |
 
 Exemplo real de `doctor`:
 
