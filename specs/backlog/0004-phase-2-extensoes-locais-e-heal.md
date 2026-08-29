@@ -51,7 +51,14 @@ Duas fatias ativas e uma adiada.
 
 **Fatia B — reparo assistido.** O `doctor` continua estritamente somente-leitura, relata divergências e sai com código diferente de zero nomeando o que um reparo resolveria. Um comando próprio executa o reparo, movendo o arquivo divergente para quarentena antes de restaurar o original.
 
-**Fatia C — hidratação sob demanda, adiada.** Volta quando uma segunda IDE entrar no escopo, e não antes. A medição da conversa mostrou que o Claude Code já entrega o comportamento por conta própria.
+**Fatia C — camada de orquestração em `CLAUDE.md`.** Uma extensão escrita pelo
+mesmo caminho único e ancorada pelo mesmo mecanismo das demais, que ensina o
+agente a acionar os dois ecossistemas instalados pela fatia 1h em vez de o
+`common-rules` escolher entre eles. `AGENTS.md` fica de fora até a fatia 1d
+abrir a detecção de outros backends, e entrará como ponteiro mínimo para o
+`CLAUDE.md`, sem duplicar conteúdo.
+
+**Fatia D — hidratação sob demanda, adiada.** Volta quando uma segunda IDE entrar no escopo, e não antes. A medição da conversa mostrou que o Claude Code já entrega o comportamento por conta própria.
 
 ## Regras de negócio
 
@@ -114,9 +121,9 @@ Scenario: artefato do setup não aceita categoria new
 
 ## Escopo
 
-**Incluído**: diretório de extensões locais no repositório consumidor; comando de criação com categorias `override`, `extension` e `new`; registro de checksum; skill de fachada que só aciona a CLI; `doctor` somente-leitura ampliado para relatar divergência; comando de reparo com quarentena.
+**Incluído**: camada de orquestração em `CLAUDE.md`, escrita pelo caminho único e ancorada como qualquer extensão; diretório de extensões locais no repositório consumidor; comando de criação com categorias `override`, `extension` e `new`; registro de checksum; skill de fachada que só aciona a CLI; `doctor` somente-leitura ampliado para relatar divergência; comando de reparo com quarentena.
 
-**Fora de escopo**: instalar dependências no ambiente global, em qualquer forma; `doctor` que reverte, apaga ou muta; recuo silencioso diante de divergência; hidratação sob demanda, adiada até a entrada de uma segunda IDE; override de skills do `specsfy` ou de qualquer artefato de dependência; alvos de editor além do Claude Code, que pertencem à Phase 1.
+**Fora de escopo**: `AGENTS.md`, que espera a fatia 1d; instalar os conjuntos de skills, que é da fatia 1h; instalar dependências no ambiente global, em qualquer forma; `doctor` que reverte, apaga ou muta; recuo silencioso diante de divergência; hidratação sob demanda, adiada até a entrada de uma segunda IDE; override de skills do `specsfy` ou de qualquer artefato de dependência; alvos de editor além do Claude Code, que pertencem à Phase 1.
 
 ## Dúvidas, decisões e riscos
 
@@ -125,6 +132,7 @@ Scenario: artefato do setup não aceita categoria new
 - **D1**: A hidratação sob demanda sai do caminho agora e volta amarrada à entrada de outra IDE. *Razão*: a medição mostrou o corpo das vinte SKILL.md em 137 KB contra 8 KB de frontmatter sempre ativo, ou seja, 17x de economia que a plataforma já entrega. O que resta de estático são cerca de 12 KB de `PROJECT.md`, `RULES.md` e `STACK.md`, que pertencem ao `specsfy`. O valor sobrevive apenas em IDEs que carregam arquivos de regra inteiros, e essas estão fora do escopo decidido.
 - **D2**: Telemetria por `trace_id` não entra aqui. É pequena e aditiva, e vira fatia da Phase 1 junto do registro auditável que a fatia 1b já grava. O restante forma este épico de Phase 2.
 - **D3**: A regra de resolução da SPEC-0002 não muda: preferir a cópia local, aceitar a global quando não houver local, nunca instalar globalmente. *Razão*: preferir a global faz o comportamento depender da máquina, que é justamente o que o `doctor` existe para tornar visível. Conformidade de versão não torna as duas ordens equivalentes, porque a global pode bater hoje e derivar amanhã sem que nada no projeto registre isso.
+- **D5**: A camada de orquestração em `CLAUDE.md` pertence a este épico, e não à fatia 1h. *Razão*: é o roteador do sistema de override, da mesma família de âncoras e extensões desta entrega; colocá-la na fatia de instalação duplicaria mecanismo. Instalar os dois ecossistemas e registrar já tem valor de ponta a ponta sozinho. *Nota*: esta fatia escapou do refinamento inicial do ADR 001, onde constava como roteador de uma linha, e voltou por uma diretiva posterior.
 - **D4**: O sistema de extensões cobre apenas os artefatos que o próprio `setup` escreve — os sete hooks e seu registro. *Razão*: estender a skills do `specsfy` violaria a imutabilidade do upstream e criaria um fork do motor de skills; escopo aberto a qualquer dependência não tem fronteira definida.
 
 **Propostas do ADR rejeitadas, registradas para não serem herdadas**

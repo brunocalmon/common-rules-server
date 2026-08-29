@@ -4,8 +4,11 @@ import { fileURLToPath } from "node:url";
 import { detectTarget, TARGET, type TargetEnvironment } from "../hooks/detect.js";
 import { readHook } from "../hooks/source.js";
 import { renderSettings, translateForClaudeCode, type Settings, type TranslatedHook } from "../hooks/claude-code.js";
+import { installSkills, type Executor as SkillsExecutor } from "../skills/install.js";
+import { OFFICIAL_SOURCE } from "../skills/source.js";
+import { readLock, toRecordEntries } from "../skills/record.js";
 import { bridgePythonSubsystem, type BridgeEnvironment } from "./bridge.js";
-import { matches, readRecord, RECORD_PATH, type InstallRecord, type RecordEntry } from "./record.js";
+import { matches, readRecord, RECORD_PATH, type InstallRecord, type SkillsRecordEntry, type RecordEntry } from "./record.js";
 import { readVersion } from "../version.js";
 import { writeRecordFile, writeSettings } from "./write.js";
 
@@ -21,6 +24,11 @@ export interface SetupOptions {
   dryRun?: boolean;
   previous?: InstallRecord | null;
   bridgeEnv?: BridgeEnvironment;
+  /**
+   * Executor do instalador de skills. Ausente, a instalação é pulada, do mesmo
+   * modo que a ponte Python só corre quando seu ambiente é fornecido.
+   */
+  skills?: { execute: SkillsExecutor; source?: string };
 }
 
 export interface SetupResult {
@@ -90,15 +98,31 @@ export function runSetup(opts: SetupOptions): SetupResult {
   const entradas: RecordEntry[] = traduzidos.map((h) => ({
     name: h.name, target: TARGET_SETTINGS, version, installedAt: agora, event: h.event,
   }));
-  const record: InstallRecord = { target: TARGET, version, hooks: entradas };
+  const raiz = opts.root ?? process.cwd();
+  // A instalação precede o registro: é o lockfile que ela produz que fornece a
+  // procedência gravada aqui. Montar o registro antes deixaria a lista vazia.
+  const conjuntos = opts.skills
+    ? installSkills({
+        root: raiz,
+        source: opts.skills.source ?? OFFICIAL_SOURCE,
+        execute: opts.skills.execute,
+        previous: toRecordEntries(readLock(raiz)),
+      })
+    : null;
+
+  const skills: SkillsRecordEntry[] | undefined =
+    conjuntos && !conjuntos.isError
+      ? toRecordEntries(readLock(raiz)).map((e) => ({ ...e, installedAt: agora }))
+      : undefined;
+
+  const record: InstallRecord = { target: TARGET, version, hooks: entradas, ...(skills ? { skills } : {}) };
   // Escreve de fato. Antes desta linha o comando relatava instalação sem
   // produzir arquivo algum, e nenhum teste pegava porque todos verificavam o
   // retorno da função e não o disco. A regressão em clone limpo pegou.
   const written: string[] = [];
   if (opts.write) {
-    const root = opts.root ?? process.cwd();
-    written.push(writeSettings(root, TARGET_SETTINGS, settings));
-    written.push(writeRecordFile(root, RECORD_PATH, record));
+    written.push(writeSettings(raiz, TARGET_SETTINGS, settings));
+    written.push(writeRecordFile(raiz, RECORD_PATH, record));
   }
 
   const ponte = opts.bridgeEnv
@@ -107,7 +131,7 @@ export function runSetup(opts: SetupOptions): SetupResult {
 
   return {
     installed: traduzidos, planned, written, settings, record, recordPath: RECORD_PATH,
-    report: `${traduzidos.length} hooks instalados em ${TARGET_SETTINGS}`,
+    report: [`${traduzidos.length} hooks instalados em ${TARGET_SETTINGS}`, conjuntos?.report].filter(Boolean).join("; "),
     bridged: ponte.wouldInstall !== null,
     exitCode: 0,
   };

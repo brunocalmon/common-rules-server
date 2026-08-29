@@ -11,10 +11,22 @@ export interface RecordEntry {
   event: string;
 }
 
+/** Procedência de um conjunto de skills, lida do lockfile do instalador. */
+export interface SkillsRecordEntry {
+  name: string;
+  source: string;
+  sourceType: string;
+  skillPath: string;
+  computedHash: string;
+  installedAt: string;
+}
+
 export interface InstallRecord {
   target: string;
   version: string;
   hooks: RecordEntry[];
+  /** Conjuntos instalados, quando houve instalação de skills. */
+  skills?: SkillsRecordEntry[];
 }
 
 /** Caminho do registro, sempre dentro do projeto. */

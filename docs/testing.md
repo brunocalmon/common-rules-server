@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 38.
+- Arquivos de teste: 56.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -45,6 +45,24 @@
 | tests/setup-revert.test.ts |
 | tests/setup-surface.test.ts |
 | tests/setup-writes.test.ts |
+| tests/skills-confinamento.test.ts |
+| tests/skills-conflito.test.ts |
+| tests/skills-doctor-deriva.test.ts |
+| tests/skills-doctor-garantia.test.ts |
+| tests/skills-doctor-presenca.test.ts |
+| tests/skills-fixtures.ts |
+| tests/skills-idempotente.test.ts |
+| tests/skills-install-alvo.test.ts |
+| tests/skills-install-copia.test.ts |
+| tests/skills-install-falha.test.ts |
+| tests/skills-install-parcial.test.ts |
+| tests/skills-inventory-symlink.test.ts |
+| tests/skills-nao-destrutivo.test.ts |
+| tests/skills-registro-persistido.test.ts |
+| tests/skills-registro.test.ts |
+| tests/skills-source-arbitraria.test.ts |
+| tests/skills-source-oficial.test.ts |
+| tests/skills-source-terceiro.test.ts |
 | tests/surface.test.ts |
 | tests/version.test.ts |
 <!-- specsfy:documentator:end -->

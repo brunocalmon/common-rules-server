@@ -18,9 +18,15 @@ export interface DependencyResult {
   hint?: string;
 }
 
+import { reportSkills, type SkillReportRow } from "./skills/record.js";
+
 export interface Report {
   results: DependencyResult[];
   exitCode: number;
+  /** Conjuntos de skills registrados, quando uma raiz é informada. */
+  skills?: SkillReportRow[];
+  /** Declaração do alcance da garantia sobre os conjuntos. */
+  note?: string;
 }
 
 /**
@@ -62,7 +68,7 @@ function pick(local: string | null, global: string | null): { origin: Origin | n
  * Não instala nada, em nenhuma origem: instalar pertence ao setup, e o ambiente
  * de destino é gerido por um playbook declarativo.
  */
-export function inspectDependencies(env: Environment): Report {
+export function inspectDependencies(env: Environment, root?: string): Report {
   const results: DependencyResult[] = [];
 
   for (const name of NPM_SUBSYSTEMS) {
@@ -82,7 +88,18 @@ export function inspectDependencies(env: Environment): Report {
     ...(present ? {} : { hint: PYTHON_HINT }),
   });
 
-  return { results, exitCode: results.every((r) => r.present) ? 0 : 1 };
+  const dependenciasOk = results.every((r) => r.present);
+  if (root === undefined) return { results, exitCode: dependenciasOk ? 0 : 1 };
+
+  // Somente leitura: o `doctor` relata a deriva e não a repara. Reparo
+  // destrutivo permanece fora de escopo.
+  const conjuntos = reportSkills(root);
+  return {
+    results,
+    skills: conjuntos.results,
+    note: conjuntos.note,
+    exitCode: dependenciasOk && conjuntos.exitCode === 0 ? 0 : 1,
+  };
 }
 
 const projectRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..");

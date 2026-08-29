@@ -12,8 +12,8 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 | Comando | O que faz |
 | --- | --- |
 | `common-rules --version` | Imprime a versão declarada no manifesto |
-| `common-rules doctor` | Relata as três dependências do projeto, com camada, origem resolvida e versão |
-| `common-rules setup` | Instala os sete hooks no editor detectado e registra o que escreveu |
+| `common-rules doctor` | Relata as três dependências do projeto, com camada, origem resolvida e versão, e os conjuntos de skills registrados, nomeando o que divergiu |
+| `common-rules setup` | Instala os sete hooks no editor detectado, instala os conjuntos de skills e registra o que escreveu |
 
 Exemplo real de `doctor`:
 
@@ -23,7 +23,7 @@ ok      context-mode — camada npm, origem local, versão 1.0.169
 ok      code-review-graph — camada python, origem global, versão 2.3.7
 ```
 
-Dez módulos em `src/`, vinte e seis arquivos de teste, 89 casos.
+Quinze módulos em `src/`, trinta e sete arquivos de teste, 133 casos.
 
 O `setup` liga os subsistemas ao ciclo do agente e protege o repositório. Sete
 hooks: quatro conectam `context-mode` e `code-review-graph`, dois barram comando
@@ -39,6 +39,13 @@ Exemplo real de `setup`:
   guard-secrets — evento PreToolUse, em .claude/settings.json
   ...
 ```
+
+**Dois ecossistemas de skills lado a lado.** O `setup` instala as skills de
+`mattpocock/skills` pelo instalador oficial da vercel-labs, em cópia real e não
+link, ao lado das que o `specsfy` já mantém em `.claude/skills/`. Nenhum é
+preterido nem mesclado. A procedência de cada conjunto fica no registro do
+projeto, e o `doctor` relata a deriva sem repará-la — a referência obtida não é
+fixada pela origem, e dizer isso faz parte do relato.
 
 **Servidor MCP**, com a tool `setup` única, sobre entrada e saída padrão pelo
 binário `common-rules-mcp`. Expõe a mesma lógica que o comando de terminal, e

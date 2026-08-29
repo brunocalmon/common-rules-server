@@ -3,7 +3,7 @@
 | Metainformação | Valor |
 | --- | --- |
 | ID | BACKLOG-0001 |
-| Status | Captured |
+| Status | Promoted |
 | Produto | A esclarecer |
 | Épico | A esclarecer |
 | Funcionalidade | A esclarecer |
@@ -11,7 +11,7 @@
 | Prioridade | Não priorizado |
 | Milestones | |
 | Criado em | 2026-08-24 |
-| Spec promovida | Nenhuma |
+| Spec promovida | Desdobrado em quatro backlogs e cinco specs; ver Referências relacionadas |
 
 ## Ideia original
 
@@ -35,7 +35,21 @@ Consolidação de 4 ideias: (1) arquitetura CLI+wrapper, (2) TypeScript+Orchestr
 
 ## Referências relacionadas
 
-- Nenhuma referência relevante encontrada.
+Este épico não virou uma spec: desdobrou-se em fases, e cada fase em fatias.
+
+| Caminho | Relação |
+| --- | --- |
+| `specs/backlog/0002-phase-0-preparacao-limpeza-historica.md` | fase derivada — promovida em `SPEC-0001`, concluída |
+| `specs/backlog/0003-phase-1-mvp-typescript-subsistemas.md` | fase derivada — fatias 1a a 1h; 1a, 1b e 1f concluídas |
+| `specs/backlog/0004-phase-2-extensoes-locais-e-heal.md` | fase derivada — extensões locais, reparo assistido e hidratação adiada |
+| `specs/backlog/0005-fatia-1h-skills-lado-a-lado.md` | fatia da Phase 1 — promovida em `SPEC-0005` |
+| `specs/completed/0001-phase-0-preparacao-limpeza/spec.md` | entregue |
+| `specs/completed/0002-phase-1a-esqueleto-typescript/spec.md` | entregue |
+| `specs/completed/0003-fatia-1b-setup-hooks/spec.md` | entregue |
+| `specs/completed/0004-fatia-1f-servidor-mcp/spec.md` | entregue |
+| `specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md` | em definição |
+
+**Correção de 2026-08-29.** A formulação original cita `pi.dev` entre as dependências. A pessoa responsável corrigiu isso depois: agentes de codificação são detectados e nunca instalados, e as dependências do projeto são `specsfy`, `context-mode` e `code-review-graph`. A formulação acima é preservada como registro; a `DEC-002` da `SPEC-0002` é que governa.
 
 ## Comportamento esperado
 
@@ -84,4 +98,4 @@ A esclarecer.
 
 ## Próximo passo
 
-Aprofundar nesta etapa até o item ficar pronto para `$specsfy-03-specify`.
+Nenhum neste item. O trabalho vive nas fases derivadas. Da Phase 1 restam as fatias 1c, 1d, 1e e 1g; a Phase 2 aguarda o fim da Phase 1.

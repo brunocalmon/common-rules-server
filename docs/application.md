@@ -20,9 +20,13 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/mcp/tool.ts | TOOL_NAME, TOOL_DESCRIPTION, SetupToolResult, executeSetup |
 | Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem |
 | Outras fontes | src/setup/env.ts | detectEnvironment |
-| Outras fontes | src/setup/record.ts | RecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
+| Outras fontes | src/setup/record.ts | RecordEntry, SkillsRecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
 | Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, loadHooks, runSetup |
 | Outras fontes | src/setup/write.ts | writeSettings, writeRecordFile, readRecordFile |
+| Outras fontes | src/skills/install.ts | TARGET_AGENT, InstallOptions, InstallResult, installSkills |
+| Outras fontes | src/skills/inventory.ts | SKILLS_DIR, SkillsInspection, inspectSkills |
+| Outras fontes | src/skills/record.ts | LOCK_PATH, LockEntry, SkillRecordEntry, SkillReportRow, SkillReport, GUARANTEE_NOTE, readLock, toRecordEntries |
+| Outras fontes | src/skills/source.ts | OFFICIAL_SOURCE, resolveSource |
 | Outras fontes | src/version.ts | readVersion |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
@@ -60,6 +64,24 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/setup-revert.test.ts | — |
 | Testes | tests/setup-surface.test.ts | PROIBIDOS |
 | Testes | tests/setup-writes.test.ts | projeto |
+| Testes | tests/skills-confinamento.test.ts | — |
+| Testes | tests/skills-conflito.test.ts | comConflito |
+| Testes | tests/skills-doctor-deriva.test.ts | projetoDivergente |
+| Testes | tests/skills-doctor-garantia.test.ts | projetoInstalado |
+| Testes | tests/skills-doctor-presenca.test.ts | projetoConsistente |
+| Testes | tests/skills-fixtures.ts | CONJUNTO_SPECSFY, CONJUNTO_MATTPOCOCK, projetoComSkills, arvore, trocarPorLink, executorFalso, escreverLock, foraDoProjeto |
+| Testes | tests/skills-idempotente.test.ts | — |
+| Testes | tests/skills-install-alvo.test.ts | — |
+| Testes | tests/skills-install-copia.test.ts | — |
+| Testes | tests/skills-install-falha.test.ts | — |
+| Testes | tests/skills-install-parcial.test.ts | — |
+| Testes | tests/skills-inventory-symlink.test.ts | — |
+| Testes | tests/skills-nao-destrutivo.test.ts | — |
+| Testes | tests/skills-registro-persistido.test.ts | registroGravado |
+| Testes | tests/skills-registro.test.ts | — |
+| Testes | tests/skills-source-arbitraria.test.ts | — |
+| Testes | tests/skills-source-oficial.test.ts | — |
+| Testes | tests/skills-source-terceiro.test.ts | — |
 | Testes | tests/surface.test.ts | PROIBIDOS |
 | Testes | tests/version.test.ts | ROOT |
 | Outras fontes | vitest.config.ts | — |

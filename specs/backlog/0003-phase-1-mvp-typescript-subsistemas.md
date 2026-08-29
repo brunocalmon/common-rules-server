@@ -63,6 +63,7 @@ A Phase 1 empacotava seis entregas. Cada uma é comparável em tamanho à Phase 
 | 1e | Seleção de modelo pelo Orchestrator | A especificar |
 | 1f | Servidor MCP com a tool `setup` única | **SPEC-0004, concluída** |
 | 1g | Telemetria por `trace_id` no registro auditável | A especificar |
+| 1h | Instalar specsfy e mattpocock lado a lado, com registro | **SPEC-0005, concluída** |
 
 Decisões desta fatia: pacote `@brunocalmon/common-rules` com binário `common-rules`, porque `common-rules` sem escopo está ocupado no npm por um pacote abandonado desde 2023. Runner Vitest. ESM e Node maior ou igual a 20 como defaults reversíveis.
 
@@ -157,3 +158,10 @@ A esclarecer.
 ## Próximo passo
 
 Aprofundar nesta etapa até o item ficar pronto para `$specsfy-03-specify`.
+
+**Fatia 1h, acrescentada em 2026-08-29.** O `setup` passa a instalar também os
+dois conjuntos de skills, íntegros e lado a lado em `.claude/skills/`, sem que o
+`common-rules` escolha entre eles. As de Matt Pocock vêm pelo instalador oficial
+`skills`, da vercel-labs, já que o autor não publica no npm. O brief está em
+`specs/backlog/0005-fatia-1h-skills-lado-a-lado.md`. A camada de orquestração em
+`CLAUDE.md` ficou fora desta fatia e foi para o épico de extensões da Phase 2.

@@ -22,6 +22,7 @@ Conteúdo humano, fora do bloco reconstruído. Cada linha cita uma fonte execut�
 | Biblioteca | `@modelcontextprotocol/sdk` 1.30.0 | Servidor e cliente do protocolo que expõe a tool `setup` ao editor | `package.json` (`dependencies`) |
 | Biblioteca | `zod` 3.25.76 | Esquema de entrada da tool. Declarada direta e fixa porque `inputSchema` do SDK aceita apenas esquema zod — `AnySchema = z3.ZodTypeAny \| z4.$ZodType` — sem porta para esquema JSON puro; depender da resolução transitiva deixaria a versão fora da regra de fixação | `package.json` (`dependencies`) |
 | Binário | `common-rules-mcp` | Segundo executável do pacote, que sobe o servidor do protocolo sobre entrada e saída padrão | `package.json` (`bin`) |
+| Biblioteca | `skills` 1.5.23 | Instalador oficial de conjuntos de skills, da vercel-labs. Já chegava por via transitiva como dependência de `@promovaweb/specsfy` em faixa `^1.5.22`; declarado direto e exato para entrar na regra de fixação | `package.json` (`dependencies`) |
 | Subsistema npm | `@promovaweb/specsfy` 0.10.2 | Motor de skills e regras do processo | `package.json` (`dependencies`) |
 | Subsistema npm | `context-mode` 1.0.169 | Gestão de janela de contexto entre sessões | `package.json` (`dependencies`) |
 | Subsistema Python | `code-review-graph` 2.3.7 | Análise de relações de código e call graphs | Exigido do ambiente; instalado por `uv`, ausente do npm |
@@ -109,3 +110,23 @@ com o diretório pessoal como diretório de trabalho e um apontando para outro
 projeto: nenhum tinha a raiz correta. Derivar a raiz do processo produziria
 escrita silenciosa na árvore errada, e por isso a tool recusa quando não pode
 confirmá-la.
+
+## Conjuntos de skills
+
+Quatro módulos em `src/skills/`, acrescentados pela SPEC-0005:
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/skills/source.ts` | Nomeia a única origem aceita e recusa qualquer outra. Não toca o sistema de arquivos. |
+| `src/skills/inventory.ts` | Enumera os conjuntos sob `.claude/skills/` e detecta link simbólico em qualquer nível. |
+| `src/skills/install.ts` | Enumera com `--list`, recusa conflito antes de escrever e instala com alvo restrito, cópia e sem interação. |
+| `src/skills/record.ts` | Lê a procedência do lockfile do instalador e compara o registrado com o presente, sem escrever. |
+
+A instalação usa cópia real e nunca link simbólico. O instalador cria link por
+padrão, e conteúdo por link mora fora do projeto: o hash deixaria de descrever
+o que o agente lê, duas máquinas divergiriam sem registro, e o ferramental do
+Specsfy recusa caminho por link.
+
+A entrega dá rastreabilidade, não reprodutibilidade. O lockfile registra o que
+se obteve, e não o que se deve obter: não há referência de commit nem versão do
+conjunto, e reexecutar busca a ponta.

@@ -44,3 +44,22 @@ do projeto. Sem o relato da origem, duas máquinas divergem em silêncio.
 **Por quê.** Sem isso o `tsc` emite `dist/` mesmo reprovando por tipo, e a
 asserção que verifica a existência do binário passaria sobre uma compilação
 quebrada.
+
+## Numeração de identificadores por faixa de spec
+
+Cada spec numera seus `US`, `FR`, `NFR` e `AC` a partir de uma faixa própria, em
+blocos de vinte: a SPEC-0005 começa em 020, a SPEC-0006 em 040, e assim por
+diante. Nenhuma spec nova recomeça em 001.
+
+**Por quê.** `check_traceability.mjs` varre `tests/` inteiro sem saber a que
+spec pertence cada marcador `SPECSFY:`. Quando duas specs usam `FR-001`, os
+marcadores de uma aparecem como órfãos para a outra. Com quatro specs
+compartilhando numeração, as quatro checagens de trace do `verify_repo`
+reprovam, sem que exista falta de cobertura real em nenhuma delas.
+
+**Alcance.** Vale para specs criadas a partir da SPEC-0005. As quatro
+concluídas permanecem como estão: renumerá-las reabriria gates de trabalho
+aceito, e a regra existe para impedir que o problema cresça, não para desfazer
+o passado. A correção de fato pertence ao `@promovaweb/specsfy`, que é dono do
+auditor; editá-lo aqui violaria a imutabilidade do upstream e seria desfeito no
+próximo `specsfy install`.

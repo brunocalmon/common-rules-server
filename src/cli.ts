@@ -15,7 +15,7 @@ export interface CommandOutcome {
 
 /** Formata uma linha por dependência, com camada, origem e versão. */
 function formatReport(): CommandOutcome {
-  const report = inspectDependencies(defaultEnvironment());
+  const report = inspectDependencies(defaultEnvironment(), process.cwd());
   const lines = report.results.map((d) => {
     const head = `${d.present ? "ok     " : "ausente"} ${d.name}`;
     if (!d.present) return `${head}\n        ${d.hint ?? ""}`.trimEnd();
