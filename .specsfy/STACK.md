@@ -19,6 +19,9 @@ Conteúdo humano, fora do bloco reconstruído. Cada linha cita uma fonte execut�
 | Módulo | ESM | Formato de módulo do pacote e da compilação | `package.json` (`"type": "module"`) |
 | Ferramenta | `@types/node` 26.3.0 | Tipos do runtime Node para a compilação estrita | `package.json` (`devDependencies`) |
 | Runtime | Node maior ou igual a 20 | Versão mínima suportada | `package.json` (`engines.node`) |
+| Biblioteca | `@modelcontextprotocol/sdk` 1.30.0 | Servidor e cliente do protocolo que expõe a tool `setup` ao editor | `package.json` (`dependencies`) |
+| Biblioteca | `zod` 3.25.76 | Esquema de entrada da tool. Declarada direta e fixa porque `inputSchema` do SDK aceita apenas esquema zod — `AnySchema = z3.ZodTypeAny \| z4.$ZodType` — sem porta para esquema JSON puro; depender da resolução transitiva deixaria a versão fora da regra de fixação | `package.json` (`dependencies`) |
+| Binário | `common-rules-mcp` | Segundo executável do pacote, que sobe o servidor do protocolo sobre entrada e saída padrão | `package.json` (`bin`) |
 | Subsistema npm | `@promovaweb/specsfy` 0.10.2 | Motor de skills e regras do processo | `package.json` (`dependencies`) |
 | Subsistema npm | `context-mode` 1.0.169 | Gestão de janela de contexto entre sessões | `package.json` (`dependencies`) |
 | Subsistema Python | `code-review-graph` 2.3.7 | Análise de relações de código e call graphs | Exigido do ambiente; instalado por `uv`, ausente do npm |
@@ -88,3 +91,21 @@ sobreviveu à revisão porque o arquivo gerado parecia correto.
 Pela mesma razão, `env.ts` é a única parte que observa o sistema de arquivos: a
 decisão de detecção recebe o resultado por parâmetro e pode ser exercitada
 contra ambientes construídos.
+
+## Servidor do protocolo
+
+Quatro módulos em `src/mcp/`, acrescentados pela SPEC-0004:
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/mcp/root.ts` | Valida a raiz recebida: caminho absoluto, existente, diretório e com marcador de projeto. Não consulta diretório de trabalho nem variável de ambiente. |
+| `src/mcp/tool.ts` | Esquema de entrada e de saída da tool `setup`, e sua execução sobre a raiz validada. Reusa `runSetup` sem duplicar lógica. |
+| `src/mcp/server.ts` | Registra a única tool e identifica o servidor com o nome `common-rules` e a versão devolvida por `readVersion()`. |
+| `src/mcp/main.ts` | Entrada de execução, que liga o servidor ao transporte de entrada e saída padrão. |
+
+A raiz do projeto é parâmetro obrigatório da tool. A observação registrada na
+pesquisa da SPEC-0004 encontrou três servidores do protocolo em execução, dois
+com o diretório pessoal como diretório de trabalho e um apontando para outro
+projeto: nenhum tinha a raiz correta. Derivar a raiz do processo produziria
+escrita silenciosa na árvore errada, e por isso a tool recusa quando não pode
+confirmá-la.

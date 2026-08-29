@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 27.
+- Arquivos de teste: 38.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -23,6 +23,17 @@
 | tests/hooks-translate.test.ts |
 | tests/local-run.test.ts |
 | tests/manifest.test.ts |
+| tests/mcp-confinement.test.ts |
+| tests/mcp-environment.test.ts |
+| tests/mcp-failure.test.ts |
+| tests/mcp-fixtures.ts |
+| tests/mcp-idempotent.test.ts |
+| tests/mcp-parity.test.ts |
+| tests/mcp-root.test.ts |
+| tests/mcp-surface.test.ts |
+| tests/mcp-tool-install.test.ts |
+| tests/mcp-tool-invalid-root.test.ts |
+| tests/mcp-tool-missing-root.test.ts |
 | tests/pinning.test.ts |
 | tests/scripts.test.ts |
 | tests/setup-bridge.test.ts |

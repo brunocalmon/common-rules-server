@@ -5,8 +5,8 @@
 
 | Tipo | Quantidade |
 | --- | --- |
-| Código | 39 |
-| Testes | 27 |
+| Código | 54 |
+| Testes | 38 |
 
 ## Diagramas
 

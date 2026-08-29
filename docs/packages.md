@@ -5,8 +5,10 @@
 
 | Categoria | Escopo | Pacote | Versão | Finalidade | Fonte | GitHub |
 | --- | --- | --- | --- | --- | --- | --- |
+| Terceiro | produção | @modelcontextprotocol/sdk | 1.30.0 | Model Context Protocol implementation for TypeScript | https://github.com/modelcontextprotocol/typescript-sdk | https://github.com/modelcontextprotocol/typescript-sdk |
 | Terceiro | produção | @promovaweb/specsfy | 0.10.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy | https://github.com/promovaweb/specsfy |
 | Terceiro | produção | context-mode | 1.0.169 | MCP plugin that saves 98% of your context window. Works with Claude Code, Gemini CLI, VS Code Copilot, OpenCode, and Codex CLI. Sandboxed code execution, FTS5 knowledge base, and intent-driven search. | https://github.com/mksglu/context-mode | https://github.com/mksglu/context-mode |
+| Terceiro | produção | zod | 3.25.76 | TypeScript-first schema declaration and validation library with static type inference | https://github.com/colinhacks/zod | https://github.com/colinhacks/zod |
 | Terceiro | desenvolvimento | @types/node | 26.3.0 | TypeScript definitions for node | https://github.com/DefinitelyTyped/DefinitelyTyped | https://github.com/DefinitelyTyped/DefinitelyTyped |
 | Terceiro | desenvolvimento | typescript | 7.0.2 | TypeScript is a language for application scale JavaScript development | https://github.com/microsoft/TypeScript | https://github.com/microsoft/TypeScript |
 | Terceiro | desenvolvimento | vitest | 4.1.11 | Next generation testing framework powered by Vite | https://github.com/vitest-dev/vitest | https://github.com/vitest-dev/vitest |

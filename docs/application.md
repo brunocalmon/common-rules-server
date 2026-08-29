@@ -14,6 +14,10 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/hooks/claude-code.ts | TranslatedHook, EVENT_MAP, translateForClaudeCode, wrap, unwrap, FRAGMENT_START, FRAGMENT_END, PREAMBLE |
 | Outras fontes | src/hooks/detect.ts | TargetEnvironment, Detection, TARGET, EVIDENCE, detectTarget |
 | Outras fontes | src/hooks/source.ts | Hook, EVENTS, scalar, scriptFrom, readHook |
+| Outras fontes | src/mcp/main.ts | — |
+| Outras fontes | src/mcp/root.ts | PROJECT_MARKERS, validateRoot |
+| Outras fontes | src/mcp/server.ts | SERVER_NAME, createServer |
+| Outras fontes | src/mcp/tool.ts | TOOL_NAME, TOOL_DESCRIPTION, SetupToolResult, executeSetup |
 | Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem |
 | Outras fontes | src/setup/env.ts | detectEnvironment |
 | Outras fontes | src/setup/record.ts | RecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
@@ -34,6 +38,17 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/hooks-translate.test.ts | CORPUS |
 | Testes | tests/local-run.test.ts | ROOT |
 | Testes | tests/manifest.test.ts | NPM_SUBSYSTEMS |
+| Testes | tests/mcp-confinement.test.ts | — |
+| Testes | tests/mcp-environment.test.ts | — |
+| Testes | tests/mcp-failure.test.ts | raizSemPermissao |
+| Testes | tests/mcp-fixtures.ts | projetoDescartavel, diretorioVazio, arvore |
+| Testes | tests/mcp-idempotent.test.ts | — |
+| Testes | tests/mcp-parity.test.ts | pelaLinhaDeComando |
+| Testes | tests/mcp-root.test.ts | — |
+| Testes | tests/mcp-surface.test.ts | conectar |
+| Testes | tests/mcp-tool-install.test.ts | — |
+| Testes | tests/mcp-tool-invalid-root.test.ts | — |
+| Testes | tests/mcp-tool-missing-root.test.ts | — |
 | Testes | tests/pinning.test.ts | PINNED |
 | Testes | tests/scripts.test.ts | — |
 | Testes | tests/setup-bridge.test.ts | — |

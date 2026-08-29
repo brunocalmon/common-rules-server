@@ -57,10 +57,12 @@ A Phase 1 empacotava seis entregas. Cada uma é comparável em tamanho à Phase 
 | Fatia | Entrega | Estado |
 | --- | --- | --- |
 | 1a | Esqueleto executável: manifesto, build, runner, dependências resolvidas | **SPEC-0002, concluída** |
-| 1b | Setup híbrido MCP + CLI | A especificar |
+| 1b | Hooks, detecção, registro e ponte `uv`, via CLI | **SPEC-0003, concluída** |
 | 1c | Approval workflow interativo e JSON | A especificar |
 | 1d | Detecção de backends e graceful degradation | A especificar |
 | 1e | Seleção de modelo pelo Orchestrator | A especificar |
+| 1f | Servidor MCP com a tool `setup` única | **SPEC-0004, concluída** |
+| 1g | Telemetria por `trace_id` no registro auditável | A especificar |
 
 Decisões desta fatia: pacote `@brunocalmon/common-rules` com binário `common-rules`, porque `common-rules` sem escopo está ocupado no npm por um pacote abandonado desde 2023. Runner Vitest. ESM e Node maior ou igual a 20 como defaults reversíveis.
 
@@ -97,7 +99,9 @@ O critério é a própria decisão de que o projeto é primordialmente CLI e o M
 | Fatia | Entrega | Estado |
 | --- | --- | --- |
 | 1b | Hooks, detecção, registro e ponte `uv`, via CLI | **SPEC-0003, concluída** |
-| 1f | Servidor MCP com a tool `setup` única | A especificar |
+| 1f | Servidor MCP com a tool `setup` única | **SPEC-0004, concluída** |
+
+**Fatia 1g, acrescentada em 2026-08-29.** O ADR 001, capturado em `specs/inbox/2026-08-29-145241`, propunha telemetria por `trace_id` como épico próprio. A decisão foi trazê-la para cá: é pequena, aditiva, e encaixa no registro que a fatia 1b já grava em `.common-rules/install.json`. Correlacionar operações por identificador de sessão não exige nada que as outras fatias não tenham. O restante daquele ADR virou `specs/backlog/0004-phase-2-extensoes-locais-e-heal.md`, posterior a esta fase.
 
 **Anotação sem efeito nesta fatia.** A pessoa responsável mencionou querer renomear a ferramenta para `maestro`, e pediu explicitamente que isso não fosse considerado agora. Fica registrado como captura futura: é renomeação que toca nome de pacote, binário, `PROJECT.md`, `STACK.md` e duas specs concluídas.
 

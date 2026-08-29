@@ -5,8 +5,10 @@
 
 | Gerenciador | Escopo | Pacote | Versão | Finalidade | Fonte |
 | --- | --- | --- | --- | --- | --- |
+| npm | produção | @modelcontextprotocol/sdk | 1.30.0 | Model Context Protocol implementation for TypeScript | https://github.com/modelcontextprotocol/typescript-sdk |
 | npm | produção | @promovaweb/specsfy | 0.10.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy |
 | npm | produção | context-mode | 1.0.169 | MCP plugin that saves 98% of your context window. Works with Claude Code, Gemini CLI, VS Code Copilot, OpenCode, and Codex CLI. Sandboxed code execution, FTS5 knowledge base, and intent-driven search. | https://github.com/mksglu/context-mode |
+| npm | produção | zod | 3.25.76 | TypeScript-first schema declaration and validation library with static type inference | https://github.com/colinhacks/zod |
 | npm | desenvolvimento | @types/node | 26.3.0 | TypeScript definitions for node | https://github.com/DefinitelyTyped/DefinitelyTyped |
 | npm | desenvolvimento | typescript | 7.0.2 | TypeScript is a language for application scale JavaScript development | https://github.com/microsoft/TypeScript |
 | npm | desenvolvimento | vitest | 4.1.11 | Next generation testing framework powered by Vite | https://github.com/vitest-dev/vitest |

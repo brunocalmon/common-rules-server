@@ -7,7 +7,7 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 
 ## O que existe hoje
 
-**Dois comandos, e nada além disso.**
+**Três comandos e um servidor de protocolo, e nada além disso.**
 
 | Comando | O que faz |
 | --- | --- |
@@ -40,11 +40,14 @@ Exemplo real de `setup`:
   ...
 ```
 
+**Servidor MCP**, com a tool `setup` única, sobre entrada e saída padrão pelo
+binário `common-rules-mcp`. Expõe a mesma lógica que o comando de terminal, e
+exige a raiz do projeto como parâmetro: o processo servidor não sabe em que
+projeto está, e adivinhar escreveria na árvore errada relatando sucesso.
+
 ## O que ainda não existe
 
 Esta lista importa tanto quanto a anterior. Nada abaixo está implementado:
-
-- **Servidor MCP**, com a tool `setup` única. A lógica existe e é exposta pelo CLI; falta a superfície de protocolo.
 
 - **Fluxo de aprovação** antes de execução.
 - **Detecção de backends de agente** — `pi`, `claude`, `cursor-agent`, `codex`,

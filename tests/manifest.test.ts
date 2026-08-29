@@ -12,9 +12,16 @@ describe("AC-001 — instalação limpa conclui", () => {
   });
 
   // SPECSFY: US-001 FR-004 AC-001
-  it("declara as duas dependências de subsistema npm", () => {
+  it("declara as duas dependências de subsistema npm em versão exata", () => {
     const deps = manifest().dependencies ?? {};
-    expect(Object.keys(deps).sort()).toEqual([...NPM_SUBSYSTEMS].sort());
+    // FR-004 exige que os dois subsistemas estejam declarados e fixados, não que
+    // sejam as únicas dependências. Comparar por igualdade de conjunto fixava um
+    // retrato da entrega e proibia qualquer biblioteca futura — foi o que
+    // aconteceu quando o SDK do protocolo entrou na fatia 1f.
+    for (const nome of NPM_SUBSYSTEMS) {
+      expect(Object.keys(deps)).toContain(nome);
+      expect(String(deps[nome])).toMatch(/^\d+\.\d+\.\d+$/);
+    }
   });
 
   // SPECSFY: US-001 FR-004 NFR-002 AC-001
