@@ -1,11 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { inspectDependencies } from "../src/doctor";
 import { projeto, gravarRegistro, registroAntigo, ID_FIXO } from "./trace-fixtures";
+import { semBackends } from "./backends-fixtures";
 
 const ambiente = { resolveNpm: () => "1.0.0", resolveLocalPython: () => "2.3.7", resolveOnPath: () => null };
 
 function relatorio(raiz: string) {
-  return inspectDependencies(ambiente, raiz);
+  return inspectDependencies(ambiente, raiz, semBackends);
 }
 
 describe("AC-046 — o identificador aparece no diagnóstico", () => {

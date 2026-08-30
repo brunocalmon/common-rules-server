@@ -59,7 +59,7 @@ A Phase 1 empacotava seis entregas. Cada uma é comparável em tamanho à Phase 
 | 1a | Esqueleto executável: manifesto, build, runner, dependências resolvidas | **SPEC-0002, concluída** |
 | 1b | Hooks, detecção, registro e ponte `uv`, via CLI | **SPEC-0003, concluída** |
 | 1c | Approval workflow interativo e JSON | **SPEC-0007, concluída** |
-| 1d | Detecção de backends e graceful degradation | **SPEC-0008, definida** |
+| 1d | Detecção de backends e graceful degradation | **SPEC-0008, concluída** |
 | 1e | Seleção de modelo pelo Orchestrator | A especificar |
 | 1f | Servidor MCP com a tool `setup` única | **SPEC-0004, concluída** |
 | 1g | Telemetria por `trace_id` no registro auditável | **SPEC-0006, concluída** |

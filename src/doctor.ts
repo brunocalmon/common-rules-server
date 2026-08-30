@@ -3,8 +3,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** Camada a que a dependência pertence, conforme DEC-002 da SPEC-0002. */
-export type Layer = "npm" | "python";
+/** Camada a que a dependência pertence. `agent`, da fatia 1d, é informativa — nunca afeta `exitCode`. */
+export type Layer = "npm" | "python" | "agent";
 
 /** Origem que resolveu a dependência. Local sempre tem precedência sobre global. */
 export type Origin = "local" | "global";
@@ -16,10 +16,13 @@ export interface DependencyResult {
   origin: Origin | null;
   version: string | null;
   hint?: string;
+  /** Só para `layer: "agent"`: capacidade de invocação sem interação demonstrada (SPEC-0008). */
+  supported?: boolean;
 }
 
 import { reportSkills, type SkillReportRow } from "./skills/record.js";
 import { readTrace, type TraceRead } from "./telemetry/read.js";
+import { detectBackends, realBackendEnvironment, type BackendEnvironment } from "./backends/detect.js";
 
 export interface Report {
   results: DependencyResult[];
@@ -71,7 +74,11 @@ function pick(local: string | null, global: string | null): { origin: Origin | n
  * Não instala nada, em nenhuma origem: instalar pertence ao setup, e o ambiente
  * de destino é gerido por um playbook declarativo.
  */
-export function inspectDependencies(env: Environment, root?: string): Report {
+export function inspectDependencies(
+  env: Environment,
+  root?: string,
+  backendEnv: BackendEnvironment = realBackendEnvironment(),
+): Report {
   const results: DependencyResult[] = [];
 
   for (const name of NPM_SUBSYSTEMS) {
@@ -91,7 +98,20 @@ export function inspectDependencies(env: Environment, root?: string): Report {
     ...(present ? {} : { hint: PYTHON_HINT }),
   });
 
-  const dependenciasOk = results.every((r) => r.present);
+  // Camada informativa: backend de agente nunca instalado por este projeto
+  // (PR-031), então ausência nunca entra em `dependenciasOk` (PR-032).
+  for (const backend of detectBackends(backendEnv)) {
+    results.push({
+      name: backend.name,
+      layer: "agent",
+      present: backend.present,
+      origin: backend.present ? "global" : null,
+      version: backend.version,
+      supported: backend.supported,
+    });
+  }
+
+  const dependenciasOk = results.filter((r) => r.layer !== "agent").every((r) => r.present);
   if (root === undefined) return { results, exitCode: dependenciasOk ? 0 : 1 };
 
   // Somente leitura: o `doctor` relata a deriva e não a repara. Reparo

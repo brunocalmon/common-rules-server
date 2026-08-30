@@ -2,7 +2,7 @@
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 import { realpathSync } from "node:fs";
-import { defaultEnvironment, inspectDependencies } from "./doctor.js";
+import { defaultEnvironment, inspectDependencies, type Report } from "./doctor.js";
 import { runSetup, TARGET_SETTINGS } from "./setup/run.js";
 import { detectEnvironment } from "./setup/env.js";
 import { readRecordFile } from "./setup/write.js";
@@ -16,15 +16,26 @@ export interface CommandOutcome {
   exitCode: number;
 }
 
-/** Formata uma linha por dependência, com camada, origem e versão. */
-function formatReport(): CommandOutcome {
-  const report = inspectDependencies(defaultEnvironment(), process.cwd());
+/**
+ * Formata uma linha por dependência, com camada, origem e versão.
+ *
+ * Extraído de `formatReport()` para ser exercitável com um `Report` injetado
+ * — a fatia 1d precisa provar o texto da camada `agent` sem depender do que
+ * está instalado na máquina de quem roda a suíte (NFR-032, SPEC-0008).
+ */
+export function renderReport(report: Report): string {
   const lines = report.results.map((d) => {
     const head = `${d.present ? "ok     " : "ausente"} ${d.name}`;
     if (!d.present) return `${head}\n        ${d.hint ?? ""}`.trimEnd();
-    return `${head} — camada ${d.layer}, origem ${d.origin}, versão ${d.version}`;
+    const suportado = d.layer === "agent" ? `, ${d.supported ? "suportado" : "não suportado"}` : "";
+    return `${head} — camada ${d.layer}, origem ${d.origin}, versão ${d.version}${suportado}`;
   });
-  return { output: lines.join("\n"), exitCode: report.exitCode };
+  return lines.join("\n");
+}
+
+function formatReport(): CommandOutcome {
+  const report = inspectDependencies(defaultEnvironment(), process.cwd());
+  return { output: renderReport(report), exitCode: report.exitCode };
 }
 
 /**

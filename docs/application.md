@@ -12,7 +12,9 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/approval/context.ts | TerminalContext, realTerminalContext, resolveChannel |
 | Outras fontes | src/approval/decide.ts | DecisionSource, StdinReader, documentSource, interactiveSource, realSource, ApprovalResult, interpret |
 | Outras fontes | src/approval/render.ts | PlannedItem, RenderedPlan, renderPlan |
-| Outras fontes | src/cli.ts | CommandOutcome, formatReport, formatSetup, COMMANDS, ALIASES, resolveCommand, run, realEntryPath |
+| Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
+| Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
+| Outras fontes | src/cli.ts | CommandOutcome, renderReport, formatReport, formatSetup, COMMANDS, ALIASES, resolveCommand, run |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
 | Outras fontes | src/hooks/claude-code.ts | TranslatedHook, EVENT_MAP, translateForClaudeCode, wrap, unwrap, FRAGMENT_START, FRAGMENT_END, PREAMBLE |
 | Outras fontes | src/hooks/detect.ts | TargetEnvironment, Detection, TARGET, EVIDENCE, detectTarget |
@@ -53,6 +55,16 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/aprovacao-recusa-preserva.test.ts | — |
 | Testes | tests/aprovacao-sem-alvo.test.ts | — |
 | Testes | tests/aprovacao-sem-mudanca.test.ts | — |
+| Testes | tests/backends-ausencia-nao-afeta-saida.test.ts | — |
+| Testes | tests/backends-convivencia-status.test.ts | — |
+| Testes | tests/backends-detector-injetavel.test.ts | — |
+| Testes | tests/backends-determinismo-misto.test.ts | — |
+| Testes | tests/backends-fixtures.ts | fonteFake |
+| Testes | tests/backends-lista-fixa-sem-sondagem.test.ts | — |
+| Testes | tests/backends-nao-suportado-presente.test.ts | — |
+| Testes | tests/backends-paridade-real.test.ts | — |
+| Testes | tests/backends-suportados-presentes.test.ts | — |
+| Testes | tests/backends-versao-sem-help.test.ts | — |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
 | Testes | tests/cli-approval-real.test.ts | projetoComAlvo |
@@ -62,6 +74,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/cycle-command.test.ts | ROOT |
 | Testes | tests/cycle-failure.test.ts | ROOT |
 | Testes | tests/cycle-timings.test.ts | ROOT |
+| Testes | tests/doctor-camada-agent-texto.test.ts | — |
 | Testes | tests/doctor-missing.test.ts | — |
 | Testes | tests/doctor-ok.test.ts | — |
 | Testes | tests/hooks-blocking.test.ts | CORPUS, rodarGuard |

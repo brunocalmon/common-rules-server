@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 103.
+- Arquivos de teste: 114.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -26,6 +26,16 @@
 | tests/aprovacao-recusa-preserva.test.ts |
 | tests/aprovacao-sem-alvo.test.ts |
 | tests/aprovacao-sem-mudanca.test.ts |
+| tests/backends-ausencia-nao-afeta-saida.test.ts |
+| tests/backends-convivencia-status.test.ts |
+| tests/backends-detector-injetavel.test.ts |
+| tests/backends-determinismo-misto.test.ts |
+| tests/backends-fixtures.ts |
+| tests/backends-lista-fixa-sem-sondagem.test.ts |
+| tests/backends-nao-suportado-presente.test.ts |
+| tests/backends-paridade-real.test.ts |
+| tests/backends-suportados-presentes.test.ts |
+| tests/backends-versao-sem-help.test.ts |
 | tests/budget.test.ts |
 | tests/build.test.ts |
 | tests/cli-approval-real.test.ts |
@@ -35,6 +45,7 @@
 | tests/cycle-command.test.ts |
 | tests/cycle-failure.test.ts |
 | tests/cycle-timings.test.ts |
+| tests/doctor-camada-agent-texto.test.ts |
 | tests/doctor-missing.test.ts |
 | tests/doctor-ok.test.ts |
 | tests/hooks-blocking.test.ts |

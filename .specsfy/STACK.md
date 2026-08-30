@@ -196,3 +196,36 @@ canal nem fonte injetados, alimentando a entrada padrão do subprocesso real.
 O servidor MCP (`src/mcp/tool.ts`) segue sem `approval`: ler `stdin` de
 verdade dentro de um processo MCP colidiria com o protocolo JSON-RPC, que já
 usa `stdin`/`stdout` como transporte.
+
+## Detecção de backends de agente
+
+Dois arquivos em `src/backends/`, acrescentados pela SPEC-0008:
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/backends/known.ts` | Nomeia `SUPPORTED_AGENT_BACKENDS` (`pi`, `agy`, `claude`, `codex`, `goose`) e `KNOWN_AGENT_BACKENDS`, que acrescenta `dsh` e `cursor-agent`, presentes na máquina mas sem capacidade demonstrada. |
+| `src/backends/detect.ts` | `detectBackends(env, known?, supported?)`, com `BackendEnvironment` injetável — presença via `which`-equivalente, versão via `<backend> --version`, nunca `--help`. |
+
+`src/doctor.ts` ganhou a terceira camada, `agent`, ao lado de `npm` e
+`python`: `Layer` passa a ter três valores, e `inspectDependencies` recebe um
+terceiro parâmetro opcional, `backendEnv`, com `realBackendEnvironment()`
+como padrão. Diferente das duas primeiras, a camada `agent` é informativa —
+`dependenciasOk` (e por consequência `exitCode`) é calculado só sobre
+`results.filter(r => r.layer !== "agent")`, porque `common-rules` detecta
+backend de agente e nunca o instala (`PR-031`).
+
+A lista suportada corrigiu, com execução real, uma varredura anterior do
+backlog que havia checado só o `--help` de topo de cada CLI e concluído que
+`codex` e `goose` não tinham forma de invocação sem interação — os dois têm,
+por subcomando dedicado (`codex exec`, `goose run`), não por flag do binário
+raiz. Evidência em `specs/completed/0008-fatia-1d-deteccao-backends/research/`.
+
+A extração de versão prefere o primeiro token que começa com dígito, e não o
+último: `claude --version` devolve `2.1.251 (Claude Code)`, cujo último token
+é `Code)` — bug real, encontrado na verificação manual desta fatia e coberto
+por `tests/backends-paridade-real.test.ts`.
+
+`src/cli.ts` ganhou `renderReport(report)`, extraído de `formatReport()`, para
+que o texto da camada `agent` — incluindo a marca `suportado`/`não suportado`
+— seja exercitável com um `Report` injetado, sem depender do que está
+instalado na máquina de quem roda a suíte.

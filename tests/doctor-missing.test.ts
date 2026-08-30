@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { inspectDependencies } from "../src/doctor";
+import { semBackends } from "./backends-fixtures";
 
 // code-review-graph ausente das duas origens; as npm resolvem normalmente.
 const semCrg = {
@@ -9,7 +10,7 @@ const semCrg = {
   resolveOnPath: () => null,
 };
 
-const crg = () => inspectDependencies(semCrg).results.find((r) => r.name === "code-review-graph");
+const crg = () => inspectDependencies(semCrg, undefined, semBackends).results.find((r) => r.name === "code-review-graph");
 
 describe("AC-006 — doctor reprova nomeando a ausente", () => {
   // SPECSFY: US-002 FR-006 AC-006
@@ -24,12 +25,12 @@ describe("AC-006 — doctor reprova nomeando a ausente", () => {
 
   // SPECSFY: US-002 FR-004 AC-006
   it("mantém as dependências npm aprovadas, isolando a falha", () => {
-    const npm = inspectDependencies(semCrg).results.filter((r) => r.layer === "npm");
+    const npm = inspectDependencies(semCrg, undefined, semBackends).results.filter((r) => r.layer === "npm");
     expect(npm.every((r) => r.present)).toBe(true);
   });
 
   // SPECSFY: US-002 FR-006 AC-006
   it("reprova o conjunto, com código de saída diferente de zero", () => {
-    expect(inspectDependencies(semCrg).exitCode).not.toBe(0);
+    expect(inspectDependencies(semCrg, undefined, semBackends).exitCode).not.toBe(0);
   });
 });

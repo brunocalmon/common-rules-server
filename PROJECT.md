@@ -12,12 +12,14 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 | Comando | O que faz |
 | --- | --- |
 | `common-rules --version` | Imprime a versão declarada no manifesto |
-| `common-rules doctor` | Relata as três dependências do projeto, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, e o identificador da última execução |
+| `common-rules doctor` | Relata as três dependências do projeto e os backends de agente detectados, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, e o identificador da última execução |
 | `common-rules setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, e registra o que escreveu, identificando a execução e o momento |
 
 **Aprovação do plano.** `common-rules setup` apresenta o plano e aguarda aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita.
 
 **Reconciliação de drift.** `setup` só relata "já estava configurado" quando hooks, skills e o framework Specsfy estão de fato presentes no disco — não só quando os hooks batem com o registro. Apagar `.claude/skills/` ou `.specsfy/` por fora e rodar `setup` de novo restaura o que faltar.
+
+**Backends de agente.** `doctor` relata, numa terceira camada informativa, cada backend de agente candidato conhecido — presença, versão e se tem capacidade demonstrada de invocação sem interação. Suportados hoje: `pi`, `agy`, `claude`, `codex` e `goose`. Nenhum backend ausente afeta o código de saída: `common-rules` detecta, nunca instala agente.
 
 Exemplo real de `doctor`:
 
