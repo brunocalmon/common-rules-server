@@ -59,6 +59,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/doctor-missing.test.ts | — |
 | Testes | tests/doctor-ok.test.ts | — |
 | Testes | tests/hooks-blocking.test.ts | CORPUS, rodarGuard |
+| Testes | tests/hooks-context-mode-comando.test.ts | HOOKS_CONTEXT_MODE |
 | Testes | tests/hooks-corpus.test.ts | CORPUS |
 | Testes | tests/hooks-escape.test.ts | HOSTIL |
 | Testes | tests/hooks-permissive.test.ts | CORPUS, rodarGuard |

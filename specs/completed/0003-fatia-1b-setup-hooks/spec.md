@@ -766,14 +766,19 @@ A decisão registrada em SPEC-0002 foi aceitar a limitação e documentar o verm
 - **RED**: `npm run test:tdd` com `tests/hooks-raw-command.test.ts` em 3 de 3 casos reprovando, e os 284 casos anteriores verdes.
 - **Predecessores de T025**: `T009` e `T013`, que já exercitam `readHook`/`translateForClaudeCode` pelo caminho de bloco de código, somam-se a `T024` para os três predecessores exigidos — se a correção quebrasse a fidelidade dos guards, esses dois capturariam.
 
+**Segunda reabertura do Ato II, mesma data.** `T026` e `T027` acrescentadas para o placeholder `{ide}` nunca resolvido. `npm run test:tdd` com `tests/hooks-context-mode-comando.test.ts` em 3 de 3 casos reprovando, e os 290 casos anteriores verdes.
+
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Passed (2026-08-30), reaberto sobre entrega concluída anteriormente
-- **Verificação**: `npm run test:tdd` em exit 0, com **287 casos em 87 arquivos**; `npx tsc --noEmit` e `npm run build` em exit 0; `npm run verify` em exit 0 a partir de clone limpo, em 6s; diretório pessoal com 42 entradas antes e depois.
-- **Auditorias**: `verify_acceptance` em `QA: PASSED`; `verify_evidence` em `PASSED (strict)`; `load_research` em `PASSED`, após corrigir dois caminhos que ainda apontavam para `specs/completed/` depois da reabertura.
-- **Confirmação contra o artefato real**: regerando `.claude/settings.json` deste próprio repositório, os quatro comandos de despacho — `code-review-graph update --brief` e as três invocações de `context-mode hook` — aparecem no arquivo. Antes da correção, o fragmento ficava vazio.
+- **Resultado**: Passed (2026-08-30), reaberto duas vezes sobre entrega concluída anteriormente
+- **Verificação**: `npm run test:tdd` em exit 0, com **293 casos em 89 arquivos**; `npx tsc --noEmit` e `npm run build` em exit 0; `npm run verify` em exit 0 a partir de clone limpo, em 16s; diretório pessoal com 42 entradas antes e depois.
+- **Auditorias**: `verify_acceptance` em `QA: PASSED`; `verify_evidence` em `PASSED (strict)`; `load_research` em `PASSED`, corrigido duas vezes — os caminhos que apontavam para `specs/completed/` reapareceram na segunda reabertura porque o `sed` de sincronização só tinha rodado na primeira.
+- **Confirmação contra o artefato real, primeira reabertura**: regerando `.claude/settings.json` deste próprio repositório, os quatro comandos de despacho — `code-review-graph update --brief` e as três invocações de `context-mode hook` — apareceram no arquivo. Antes da correção, o fragmento ficava vazio.
+- **Confirmação contra o artefato real, segunda reabertura**: um terceiro projeto de teste, gerado pelo binário `common-rules` instalado por `npm link`, mostra os três hooks de context-mode sem `{ide}` em `.claude/settings.json`.
 
-**Achado pré-existente, não expandido nesta reabertura.** `check_traceability --full-chain` acusa cadeia quebrada em `AC-001` a `AC-012`: os comentários de evidência de `T001` a `T023`, escritos na entrega original, listam `US`/`FR` mas não os `AC` correspondentes. É a mesma classe de achado já registrada como `A4` no aceite da `SPEC-0004`, ali restrita a `AC-010`–`AC-013` porque a checagem então era menos abrangente; agora aparece em mais IDs sob a mesma bandeira `--kinds US,FR,NFR,AC`. Não toquei nos comentários de `T001` a `T023`: reescrever evidência histórica para incluir referências que não foram registradas na entrega original violaria a regra da própria skill de atualização, e o escopo desta reabertura é o bug de fidelidade do fragmento, não uma auditoria retroativa de vinte e três tarefas já concluídas. Fica registrado para decisão de quem responde pelo produto, junto do achado equivalente já aberto.
+**`npm run verify` reprovou uma vez, e a causa era o teste, não a produção.** `tests/hooks-context-mode-comando.test.ts` estourou o timeout padrão de 5s do Vitest ao invocar `context-mode` real como subprocesso sob a carga de `npm ci` + build + suíte rodando em sequência. Corrigido o timeout do caso — 25s no subprocesso, 30s no `it` —, e não o comportamento; `npm run verify` limpo na repetição.
+
+**Achado pré-existente, não expandido nesta reabertura.** `check_traceability --full-chain` acusa cadeia quebrada em `AC-001` a `AC-008`, `AC-011` e `AC-012`: os comentários de evidência de `T001` a `T023`, escritos na entrega original, listam `US`/`FR` mas não os `AC` correspondentes. É a mesma classe de achado já registrada como `A4` no aceite da `SPEC-0004`. Não toquei nos comentários de `T001` a `T023`: reescrever evidência histórica para incluir referências que não foram registradas na entrega original violaria a regra da própria skill de atualização, e o escopo destas duas reaberturas foi corrigir defeitos de execução real, não auditar retroativamente vinte e três tarefas já concluídas. Fica registrado para decisão de quem responde pelo produto.
 
 #### Suposições
 
@@ -990,9 +995,31 @@ Reabertura de 2026-08-30. `FR-002` já exigia embutir o fragmento sem alteraçã
 
   <!-- specsfy:evidence {"task": "T025", "refs": ["FR-002", "AC-009", "AC-010", "AC-013"], "files": ["src/hooks/source.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
 
+#### Fase 5 — Correção de plano: placeholder {ide} nunca resolvido
+
+Reabertura de 2026-08-30, segunda desta fatia. `FR-002` não muda; o dado-fonte de três hooks estava incorreto desde a introdução nesta reescrita.
+
+- [x] T026 [TEST] [TDD] [US-002] Derivar de AC-009 o caso de comando real sem placeholder em tests/hooks-context-mode-comando.test.ts — Refs: US-002, FR-002, AC-009 — Depends: none
+  - [x] **PREP**: Reler AC-009, que já exige fidelidade caractere a caractere entre o hook fonte e o script traduzido; aplicar isso ao conteúdo do `raw_command`, não só à sua presença.
+  - [x] **EXECUTE**: Escrever o caso em `tests/hooks-context-mode-comando.test.ts`: traduzir os três hooks de context-mode, extrair o fragmento e confirmar que nenhum contém a substring `{ide}`, e que o comando começa com `context-mode hook claude-code`.
+  - [x] **VERIFY**: RED observado nas três asserções — os três fragmentos contêm `{ide}` literal, o comando não começa com `claude-code`, e a terceira reafirma a mesma causa via subprocesso.
+  - [x] **EVIDENCE**: `npx vitest run tests/hooks-context-mode-comando.test.ts` com 3 de 3 reprovando. Registrado na seção 12.
+  - [x] **IMPROVE**: O caso também executa cada script como subprocesso real, com o payload que um evento de verdade traria, e confere código de saída — não só inspeciona o texto do comando.
+
+- [x] T027 [DOC] [US-002] Declarar o alvo literal nos três hooks de context-mode em hooks/context-mode-pretooluse.md, hooks/context-mode-posttooluse.md, hooks/context-mode-stop.md — Refs: FR-002, AC-009 — Depends: T026
+  - [x] **PREP**: T026 em RED; `docs/` reconstruído por `$specsfy-documentator` antes da alteração.
+  - [x] **EXECUTE**: Os três `raw_command` em `hooks/context-mode-*.md` passaram de `context-mode hook {ide} <evento>` para `context-mode hook claude-code <evento>`.
+  - [x] **VERIFY**: T026 passa a GREEN nos três casos. A suíte inteira fecha em 293 de 293 casos e 89 de 89 arquivos — confirmado em duas execuções completas, a primeira teve uma falha transiente isolada no terceiro caso, reproduzida como GREEN ao rodar sozinha e na repetição completa. `npx tsc --noEmit` e `npm run build` em exit 0. Confirmado contra um terceiro projeto real, gerado pelo binário `common-rules` instalado por `npm link`: os três hooks de context-mode em `.claude/settings.json` não contêm `{ide}`.
+  - [x] **EVIDENCE**: Comandos, contagens e a confirmação contra o projeto real registrados na seção 12.
+  - [x] **IMPROVE**: Este é o terceiro defeito real encontrado testando a instalação de ponta a ponta nesta sessão, depois do fragmento vazio e do guard de dispatch. Nenhum dos três apareceu em centenas de casos de teste porque nenhum executava o produto como ele de fato é usado — instalado, linkado, disparado por subprocesso com payload real. Testar a forma não é testar o uso.
+
+  <!-- specsfy:evidence {"task": "T027", "refs": ["FR-002", "AC-009"], "files": ["hooks/context-mode-pretooluse.md", "hooks/context-mode-posttooluse.md", "hooks/context-mode-stop.md"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
+
 ### 15. Ordem de execução
 
 **Correção de 2026-08-30.** `T024` não depende de nada e `T025` depende só de `T024`; a ordem original das fases 1 a 3 não muda.
+
+**Segunda correção, mesma data.** `T026` não depende de nada e `T027` depende só de `T026`.
 
 - Caminho crítico: T009, T010 e T013 → T014 → T015 → T019 → T020 → T023.
 - Tarefas paralelas: T001 a T013, porque cada uma escreve num arquivo distinto de `tests/` e nenhuma depende do resultado das outras.
@@ -1018,6 +1045,7 @@ Reabertura de 2026-08-30. `FR-002` já exigia embutir o fragmento sem alteraçã
 - **Escrita destruindo configuração de terceiro** → a pessoa perde ajuste que não era nosso. Mitigação: a seção 7 exige preservar bloco alheio, e o caso está entre os erros previstos.
 - **Detecção por presença de diretório dando falso positivo** → configurar editor que a pessoa não usa. Mitigação: registrada como suposição reversível; AC-006 fixa o comportamento na ausência.
 - **Registro divergindo do sistema** → a ferramenta confia em si mesma e ignora remoção manual. Mitigação: a seção 7 manda reinstalar e relatar quando o registro afirmar o que o sistema nega.
+- **Placeholder `{ide}` no raw_command dos hooks de context-mode, nunca substituído** → os três hooks declaravam `context-mode hook {ide} <evento>`, e `{ide}` chegava como argumento literal ao comando real, sem que nenhum código do projeto o resolvesse. Introduzido nesta própria reescrita — `git log -S "{ide}"` não devolve ocorrência em `archived` —, e contraria a intenção já documentada aqui de eliminar placeholders do produto. Achado em 2026-08-30, testando os sete hooks como subprocesso real contra um projeto de teste, depois da correção do fragmento vazio. Mitigação: como o alvo suportado é só `claude-code`, os três `hooks/context-mode-*.md` passam a declarar isso literalmente no `raw_command`, e um caso novo confere que o comando final não contém chave alguma e executa de verdade.
 
 #### Suposições
 
@@ -1034,6 +1062,8 @@ Registradas na seção 13, todas reversíveis nesta fatia.
 
 **Correção de plano registrada em 2026-08-30.** `FR-002` não mudou: o requisito de embutir o fragmento sem alteração já cobria este caso. A solução técnica é que estava incompleta — `scriptFrom` só extraía de bloco de código — e passa a ler `raw_command` do frontmatter quando não há bloco. Classificação: mudança de plano, Ato II reaberto, Definition Gate preservado.
 
+**Segunda correção de plano registrada em 2026-08-30.** `FR-002` não muda: o fragmento continua embutido sem alteração pela tradução — o defeito estava no dado-fonte, não na lógica. Classificação: mudança de plano, Ato II reaberto, Definition Gate preservado.
+
 ### 18. Definition of Done
 
 - [x] `Definition Gate` está `Passed`.
@@ -1049,3 +1079,5 @@ Registradas na seção 13, todas reversíveis nesta fatia.
 - [x] `PROJECT.md` lista `common-rules setup` entre as capacidades, e a única menção restante na lista de ausências descreve o servidor MCP, não o comando.
 
 **Aceite da reabertura, 2026-08-30.** Todos os gates conferidos: `Definition Gate: Passed` preservado sem alteração de requisito; `Plan Gate: Passed` com `T024`/`T025` acrescentadas e RED materializado; `Delivery Gate: Passed` com 287 de 287 casos, confirmação contra o `.claude/settings.json` real deste repositório, e o achado pré-existente de `--full-chain` registrado sem expansão de escopo.
+
+**Aceite da segunda reabertura, 2026-08-30.** Todos os gates conferidos: `Definition Gate: Passed` preservado; `Plan Gate: Passed` com `T026`/`T027` acrescentadas e RED materializado; `Delivery Gate: Passed` com 293 de 293 casos, `npm run verify` limpo após corrigir timeout de teste, e confirmação contra um terceiro projeto real gerado pelo binário instalado.

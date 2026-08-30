@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 92.
+- Arquivos de teste: 93.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -35,6 +35,7 @@
 | tests/doctor-missing.test.ts |
 | tests/doctor-ok.test.ts |
 | tests/hooks-blocking.test.ts |
+| tests/hooks-context-mode-comando.test.ts |
 | tests/hooks-corpus.test.ts |
 | tests/hooks-escape.test.ts |
 | tests/hooks-permissive.test.ts |
