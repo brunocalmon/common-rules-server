@@ -140,3 +140,8 @@ Decisões que a especificação ainda precisa tomar: se o hash cobre arquivo a a
 ## Próximo passo
 
 Especificar como fatia 1h da Phase 1. Independe de 1c, 1d e 1e, e pode vir antes ou depois da 1g.
+
+## Reaberturas registradas
+
+- **2026-08-30, primeira reabertura**: `common-rules setup` nunca instalava nada de verdade — nenhum `Executor` real existia em produção, e `src/cli.ts` nunca fornecia `opts.skills`/`opts.specsfy` a `runSetup`. Corrigido com executores reais para `skills` e para `specsfy install`, e uma segunda origem oficial (`promovaweb/specsfy`) para as skills do próprio framework. Ver `specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md`, seção 13.
+- **2026-08-30, segunda reabertura**: `runSetup` considera "já configurado" olhando só os hooks, então apagar `.claude/skills/` ou `.specsfy/` manualmente e rodar `setup` de novo não restaura nada — reproduzido de verdade. Captura em `specs/inbox/2026-08-30-122232-setup-nao-resincroniza-skills-nem-framework-quando-hooks-ja-batem.md`.
