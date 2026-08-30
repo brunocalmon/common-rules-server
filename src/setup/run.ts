@@ -5,9 +5,10 @@ import { detectTarget, TARGET, type TargetEnvironment } from "../hooks/detect.js
 import { readHook } from "../hooks/source.js";
 import { renderSettings, translateForClaudeCode, type Settings, type TranslatedHook } from "../hooks/claude-code.js";
 import { realSource, type TraceSource } from "../telemetry/trace.js";
-import { installSkills, type Executor as SkillsExecutor } from "../skills/install.js";
-import { OFFICIAL_SOURCE } from "../skills/source.js";
+import { installSkills, type Executor as SkillsExecutor, type InstallResult as SkillsInstallResult } from "../skills/install.js";
+import { OFFICIAL_SOURCES } from "../skills/source.js";
 import { readLock, toRecordEntries } from "../skills/record.js";
+import { installSpecsfy, type Executor as SpecsfyExecutor } from "../specsfy/install.js";
 import { bridgePythonSubsystem, type BridgeEnvironment } from "./bridge.js";
 import { matches, readRecord, RECORD_PATH, type InstallRecord, type SkillsRecordEntry, type RecordEntry } from "./record.js";
 import { readVersion } from "../version.js";
@@ -30,8 +31,17 @@ export interface SetupOptions {
   /**
    * Executor do instalador de skills. Ausente, a instalação é pulada, do mesmo
    * modo que a ponte Python só corre quando seu ambiente é fornecido.
+   *
+   * `sources`, ausente, instala as duas origens oficiais (`OFFICIAL_SOURCES`);
+   * informado, instala só as listadas — usado pelos casos que exercitam uma
+   * origem isolada.
    */
-  skills?: { execute: SkillsExecutor; source?: string };
+  skills?: { execute: SkillsExecutor; sources?: readonly string[] };
+  /**
+   * Executor do instalador de projeto do framework Specsfy. Ausente, a
+   * instalação é pulada, no mesmo padrão de `skills`.
+   */
+  specsfy?: { execute: SpecsfyExecutor };
   /**
    * Origem do instante e do identificador. Ausente, a real é usada.
    *
@@ -133,19 +143,32 @@ export function runSetup(opts: SetupOptions): SetupResult {
   const raiz = opts.root ?? process.cwd();
   // A instalação precede o registro: é o lockfile que ela produz que fornece a
   // procedência gravada aqui. Montar o registro antes deixaria a lista vazia.
-  const conjuntos = opts.skills
-    ? installSkills({
-        root: raiz,
-        source: opts.skills.source ?? OFFICIAL_SOURCE,
-        execute: opts.skills.execute,
-        previous: toRecordEntries(readLock(raiz)),
-      })
-    : null;
+  //
+  // Uma chamada de `installSkills` por origem, relendo o lockfile entre uma e
+  // outra: a primeira chamada real reescreve `skills-lock.json` (acumulando,
+  // não sobrescrevendo — confirmado na reabertura), e a segunda precisa
+  // enxergar esse estado atualizado para calcular conflito e idempotência
+  // sobre o que já está lá, não sobre o que estava antes da primeira.
+  const conjuntosPorOrigem: SkillsInstallResult[] = [];
+  if (opts.skills) {
+    for (const source of opts.skills.sources ?? OFFICIAL_SOURCES) {
+      conjuntosPorOrigem.push(
+        installSkills({
+          root: raiz,
+          source,
+          execute: opts.skills.execute,
+          previous: toRecordEntries(readLock(raiz)),
+        }),
+      );
+    }
+  }
+  const algumConjuntoOk = conjuntosPorOrigem.some((c) => !c.isError);
 
-  const skills: SkillsRecordEntry[] | undefined =
-    conjuntos && !conjuntos.isError
-      ? toRecordEntries(readLock(raiz)).map((e) => ({ ...e, installedAt: agora }))
-      : undefined;
+  const skills: SkillsRecordEntry[] | undefined = algumConjuntoOk
+    ? toRecordEntries(readLock(raiz)).map((e) => ({ ...e, installedAt: agora }))
+    : undefined;
+
+  const framework = opts.specsfy ? installSpecsfy({ root: raiz, execute: opts.specsfy.execute }) : null;
 
   // O campo é omitido quando o identificador vem vazio, em vez de gravado sem
   // conteúdo: registro com campo vazio afirma identificação que não houve.
@@ -170,7 +193,12 @@ export function runSetup(opts: SetupOptions): SetupResult {
 
   return {
     installed: traduzidos, planned, written, settings, record, recordPath: RECORD_PATH,
-    report: [`${traduzidos.length} hooks instalados em ${TARGET_SETTINGS}`, conjuntos?.report, `execução ${trace}`].filter(Boolean).join("; "),
+    report: [
+      `${traduzidos.length} hooks instalados em ${TARGET_SETTINGS}`,
+      ...conjuntosPorOrigem.map((c) => c.report),
+      framework?.report,
+      `execução ${trace}`,
+    ].filter(Boolean).join("; "),
     bridged: ponte.wouldInstall !== null,
     exitCode: 0,
   };

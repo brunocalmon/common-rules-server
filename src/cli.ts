@@ -7,6 +7,8 @@ import { runSetup, TARGET_SETTINGS } from "./setup/run.js";
 import { detectEnvironment } from "./setup/env.js";
 import { readRecordFile } from "./setup/write.js";
 import { RECORD_PATH } from "./setup/record.js";
+import { realSkillsExecutor } from "./skills/executor.js";
+import { realSpecsfyExecutor } from "./specsfy/executor.js";
 import { readVersion } from "./version.js";
 
 export interface CommandOutcome {
@@ -39,7 +41,14 @@ function formatSetup(): CommandOutcome {
   // resultado em disco seja o mesmo.
   const root = process.cwd();
   const previous = readRecordFile(root, RECORD_PATH);
-  const r = runSetup({ env: detectEnvironment(root), root, write: true, previous });
+  const r = runSetup({
+    env: detectEnvironment(root),
+    root,
+    write: true,
+    previous,
+    skills: { execute: realSkillsExecutor() },
+    specsfy: { execute: realSpecsfyExecutor() },
+  });
   if (r.installed.length === 0) return { output: r.report, exitCode: r.exitCode };
   const linhas = r.installed.map((h) => `  ${h.name} — evento ${h.event}, em ${TARGET_SETTINGS}`);
   return { output: [r.report, ...linhas].join("\n"), exitCode: r.exitCode };

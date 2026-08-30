@@ -26,10 +26,13 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/setup/record.ts | RecordEntry, SkillsRecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
 | Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, loadHooks, runSetup |
 | Outras fontes | src/setup/write.ts | writeSettings, writeRecordFile, readRecordFile |
+| Outras fontes | src/skills/executor.ts | resolveSkillsBin, parseSkillNames, realSkillsExecutor |
 | Outras fontes | src/skills/install.ts | TARGET_AGENT, InstallOptions, InstallResult, installSkills |
 | Outras fontes | src/skills/inventory.ts | SKILLS_DIR, SkillsInspection, inspectSkills |
 | Outras fontes | src/skills/record.ts | LOCK_PATH, LockEntry, SkillRecordEntry, SkillReportRow, SkillReport, GUARANTEE_NOTE, readLock, toRecordEntries |
-| Outras fontes | src/skills/source.ts | OFFICIAL_SOURCE, resolveSource |
+| Outras fontes | src/skills/source.ts | OFFICIAL_SOURCE, OFFICIAL_SOURCES, resolveSource |
+| Outras fontes | src/specsfy/executor.ts | resolveSpecsfyBin, SpecsfyJson, realSpecsfyExecutor |
+| Outras fontes | src/specsfy/install.ts | InstallOptions, InstallResult, installSpecsfy |
 | Outras fontes | src/telemetry/read.ts | readTrace |
 | Outras fontes | src/telemetry/trace.ts | TRACE_ID_LENGTH, TraceSource, generateId, nowIso, realSource |
 | Outras fontes | src/version.ts | readVersion |
@@ -52,6 +55,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/aprovacao-sem-mudanca.test.ts | — |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
+| Testes | tests/cli-setup-real.test.ts | — |
 | Testes | tests/cli-symlink.test.ts | viaLink |
 | Testes | tests/cycle-command.test.ts | ROOT |
 | Testes | tests/cycle-failure.test.ts | ROOT |
@@ -94,7 +98,8 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/skills-doctor-deriva.test.ts | projetoDivergente |
 | Testes | tests/skills-doctor-garantia.test.ts | projetoInstalado |
 | Testes | tests/skills-doctor-presenca.test.ts | projetoConsistente |
-| Testes | tests/skills-fixtures.ts | CONJUNTO_SPECSFY, CONJUNTO_MATTPOCOCK, projetoComSkills, arvore, trocarPorLink, executorFalso, escreverLock, foraDoProjeto |
+| Testes | tests/skills-executor-real.test.ts | raizLimpa |
+| Testes | tests/skills-fixtures.ts | CONJUNTO_SPECSFY, CONJUNTO_MATTPOCOCK, projetoComSkills, arvore, trocarPorLink, executorFalso, escreverLock, executorDualOrigem |
 | Testes | tests/skills-idempotente.test.ts | — |
 | Testes | tests/skills-install-alvo.test.ts | — |
 | Testes | tests/skills-install-copia.test.ts | — |
@@ -104,9 +109,14 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/skills-nao-destrutivo.test.ts | — |
 | Testes | tests/skills-registro-persistido.test.ts | registroGravado |
 | Testes | tests/skills-registro.test.ts | — |
+| Testes | tests/skills-segunda-origem.test.ts | raizLimpa |
 | Testes | tests/skills-source-arbitraria.test.ts | — |
 | Testes | tests/skills-source-oficial.test.ts | — |
 | Testes | tests/skills-source-terceiro.test.ts | — |
+| Testes | tests/specsfy-install-alvo.test.ts | — |
+| Testes | tests/specsfy-install-falha.test.ts | — |
+| Testes | tests/specsfy-install-idempotente.test.ts | — |
+| Testes | tests/specsfy-install-real.test.ts | raizGit |
 | Testes | tests/surface.test.ts | PROIBIDOS |
 | Testes | tests/trace-doctor-relata.test.ts | relatorio |
 | Testes | tests/trace-doctor-sem-registro.test.ts | — |

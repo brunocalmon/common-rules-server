@@ -13,7 +13,7 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 | --- | --- |
 | `common-rules --version` | Imprime a versão declarada no manifesto |
 | `common-rules doctor` | Relata as três dependências do projeto, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, e o identificador da última execução |
-| `common-rules setup` | Instala os sete hooks no editor detectado, instala os conjuntos de skills e registra o que escreveu, identificando a execução e o momento |
+| `common-rules setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, e registra o que escreveu, identificando a execução e o momento |
 
 **Aprovação do plano.** A biblioteca que o `setup` usa (`runSetup`) sabe apresentar o plano e aguardar aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita. O comando de terminal ainda não aciona esse mecanismo por padrão; a garantia vale hoje na biblioteca.
 
@@ -42,12 +42,22 @@ Exemplo real de `setup`:
   ...
 ```
 
-**Dois ecossistemas de skills lado a lado.** O `setup` instala as skills de
-`mattpocock/skills` pelo instalador oficial da vercel-labs, em cópia real e não
-link, ao lado das que o `specsfy` já mantém em `.claude/skills/`. Nenhum é
-preterido nem mesclado. A procedência de cada conjunto fica no registro do
+**Dois ecossistemas de skills lado a lado, e o framework Specsfy instalado de
+verdade.** O `setup` instala as skills de `mattpocock/skills` e as de
+`promovaweb/specsfy` pelo mesmo instalador oficial da vercel-labs, uma origem
+por vez, em cópia real e nunca link, convivendo em `.claude/skills/` sem que
+uma sobrescreva a outra. A procedência de cada conjunto fica no registro do
 projeto, e o `doctor` relata a deriva sem repará-la — a referência obtida não é
 fixada pela origem, e dizer isso faz parte do relato.
+
+Separadamente, o mesmo `setup` executa o instalador de projeto do próprio
+framework Specsfy (`specsfy install --project <raiz>`), deixando `.specsfy/`,
+`.agents/skills/`, `CLAUDE.md` e `AGENTS.md` presentes e atualizados — sem o
+`common-rules` escrever ou compor o conteúdo desses arquivos por conta própria;
+quem o faz é o instalador do próprio Specsfy. Enriquecer `CLAUDE.md`/`AGENTS.md`
+com conteúdo próprio de orquestração do `common-rules` continua fora de escopo,
+adiado para o épico de extensões da Phase 2 — só a existência desses arquivos é
+garantida hoje.
 
 **Servidor MCP**, com a tool `setup` única, sobre entrada e saída padrão pelo
 binário `common-rules-mcp`. Expõe a mesma lógica que o comando de terminal, e

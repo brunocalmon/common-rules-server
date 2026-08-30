@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, writeFileSync, readdirSync, existsSync, symlinkSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, symlinkSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -70,9 +70,12 @@ export function executorFalso(modo: "sucesso" | "ausente" | "erro", raiz: string
   return { fn, chamadas };
 }
 
-/** Grava o lockfile na forma observada na pesquisa. */
+/** Grava o lockfile na forma observada na pesquisa, acumulando com o que já existir. */
 export function escreverLock(raiz: string, nomes: string[], origem = "mattpocock/skills"): void {
-  const skills: Record<string, unknown> = {};
+  const caminho = join(raiz, "skills-lock.json");
+  const skills: Record<string, unknown> = existsSync(caminho)
+    ? (JSON.parse(readFileSync(caminho, "utf8")) as { skills?: Record<string, unknown> }).skills ?? {}
+    : {};
   for (const n of nomes) {
     skills[n] = {
       source: origem,
@@ -81,7 +84,37 @@ export function escreverLock(raiz: string, nomes: string[], origem = "mattpocock
       computedHash: `hash-${n}`,
     };
   }
-  writeFileSync(join(raiz, "skills-lock.json"), JSON.stringify({ version: 1, skills }, null, 2));
+  writeFileSync(caminho, JSON.stringify({ version: 1, skills }, null, 2));
+}
+
+/**
+ * Executor fake que responde por origem — `mattpocock/skills` ou `promovaweb/specsfy`.
+ *
+ * `falhaPara`, quando informado, faz essa origem específica devolver `null`
+ * (binário ausente), enquanto a outra segue instalando normalmente — é o que
+ * prova que uma origem falhando não contamina o relato da outra.
+ */
+export function executorDualOrigem(falhaPara?: string) {
+  const chamadas: string[][] = [];
+  const fn = (args: string[], cwd: string): Resultado => {
+    chamadas.push(args);
+    const origem = args.includes("mattpocock/skills")
+      ? "mattpocock/skills"
+      : args.includes("promovaweb/specsfy")
+        ? "promovaweb/specsfy"
+        : null;
+    if (origem === null) return null;
+    if (origem === falhaPara) return null;
+    const conjunto = origem === "mattpocock/skills" ? CONJUNTO_MATTPOCOCK : CONJUNTO_SPECSFY;
+    if (args.includes("--list")) return { status: 0, skills: [...conjunto] };
+    for (const n of conjunto) {
+      mkdirSync(join(cwd, ".claude", "skills", n), { recursive: true });
+      writeFileSync(join(cwd, ".claude", "skills", n, "SKILL.md"), `---\nname: ${n}\n---\ncorpo\n`);
+    }
+    escreverLock(cwd, conjunto, origem);
+    return { status: 0 };
+  };
+  return { fn, chamadas };
 }
 
 /**

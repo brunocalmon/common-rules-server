@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 93.
+- Arquivos de teste: 100.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -28,6 +28,7 @@
 | tests/aprovacao-sem-mudanca.test.ts |
 | tests/budget.test.ts |
 | tests/build.test.ts |
+| tests/cli-setup-real.test.ts |
 | tests/cli-symlink.test.ts |
 | tests/cycle-command.test.ts |
 | tests/cycle-failure.test.ts |
@@ -70,6 +71,7 @@
 | tests/skills-doctor-deriva.test.ts |
 | tests/skills-doctor-garantia.test.ts |
 | tests/skills-doctor-presenca.test.ts |
+| tests/skills-executor-real.test.ts |
 | tests/skills-fixtures.ts |
 | tests/skills-idempotente.test.ts |
 | tests/skills-install-alvo.test.ts |
@@ -80,9 +82,14 @@
 | tests/skills-nao-destrutivo.test.ts |
 | tests/skills-registro-persistido.test.ts |
 | tests/skills-registro.test.ts |
+| tests/skills-segunda-origem.test.ts |
 | tests/skills-source-arbitraria.test.ts |
 | tests/skills-source-oficial.test.ts |
 | tests/skills-source-terceiro.test.ts |
+| tests/specsfy-install-alvo.test.ts |
+| tests/specsfy-install-falha.test.ts |
+| tests/specsfy-install-idempotente.test.ts |
+| tests/specsfy-install-real.test.ts |
 | tests/surface.test.ts |
 | tests/trace-doctor-relata.test.ts |
 | tests/trace-doctor-sem-registro.test.ts |

@@ -111,25 +111,38 @@ projeto: nenhum tinha a raiz correta. Derivar a raiz do processo produziria
 escrita silenciosa na árvore errada, e por isso a tool recusa quando não pode
 confirmá-la.
 
-## Conjuntos de skills
+## Conjuntos de skills e framework Specsfy
 
-Quatro módulos em `src/skills/`, acrescentados pela SPEC-0005:
+Cinco módulos em `src/skills/` e dois em `src/specsfy/`, acrescentados pela
+SPEC-0005 e ampliados na reabertura de 2026-08-30:
 
 | Arquivo | Responsabilidade |
 | --- | --- |
-| `src/skills/source.ts` | Nomeia a única origem aceita e recusa qualquer outra. Não toca o sistema de arquivos. |
+| `src/skills/source.ts` | Nomeia as duas origens oficiais (`mattpocock/skills`, `promovaweb/specsfy`) e recusa qualquer outra. Não toca o sistema de arquivos. |
 | `src/skills/inventory.ts` | Enumera os conjuntos sob `.claude/skills/` e detecta link simbólico em qualquer nível. |
-| `src/skills/install.ts` | Enumera com `--list`, recusa conflito antes de escrever e instala com alvo restrito, cópia e sem interação. |
+| `src/skills/install.ts` | Enumera com `--list`, recusa conflito antes de escrever e instala com alvo restrito, cópia e sem interação, uma origem por chamada. |
+| `src/skills/executor.ts` | Executor real: resolve o binário local de `skills` a partir do próprio pacote `common-rules` e traduz sua saída — TUI com `--list`, silenciosa sem. |
 | `src/skills/record.ts` | Lê a procedência do lockfile do instalador e compara o registrado com o presente, sem escrever. |
+| `src/specsfy/install.ts` | Executa o instalador de projeto do framework Specsfy e traduz o resultado; não persiste registro próprio. |
+| `src/specsfy/executor.ts` | Executor real: resolve o binário local de `@promovaweb/specsfy` a partir do próprio pacote `common-rules` e faz o parsing do JSON de saída. |
 
-A instalação usa cópia real e nunca link simbólico. O instalador cria link por
-padrão, e conteúdo por link mora fora do projeto: o hash deixaria de descrever
-o que o agente lê, duas máquinas divergiriam sem registro, e o ferramental do
-Specsfy recusa caminho por link.
+A instalação de skills usa cópia real e nunca link simbólico. O instalador cria
+link por padrão, e conteúdo por link mora fora do projeto: o hash deixaria de
+descrever o que o agente lê, duas máquinas divergiriam sem registro, e o
+ferramental do Specsfy recusa caminho por link.
 
 A entrega dá rastreabilidade, não reprodutibilidade. O lockfile registra o que
 se obteve, e não o que se deve obter: não há referência de commit nem versão do
 conjunto, e reexecutar busca a ponta.
+
+`src/cli.ts` injeta os dois executores reais (`realSkillsExecutor()`,
+`realSpecsfyExecutor()`) em toda execução de `setup` — resolvidos contra o
+próprio pacote `common-rules`, não contra o projeto alvo. Até a reabertura de
+2026-08-30, nenhum dos dois existia em produção: `installSkills` e
+`installSpecsfy` eram exercitados só por fixture, e `formatSetup()` nunca
+fornecia `skills` nem `specsfy` a `runSetup` — o `setup` real não instalava
+coisa alguma. `tests/cli-setup-real.test.ts` prova a integração completa sem
+nenhum executor injetado.
 
 ## Telemetria da execução
 
