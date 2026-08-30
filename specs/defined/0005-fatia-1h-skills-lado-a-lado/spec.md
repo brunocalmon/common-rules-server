@@ -5,15 +5,15 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0005 |
 | Slug | 0005-fatia-1h-skills-lado-a-lado |
-| Status | Complete |
+| Status | Defined |
 | Effort | 5 |
 | Effort updated at | 2026-08-29 |
 | Effort rationale | O `setup` e o registro já existem. O custo está em acoplar um instalador de terceiro que simboliza por padrão, não fixa conteúdo e falha de formas que precisam chegar como falha. |
 | ClickUp Task | |
 | Milestones | |
 | Definition Gate | Passed |
-| Plan Gate | Passed |
-| Delivery Gate | Passed |
+| Plan Gate | Pending |
+| Delivery Gate | Pending |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega acontece dentro de um comando de terminal já existente, sem tela. |
 | Atualizada em | 2026-08-29 |
@@ -30,23 +30,36 @@ Há um obstáculo concreto: as skills de Matt Pocock não existem como pacote np
 
 Isso encontra três regras já vigentes neste projeto: nada se instala no ambiente global; a origem resolvida é sempre relatada; e falha silenciosa é o modo de falha caro. Um instalador que simboliza para um armazenamento fora do projeto e busca da ponta viola as três de uma vez, se usado como vem.
 
+**Reabertura — 2026-08-30.** A entrega original implementou `installSkills` e a totalidade do registro/doctor sobre um `Executor` injetado, mas nunca escreveu a implementação real desse `Executor` nem chamou `installSkills` a partir de `src/cli.ts`. `runSetup` aceita `opts.skills` como campo opcional e, na ausência dele, pula a instalação silenciosamente — o comportamento correto para quando ninguém o fornece, mas `cli.ts` simplesmente nunca o fornecia. O resultado: `npm run build && common-rules setup` nunca instalou coisa alguma, em nenhuma execução real, desde que esta fatia foi dada por concluída. A pessoa responsável confirmou isso rodando o `setup` de verdade e não encontrando `.claude/skills/` nem `CLAUDE.md`/`AGENTS.md` no projeto de teste.
+
+Investigando a causa raiz, duas lacunas distintas apareceram:
+
+1. **Nenhum `Executor` real existe.** O único mecanismo de instalação de skills nesta fatia é o instalador `skills` (vercel-labs), já uma dependência npm fixada (`DEC-027`). Nenhum módulo de produção jamais invocou o binário local (`node_modules/skills/bin/cli.mjs`) por subprocesso; toda a suíte injeta um `Executor` fake.
+2. **A instalação do framework Specsfy em si nunca foi requisito desta fatia.** O Ato I original tratava `specsfy` só como o conjunto de skills que já convive em `.claude/skills/` — a AC-020 chega a testar "as skills do specsfy estão em .claude/skills/", mas nenhuma FR jamais declarou como esse conjunto chega lá. A pesquisa confirma, agora, que ele chega pelo mesmo instalador `skills`, apontado para `https://github.com/promovaweb/specsfy` (ou o atalho `promovaweb/specsfy`) em vez de `mattpocock/skills` — o mesmo mecanismo, uma segunda origem oficial. Separadamente, o próprio framework Specsfy tem seu instalador de projeto, `specsfy install --project <raiz>`, que grava `.specsfy/`, `.agents/skills/`, e um bloco gerenciado em `CLAUDE.md` e `AGENTS.md` — e esse instalador nunca foi mencionado nesta fatia. Nenhuma das duas coisas depende de código novo elaborado: são dois subprocessos reais, do mesmo formato do `Executor` já desenhado.
+
+`AGENTS.md` e a "camada de orquestração em `CLAUDE.md`" tinham sido registrados como fora de escopo, adiados para um épico de extensões da Phase 2 (ver Dúvidas respondidas, seção 2). Essa resposta permanece correta para *enriquecer* esses arquivos com conteúdo específico do `common-rules` — mas estava errada ao implicar que a mera *existência* desses arquivos dependia de trabalho futuro: ela é efeito colateral direto de rodar `specsfy install` de verdade, o que sempre esteve ao alcance desta fatia.
+
 #### Resultado desejado
 
 Um único `setup` deixa os dois ecossistemas instalados, íntegros e lado a lado, e o projeto sabe dizer o que colocou lá.
 
-Ao fim da fatia, `.claude/skills/` contém as skills do `specsfy` e as de `mattpocock/skills` como diretórios irmãos, em arquivos reais e não links. O registro que a fatia 1b já grava ganha, para cada conjunto, a origem, a referência instalada e o hash do conteúdo. O `doctor` relata o que existe e o que divergiu, sem alterar coisa alguma.
+Ao fim da fatia, `.claude/skills/` contém as skills do `specsfy` e as de `mattpocock/skills` como diretórios irmãos, em arquivos reais e não links — instaladas pelo mesmo instalador `skills`, cada conjunto pela sua origem oficial. O registro que a fatia 1b já grava ganha, para cada conjunto, a origem, a referência instalada e o hash do conteúdo. O `doctor` relata o que existe e o que divergiu, sem alterar coisa alguma.
+
+Separadamente, o mesmo `setup` executa `specsfy install --project <raiz>` de verdade, deixando `.specsfy/`, `.agents/skills/`, `CLAUDE.md` e `AGENTS.md` presentes e atualizados no projeto — sem que o `common-rules` escreva ou componha o conteúdo desses arquivos por conta própria; quem o faz é o instalador do próprio Specsfy.
 
 O `common-rules` não escolhe entre os ecossistemas, não os mescla e não reescreve nenhum deles.
 
 #### Métricas de sucesso
 
-- Depois de um `setup`, os dois conjuntos existem em `.claude/skills/` e nenhum sobrescreveu o outro.
+- Depois de um `setup`, os dois conjuntos de skills existem em `.claude/skills/` e nenhum sobrescreveu o outro.
 - Nenhuma entrada instalada é link simbólico.
 - Nada é escrito fora da raiz do projeto, em particular no diretório do usuário.
 - O registro nomeia, por conjunto, a origem, o caminho de cada skill dentro dela e o hash do conteúdo.
 - O `doctor` nomeia conjunto divergente e sai com código diferente de zero, sem tocar no sistema de arquivos.
-- Origem que não seja a oficial é recusada, com a aceita nomeada.
+- Origem que não seja uma das oficiais é recusada, com as aceitas nomeadas.
 - O relato declara que a entrega dá rastreabilidade e não reprodutibilidade.
+- Depois de um `setup`, `.specsfy/`, `.agents/skills/`, `CLAUDE.md` e `AGENTS.md` existem no projeto, escritos pelo instalador real do Specsfy.
+- `common-rules setup`, executado de ponta a ponta sobre um projeto descartável de verdade — sem `Executor` injetado — produz os três resultados acima em disco.
 
 ### 2. Research e esclarecimentos
 
@@ -54,6 +67,8 @@ O `common-rules` não escolhe entre os ecossistemas, não os mescla e não reesc
 
 - **R-020** [critical] O instalador oficial cria link simbólico por padrão, aceita restringir o alvo e pode operar sem interação — Verdict: verified — Confidence: high — Evidence: research/instalador-skills/interface-da-cli.md#flags-relevantes-para-esta-fatia — Budget: 1/2.
 - **R-021** [critical] Os dois conjuntos convivem em `.claude/skills/` sem que um remova ou sobrescreva o outro, e o instalador grava um lockfile com hash por skill — Verdict: verified — Confidence: high — Evidence: research/instalador-skills/coexistencia-observada.md#resultado — Budget: 2/2.
+- **R-022** [critical] As skills do `specsfy` chegam a `.claude/skills/` pelo mesmo instalador `skills`, apontado para a origem `promovaweb/specsfy` (atalho `owner/repo`, igual a `mattpocock/skills`), real, sem link, com lockfile na mesma forma — Verdict: verified — Confidence: high — Evidence: research/reabertura-2026-08-30/segunda-origem-oficial.md#resultado — Budget: 1/2.
+- **R-023** [critical] `specsfy install --project <raiz> --json` é um subprocesso separado do `skills`; grava `.specsfy/`, `.agents/skills/`, `CLAUDE.md` e `AGENTS.md` com saída JSON estruturada e idempotente, e não toca `.claude/skills/` — Verdict: verified — Confidence: high — Evidence: research/reabertura-2026-08-30/specsfy-install-real.md#resultado-primeira-execução-projeto-vazio — Budget: 1/2.
 
 A execução real em projeto descartável levou três diretórios simulados do `specsfy` a conviver com trinta e sete de `mattpocock`, quarenta no total, sem link simbólico em nível algum e sem que `AGENTS.md` ou `CLAUDE.md` fossem criados. A mesma execução revelou o `skills-lock.json`, que a documentação não menciona e que corrige uma afirmação anterior desta pesquisa.
 
@@ -69,6 +84,7 @@ O README do projeto descreve `--copy` como copiar arquivos **em vez de** criar l
 - `specs/completed/0002-phase-1a-esqueleto-typescript/spec.md`, pela DEC-002 e pelo `doctor`.
 - `.specsfy/RULES.md`, pelas regras de instalação e de relato de origem.
 - `src/setup/record.ts` e `src/doctor.ts`, pela forma real do registro e do relato.
+- `node_modules/skills/bin/cli.mjs` e `node_modules/@promovaweb/specsfy/dist/installer.js`, executados de verdade a partir do checkout local, na reabertura de 2026-08-30.
 
 #### Documentação consultada
 
@@ -76,8 +92,10 @@ Dois README públicos e o registro npm. As notas ficam em `research/`, sem repro
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/completed/0005-fatia-1h-skills-lado-a-lado/research/instalador-skills/interface-da-cli.md` — interface observada da CLI, com proveniência, as flags relevantes e a consequência do padrão por link. Contém a correção da afirmação sobre ausência de lockfile.
-- `specs/completed/0005-fatia-1h-skills-lado-a-lado/research/instalador-skills/coexistencia-observada.md` — execução real em projeto descartável, com contagem antes e depois, ausência de links, arquivos não criados e a forma do lockfile encontrado.
+- `specs/defined/0005-fatia-1h-skills-lado-a-lado/research/instalador-skills/interface-da-cli.md` — interface observada da CLI, com proveniência, as flags relevantes e a consequência do padrão por link. Contém a correção da afirmação sobre ausência de lockfile.
+- `specs/defined/0005-fatia-1h-skills-lado-a-lado/research/instalador-skills/coexistencia-observada.md` — execução real em projeto descartável, com contagem antes e depois, ausência de links, arquivos não criados e a forma do lockfile encontrado.
+- `specs/defined/0005-fatia-1h-skills-lado-a-lado/research/reabertura-2026-08-30/segunda-origem-oficial.md` — execução real do `skills add promovaweb/specsfy`, confirmando a segunda origem oficial e sua forma.
+- `specs/defined/0005-fatia-1h-skills-lado-a-lado/research/reabertura-2026-08-30/specsfy-install-real.md` — execução real do `specsfy install --project <raiz> --json`, confirmando o que ele grava e que é subprocesso distinto do `skills`.
 
 #### Dúvidas respondidas
 
@@ -86,6 +104,8 @@ Dois README públicos e o registro npm. As notas ficam em `research/`, sem repro
 - **Q**: Fixar a versão do instalador basta? → **A**: Não. O conteúdo vem da ponta. A fatia entrega rastreabilidade, e a limitação é assumida.
 - **Q**: E a camada de orquestração em `CLAUDE.md`? → **A**: Fora desta fatia. Pertence ao épico de extensões da Phase 2.
 - **Q**: E `AGENTS.md`? → **A**: Espera a fatia 1d, que abre a detecção de outros backends.
+- **Q** [reaberta 2026-08-30, corrige as duas anteriores]: A existência de `CLAUDE.md` e `AGENTS.md` também espera a Phase 2 ou a fatia 1d? → **A**: Não — essa era uma leitura errada. A pessoa responsável pelo produto esclareceu: os dois arquivos nascem como efeito colateral direto de rodar o instalador de cada dependência (`specsfy install`, `skills add`) apontado para o diretório vigente; nenhum código de orquestração precisa existir para eles simplesmente existirem. R-023 confirma isso na prática. O que continua fora desta fatia — e é o que as duas respostas antigas realmente queriam dizer — é o `common-rules` **enriquecer** esses arquivos com conteúdo próprio (a "camada de orquestração"); essa parte permanece adiada.
+- **Q** [nova, 2026-08-30]: E se o diretório do projeto não for informado corretamente ao rodar o `setup`? → **A**: Não é um risco novo desta fatia: `runSetup` já recebe `root` por parâmetro e `cli.ts` já o resolve por `process.cwd()`; as duas novas chamadas reais (`skills add` para a segunda origem e `specsfy install --project`) usam essa mesma raiz, sem introduzir uma segunda fonte de verdade para "onde instalar".
 
 #### Dúvidas abertas
 
@@ -95,28 +115,29 @@ Nenhuma que bloqueie esta fatia.
 
 #### Incluído
 
-- Instalação do conjunto de `mattpocock/skills` pelo instalador oficial, em escopo de projeto, restrita ao alvo Claude Code e sem interação.
-- Uso de cópia real em vez de link simbólico.
-- Entradas no registro existente com origem, referência instalada e hash do conteúdo, por conjunto.
+- Instalação real, por subprocesso, do conjunto de `mattpocock/skills` e do conjunto de `promovaweb/specsfy` pelo mesmo instalador oficial `skills`, em escopo de projeto, restrita ao alvo Claude Code e sem interação.
+- Execução real, por subprocesso, do instalador de projeto do próprio framework Specsfy (`specsfy install --project <raiz>`), deixando `.specsfy/`, `.agents/skills/`, `CLAUDE.md` e `AGENTS.md` presentes e atualizados — sem o `common-rules` escrever ou compor o conteúdo desses arquivos.
+- Uso de cópia real em vez de link simbólico, nas duas origens do instalador `skills`.
+- Entradas no registro existente com origem, referência instalada e hash do conteúdo, por conjunto de skills.
 - Relato pelo `doctor` da presença de cada conjunto e da divergência entre o registrado e o presente.
-- Recusa de qualquer origem que não seja a oficial, nomeando a aceita.
+- Recusa de qualquer origem que não seja uma das duas oficiais, nomeando as aceitas.
 - Recusa de conflito de nome entre diretórios dos dois conjuntos, em vez de sobrescrita.
 
 #### Fora de escopo
 
-- A camada de orquestração em `CLAUDE.md`, que pertence ao épico de extensões da Phase 2.
-- `AGENTS.md`, que espera a fatia 1d.
-- Mesclar, reescrever, preterir ou desativar qualquer um dos conjuntos.
+- O `common-rules` **enriquecer** `CLAUDE.md` ou `AGENTS.md` com conteúdo próprio de orquestração — os arquivos existirem é o instalador do Specsfy quem garante, dentro desta fatia; compor conteúdo adicional neles pertence ao épico de extensões da Phase 2.
+- Detectar ou instalar para outros backends de agente além do Specsfy e do Claude Code — isso espera a fatia 1d.
+- Mesclar, reescrever, preterir ou desativar qualquer um dos conjuntos de skills.
 - Instalação no diretório do usuário ou em qualquer lugar fora do projeto.
 - Reparo, reversão ou remoção de conteúdo divergente.
 - Alvos de editor além do Claude Code.
-- Fixar o conteúdo instalado, que o instalador não permite.
+- Fixar o conteúdo instalado, que nenhum dos dois instaladores permite.
 
 #### Atores
 
-- **Quem usa o `common-rules`**: roda um `setup` e obtém o ambiente do agente completo.
-- **Quem mantém este repositório**: deixa de instalar as skills à mão.
-- **O `doctor`**: passa a ter o que relatar sobre os conjuntos.
+- **Quem usa o `common-rules`**: roda um `setup` e obtém o ambiente do agente completo — skills dos dois ecossistemas e o framework Specsfy instalado no projeto.
+- **Quem mantém este repositório**: deixa de instalar skills e framework à mão.
+- **O `doctor`**: passa a ter o que relatar sobre os conjuntos de skills.
 - **A fatia 1d e o épico de extensões**: herdam o registro e a instalação, sem recriá-los.
 
 ### 4. Princípios e restrições do projeto
@@ -153,14 +174,22 @@ Como **quem usa o `common-rules`**, quero **que apenas a origem oficial seja ace
 **Teste independente**: Pedida uma origem diferente da oficial, o comando recusa e nomeia a aceita; instalador ausente ou rede indisponível produzem erro, e nunca relato de sucesso.
 **Requisitos**: FR-020, FR-025, FR-026
 
+#### US-023 — Ter o framework Specsfy instalado no projeto, não só suas skills
+
+Como **quem usa o `common-rules`**, quero **que o mesmo `setup` execute o instalador de projeto do Specsfy**, para **encontrar `.specsfy/`, `CLAUDE.md` e `AGENTS.md` prontos, sem rodar um segundo comando à mão**.
+
+**Por que P1**: É a lacuna que motivou a reabertura desta fatia: o comando existia por trás de um `Executor` nunca implementado, e a pessoa que rodou o `setup` de verdade não encontrou nem os arquivos nem as skills.
+**Teste independente**: Após um `setup` sobre um projeto novo, `.specsfy/`, `.agents/skills/`, `CLAUDE.md` e `AGENTS.md` existem, escritos pelo instalador real do Specsfy; rodar de novo não duplica nem falha.
+**Requisitos**: FR-028, FR-029
+
 ### 6. Cenários BDD de aceite
 
 #### AC-020 — Os dois conjuntos convivem após um setup
 
-**Cobre**: US-020, FR-020, FR-026
+**Cobre**: US-020, FR-020, FR-026, FR-027
 
 ```gherkin
-@US-020 @FR-020 @FR-026 @AC-020
+@US-020 @FR-020 @FR-026 @FR-027 @AC-020
 Feature: Convivência dos ecossistemas
 
   Scenario: Um único setup deixa os dois instalados
@@ -401,17 +430,115 @@ Feature: Origem fora da lista
     And nada é baixado nem instalado
 ```
 
+#### AC-036 — O setup real, sem fixture, instala as duas origens de skills
+
+**Cobre**: US-020, FR-020, FR-027
+
+```gherkin
+@US-020 @FR-020 @FR-027 @AC-036
+Feature: Instalação real de ponta a ponta
+
+  Scenario: setup roda sem Executor injetado sobre um projeto descartável
+    Given um projeto novo, vazio, com evidência de uso do alvo Claude Code
+    When o common-rules setup roda de verdade, sem nenhum executor de teste injetado
+    Then .claude/skills/ contém as skills de mattpocock/skills
+    And .claude/skills/ contém as skills de promovaweb/specsfy
+    And nenhuma delas é link simbólico
+```
+
+#### AC-037 — Uma origem falhar não contamina a outra
+
+**Cobre**: US-020, FR-020, FR-027, NFR-021
+
+```gherkin
+@US-020 @FR-020 @FR-027 @NFR-021 @AC-037
+Feature: Independência entre origens
+
+  Scenario: A origem de mattpocock falha e a de specsfy segue
+    Given uma execução em que o instalador falha só para uma das duas origens
+    When o setup avalia o resultado das duas
+    Then a origem que teve sucesso é relatada como instalada
+    And a origem que falhou é relatada como não instalada
+    And nenhuma das duas é relatada com o resultado da outra
+```
+
+#### AC-038 — O setup instala o framework Specsfy de verdade
+
+**Cobre**: US-023, FR-028, FR-029
+
+```gherkin
+@US-023 @FR-028 @AC-038
+Feature: Instalação real do framework
+
+  Scenario: setup roda sobre um projeto novo
+    Given um projeto novo, vazio, com evidência de uso do alvo Claude Code
+    When o common-rules setup roda
+    Then .specsfy/ existe no projeto
+    And .agents/skills/ existe no projeto
+    And CLAUDE.md existe no projeto
+    And AGENTS.md existe no projeto
+```
+
+#### AC-039 — Reexecutar o instalador do Specsfy não falha nem duplica
+
+**Cobre**: US-023, FR-028, FR-029, NFR-020
+
+```gherkin
+@US-023 @FR-029 @NFR-020 @AC-039
+Feature: Idempotência do instalador do framework
+
+  Scenario: O segundo setup encontra o projeto já instalado
+    Given um projeto em que o setup já rodou uma vez
+    When o setup roda outra vez
+    Then a execução termina sem erro
+    And nenhum arquivo do Specsfy é duplicado ou apagado
+```
+
+#### AC-040 — Instalador do Specsfy ausente não vira sucesso
+
+**Cobre**: US-023, FR-028, NFR-021
+
+```gherkin
+@US-023 @FR-028 @NFR-021 @AC-040
+Feature: Falha do instalador do framework
+
+  Scenario: O instalador do Specsfy não pode ser executado
+    Given um ambiente em que o instalador do Specsfy não está disponível
+    When o setup tenta executá-lo
+    Then a resposta indica que o framework não foi instalado
+    And não afirma sucesso
+    And o restante do setup segue e é relatado
+```
+
+#### AC-041 — Nada mudou é relatado como nada mudou
+
+**Cobre**: US-023, FR-029, NFR-021
+
+```gherkin
+@US-023 @FR-029 @NFR-021 @AC-041
+Feature: Relato fiel de reexecução sem mudança
+
+  Scenario: O instalador do Specsfy não tem nada a fazer
+    Given um projeto em que o instalador do Specsfy já está com tudo atualizado
+    When o setup roda de novo
+    Then o setup relata que o framework já estava atualizado
+    And não afirma ter instalado o que não instalou
+```
+
 ### 7. Requisitos
 
 #### Funcionais
 
-- **FR-020**: O `setup` deve instalar o conjunto de `mattpocock/skills` pelo instalador oficial — o comando que o README do autor documenta, `npx skills@latest add mattpocock/skills`, aqui executado pelo binário local do pacote fixado —, em escopo de projeto, restrito ao alvo Claude Code e sem interação.
+- **FR-020**: O `setup` deve instalar o conjunto de `mattpocock/skills` pelo instalador oficial — o comando que o README do autor documenta, `npx skills@latest add mattpocock/skills`, aqui executado pelo binário local do pacote fixado —, em escopo de projeto, restrito ao alvo Claude Code e sem interação. A invocação é um subprocesso real, disparado a partir de `src/cli.ts` em toda execução do comando `setup`; não basta que o mecanismo exista testável por injeção — o comando de produção precisa efetivamente chamá-lo.
 - **FR-021**: A instalação deve produzir arquivos reais dentro do projeto, e nunca link simbólico.
 - **FR-022**: Nada deve ser escrito fora da raiz do projeto, em particular no diretório do usuário.
 - **FR-023**: O registro de instalação deve conter, por conjunto, o nome, a origem e a procedência por skill — caminho e hash —, lida do lockfile que o instalador grava, sem recalcular o que ele já computou.
 - **FR-024**: O `doctor` deve relatar cada conjunto presente e nomear o que divergiu do registrado, saindo com código diferente de zero quando houver divergência, sem alterar o sistema de arquivos.
-- **FR-025**: Origem diferente da oficial deve ser recusada, com a origem aceita nomeada e sem instalar nada.
+- **FR-025**: Origem diferente das oficiais deve ser recusada, com as origens aceitas nomeadas.
 - **FR-026**: Nenhum conjunto deve sobrescrever o outro; conflito de nome deve ser recusado com o conflito nomeado.
+- **FR-027**: O `setup` deve instalar, pelo mesmo instalador oficial `skills` e com a mesma restrição de alvo, cópia e ausência de interação de FR-020, o conjunto de `promovaweb/specsfy` — a segunda origem oficial, ao lado de `mattpocock/skills`.
+- **FR-028**: O `setup` deve executar o instalador de projeto do próprio framework Specsfy (`specsfy install --project <raiz>`, pelo binário local do pacote já fixado como dependência), como subprocesso real disparado a partir de `src/cli.ts` em toda execução do comando `setup`.
+- **FR-029**: A execução do instalador do Specsfy deve ser idempotente do ponto de vista do `setup`: reexecutar sobre um projeto já instalado não deve falhar, duplicar entrada no registro desta fatia, nem apagar o que o instalador do Specsfy já gravou.
 
 #### Não funcionais
 
@@ -428,6 +555,8 @@ Feature: Origem fora da lista
 - Conflito de nome entre conjuntos → recusar, nomear o conflito, preservar o existente.
 - Alvo não detectado na raiz → relatar alvo ignorado, como o `setup` já faz para os hooks, sem tratar como erro.
 - Registro corrompido → recusar e pedir reexecução, sem reconstruir por inferência.
+- Instalador do Specsfy ausente, não executável, ou terminando com erro → relatar que o framework não foi instalado, seguir com o restante do `setup` e não afirmar sucesso; mesmo tratamento de FR-020 para o instalador `skills`.
+- Uma das duas origens do instalador `skills` falha e a outra não → cada origem é tratada de forma independente: a que teve sucesso é relatada como instalada, a que falhou é relatada como não instalada, e nenhuma das duas contamina o relato da outra.
 
 ## Ato II — Projetar e provar
 
@@ -440,17 +569,21 @@ Feature: Origem fora da lista
 - `inspectDependencies` devolve `Report` com `results` e `exitCode`, e `DependencyResult` traz `name`, `layer`, `present`, `origin`, `version` e `hint`.
 - O `setup` só escreve onde há evidência de uso do alvo e relata o que ignorou.
 - A suíte tem 37 arquivos e 133 casos.
+- `installSkills` já aceita um `Executor` injetado com a assinatura `(args, cwd) => { status, skills? } | null`, mas nenhum módulo de produção jamais implementou esse tipo — só fixtures de teste. `runSetup` já aceita `opts.skills` como campo opcional e pula a instalação quando ausente; `src/cli.ts` nunca o preenchia.
 
 #### Arquitetura e módulos
 
 | Módulo | Responsabilidade | Arquivo |
 | --- | --- | --- |
-| Origens aceitas | Nomear a origem oficial e recusar as demais | `src/skills/source.ts` |
-| Instalação | Montar e executar a invocação do instalador, com alvo, cópia e sem interação | `src/skills/install.ts` |
+| Origens aceitas | Nomear as duas origens oficiais (`mattpocock/skills`, `promovaweb/specsfy`) e recusar as demais | `src/skills/source.ts` |
+| Instalação de skills | Montar e executar a invocação do instalador `skills`, com alvo, cópia e sem interação, para uma origem por chamada | `src/skills/install.ts` |
 | Inventário | Enumerar conjuntos presentes, detectar link simbólico e calcular hash | `src/skills/inventory.ts` |
-| Registro | Converter inventário em entradas e comparar com o registrado | `src/skills/record.ts` |
+| Registro de skills | Converter inventário em entradas e comparar com o registrado | `src/skills/record.ts` |
+| **Executor real do `skills`** *(novo)* | Resolver o binário local do pacote `skills`, invocá-lo por subprocesso e traduzir a saída — TUI com `--list`, silenciosa sem — para a forma que `installSkills` espera | `src/skills/executor.ts` |
+| **Instalação do framework** *(novo)* | Executar `specsfy install --project <raiz> --json` por subprocesso e traduzir a saída JSON para um resultado estruturado | `src/specsfy/install.ts` |
+| **Executor real do `specsfy install`** *(novo)* | Resolver o binário local do pacote `@promovaweb/specsfy`, invocá-lo por subprocesso e traduzir a saída JSON | `src/specsfy/executor.ts` |
 
-A origem vive separada porque é a única regra de recusa que não depende de sistema de arquivos, e precisa ser exercitável sem instalar nada. O inventário é separado da instalação para que o `doctor` o use sem carregar o caminho que escreve.
+A origem vive separada porque é a única regra de recusa que não depende de sistema de arquivos, e precisa ser exercitável sem instalar nada. O inventário é separado da instalação para que o `doctor` o use sem carregar o caminho que escreve. Os dois executores reais vivem em módulo próprio, separados da lógica que decide o que fazer com o resultado (`installSkills`, `installSpecsfy`), pela mesma razão que a fatia já seguia: a lógica de decisão precisa ser testável por injeção, sem subprocesso nem rede, e o executor real precisa ser o único lugar que sabe resolver caminho de binário e interpretar a saída de um instalador de terceiro.
 
 #### Migrations
 
@@ -462,7 +595,11 @@ Não aplicável. A fatia não introduz banco.
 
 #### Controllers e casos de uso
 
-`src/skills/install.ts` é acionado por `runSetup` depois dos hooks; `src/skills/record.ts` é lido por `inspectDependencies` para o relato. Não há autorização a decidir.
+`src/skills/install.ts` é acionado por `runSetup` depois dos hooks, uma vez por origem oficial — `mattpocock/skills` e `promovaweb/specsfy` —, sempre com o mesmo `Executor` real injetado a partir de `src/cli.ts`; `src/skills/record.ts` é lido por `inspectDependencies` para o relato. `src/specsfy/install.ts` é acionado por `runSetup` na sequência, com seu próprio `Executor` real, também injetado a partir de `src/cli.ts`. Não há autorização a decidir.
+
+A instalação do framework não ganha registro próprio nesta fatia: `specsfy install --project <raiz> --json` já é idempotente por si — reexecutar sobre nada a fazer devolve `changed: 0` — e criar uma segunda fonte de verdade sobre o que ele já registra em `.specsfy/` duplicaria a pergunta que `DEC-023` já resolveu para as skills. O `setup` relata o resultado que o instalador devolveu, sem persistir um registro paralelo.
+
+**Ordem entre as duas chamadas ao `skills`.** `runSetup` já lê `previous: toRecordEntries(readLock(raiz))` uma vez, antes de chamar `installSkills`, para distinguir nome já registrado de conflito novo. Com duas origens na mesma execução, essa leitura precisa acontecer **entre** as duas chamadas, não só antes da primeira: a primeira chamada real ao `skills` reescreve `skills-lock.json` (confirmado que o instalador acumula entradas em vez de sobrescrever — `research/reabertura-2026-08-30/segunda-origem-oficial.md`), e a segunda chamada precisa enxergar esse estado atualizado para que seu próprio cálculo de conflito e de "já feito" seja correto. A ordem é: instalar origem 1 → reler o lockfile → instalar origem 2 com o lockfile relido como `previous` → montar o registro do `common-rules` a partir do lockfile final (já acumulado com as duas origens), do mesmo jeito que o código existente já faz com uma origem só.
 
 #### Views e experiência
 
@@ -482,8 +619,12 @@ A instalação é síncrona dentro do `setup`. Não há fila.
 src/skills/
   source.ts
   install.ts
+  executor.ts        (novo)
   inventory.ts
   record.ts
+src/specsfy/          (novo)
+  install.ts
+  executor.ts
 tests/
   skills-fixtures.ts
   skills-registro-persistido.test.ts
@@ -503,13 +644,22 @@ tests/
   skills-doctor-garantia.test.ts
   skills-idempotente.test.ts
   skills-nao-destrutivo.test.ts
+  skills-executor-real.test.ts        (novo — subprocesso real, sem fixture)
+  skills-segunda-origem.test.ts       (novo)
+  specsfy-install-real.test.ts        (novo — subprocesso real, sem fixture)
+  specsfy-install-alvo.test.ts        (novo)
+  specsfy-install-falha.test.ts       (novo)
+  specsfy-install-idempotente.test.ts (novo)
+  cli-setup-real.test.ts              (novo — dist/cli.js setup de ponta a ponta, sem fixture)
 ```
 
 ### 9. Modelo de dados
 
-O registro em `.common-rules/install.json` ganha a lista `skills`. Cada item guarda o nome do conjunto, a origem, o caminho da skill dentro dela, o hash do conteúdo e o momento da instalação. Não há referência de commit nem versão: `DEC-024` registra que o instalador não as fornece, e nomear no modelo algo que a entrada não pode carregar seria prometer o que não se entrega. A lista `hooks` permanece como está.
+O registro em `.common-rules/install.json` ganha a lista `skills`. Cada item guarda o nome do conjunto, a origem, o caminho da skill dentro dela, o hash do conteúdo e o momento da instalação. Não há referência de commit nem versão: `DEC-024` registra que o instalador não as fornece, e nomear no modelo algo que a entrada não pode carregar seria prometer o que não se entrega. A lista `hooks` permanece como está. Ela passa a acumular entradas das duas origens do instalador `skills` — `mattpocock/skills` e `promovaweb/specsfy` —, cada uma com sua própria origem gravada, na mesma execução do `skills-lock.json` compartilhado, cuja acumulação entre origens foi confirmada na reabertura (`research/reabertura-2026-08-30/segunda-origem-oficial.md`).
 
 O hash existe para tornar a deriva visível, e não para impedi-la: o mesmo processo que escreve o conteúdo escreve o registro.
+
+A instalação do framework Specsfy (`DEC-029`) não ganha modelo próprio: `specsfy install` já mantém seu próprio estado em `.specsfy/` e não expõe hash nem lockfile equivalente para o `common-rules` referenciar sem recalcular — e recalcular repetiria o erro que `DEC-028` já evitou para as skills. O `setup` relata o resultado devolvido pelo instalador (`changed`, `paths`) sem persistir cópia.
 
 ### 10. Interfaces e contratos
 
@@ -523,11 +673,13 @@ Nenhuma. A fatia amplia o comportamento de `setup` e `doctor`.
 
 #### APIs externas utilizadas
 
-O executável `skills`, invocado como subprocesso. O caminho documentado pelo autor é `npx skills@latest add mattpocock/skills`; esta fatia executa a mesma operação pelo binário local do pacote fixado, acrescentando alvo restrito, cópia real e ausência de interação. A forma exercitada na pesquisa foi `skills add mattpocock/skills -a claude-code --skill '*' --copy -y`, com código de saída zero. Falha de execução, ausência do executável e término com erro são tratados como erro pelo chamador.
+O executável `skills`, invocado como subprocesso, uma vez por origem oficial. O caminho documentado pelo autor é `npx skills@latest add mattpocock/skills`; esta fatia executa a mesma operação pelo binário local do pacote fixado (`node_modules/skills/bin/cli.mjs`), acrescentando alvo restrito, cópia real e ausência de interação. A forma exercitada na pesquisa foi `skills add <origem> -a claude-code --skill '*' --copy -y`, com `<origem>` igual a `mattpocock/skills` ou `promovaweb/specsfy`, código de saída zero nas duas. A enumeração prévia (`--list`) devolve uma listagem formatada para terminal — não JSON —, com nome de cada skill em uma linha própria, indentada a quatro espaços após a marca `│`, seguida de linha em branco e de uma descrição indentada a seis; o executor real faz o parsing dessa forma, e trata como falha uma execução que termina com código zero mas não produz nome algum reconhecível. Falha de execução, ausência do executável e término com erro são tratados como erro pelo chamador.
+
+O executável `specsfy`, do pacote `@promovaweb/specsfy` já fixado como dependência (`node_modules/@promovaweb/specsfy/bin/specsfy.cjs`), invocado como subprocesso na forma `specsfy install --project <raiz> --json`. Ao contrário do `skills`, a saída é JSON estruturado e estável: `{"changed": <número>, "paths": [...]}`, código de saída zero em sucesso e em reexecução sem mudança nenhuma. Falha de execução, ausência do executável e término com erro são tratados como erro pelo chamador, do mesmo modo que o instalador `skills`.
 
 #### Documentação das APIs consultadas
 
-README de `github.com/vercel-labs/skills`, acessado em 2026-08-29, com as notas em `research/instalador-skills/interface-da-cli.md`.
+README de `github.com/vercel-labs/skills`, acessado em 2026-08-29, com as notas em `research/instalador-skills/interface-da-cli.md`. Execução real do `skills` para a segunda origem e do `specsfy install --json`, em 2026-08-30, com as notas em `research/reabertura-2026-08-30/`.
 
 #### Eventos e outros contratos
 
@@ -535,14 +687,15 @@ Não aplicável.
 
 ### 11. Estratégia TDD
 
-- **Unidade**: aceitação e recusa de origem, e detecção de link simbólico, com entradas construídas em diretório temporário.
+- **Unidade**: aceitação e recusa de origem (as duas oficiais e as demais), detecção de link simbólico, e parsing da saída do `--list` do `skills` e do JSON do `specsfy install`, com entradas construídas em diretório temporário ou string fixa — sem subprocesso.
 - **Integração**: `setup` sobre projetos descartáveis, com o instalador injetado, conferindo o disco e o registro.
 - **Confinamento**: execução conferindo que o diretório do usuário e um projeto vizinho permanecem intocados.
 - **Falha**: instalador ausente, término com erro e interrupção no meio, todos exercitados pelo caminho real de erro.
-- **Runner**: Vitest, pelo script `test:tdd`.
-- **Verificação manual**: nenhuma.
+- **Ponta a ponta real**: `skills-executor-real.test.ts`, `specsfy-install-real.test.ts` e `cli-setup-real.test.ts` chamam os binários locais de verdade (`node_modules/skills/bin/cli.mjs`, `node_modules/@promovaweb/specsfy/bin/specsfy.cjs`, `dist/cli.js`), sem `Executor` injetado, sobre diretório descartável criado pelo próprio teste. É a categoria que faltava nesta fatia e cuja ausência permitiu a lacuna de produção: toda a suíte anterior provava a lógica de decisão, e nenhum caso provava que `src/cli.ts` de fato chama o que decide.
+- **Runner**: Vitest, pelo script `test:tdd`. Os casos de ponta a ponta real usam timeout explícito maior que o padrão, pelo mesmo motivo que `tests/hooks-context-mode-comando.test.ts` já precisou: subprocesso real, sob carga de build e instalação, excede os 5000ms padrão do runner.
+- **Verificação manual**: `common-rules setup` executado de verdade num projeto descartável no notebook da pessoa responsável, com inspeção direta de `.claude/skills/`, `.specsfy/`, `CLAUDE.md` e `AGENTS.md` — o mesmo tipo de verificação cuja ausência motivou a reabertura.
 
-O ponto sensível é que o instalador é um subprocesso de terceiro. Os casos injetam o executor em vez de chamar o `skills` real, para que a suíte não dependa de rede nem instale nada durante o teste. Em troca, os casos precisam exercitar o contrato de falha com o mesmo rigor do de sucesso: instalador ausente e término com erro são os caminhos que, se tratados com descuido, produzem o relato de sucesso sobre nada — o defeito que a fatia 1b já cometeu uma vez.
+O ponto sensível é que os dois instaladores são subprocessos de terceiro. Os casos de unidade e integração injetam o executor em vez de chamar o `skills` ou o `specsfy` reais, para que a suíte principal não dependa de rede nem instale nada a cada rodada. Em troca, os casos precisam exercitar o contrato de falha com o mesmo rigor do de sucesso: instalador ausente e término com erro são os caminhos que, se tratados com descuido, produzem o relato de sucesso sobre nada — o defeito que a fatia 1b já cometeu uma vez, e que esta própria fatia cometeu na entrega original, ao nunca ligar a lógica testada ao comando real.
 
 ### 12. Plano de testes e rastreabilidade
 
@@ -583,13 +736,26 @@ O ponto sensível é que o instalador é um subprocesso de terceiro. Os casos in
 | NFR-022 | AC-022 | Confinamento | fora da raiz intocado | **Passed** — skills-confinamento, 3 casos, T020 |
 | NFR-022 | AC-032 | Confinamento | nada fora do projeto | **Passed** — skills-nao-destrutivo, 3 casos, T021 |
 | NFR-022 | AC-033 | Unidade | link recusado | **Passed** — skills-inventory-symlink, T019 |
+| FR-020 | AC-036 | Ponta a ponta real | setup real instala as duas origens | Pendente |
+| FR-027 | AC-020 | Integração | as duas origens convivem | Pendente |
+| FR-027 | AC-036 | Ponta a ponta real | setup real instala as duas origens | Pendente |
+| FR-027 | AC-037 | Integração | independência entre origens | Pendente |
+| FR-028 | AC-038 | Ponta a ponta real | setup real cria .specsfy/, .agents/skills/, CLAUDE.md, AGENTS.md | Pendente |
+| FR-028 | AC-039 | Integração | reexecução do instalador do framework | Pendente |
+| FR-028 | AC-040 | Integração | instalador do framework ausente | Pendente |
+| FR-029 | AC-038 | Ponta a ponta real | setup real cria os artefatos do framework | Pendente |
+| FR-029 | AC-039 | Integração | reexecução não falha nem duplica | Pendente |
+| FR-029 | AC-041 | Integração | nada mudou é relatado fielmente | Pendente |
+| NFR-021 | AC-037 | Integração | origem que falha não vira sucesso da outra | Pendente |
+| NFR-021 | AC-040 | Integração | instalador do framework ausente não vira sucesso | Pendente |
+| NFR-021 | AC-041 | Integração | relato fiel de nada mudou | Pendente |
 
 ### 13. Validações
 
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-29), reconfirmado no aceite final em 2026-08-29
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md`
 - **Cobertura**: 3 US, 7 FR, 3 NFR, 16 AC, 9 DEC; mínimo de 3 AC por ID satisfeito nos treze. Identificadores de 020 a 035, conforme a regra de faixa por spec.
 - **Research**: `load_research.mjs` em `PASSED`, com `R-020` e `R-021` verificados e dois artefatos indexados.
 
@@ -614,10 +780,30 @@ O ponto sensível é que o instalador é um subprocesso de terceiro. Os casos in
 
 **Sobre A1.** É a repetição exata do achado `A1` do aceite da `SPEC-0004`, onde os comentários de evidência omitiam identificadores que as tarefas serviam. Corrigi lá e reincidi aqui, o que indica que a causa não é desatenção pontual: escrevo as refs a partir do título da tarefa, e o título não carrega os identificadores que a implementação passa a cobrir quando o código cresce. Conferir a cadeia completa durante a entrega, e não apenas no aceite, é o que interromperia o ciclo.
 
+#### Gate do Ato I — Reabertura 2026-08-30
+
+- **Motivo da reabertura**: `common-rules setup` executado de verdade, sem `Executor` injetado, não instalava skill alguma nem o framework Specsfy — `src/cli.ts` nunca fornecia `opts.skills` a `runSetup`, e nenhum `Executor` de produção jamais existiu. Confirmado por grep vazio em `src/` para `spawnSync`/`execSync`/`spawn` fora de `.test.ts`, e pela leitura direta de `formatSetup()`.
+- **Escopo da mudança**: nova FR (instalação real do framework Specsfy, nunca antes requisito desta ou de nenhuma outra fatia do roadmap) — mudança de comportamento, Ato I. Verificado que nenhuma das nove fatias do `BACKLOG-0003` jamais atribuiu essa responsabilidade a si.
+
+**Achados da rodada de reabertura**
+
+| ID | Achado | Severidade | Estado |
+| --- | --- | --- | --- |
+| DR1 | Nenhum `Executor` real do `skills` existe em produção; `installSkills` só é exercitado por fixture | BLOCKER | Resolvido no plano — `FR-020` passou a exigir explicitamente a chamada real, novo módulo `src/skills/executor.ts` |
+| DR2 | `src/cli.ts` nunca passa `opts.skills` a `runSetup`; a instalação é pulada silenciosamente em toda execução real | BLOCKER | Resolvido no plano — tarefas de wiring cobrirão `src/cli.ts` explicitamente, com teste de ponta a ponta real (`cli-setup-real.test.ts`) provando que hoje isso falha |
+| DR3 | `AC-020` já testava "as skills do specsfy estão em .claude/skills/", mas nenhuma FR jamais declarou essa origem — a AC cobria comportamento sem requisito correspondente | WARNING | Resolvido — `FR-027` acrescentada, nomeando a segunda origem oficial |
+| DR4 | A existência de `CLAUDE.md`/`AGENTS.md` estava registrada como fora de escopo (Q&A original), mas isso é efeito colateral direto de `specsfy install`, sempre alcançável dentro desta fatia — a resposta original confundia "existir" com "ser enriquecido pelo `common-rules`" | WARNING | Resolvido — Q&A corrigida na seção 2, `FR-028`/`FR-029` acrescentadas, escopo revisado nas seções 1 e 3 |
+| DR5 | Hipótese de risco levantada nesta reabertura — duas chamadas reais e sequenciais ao instalador `skills`, de origens diferentes, poderiam sobrescrever uma à outra — testada e refutada por execução real: 20 + 37 = 57 diretórios, lockfile com as 57 entradas atribuídas corretamente | NOTE | Não é um defeito; registrado como verificação em `R-022` e no risco "Sobrescrita entre ecossistemas" da seção 16 |
+| DR6 | Ordem de leitura do lockfile entre as duas chamadas de `installSkills` dentro do mesmo `runSetup` não estava decidida — reler antes de cada chamada é necessário para que a segunda origem calcule conflito e idempotência sobre o estado real após a primeira | WARNING | Resolvido no plano — seção 8, "Ordem entre as duas chamadas ao `skills`" |
+
+**Limitação conhecida de ferramental.** `load_research.mjs` (vendorizado de `@promovaweb/specsfy`) usa uma âncora de seção com `$` dentro de um lookahead sob a flag `m`, que casa fim de qualquer linha, não só fim da seção; sobre "Artefatos de pesquisa armazenados" com mais de um item, ele captura só o primeiro. Rodou `PASSED` citando um único artefato mesmo com quatro indexados. Os quatro caminhos e as duas âncoras novas (`R-022`, `R-023`) foram conferidos manualmente contra o algoritmo do próprio script — existem, não são link e as âncoras resolvem para os títulos `## Resultado` e `## Resultado (primeira execução, projeto vazio)` depois do mesmo `slugify` que o script usa. A correção do script pertence ao `@promovaweb/specsfy`, mesma classe do achado `A4`.
+
+**Sobre DR1/DR2, a causa raiz.** É o mesmo padrão nomeado nesta sessão como "testar a forma, não o uso real": a suíte inteira desta fatia — 133 casos originais — passa hoje, e nada nela chama o binário real nem o comando `setup` real. O Definition Gate, o Plan Gate e o Delivery Gate originais passaram sobre uma lógica de decisão correta e nunca ligada ao comando de produção. A correção estrutural não é só implementar o `Executor`: é acrescentar a categoria de teste que faltava (seção 11, "Ponta a ponta real"), para que a mesma lacuna não reapareça sem ser notada por meses.
+
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-29)
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md`
 - **Plano**: 27 tarefas — 16 `[TEST] [TDD]`, 6 `[CODE]`, 3 `[DOC]`, 2 `[OPS]`; 135 itens de checklist; 29 de 29 IDs cobertos.
 - **RED**: `npm run test:tdd` com dezesseis arquivos novos reprovando por `Cannot find module` sobre `src/skills/source`, `src/skills/inventory`, `src/skills/install` e `src/skills/record`, e os 133 casos anteriores verdes. 50 casos marcados com `SPECSFY`, cobrindo os dezesseis `AC`.
 - **Rastreabilidade**: `check_traceability.mjs` em 29 de 29 IDs cobertos sobre 55 arquivos de teste.
@@ -886,7 +1072,7 @@ Dezesseis tarefas, uma por `AC`, cada uma em arquivo próprio de `tests/`. Nenhu
   - [x] **EVIDENCE**: Trecho alterado e saída de `git status` registrados na seção 12.
   - [x] **IMPROVE**: A decisão só ficou clara depois de T029: sem a persistência no registro do projeto, manter o lockfile ignorado teria perdido a procedência. A ordem das tarefas escondeu isso, e a dependência de T026 em T021 deveria ter sido em T029.
 
-- [x] T027 [OPS] Fechar o Delivery Gate na seção 13 de specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md — Refs: NFR-020, NFR-021, NFR-022 — Depends: T024, T025, T026, T029
+- [x] T027 [OPS] Fechar o Delivery Gate na seção 13 de specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md — Refs: NFR-020, NFR-021, NFR-022 — Depends: T024, T025, T026, T029
   - [x] **PREP**: Vinte e oito tarefas concluídas, e cada `[CODE]` com seu comentário de evidência.
   - [x] **EXECUTE**: Suíte completa, `npm run verify`, e os auditores de aceite, evidência, rastreabilidade e research.
   - [x] **VERIFY**: 184 casos em 54 arquivos; `tsc` e `build` em exit 0; `verify` em exit 0 a partir de clone limpo, em 5s; diretório pessoal com 42 entradas antes e depois.
@@ -914,15 +1100,18 @@ O fechamento admite paralelismo entre `T024`, `T025` e `T026`, que tocam arquivo
 - Fatia 1b concluída, que fornece o `setup`, o registro e a detecção do alvo.
 - Fatia 1a concluída, que fornece o `doctor` e a resolução em camadas.
 - Pacote `skills`, da vercel-labs, declarado como dependência npm em versão exata, hoje 1.5.23, e invocado pelo binário local que ele expõe. Ele já chegava ao projeto por via transitiva, como dependência de `@promovaweb/specsfy` em faixa `^1.5.22`; declará-lo direto e exato o traz para dentro da regra de fixação, que a faixa transitiva não respeitava.
+- Pacote `@promovaweb/specsfy`, já dependência npm fixada desde a fatia 1a, agora também invocado por subprocesso pelo binário local que expõe (`bin/specsfy.cjs`), e não só usado como motor de skills deste próprio repositório.
 
 #### Riscos
 
-- **Relatar instalação que não ocorreu** → é o defeito que a fatia 1b cometeu, quando o comando dizia ter instalado sete hooks sem escrever arquivo algum. Mitigação: `AC-028` e `AC-031` exigem que ausência e interrupção cheguem como erro, e a suíte confere o disco.
+- **Relatar instalação que não ocorreu** → é o defeito que a fatia 1b cometeu, quando o comando dizia ter instalado sete hooks sem escrever arquivo algum, e que esta própria fatia cometeu na entrega original, quando o `Executor` real nunca chegou a existir. Mitigação: `AC-028`, `AC-031`, `AC-036` e `AC-040` exigem que ausência e interrupção cheguem como erro, e a suíte de ponta a ponta real (seção 11) confere o disco sem `Executor` injetado — a categoria de teste que faltava e que permitiu o defeito passar pelos três gates sem ser notado.
 - **Conteúdo por link simbólico** → o hash deixaria de descrever o que o agente lê, e o ferramental do Specsfy recusa caminho por link. Mitigação: `FR-021` exige cópia, `AC-021` confere a ausência de links e `AC-033` trata link como inválido.
 - **Prometer reprodutibilidade** → o instalador não a oferece, e afirmá-la seria falso. Mitigação: `NFR-021` e `AC-030` exigem que o relato declare o alcance real.
 - **Origem de terceiro passar por oficial** → skills são instruções que entram no contexto do agente. Mitigação: `FR-025`, com `AC-026`, `AC-034` e `AC-035`.
-- **Sobrescrita entre ecossistemas** → perderia conteúdo de um dos dois. Mitigação: `FR-026` e `AC-027`, que recusam em vez de resolver.
+- **Sobrescrita entre ecossistemas** → perderia conteúdo de um dos dois. Mitigação: `FR-026` e `AC-027`, que recusam em vez de resolver. Verificado na reabertura com as duas origens reais em sequência no mesmo diretório: 20 skills de `promovaweb/specsfy` seguidas de 37 de `mattpocock/skills` resultaram em 57 diretórios reais e um `skills-lock.json` com as 57 entradas atribuídas à origem correta, sem perda — `research/reabertura-2026-08-30/segunda-origem-oficial.md`.
 - **Instalar fora do projeto** → o instalador oferece a forma global, e a regra do projeto a proíbe. Mitigação: `FR-022` e a comparação da árvore do diretório do usuário.
+- **Parsing frágil da listagem do `skills`** → a enumeração prévia (`--list`) não tem saída JSON; é texto formatado para terminal, sujeito a mudar entre versões do instalador. Mitigação: o executor real trata como falha uma execução que termina com código zero mas não reconhece skill nenhuma na saída, em vez de silenciosamente relatar zero instaladas como sucesso — o mesmo princípio de `AC-028`, aplicado ao parsing.
+- **Segunda fonte de verdade sobre o framework Specsfy** → registrar no `common-rules` o que `specsfy install` já registra em `.specsfy/` criaria duas verdades que divergem. Mitigação: `DEC-030` decide não persistir registro próprio; o `setup` relata o resultado que o instalador devolveu, e nada mais.
 
 #### Suposições
 
@@ -939,17 +1128,21 @@ Registradas na seção 13, todas reversíveis.
 - **DEC-028**: A procedência é lida do `skills-lock.json` do instalador, e o registro do `common-rules` a referencia em vez de recalculá-la. *Razão*: recalcular criaria duas verdades sobre o mesmo conteúdo, que divergem com o tempo. *Consequência a resolver no plano*: esse arquivo está hoje no `.gitignore` deste repositório, de modo que a procedência não seria versionada.
 - **DEC-025**: O `doctor` relata e não repara. *Razão*: mantém a separação já decidida entre diagnosticar e reparar, e preserva a proibição de reparo destrutivo.
 - **DEC-026**: Apenas o alvo Claude Code é instalado, e a forma global do instalador não é usada. *Razão*: o alvo decidido para o `setup` é Claude Code com detecção, e a regra do projeto proíbe escrever fora dele.
+- **DEC-029** *(reabertura 2026-08-30, estende `DEC-021` sem invalidá-la)*: A segunda origem oficial do instalador `skills` é `promovaweb/specsfy` — mesmo instalador, mesmo alvo, mesma ausência de interação de `mattpocock/skills`. *Razão*: é a origem real de onde as skills do próprio framework Specsfy chegam a `.claude/skills/`, confirmada por execução real (`R-022`); a AC-020 original já testava essa convivência, mas nenhuma FR jamais a declarou, e nenhum código de produção jamais a instalava de verdade. *Alternativas descartadas*: manter `.claude/skills/specsfy-*` como conteúdo pré-existente do repositório consumidor, fora do que o `setup` garante — rejeitada porque contradiz o próprio título e resultado desejado desta fatia, e porque deixaria o `setup` incompleto sobre projetos novos.
+- **DEC-030** *(reabertura 2026-08-30, nova)*: O `setup` executa `specsfy install --project <raiz>` real, mas não persiste registro próprio sobre o resultado — relata o `changed`/`paths` que o instalador devolve. *Razão*: `specsfy install` já é idempotente e já mantém seu próprio estado em `.specsfy/`; duplicar isso no registro do `common-rules` criaria duas verdades sobre o mesmo framework, o mesmo erro que `DEC-023` e `DEC-028` já evitaram para as skills. *Alternativas descartadas*: gravar uma entrada `framework` na lista `skills` do registro — rejeitada por misturar dois conceitos (conjunto de skills vs. instalação de framework) numa mesma lista tipada.
 
 ### 18. Definition of Done
 
-- [x] `Definition Gate` está `Passed`.
-- [x] `Plan Gate` está `Passed`.
-- [x] `Delivery Gate` está `Passed`.
-- [x] Todos os cenários `AC` aplicáveis passam.
-- [x] Todos os requisitos possuem evidência de verificação registrada na seção 12.
-- [x] Todas as tarefas da seção 14 estão concluídas.
-- [x] Nenhuma entrada instalada é link simbólico, conferido por inspeção do sistema de arquivos.
-- [x] O diretório do usuário tem a mesma árvore antes e depois da suíte.
-- [x] Os três caminhos de falha do instalador foram exercitados e nenhum produz relato de sucesso.
-- [x] `.specsfy/STACK.md` registra o instalador, os módulos novos e a ampliação do registro.
-- [x] `PROJECT.md` descreve que o `setup` instala os dois conjuntos e o que o `doctor` passa a relatar.
+- [ ] `Definition Gate` está `Passed`.
+- [ ] `Plan Gate` está `Passed`.
+- [ ] `Delivery Gate` está `Passed`.
+- [ ] Todos os cenários `AC` aplicáveis passam, incluindo os novos `AC-036` a `AC-041`.
+- [ ] Todos os requisitos possuem evidência de verificação registrada na seção 12, incluindo `FR-027`, `FR-028` e `FR-029`.
+- [ ] Todas as tarefas da seção 14 estão concluídas.
+- [ ] Nenhuma entrada instalada é link simbólico, conferido por inspeção do sistema de arquivos.
+- [ ] O diretório do usuário tem a mesma árvore antes e depois da suíte.
+- [ ] Os três caminhos de falha do instalador `skills` foram exercitados e nenhum produz relato de sucesso.
+- [ ] O caminho de falha do instalador `specsfy install` foi exercitado e não produz relato de sucesso.
+- [ ] `common-rules setup`, executado de ponta a ponta sobre um projeto descartável de verdade, sem `Executor` injetado, deixa em disco: `.claude/skills/` com as skills de `mattpocock/skills` e de `promovaweb/specsfy`; `.specsfy/`, `.agents/skills/`, `CLAUDE.md` e `AGENTS.md` reais.
+- [ ] `.specsfy/STACK.md` registra os dois instaladores, os módulos novos e a ampliação do registro.
+- [ ] `PROJECT.md` descreve que o `setup` instala os dois conjuntos de skills e o framework Specsfy, e o que o `doctor` passa a relatar.
