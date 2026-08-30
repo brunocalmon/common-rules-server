@@ -20,6 +20,28 @@ Antes de formular qualquer pergunta, leia e aplique o
 
 Execute a seção `14. Tarefas` de `spec.md` em ordem de dependência, mantendo a fonte única, testes, código, evidências e checkboxes coerentes.
 
+Para Laravel, consulte `.specsfy/PACKAGES.md`, `docs/packages/README.md` e as
+fichas existentes antes de adicionar ou substituir uma dependência. Se a
+tarefa trouxer uma URL GitHub ou mudar Composer, carregue
+`$specsfy-specialist-laravel-package-manager` e reutilize pacotes já instalados
+quando eles atenderem ao requisito.
+
+## Revisão visual obrigatória
+
+Toda tarefa de desenvolvimento executa uma revisão visual, mesmo sem pedido da
+pessoa. O item `VISUAL` vem depois de `VERIFY` e precisa estar concluído antes
+de `EVIDENCE`.
+
+Para qualquer alteração com interface, leia `DESIGNSYSTEM.MD`, `INTERFACE.md` e
+os componentes afetados. Inspecione a renderização ou o DOM nos viewports e
+estados relevantes. Confira bordas, espaçamentos, margens, padding e tipografia
+do sistema, além de alinhamento, largura, overflow, foco, zoom e quebra de
+texto. Registre método, viewport, estados, ajustes e resultado na tarefa.
+
+Quando a tarefa não alterar interface, conclua `VISUAL` com `Não aplicável` e
+um motivo concreto. Nunca pule esse item porque a pessoa não pediu revisão
+visual.
+
 ## Orquestrar a conversa
 
 Ao concluir esta etapa ou detectar trabalho de outra etapa, anuncie
@@ -54,6 +76,9 @@ exigindo autorização específica.
    Antes de programar, confirme os itens escolhidos na tabela da seção 10 e em
    `INTERFACE.md`; depois de programar, atualize `INTERFACE.md` com todos os
    blocos criados, alterados ou reaproveitados.
+   Para um CRUD, confirme também um único `PageHeader` reutilizável em todas as
+   telas, `DataGrid` em largura total, coluna `ID` sempre visível, link da linha
+   para o detalhe e botões de editar e apagar independentes na linha.
 4. Execute os validadores contra `specs/<estado>/<NNNN>-<slug>/spec.md`. Se um gate
    falhar por tarefa, predecessor TDD ou RED ausente em um plano antes aprovado,
    anuncie a pendência e retorne automaticamente para
@@ -128,7 +153,7 @@ com `--attestation PATH`. Exija commit compatível, binding da mesma spec/tarefa
 refs e comandos idênticos, checks realmente aprovados e SHA-256 atual de cada
 arquivo. Atestação de `--self-test` não prova entrega.
 12. Faça uma micro-retrospectiva: aplique uma melhoria segura encontrada ou registre “nenhuma melhoria necessária” com justificativa; então marque `IMPROVE`.
-13. Na seção 14 de `specs/<estado>/<NNNN>-<slug>/spec.md`, altere o pai de `- [ ]` para `- [x]` somente quando os cinco itens estiverem concluídos.
+13. Na seção 14 de `specs/<estado>/<NNNN>-<slug>/spec.md`, altere o pai de `- [ ]` para `- [x]` somente quando os seis itens estiverem concluídos, incluindo `VISUAL`.
 14. Execute `validate_tasks.mjs`, recalcule a próxima tarefa e confira o próximo item retornado por `next_task.mjs`.
 
 Atualize os itens conforme o trabalho acontece; não os marque em lote no encerramento. Tarefas `[P]` podem ser agrupadas apenas quando não tocam os mesmos arquivos ou estado. Se a execução revelar dependência oculta, torne-a explícita na seção 14.

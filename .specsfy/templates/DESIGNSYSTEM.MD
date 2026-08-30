@@ -30,6 +30,25 @@ as permissões e as telas relacionadas.
 - `INTERFACE.md` registra componentes, blocos, telas e composição local. Ele não
   duplica as escolhas macro deste arquivo.
 
+## Revisão visual obrigatória
+
+A revisão visual acontece durante o desenvolvimento de toda interface, mesmo
+sem pedido da pessoa. Em cada tarefa, compare a tela renderizada ou
+inspecionada com este sistema e com `INTERFACE.md`.
+
+- Conferir bordas, espaçamentos, margens e padding entre shell, regiões,
+  componentes, campos, ações e estados.
+- Conferir tipografia: família, peso, tamanho, altura de linha, espaçamento de
+  letras, hierarquia e quebra de texto.
+- Conferir alinhamento, largura, overflow, foco, zoom, conteúdo curto e
+  conteúdo longo nos viewports suportados.
+- Registrar método, viewport, estados, ajustes e resultado no item `VISUAL` da
+  tarefa. Para uma tarefa sem superfície visual, registrar `Não aplicável` e o
+  motivo concreto.
+
+Essa conferência é parte da entrega e não depende de a pessoa solicitar uma
+revisão visual.
+
 ## Linguagem visual SaaS
 
 A interface deve ser informativa, reconhecível e operacional. A personalidade
@@ -136,6 +155,22 @@ registrada abaixo.
 | Detalhe | `PageHeader` + `DetailLists` | Organizar atributos por assunto, destacar status e próxima ação. Adicionar atividade, relações ou histórico quando o domínio exigir. |
 | Criar | `PageHeader` + seções de formulário em duas colunas responsivas | Cada seção tem coluna de contexto, painel de campos, labels visíveis, ajuda junto do campo e submit com estado de envio. |
 | Editar | `PageHeader` + seções de formulário em duas colunas responsivas | Reaproveitar a estrutura de criar, exibir valores atuais, preservar alterações após falha e informar o resultado da gravação. |
+
+### Reuso e ações obrigatórias do CRUD
+
+- Todas as telas de um CRUD usam o mesmo componente `PageHeader` reutilizável.
+  Lista, detalhe, criação e edição variam título, descrição, breadcrumbs e
+  ações por props ou configuração, sem duplicar markup.
+- Componentes recorrentes de tabela, linha, ações, formulário, estados e
+  feedback são criados uma vez, registrados em `INTERFACE.md` e reaproveitados
+  por todas as telas compatíveis.
+- O `DataGrid` da listagem ocupa toda a largura disponível. A coluna `ID` fica
+  visível sempre, inclusive com outras colunas de negócio.
+- A linha inteira é o link para o detalhe por mouse e teclado. Botões
+  independentes de editar e apagar ficam na própria linha e não propagam o
+  clique para o detalhe.
+- Apagar respeita permissão, mostra o registro alvo e confirma a consequência
+  antes da execução.
 
 ### Navegação da lista
 
@@ -278,7 +313,9 @@ E encontra uma ação para tentar novamente
 Tokens de cor, tipografia, espaçamento, raio, foco e movimento devem ser
 reaproveitados antes de criar valores locais. Componentes acessíveis e
 composições de catálogo devem ser registrados em `INTERFACE.md` com origem,
-props, eventos, estados e consumidores reais.
+props, eventos, estados e consumidores reais. A revisão visual precisa
+confirmar bordas, espaçamentos, margens, padding e tipografia contra esses
+tokens antes do item `EVIDENCE` da tarefa.
 
 ## Exceções da entrega
 

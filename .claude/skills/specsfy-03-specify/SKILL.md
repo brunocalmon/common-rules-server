@@ -20,6 +20,12 @@ Antes de formular qualquer pergunta, leia e aplique o
 
 Crie ou atualize o pacote `specs/draft/<NNNN>-<slug>/`, no qual `spec.md` é a única fonte normativa de todo o fluxo SDD. Somente o diretório recebe o número; mantenha o arquivo sempre como `spec.md`. Consolide descoberta, research, esclarecimentos, produto, plano técnico, modelo de dados, contratos, TDD, BDD, validações, tarefas, decisões e conclusão em três atos explícitos. Evidências externas consultadas vivem em `research/`; não gere `plan.md`, `research.md`, `data-model.md`, `tasks.md`, checklists ou uma segunda especificação.
 
+Antes de consolidar uma spec Laravel, leia `.specsfy/PACKAGES.md`,
+`docs/packages/README.md` e as fichas de `docs/packages/`. Se a solicitação
+trouxer uma URL GitHub de pacote ou depender de uma biblioteca Composer,
+carregue `$specsfy-specialist-laravel-package-manager` para conferir se o
+pacote já existe e registrar a necessidade sem duplicar dependências.
+
 ## Orquestrar a conversa
 
 Ao concluir esta etapa ou detectar trabalho de outra etapa, anuncie

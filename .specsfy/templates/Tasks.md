@@ -9,6 +9,7 @@ Checklist obrigatório por tarefa, na ordem:
   - [ ] **PREP**: Confirmar escopo, IDs, dependências e baseline.
   - [ ] **EXECUTE**: Produzir a entrega no caminho declarado.
   - [ ] **VERIFY**: Executar a verificação focal adequada.
+  - [ ] **VISUAL**: Conferir bordas, espaçamentos, margens, padding e tipografia do sistema; se não houver interface, registrar `Não aplicável` e o motivo.
   - [ ] **EVIDENCE**: Registrar comando, resultado e IDs nas seções 11–13.
   - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 ```
@@ -19,6 +20,7 @@ Checklist obrigatório por tarefa, na ordem:
   - [ ] **PREP**: Ler o Gherkin da spec e confirmar regra, IDs e nível.
   - [ ] **EXECUTE**: Escrever o caso TDD com marcador próprio `SPECSFY:`, sem criar ou executar `.feature`.
   - [ ] **VERIFY**: Observar RED válido.
+  - [ ] **VISUAL**: Conferir a interface afetada ou registrar `Não aplicável` porque a tarefa só materializa teste.
   - [ ] **EVIDENCE**: Registrar comando e causa do RED.
   - [ ] **IMPROVE**: Revisar cobertura e registrar aprendizado.
 
@@ -26,6 +28,7 @@ Checklist obrigatório por tarefa, na ordem:
   - [ ] **PREP**: Ler o Gherkin da spec e confirmar regra, IDs e nível.
   - [ ] **EXECUTE**: Escrever o caso TDD com marcador próprio `SPECSFY:`, sem criar ou executar `.feature`.
   - [ ] **VERIFY**: Observar RED válido.
+  - [ ] **VISUAL**: Conferir a interface afetada ou registrar `Não aplicável` porque a tarefa só materializa teste.
   - [ ] **EVIDENCE**: Registrar comando e causa do RED.
   - [ ] **IMPROVE**: Revisar cobertura e registrar aprendizado.
 
@@ -33,6 +36,7 @@ Checklist obrigatório por tarefa, na ordem:
   - [ ] **PREP**: Ler o Gherkin da spec e confirmar regra, IDs e nível.
   - [ ] **EXECUTE**: Escrever o caso TDD com marcador próprio `SPECSFY:`, sem criar ou executar `.feature`.
   - [ ] **VERIFY**: Observar RED válido.
+  - [ ] **VISUAL**: Conferir a interface afetada ou registrar `Não aplicável` porque a tarefa só materializa teste.
   - [ ] **EVIDENCE**: Registrar comando e causa do RED.
   - [ ] **IMPROVE**: Revisar cobertura e registrar aprendizado.
 
@@ -45,6 +49,7 @@ Checklist obrigatório por tarefa, na ordem:
   - [ ] **PREP**: Confirmar RED TDD e dependências.
   - [ ] **EXECUTE**: Implementar a menor mudança.
   - [ ] **VERIFY**: Executar testes focais e regressão.
+  - [ ] **VISUAL**: Conferir bordas, espaçamentos, margens, padding e tipografia do sistema na interface afetada; registrar `Não aplicável` com motivo quando não houver superfície visual.
   - [ ] **EVIDENCE**: Registrar GREEN e arquivos alterados.
   - [ ] **IMPROVE**: Aplicar melhoria ou justificar nenhuma.
   <!-- specsfy:evidence {"task":"T004","refs":["US-001","FR-001","NFR-001","AC-001","AC-002","AC-003"],"files":["app/Services/RecursoService.php"],"commands":[{"run":"comando focal","exit":0}]} -->
@@ -60,6 +65,7 @@ O comentário é obrigatório para tarefa `[CODE]` concluída quando a spec decl
   - [ ] **PREP**: Confirmar stack, tela atual, fluxo, formulário e estados definidos na seção 10.
   - [ ] **EXECUTE**: Implementar os blocos React, tela, ações e formulário conforme a composição acordada; registrar cada bloco e componente em `INTERFACE.md`.
   - [ ] **VERIFY**: Exercitar menus, navegação, validações, feedback e teclado.
+  - [ ] **VISUAL**: Conferir PageHeader reutilizado, DataGrid em largura total, coluna `ID`, link da linha, ações de editar e apagar, bordas, espaçamentos, margens, padding e tipografia nos estados e viewports relevantes.
   - [ ] **EVIDENCE**: Registrar arquivos, comando e resultado da interação.
   - [ ] **IMPROVE**: Aplicar melhoria de interface ou justificar nenhuma.
   <!-- specsfy:evidence {"task":"T005","refs":["US-001","FR-001","NFR-001","AC-001","AC-002","AC-003"],"files":["src/features/recurso/ListaRecurso.tsx"],"commands":[{"run":"comando focal","exit":0}]} -->
@@ -70,6 +76,7 @@ O comentário é obrigatório para tarefa `[CODE]` concluída quando a spec decl
   - [ ] **PREP**: Identificar suites, checks e gates.
   - [ ] **EXECUTE**: Executar regressão e rastreabilidade.
   - [ ] **VERIFY**: Confirmar ausência de gaps.
+  - [ ] **VISUAL**: Repassar a conferência visual final ou registrar `Não aplicável` com motivo concreto.
   - [ ] **EVIDENCE**: Registrar contagens e comandos finais.
   - [ ] **IMPROVE**: Registrar retrospectiva do processo.
 

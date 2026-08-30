@@ -110,7 +110,12 @@ das seções `14. Tarefas` e `15. Ordem de execução` em
   `.specsfy/RULES.md`.
 - Dê a cada tarefa um resultado único, caminho exato e critério verificável.
 - Anexe a cada tarefa, exatamente nesta ordem, os itens `PREP`, `EXECUTE`,
-  `VERIFY`, `EVIDENCE` e `IMPROVE` definidos no template `Tasks.md` resolvido.
+  `VERIFY`, `VISUAL`, `EVIDENCE` e `IMPROVE` definidos no template `Tasks.md`
+  resolvido.
+- O item `VISUAL` é obrigatório mesmo sem pedido da pessoa. Ele confere bordas,
+  espaçamentos, margens, padding e tipografia do sistema durante o
+  desenvolvimento. Sem interface, registre `Não aplicável` e o motivo
+  concreto.
 - Escreva os itens como resultados específicos da tarefa, não como frases genéricas copiadas.
 - Mantenha pai e itens abertos ao gerar tarefas; a skill de implementação atualiza um item imediatamente após sua evidência.
 - O item `IMPROVE` deve registrar uma melhoria concreta aplicada ou declarar que nenhuma foi necessária com justificativa.

@@ -279,6 +279,7 @@ cli/tests/progress.test.ts
   - [ ] **PREP**: Confirmar fixture, IDs e baseline.
   - [ ] **EXECUTE**: Escrever o caso com marcador `SPECSFY:` próprio.
   - [ ] **VERIFY**: Observar RED válido.
+  - [ ] **VISUAL**: Conferir bordas, espaçamentos, margens, padding e tipografia; registrar `Não aplicável` porque a tarefa só materializa teste.
   - [ ] **EVIDENCE**: Registrar comando e causa do RED.
   - [ ] **IMPROVE**: Revisar a clareza da fixture.
 
@@ -286,6 +287,7 @@ cli/tests/progress.test.ts
   - [ ] **PREP**: Confirmar fixture, IDs e baseline.
   - [ ] **EXECUTE**: Escrever o caso com marcador `SPECSFY:` próprio.
   - [ ] **VERIFY**: Observar RED válido.
+  - [ ] **VISUAL**: Conferir bordas, espaçamentos, margens, padding e tipografia; registrar `Não aplicável` porque a tarefa só materializa teste.
   - [ ] **EVIDENCE**: Registrar comando e causa do RED.
   - [ ] **IMPROVE**: Revisar a clareza da fixture.
 
@@ -293,6 +295,7 @@ cli/tests/progress.test.ts
   - [ ] **PREP**: Confirmar fixture, IDs e baseline.
   - [ ] **EXECUTE**: Escrever o caso com marcador `SPECSFY:` próprio.
   - [ ] **VERIFY**: Observar RED válido.
+  - [ ] **VISUAL**: Conferir bordas, espaçamentos, margens, padding e tipografia; registrar `Não aplicável` porque a tarefa só materializa teste.
   - [ ] **EVIDENCE**: Registrar comando e causa do RED.
   - [ ] **IMPROVE**: Revisar a clareza da fixture.
 
@@ -300,6 +303,7 @@ cli/tests/progress.test.ts
   - [ ] **PREP**: Confirmar RED e contrato somente leitura.
   - [ ] **EXECUTE**: Implementar a menor mudança.
   - [ ] **VERIFY**: Executar teste focal e regressão.
+  - [ ] **VISUAL**: Conferir bordas, espaçamentos, margens, padding e tipografia; registrar `Não aplicável` com o motivo se não houver interface.
   - [ ] **EVIDENCE**: Registrar GREEN e arquivos alterados.
   - [ ] **IMPROVE**: Registrar melhoria ou ausência justificada.
 

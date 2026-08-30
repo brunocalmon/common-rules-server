@@ -67,10 +67,10 @@ resultado ou o contexto, repita a busca.
 
 ## Reaproveitar respostas confirmadas no MVP
 
-Quando o backlog vier de uma Inbox ou milestone derivada de `MVP.md`, antes de
+Quando o backlog vier de uma milestone derivada de `MVP.md`, antes de
 formular qualquer pergunta:
 
-1. leia `specs/milestones/M01.md`, a Inbox de origem e a seção
+1. leia `specs/milestones/M01.md` e a seção
    `Registros confirmados no MVP` do backlog; abra também o `MVP.md` original
    quando o caminho registrado estiver disponível;
 2. extraia cada declaração que responde problema, pessoa, resultado, escopo,

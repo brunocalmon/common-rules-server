@@ -102,9 +102,9 @@ ou informações pessoais sensíveis.
 
 - No backlog, faça esta descoberta antes de declarar o brief pronto quando a
   jornada depender de informações guardadas.
-- Durante a descoberta do MVP, preserve primeiro a fonte e as Inboxes; depois
-  carregue esta skill para cada informação do produto a guardar que estiver
-  ausente ou ambígua.
+- Durante a descoberta do MVP, preserve `MVP.md` como fonte e carregue esta
+  skill para cada informação a guardar ausente ou ambígua em um backlog
+  importado.
 - Na especificação, carregue esta skill se a fonte de dados não explicar o que
   a jornada precisa lembrar ou quem pode consultar cada informação.
 - A Inbox não faz perguntas. Ela apenas preserva sinais para esta etapa.

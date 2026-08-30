@@ -143,7 +143,11 @@ estiver comprovada.
 | “O líder autorizou.” | Autoridade pode mudar escopo, não transformar ausência de evidência em TDD. |
 | “Testar depois é equivalente.” | Test-first guia o contrato e prova sensibilidade antes da implementação. |
 
-Em uma tarefa de teste, atualize `PREP`, `EXECUTE`, `VERIFY`, `EVIDENCE` e `IMPROVE` conforme cada etapa acontecer. Não marque o pai como concluído sem arquivo, marcador, RED válido, comando/evidência e revisão do processo.
+Em uma tarefa de teste, atualize `PREP`, `EXECUTE`, `VERIFY`, `VISUAL`,
+`EVIDENCE` e `IMPROVE` conforme cada etapa acontecer. O item `VISUAL` também é
+obrigatório para confirmar se o teste toca uma interface; quando não tocar,
+registre `Não aplicável` e o motivo. Não marque o pai como concluído sem
+arquivo, marcador, RED válido, comando/evidência e revisão do processo.
 Não escreva código de produção antes que o predecessor TDD informado pelo BDD
 da mesma fatia esteja concluído e com RED registrado na spec.
 

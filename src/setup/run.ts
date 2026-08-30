@@ -135,8 +135,14 @@ export function runSetup(opts: SetupOptions): SetupResult {
   // que fazer pagaria um custo desnecessário no caso comum, em que nada mudou.
   const hooksJaFeito = matches(opts.previous ?? null, hooks.map((h) => h.name), version);
   const skillsPrevias = opts.previous?.skills ?? [];
+  // Registro anterior ausente não é "já feito" — é "nunca tentado". Um
+  // projeto cujos hooks foram gravados antes de `skills` existir (ou por
+  // fora deste mecanismo) tinha `skillsPrevias.length === 0` tratado como
+  // trivialmente pronto, e `common-rules setup` nunca chegava a instalar
+  // skills alguma, mesmo com `opts.skills` configurado — bug real, achado
+  // rodando de verdade neste próprio repositório.
   const skillsJaFeito =
-    !opts.skills || skillsPrevias.length === 0 || skillsPrevias.every((s) => inspectSkills(raiz).dirs.includes(s.name));
+    !opts.skills || (skillsPrevias.length > 0 && skillsPrevias.every((s) => inspectSkills(raiz).dirs.includes(s.name)));
   const specsfyJaFeito = !opts.specsfy || existsSync(join(raiz, ".specsfy"));
 
   // Só a leitura de presença (sem subprocesso) decide se a ponte está

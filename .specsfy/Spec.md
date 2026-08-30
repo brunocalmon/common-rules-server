@@ -118,7 +118,7 @@ input → inbox → backlog → spec → validate → tasks → TDD/BDD → impl
    `specs/inbox/`, sem fazer perguntas.
 2. Use `specsfy-02-backlog` para buscar material relacionado, registrar o item
    e aprofundar decisões por perguntas adaptativas. Quando a origem for um
-   `MVP.md`, o refinamento lê a milestone, a Inbox e as evidências importadas,
+   `MVP.md`, o refinamento lê a milestone, o backlog e as evidências importadas,
    registra automaticamente as respostas já declaradas e pergunta somente por
    lacuna, ambiguidade ou contradição aplicável.
 3. Use `specsfy-03-specify` para criar e consolidar a spec normativa inicial.
@@ -161,6 +161,43 @@ definição, a conversa deve esclarecer, somente nas lacunas reais:
 6. como conteúdo, ações e dados se distribuem na tela em desktop e mobile;
 7. como aparecem loading, vazio, erro, sucesso, permissão insuficiente e
    acessibilidade por teclado.
+
+### Contrato CRUD
+
+Quando a entrega incluir um CRUD, use os mesmos componentes em todas as telas
+da superfície. O `PageHeader` deve ser um componente único e reutilizável para
+lista, detalhe, criação e edição, com variações recebidas por props ou
+configuração. Não replique o markup do cabeçalho em cada página.
+
+- A listagem usa um `DataGrid` que ocupa toda a largura disponível.
+- A coluna `ID` fica visível em toda listagem, inclusive quando a tela também
+  mostra nome, status ou outras informações do registro.
+- A linha inteira funciona como link para o detalhe por mouse e teclado.
+- Cada linha oferece ações independentes de editar e apagar. O botão de apagar
+  respeita a permissão e confirma a consequência antes de executar.
+- Componentes recorrentes de cabeçalho, tabela, linha, ações, formulário,
+  estados e feedback são registrados em `INTERFACE.md` e reaproveitados antes
+  de uma nova implementação.
+
+### Revisão visual durante o desenvolvimento
+
+A revisão visual é obrigatória em toda tarefa de desenvolvimento que possa
+alterar uma interface, mesmo sem pedido da pessoa. O item `VISUAL` da tarefa
+fica entre `VERIFY` e `EVIDENCE` para impedir o registro da entrega sem a
+conferência.
+
+Leia `DESIGNSYSTEM.MD`, `INTERFACE.md` e os componentes afetados. Compare a
+interface renderizada ou inspecionada nos viewports e estados relevantes com o
+sistema do projeto. A conferência precisa cobrir bordas, espaçamentos, margens,
+padding e tipografia, incluindo família, peso, tamanho, altura de linha e
+quebra de texto. Confira também alinhamento, overflow, foco, conteúdo curto e
+conteúdo longo.
+
+Registre na tarefa o método usado, o viewport, os estados percorridos, os
+ajustes aplicados e o resultado. Quando a tarefa não tiver superfície visual,
+marque o item `VISUAL` com `Não aplicável` e o motivo concreto. Essa análise
+ocorre durante a implementação e novamente no fechamento do Delivery Gate;
+pedido do usuário não é condição para acioná-la.
 
 Antes da primeira pergunta dessa área, leia `.specsfy/STACK.md`,
 `.specsfy/PACKAGES.md` quando existir, manifests, configurações e telas já
@@ -358,6 +395,10 @@ os Atos II–III. Gate posterior não permanece aprovado sobre entrada invalidad
 - Materialize no mínimo três casos TDD executáveis para a feature inteira e
   para cada `US`, `FR` e `NFR`. Cada caso declara seu próprio marcador
 `SPECSFY:`; um marcador compartilhado é considerado como um caso.
+- Toda tarefa mantém o checklist `PREP`, `EXECUTE`, `VERIFY`, `VISUAL`,
+  `EVIDENCE` e `IMPROVE`, nessa ordem. O item `VISUAL` registra a conferência
+  de bordas, espaçamentos, margens, padding e tipografia ou a justificativa
+  concreta para uma tarefa sem interface.
 - Em projeto PHP, execute os testes derivados com Pest. Em projeto Node sem PHP,
   pergunte qual runner de testes adotar e recomende Vitest; não instale nem
   escolha silenciosamente. Em projeto misto PHP + Node, prevalece Pest.

@@ -10,6 +10,7 @@ Use o catálogo de especialistas distribuído pelo CLI para aprofundar:
   `-web-accessibility` e o
   especialista da stack de interface, como `-react`;
 - stack: o especialista com o nome da tecnologia detectada.
+- pacotes Laravel recebidos por URL GitHub: `specsfy-specialist-laravel-package-manager`.
 
 Quando estiver ausente, proponha este comando e peça autorização específica:
 

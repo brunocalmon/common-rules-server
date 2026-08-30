@@ -9,6 +9,8 @@ Detecte manifests e arquivos antes de propor:
 - React/Astro/Next/Tailwind/shadcn → especialista de mesmo nome;
 - risco transversal → segurança, acessibilidade, performance, observabilidade,
   arquitetura ou API.
+- pacote Laravel recebido por URL GitHub ou alteração em Composer →
+  `specsfy-specialist-laravel-package-manager`.
 
 ```bash
 npx skills add https://github.com/promovaweb/specsfy --skill specsfy-specialist-<nome> --agent universal --copy --full-depth

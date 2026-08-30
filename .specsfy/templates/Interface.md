@@ -24,8 +24,9 @@ registra componentes, blocos e telas locais; as regras globais de SaaS vivem em
 | Tokens e tema | A mapear | Cores, tipografia, espaçamento, raio e tema |
 | Configuração shadcn/ui | A mapear | `components.json`, aliases e registry |
 | Registry ReUI | A mapear | Itens gratuitos `@reui/c-*` |
+| PageHeader compartilhado | `DESIGNSYSTEM.MD` | Um componente reutilizável para lista, detalhe, criação e edição |
 | Padrão de dashboard | `DESIGNSYSTEM.MD` | `PageHeader`, filtros, `KPI`, visualização principal e investigação detalhada |
-| Padrão de linha | `DESIGNSYSTEM.MD` | `DataGrid` com detalhe clicável por linha e ações internas independentes |
+| Padrão de linha | `DESIGNSYSTEM.MD` | `DataGrid` em largura total, coluna `ID`, detalhe clicável por linha e ações de editar e apagar |
 | Padrão de formulário | `DESIGNSYSTEM.MD` | Seções, coluna de contexto e painel em duas colunas responsivas |
 | Padrão de contexto | `DESIGNSYSTEM.MD` | `Breadcrumb` em todas as telas, com equipe, módulo e tela atual |
 | Primitives compartilhadas | A mapear | Componentes em `ui/` ou diretório equivalente |
@@ -62,14 +63,19 @@ vazio, upload ou ação em lote.
    indicadores, visualizações, tabela de investigação e estados. Prefira
    blocos existentes de ReUI e primitives shadcn/ui antes de criar uma nova
    composição.
-6. Linhas de `DataGrid` com detalhe usam link acessível em toda a área; ações
-   internas usam `TableRowAction` ou equivalente e não propagam a navegação.
-7. Formulários de criar e editar usam seções com coluna de contexto e painel
+6. Em CRUD, reutilize o mesmo `PageHeader` nas telas de lista, detalhe,
+   criação e edição. Registre uma única implementação, suas props, variações e
+   consumidores; não duplique markup de cabeçalho por página.
+7. Linhas de `DataGrid` com detalhe usam link acessível em toda a área; a
+   listagem ocupa a largura disponível, exibe a coluna `ID` e oferece ações de
+   editar e apagar. Ações internas usam `TableRowAction` ou equivalente e não
+   propagam a navegação.
+8. Formulários de criar e editar usam seções com coluna de contexto e painel
    em duas colunas nos breakpoints largos, refluindo para uma no mobile.
-8. Toda tela renderiza `Breadcrumb` com o nome da equipe ativa, o módulo e o
+9. Toda tela renderiza `Breadcrumb` com o nome da equipe ativa, o módulo e o
    título atual. Em Laravel, reaproveite o `Breadcrumb` ou `Breadcrumbs` do
    layout existente e registre o componente real em vez de criar outro.
-9. Ao criar um bloco, registre-o nesta tabela na mesma tarefa. Ao alterar ou
+10. Ao criar um bloco, registre-o nesta tabela na mesma tarefa. Ao alterar ou
   remover um bloco, atualize seus consumidores e a orientação de reuso.
 
 <!-- markdownlint-enable MD013 -->

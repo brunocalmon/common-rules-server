@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
- * Importa o MVP como M01, cria a cadeia Inbox → backlog → spec Draft e aplica
- * defaults apenas quando o trecho sustenta a resposta. Lacunas permanecem
- * marcadas como pendentes; o fluxo não implementa código nem passa gates.
+ * Importa somente requisitos de desenvolvimento do MVP como backlog e spec
+ * Draft. A milestone registra a proveniência e a triagem sem copiar contexto
+ * de negócio. Lacunas permanecem pendentes; o fluxo não implementa código nem
+ * passa gates.
  */
 
 import { createHash } from "node:crypto";
@@ -14,7 +15,6 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const skillRoot = dirname(fileURLToPath(import.meta.url));
-const inboxScript = resolve(skillRoot, "../../specsfy-01-inbox/scripts/capturar_inbox.mjs");
 const backlogScript = resolve(skillRoot, "../../specsfy-02-backlog/scripts/iniciar_backlog.mjs");
 const specScript = resolve(skillRoot, "../../specsfy-03-specify/scripts/iniciar_spec.mjs");
 
@@ -37,11 +37,6 @@ function containsSensitiveData(content) {
   return /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\b(?:api[_-]?key|secret|token|password)\s*[:=]\s*\S+/iu.test(content);
 }
 
-function slug(value) {
-  const result = value.normalize("NFKD").replace(/\p{Diacritic}/gu, "").toLowerCase().replace(/[^a-z0-9]+/gu, "-").replace(/^-+|-+$/gu, "");
-  return result || "tema-do-mvp";
-}
-
 function titleFromTheme(theme, index) {
   const firstLine = theme.split(/\r?\n/u).find((line) => line.trim())?.replace(/^#+\s*/u, "").trim();
   return firstLine && firstLine.length <= 100 ? firstLine : `Tema ${index} do MVP`;
@@ -59,7 +54,8 @@ const developmentSignals = [
 const nonDevelopmentHeadings = [
   "visao", "visao do produto", "publico", "publico-alvo", "persona", "posicionamento",
   "principios", "principios do produto", "contexto", "problema", "metricas", "metricas de sucesso",
-  "premissas", "restricoes", "escopo", "fora de escopo", "objetivo geral",
+  "premissas", "restricoes", "escopo", "fora de escopo", "objetivo geral", "modelo de negocio",
+  "modelo comercial", "monetizacao", "preco", "precificacao", "receita", "jornada do cliente",
 ];
 
 function classifyTheme(theme, index) {
@@ -71,8 +67,8 @@ function classifyTheme(theme, index) {
   const featureNoun = developmentSignals.some((value) => title.includes(value));
   const bodyBehavior = developmentSignals.some((value) => text.includes(value));
 
-  if (headingOnlyContext && !explicitBuild && !explicitBehavior) {
-    return { developable: false, reason: "tema contextual, sem entrega de software identificada" };
+  if (headingOnlyContext) {
+    return { developable: false, reason: "tema de negócio ou contexto, preservado somente no MVP" };
   }
   if (explicitBuild || explicitBehavior || featureNoun) {
     return { developable: true, reason: "capacidade ou comportamento de software identificado" };
@@ -163,21 +159,20 @@ function themeBody(theme) {
   return theme.replace(/^\s*#{1,6}\s+[^\r\n]*(?:\r?\n|$)/u, "").trim() || theme.trim();
 }
 
-function initialBacklogFields(theme, inboxPath) {
-  const evidence = `O MVP declara:\n\n${quotedTheme(theme)}`;
+function initialBacklogFields(theme) {
   const extracted = Object.fromEntries(Object.keys(labels).map((field) => [field, extractObviousValue(theme, field)]));
   const fields = {
     idea: themeBody(theme),
     problem: extracted.problem?.value ?? "Lacuna: o MVP não declara o problema percebido deste tema.",
     person: extracted.person?.value ?? "Lacuna: o MVP não identifica a pessoa afetada ou beneficiada deste tema.",
     result: extracted.result?.value ?? "Lacuna: o MVP não declara o resultado ou valor esperado deste tema.",
-    context: extracted.context?.value ?? `Tema derivado de \`${inboxPath}\` e da milestone \`M01\`.`,
+    context: extracted.context?.value ?? "Requisito importado de MVP.md e vinculado à milestone M01.",
     menu: extracted.menu?.value ?? "Lacuna: o MVP não declara os menus ou a navegação principal deste tema.",
   };
   const defaults = Object.entries(extracted)
     .filter(([, item]) => item)
     .map(([field, item]) => ({ field, value: item.value, reason: item.reason }));
-  return { fields, defaults, evidence };
+  return { fields, defaults };
 }
 
 function automaticDefaults(defaults) {
@@ -194,31 +189,11 @@ function automaticDefaults(defaults) {
   ].join("\n");
 }
 
-function initialInboxFields(title, defaults) {
-  const values = Object.fromEntries(defaults.map(({ field, value }) => [field, value]));
-  return {
-    summary: `Tema importado do MVP: ${title}.`,
-    problem: values.problem ?? "Lacuna: problema não identificado explicitamente no trecho.",
-    people: values.person ?? "Lacuna: pessoa não identificada explicitamente no trecho.",
-    value: values.result ?? "Lacuna: resultado não identificado explicitamente no trecho.",
-    signals: defaults.length
-      ? defaults.map(({ field, value }) => `${field}: ${value}`).join("\n")
-      : "Nenhum default seguro encontrado no trecho.",
-    review: "Perguntar somente sobre lacunas, ambiguidades ou contradições que permanecerem após a leitura do MVP.",
-  };
-}
-
-function inboxClassification(classification) {
-  return classification.developable
-    ? `Tema classificado como desenvolvível: ${classification.reason}.`
-    : `Tema mantido somente como contexto: ${classification.reason}. Não criar backlog nem spec.`;
-}
-
-function mvpEvidence(inboxPath, theme) {
+function mvpEvidence(theme) {
   return [
     "## Registros confirmados no MVP",
     "",
-    `- Inbox de origem: \`${inboxPath}\`.`,
+    "- Fonte de origem: `MVP.md`.",
     "- Milestone de origem: `specs/milestones/M01.md`.",
     "- Use o texto abaixo para preencher respostas já declaradas antes de formular perguntas.",
     "- Pergunte somente sobre lacuna, ambiguidade ou contradição que permaneça após a leitura.",
@@ -293,7 +268,7 @@ function openQuestions(fields) {
 }
 
 /** Preenche a spec Draft sem escolher arquitetura ou inventar requisitos ausentes. */
-function renderDraftSpec(content, title, backlogPath, inboxPath, fields, defaults) {
+function renderDraftSpec(content, title, backlogPath, fields, defaults) {
   const pending = (value) => value.startsWith("Lacuna:") ? value.replace(/^Lacuna:/u, "Pendente:") : value;
   const actor = pending(fields.person);
   const problem = pending(fields.problem);
@@ -323,7 +298,7 @@ function renderDraftSpec(content, title, backlogPath, inboxPath, fields, default
     .replaceAll("[tratamento observável]", "O sistema registra a lacuna e não inventa uma resposta.")
     .replaceAll("O sistema deve [comportamento verificável].", `O sistema deve executar ${idea} e produzir ${result}.`)
     .replaceAll("[pergunta investigada] → [conclusão e impacto].", `Leitura de ${backlogPath} → os defaults foram reaproveitados; lacunas permanecem em Draft.`)
-    .replaceAll("[Código, documento, stakeholder ou “Nenhuma fonte externa”.]", `MVP.md, ${inboxPath} e ${backlogPath}.`)
+    .replaceAll("[Código, documento, stakeholder ou “Nenhuma fonte externa”.]", `MVP.md e ${backlogPath}.`)
     .replaceAll("[Pergunta material] → **A**: [resposta incorporada].", automaticAnswers(defaults))
     .replaceAll("[Pergunta bloqueante ou “Nenhuma”.]", openQuestions(fields))
     .replaceAll("[Stack, arquitetura e convenções encontradas no repositório.]", "Não analisadas durante a importação; nenhuma implementação é executada.")
@@ -334,15 +309,15 @@ function renderDraftSpec(content, title, backlogPath, inboxPath, fields, default
   return rendered.replace(/\[([^\]\r\n]+)\]/gu, "Pendente: $1");
 }
 
-async function createDraftSpec(root, title, backlogPath, inboxPath, fields, defaults) {
+async function createDraftSpec(root, title, backlogPath, fields, defaults) {
   const specPath = await run(specScript, ["--title", title, "--root", root]);
   const content = await readFile(specPath, "utf8");
-  const rendered = renderDraftSpec(content, title, backlogPath, inboxPath, fields, defaults);
+  const rendered = renderDraftSpec(content, title, backlogPath, fields, defaults);
   await writeFile(specPath, rendered, "utf8");
   return specPath;
 }
 
-async function createMilestone(root, source, content) {
+async function createMilestone(root, source, content, developmentThemes) {
   const destination = join(root, "specs", "milestones", "M01.md");
   await mkdir(dirname(destination), { recursive: true });
   const hash = createHash("sha256").update(content).digest("hex");
@@ -355,14 +330,15 @@ async function createMilestone(root, source, content) {
     `| Origem | \`${relative(root, source) || "MVP.md"}\` |`,
     `| Integridade da origem | SHA-256 \`${hash}\` |`,
     "",
-    "## Material importado",
+    "## Triagem da importação",
     "",
-    content.trim(),
+    `- Requisitos de desenvolvimento importados: ${developmentThemes.length}.`,
+    "- Contexto de negócio, posicionamento, público, métricas e demais temas não técnicos permanecem somente em `MVP.md`.",
     "",
     "## Proveniência e próximos passos",
     "",
-    "As Inboxes preservam todos os temas. Backlogs e specs Draft são derivados",
-    "somente dos temas classificados como entregas de software desenvolvíveis.",
+    "Cada requisito importado gera diretamente um backlog e uma spec Draft.",
+    "A importação não cria Inboxes e não reproduz conteúdo de negócio no Specsfy.",
     "",
   ].join("\n");
   try {
@@ -381,46 +357,14 @@ async function main() {
   if (!content.trim()) fail("MVP.md não pode estar vazio");
   if (containsSensitiveData(content)) fail("MVP.md contém dado sensível aparente; remova-o antes de importar");
 
-  const milestone = await createMilestone(root, source, content);
-  const session = `MVP-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${slug(source === join(root, "MVP.md") ? "local" : "hub")}`;
-  const sources = `- \`${relative(root, source) || "MVP.md"}\`: importado em \`specs/milestones/M01.md\`.`;
+  const developmentThemes = themes(content)
+    .map((theme, index) => ({ theme, title: titleFromTheme(theme, index + 1), classification: classifyTheme(theme, index + 1) }))
+    .filter(({ classification }) => classification.developable);
+  const milestone = await createMilestone(root, source, content, developmentThemes);
   const created = [];
 
-  for (const [index, theme] of themes(content).entries()) {
-    const title = titleFromTheme(theme, index + 1);
-    const classification = classifyTheme(theme, index + 1);
-    const preliminary = initialBacklogFields(theme, "Inbox criada nesta importação");
-    const inboxFields = initialInboxFields(title, preliminary.defaults);
-    const inbox = await run(inboxScript, [
-      "--input", theme,
-      "--title", title,
-      "--session", session,
-      "--turn", String(index + 1),
-      "--sources", sources,
-      "--summary", inboxFields.summary,
-      "--problem", inboxFields.problem,
-      "--people", inboxFields.people,
-      "--value", inboxFields.value,
-      "--signals", `${inboxClassification(classification)}\n${inboxFields.signals}`,
-      "--review", inboxFields.review,
-      "--directions", classification.developable
-        ? "Aprofundar somente lacunas da entrega de software."
-        : "Não transformar este tema contextual em backlog ou spec.",
-      "--root", root,
-    ]);
-    const inboxPath = relative(root, inbox);
-    if (!classification.developable) {
-      created.push({
-        inbox: inboxPath,
-        backlog: null,
-        spec: null,
-        developable: false,
-        reason: classification.reason,
-        defaults: preliminary.defaults,
-      });
-      continue;
-    }
-    const extracted = initialBacklogFields(theme, inboxPath);
+  for (const { theme, title, classification } of developmentThemes) {
+    const extracted = initialBacklogFields(theme);
     const backlog = await run(backlogScript, [
       "--title", title,
       "--idea", extracted.fields.idea,
@@ -434,13 +378,12 @@ async function main() {
     const backlogRelative = relative(root, backlog);
     await writeFile(backlog, backlogContent.replace(
       "## Referências relacionadas\n\n- Nenhuma referência relevante encontrada.",
-      `${automaticDefaults(extracted.defaults)}${mvpEvidence(inboxPath, theme)}\n## Referências relacionadas\n\n- Inbox de origem: \`${inboxPath}\`.\n- Milestone de origem: \`specs/milestones/M01.md\`.\n- Refinamento obrigatório: \`$specsfy-02-backlog\` somente para lacunas, ambiguidades ou contradições antes de promoção.`,
+      `${automaticDefaults(extracted.defaults)}${mvpEvidence(theme)}\n## Referências relacionadas\n\n- Fonte de origem: \`MVP.md\`.\n- Milestone de origem: \`specs/milestones/M01.md\`.\n- Refinamento obrigatório: \`$specsfy-02-backlog\` somente para lacunas, ambiguidades ou contradições antes de promoção.`,
     ), "utf8");
     const specPath = await createDraftSpec(
       root,
       title,
       backlogRelative,
-      inboxPath,
       extracted.fields,
       extracted.defaults,
     );
@@ -449,15 +392,15 @@ async function main() {
       .replace("| Status | Captured |", "| Status | Promoted |")
       .replace("| Spec promovida | Nenhuma |", `| Spec promovida | \`${relative(root, specPath)}\` |`), "utf8");
     created.push({
-      inbox: inboxPath,
+      title,
       backlog: backlogRelative,
       spec: relative(root, specPath),
-      developable: true,
+      reason: classification.reason,
       defaults: extracted.defaults,
     });
   }
 
-  console.log(JSON.stringify({ milestone: relative(root, milestone), session, items: created }, null, 2));
+  console.log(JSON.stringify({ milestone: relative(root, milestone), items: created }, null, 2));
 }
 
 main().catch((error) => {

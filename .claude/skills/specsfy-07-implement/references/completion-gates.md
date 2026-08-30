@@ -12,8 +12,11 @@
   GREEN; a feature inteira e cada `US`, `FR` e `NFR` possuem ao menos três.
 - Teste focal e regressão relacionada estão verdes.
 - Checkbox mudou somente após a verificação.
-- Os cinco itens `PREP/EXECUTE/VERIFY/EVIDENCE/IMPROVE` estão concluídos na ordem e refletem evidências reais.
-- O pai foi concluído somente depois dos cinco itens.
+- Os seis itens `PREP/EXECUTE/VERIFY/VISUAL/EVIDENCE/IMPROVE` estão concluídos
+  nessa ordem e refletem resultados reais. `VISUAL` registra a conferência de
+  bordas, espaçamentos, margens, padding e tipografia quando a tarefa altera a
+  interface, mesmo sem pedido específico.
+- O pai foi concluído somente depois dos seis itens.
 - A micro-retrospectiva registrou melhoria aplicada ou ausência justificada.
 
 ## Por história

@@ -6,7 +6,8 @@ import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
-const CHECKLIST_KEYS = ["PREP", "EXECUTE", "VERIFY", "EVIDENCE", "IMPROVE"];
+/** A próxima tarefa só é elegível após cumprir todas as etapas nesta ordem. */
+const CHECKLIST_KEYS = ["PREP", "EXECUTE", "VERIFY", "VISUAL", "EVIDENCE", "IMPROVE"];
 const metadata = (text, key) => text.match(new RegExp(`^\\|\\s*${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\|\\s*(.+?)\\s*\\|\\s*$`, "im"))?.[1].trim();
 
 function taskSection(text) {
@@ -44,7 +45,7 @@ function parse(text) {
       tasks.push(active); return;
     }
     if (/^#{1,6}\s+/.test(line)) { active = undefined; return; }
-    const item = line.match(/^\s{2,}-\s+\[([ xX])\]\s+\*\*(PREP|EXECUTE|VERIFY|EVIDENCE|IMPROVE)\*\*:\s+(.+?)\s*$/);
+    const item = line.match(/^\s{2,}-\s+\[([ xX])\]\s+\*\*(PREP|EXECUTE|VERIFY|VISUAL|EVIDENCE|IMPROVE)\*\*:\s+(.+?)\s*$/);
     if (item && active) active.checklist.push({ key: item[2], complete: item[1].toLowerCase() === "x", text: item[3].trim(), line_number: section.start + index + 1 });
     else if (/^\s{2,}-\s+\[[ xX]\]\s+/.test(line) && active) errors.push(`${active.id} possui item de checklist fora do formato canônico.`);
   });

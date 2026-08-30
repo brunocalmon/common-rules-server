@@ -29,6 +29,7 @@ function minimumBddErrors(body) {
   return errors;
 }
 
+/** Exige o contrato de interface e, quando aplicável, o contrato CRUD. */
 function interfaceErrors(body, status) {
   const value = field(body, "Interface para pessoas");
   if (!value) return status === "Draft" ? [] : ["O cabeçalho deve informar se há Interface para pessoas."];
@@ -48,7 +49,9 @@ function interfaceErrors(body, status) {
     "Composição e disposição",
     "Blocos React e componentes selecionados",
     "Estados e acessibilidade",
+    "Revisão visual durante o desenvolvimento",
   ];
+  if (/\b(?:CRUD|DataGrid|DetailLists|PageHeader)\b/i.test(body)) required.push("Contrato CRUD");
   const errors = [];
   for (const title of required) {
     const match = body.match(new RegExp(`^####\\s+${escape(title)}\\s*$`, "im"));
@@ -63,6 +66,13 @@ function interfaceErrors(body, status) {
     }
     if (title === "Menus e navegação principal" && (!/\bmenus?\b/i.test(content) || !/\b(?:item|rota|destino|tela|navega)/i.test(content))) {
       errors.push("Interface para pessoas: Menus e navegação principal precisa mapear menus, itens e destinos, ou declarar por que não há menu.");
+    }
+    const visualChecks = [[/bordas/i, "bordas"], [/espaçamentos/i, "espaçamentos"], [/margens/i, "margens"], [/padding/i, "padding"], [/tipografia/i, "tipografia"]];
+    if (title === "Revisão visual durante o desenvolvimento" && visualChecks.some(([pattern]) => !pattern.test(content))) {
+      errors.push("Interface para pessoas: Revisão visual durante o desenvolvimento precisa conferir bordas, espaçamentos, margens, padding e tipografia.");
+    }
+    if (title === "Contrato CRUD" && (!/PageHeader/i.test(content) || !/DataGrid/i.test(content) || !/\bID\b/.test(content) || !/editar/i.test(content) || !/apagar/i.test(content))) {
+      errors.push("Interface para pessoas: Contrato CRUD precisa declarar PageHeader, DataGrid, ID, editar e apagar.");
     }
   }
   return errors;

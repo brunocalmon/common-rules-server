@@ -1,0 +1,39 @@
+{
+  "commands": [
+    {
+      "bin": "/home/bcalmon/Projects/common-rules-server/node_modules/skills/bin/cli.mjs",
+      "args": [
+        "add",
+        "mattpocock/skills",
+        "-a",
+        "claude-code",
+        "--skill",
+        "*",
+        "--copy",
+        "-y"
+      ]
+    },
+    {
+      "bin": "/home/bcalmon/Projects/common-rules-server/node_modules/skills/bin/cli.mjs",
+      "args": [
+        "add",
+        "promovaweb/specsfy",
+        "-a",
+        "claude-code",
+        "--skill",
+        "*",
+        "--copy",
+        "-y"
+      ]
+    },
+    {
+      "bin": "/home/bcalmon/Projects/common-rules-server/node_modules/@promovaweb/specsfy/bin/specsfy.cjs",
+      "args": [
+        "install",
+        "--project",
+        "/home/bcalmon/Projects/common-rules-server",
+        "--json"
+      ]
+    }
+  ]
+}

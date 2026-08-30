@@ -216,6 +216,7 @@ pendente.
 | Stack observada | Especialista instalado |
 | --- | --- |
 | Laravel | `specsfy-specialist-laravel` |
+| Pacote Laravel recebido por URL GitHub | `specsfy-specialist-laravel-package-manager` |
 | Supabase | `specsfy-specialist-supabase` |
 | PostgreSQL | `specsfy-specialist-postgres` |
 | Redis | `specsfy-specialist-redis` |
