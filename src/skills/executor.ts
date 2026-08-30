@@ -3,12 +3,13 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Executor } from "./install.js";
+import { buildSkillsAddArgs } from "./install.js";
 
 /** Raiz do pacote `common-rules`, não do projeto alvo. */
 const packageRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /** Devolve o binário local do pacote `skills`, ou nulo quando ausente. */
-function resolveSkillsBin(root: string = packageRoot()): string | null {
+export function resolveSkillsBin(root: string = packageRoot()): string | null {
   const bin = resolve(root, "node_modules", "skills", "bin", "cli.mjs");
   return existsSync(bin) ? bin : null;
 }
@@ -49,4 +50,15 @@ export function realSkillsExecutor(root: string = packageRoot()): Executor {
     if (status === 0 && skills.length === 0) return { status: 1 };
     return { status, skills };
   };
+}
+
+/**
+ * O comando que `realSkillsExecutor` de fato dispararia para `source`, sem
+ * executar nada — para o plano de aprovação (fatia 1i, `PR-062`). `null`
+ * quando o binário não existe, mesma convenção de `Executor`.
+ */
+export function describeSkillsCommand(source: string, root: string = packageRoot()): { bin: string; args: string[] } | null {
+  const bin = resolveSkillsBin(root);
+  if (bin === null) return null;
+  return { bin, args: buildSkillsAddArgs(source) };
 }

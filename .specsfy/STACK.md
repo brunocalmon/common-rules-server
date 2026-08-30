@@ -261,3 +261,55 @@ verificado por execução real (`specs/completed/0009-fatia-1e-selecao-de-modelo
 `common-rules recommend` resolve as três fontes reais e imprime
 `recommendation.report`; exit code `0` quando um backend é recomendado ou
 sobreposto, `1` quando nenhum está presente e nenhum foi informado.
+
+## Aprovação em lote dos comandos das dependências
+
+Dois módulos novos em `src/approval/`, acrescentados pela SPEC-0010:
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/approval/registry.ts` | `readApprovalRegistry`/`writeApprovalRegistry`, com `RegistryEnvironment` injetável — registro persistente em `.common-rules/approved-commands.json`; `isApproved(registry, item)` compara `bin`+`args` exatos, sem normalização (`PR-070`). |
+| `src/approval/plan.ts` | `assembleDependencyCommands(candidates)`, `partitionByApproval`, `recordApproval` — funções puras que decidem quais comandos de dependência (skills, Specsfy, ponte Python) já estão aprovados e quais precisam de aprovação nova. |
+
+`src/approval/render.ts` e `src/approval/decide.ts` (`SPEC-0007`) foram
+estendidos: `renderPlan(hooks, commands)`/`DecisionSource.ask(hooks,
+commands)` agora recebem hooks (forma inalterada, `PlannedItem[]`) e comandos
+de dependência (`DependencyCommandItem[]`, com `bin`/`args`) como dois
+parâmetros distintos — hooks não são subprocesso e o registro persistente não
+se aplica a eles. O documento JSON preserva a chave `items` para hooks
+(compatibilidade com `SPEC-0007`) e ganha `commands` para os novos.
+
+Corrigidas duas lacunas encontradas por leitura de código antes de
+especificar (`specs/inbox/2026-08-30-155149-...`): o plano aprovado só
+listava hooks, embora skills/Specsfy/ponte também escrevessem depois da mesma
+aprovação — violava `PR-062` ("o plano apresentado é o que será executado")
+desde que essa regra foi escrita; e a ponte Python (`src/setup/bridge.ts`)
+nunca executava de verdade em produção, com `execute: false` fixo em
+`run.ts` e nenhuma fonte real (`realBridgeEnvironment()`) em lugar nenhum —
+mesma classe de gap já corrigida duas vezes nesta iniciativa (skills,
+`SPEC-0005`; aprovação, `SPEC-0007`).
+
+`bridgePythonSubsystem` ganhou `realBridgeEnvironment(root?)`, que resolve
+`localVenv`/`onPath`/`hasUv` de verdade, e um `cwd?` opcional — ausente, usa a
+raiz do pacote `common-rules`, o mesmo local que `doctor.ts` já verifica para
+`.venv-crg/`, e não a raiz do projeto alvo (os dois precisam concordar sobre
+onde a cópia local vive). A execução real (`uv venv` + `uv pip install`) fica
+protegida por `try`/`catch`: falha de rede em `uv pip install` é reportada no
+relato, nunca propagada como exceção não tratada — `uv venv` em si não
+depende de rede.
+
+`src/skills/install.ts`/`src/skills/executor.ts` e
+`src/specsfy/install.ts`/`src/specsfy/executor.ts` ganharam
+`buildSkillsAddArgs`/`describeSkillsCommand` e
+`buildSpecsfyInstallArgs`/`describeSpecsfyCommand`: o argv real de cada
+instalador, extraído para função pura e reaproveitado tanto por quem executa
+quanto por quem só precisa descrevê-lo para o plano de aprovação, sem
+duplicar a construção do comando em dois lugares (a mesma divergência que
+`PR-062` existe para evitar).
+
+`src/setup/run.ts` monta os candidatos de skills/Specsfy/ponte sempre que
+cada um está configurado (a idempotência real fica dentro de cada
+instalador, como já era); só pede aprovação quando hooks não batem ou algum
+comando de dependência não está no registro — um comando já aprovado antes,
+com o mesmo binário e argv exatos, não gera pergunta de novo, mesmo quando a
+execução precisa reinstalar por drift.

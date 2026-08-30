@@ -16,7 +16,7 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 | `common-rules setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, e registra o que escreveu, identificando a execução e o momento |
 | `common-rules recommend` | Recomenda um backend de agente presente e, quando o `ollama` está disponível, o maior modelo local que cabe na memória livre, com override humano opcional |
 
-**Aprovação do plano.** `common-rules setup` apresenta o plano e aguarda aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita.
+**Aprovação do plano, em lote.** `common-rules setup` apresenta o plano e aguarda aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita. O plano lista cada comando de dependência que a execução de fato dispararia — hooks, instalador de skills por origem, instalador do framework Specsfy e a ponte Python, quando aplicável — não só os hooks. Um comando já aprovado antes, com o mesmo binário e argv exatos, não pede aprovação de novo, mesmo quando a execução precisa reinstalar por drift; qualquer diferença no argv, como uma versão diferente, conta como comando novo. O registro fica em `.common-rules/approved-commands.json`, local ao projeto.
 
 **Reconciliação de drift.** `setup` só relata "já estava configurado" quando hooks, skills e o framework Specsfy estão de fato presentes no disco — não só quando os hooks batem com o registro. Apagar `.claude/skills/` ou `.specsfy/` por fora e rodar `setup` de novo restaura o que faltar.
 
@@ -30,7 +30,7 @@ ok      context-mode — camada npm, origem local, versão 1.0.169
 ok      code-review-graph — camada python, origem global, versão 2.3.7
 ```
 
-Trinta e dois módulos em `src/`, 121 arquivos de teste, 339 casos.
+Trinta e quatro módulos em `src/`, 130 arquivos de teste, 352 casos.
 
 O `setup` liga os subsistemas ao ciclo do agente e protege o repositório. Sete
 hooks: quatro conectam `context-mode` e `code-review-graph`, dois barram comando
@@ -104,7 +104,7 @@ diferente.
 | Camada | Exemplo | Tratamento |
 | --- | --- | --- |
 | Subsistema npm | `@promovaweb/specsfy`, `context-mode` | Versão fixada, resolvida da cópia do projeto |
-| Subsistema Python | `code-review-graph` | Instalado por `uv`, verificado e nunca instalado por esta ferramenta |
+| Subsistema Python | `code-review-graph` | Instalado localmente por `uv`, sob aprovação, quando ausente das duas origens (SPEC-0010); nunca no ambiente global |
 | Backend de agente | `pi`, `claude`, `codex` e outros | Detectado por capacidade, nunca instalado, intercambiável por desenho |
 
 Para as duas primeiras vale uma regra única: **preferir a cópia local, aceitar a

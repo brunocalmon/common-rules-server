@@ -3,12 +3,20 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 127.
+- Arquivos de teste: 137.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
 | Arquivo |
 | --- |
+| tests/approval-comando-argv-alterado.test.ts |
+| tests/approval-comando-ja-aprovado.test.ts |
+| tests/approval-command-fixtures.ts |
+| tests/approval-documento-json-registro.test.ts |
+| tests/approval-grava-no-registro.test.ts |
+| tests/approval-plan-completo.test.ts |
+| tests/approval-recusa-nao-grava.test.ts |
+| tests/approval-registro-corrompido.test.ts |
 | tests/aprovacao-contexto-canalizado.test.ts |
 | tests/aprovacao-contexto-terminal.test.ts |
 | tests/aprovacao-documento-aprova.test.ts |
@@ -36,6 +44,8 @@
 | tests/backends-paridade-real.test.ts |
 | tests/backends-suportados-presentes.test.ts |
 | tests/backends-versao-sem-help.test.ts |
+| tests/bridge-ausente-do-plano.test.ts |
+| tests/bridge-real.test.ts |
 | tests/budget.test.ts |
 | tests/build.test.ts |
 | tests/cli-approval-real.test.ts |

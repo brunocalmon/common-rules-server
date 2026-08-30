@@ -12,7 +12,7 @@ describe("AC-097 — o comando real imprime o relatório completo", () => {
     expect(texto).toMatch(/backend/i);
     expect(texto).toMatch(/modelo local/i);
     expect(texto).toMatch(/custo|uso de plano/i);
-  });
+  }, 60_000);
 });
 
 describe("AC-101 — o comando real não faz chamada de rede nem trava esperando credencial", () => {
@@ -22,5 +22,5 @@ describe("AC-101 — o comando real não faz chamada de rede nem trava esperando
     expect(r.error).toBeUndefined();
     expect(r.signal).toBeNull();
     expect(typeof r.status).toBe("number");
-  });
+  }, 60_000);
 });

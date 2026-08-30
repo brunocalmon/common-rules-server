@@ -11,6 +11,8 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | --- | --- | --- |
 | Outras fontes | src/approval/context.ts | TerminalContext, realTerminalContext, resolveChannel |
 | Outras fontes | src/approval/decide.ts | DecisionSource, StdinReader, documentSource, interactiveSource, realSource, ApprovalResult, interpret |
+| Outras fontes | src/approval/plan.ts | DependencyCommandItem, CommandCandidate, assembleDependencyCommands, partitionByApproval, recordApproval |
+| Outras fontes | src/approval/registry.ts | ApprovedCommand, ApprovalRegistry, RegistryEnvironment, REGISTRY_PATH, realRegistryEnvironment, readApprovalRegistry, writeApprovalRegistry, isApproved |
 | Outras fontes | src/approval/render.ts | PlannedItem, RenderedPlan, renderPlan |
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
@@ -26,21 +28,29 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/models/capacity.ts | Capacity, CapacityEnvironment, realCapacityEnvironment, readCapacity |
 | Outras fontes | src/models/ollama.ts | OllamaModel, OllamaSnapshot, OllamaEnvironment, UNIDADES, tamanhoParaBytes, parseOllamaList, realOllamaEnvironment, listOllamaModels |
 | Outras fontes | src/models/recommend.ts | RecommendOverride, Recommendation, recomendarBackend, recomendarModeloLocal, relatar, recommend |
-| Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem |
+| Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem, realBridgeEnvironment |
 | Outras fontes | src/setup/env.ts | detectEnvironment |
 | Outras fontes | src/setup/record.ts | RecordEntry, SkillsRecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
 | Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, loadHooks, runSetup |
 | Outras fontes | src/setup/write.ts | writeSettings, writeRecordFile, readRecordFile |
-| Outras fontes | src/skills/executor.ts | resolveSkillsBin, parseSkillNames, realSkillsExecutor |
-| Outras fontes | src/skills/install.ts | TARGET_AGENT, InstallOptions, InstallResult, installSkills |
+| Outras fontes | src/skills/executor.ts | resolveSkillsBin, parseSkillNames, realSkillsExecutor, describeSkillsCommand |
+| Outras fontes | src/skills/install.ts | TARGET_AGENT, buildSkillsAddArgs, InstallOptions, InstallResult, installSkills |
 | Outras fontes | src/skills/inventory.ts | SKILLS_DIR, SkillsInspection, inspectSkills |
 | Outras fontes | src/skills/record.ts | LOCK_PATH, LockEntry, SkillRecordEntry, SkillReportRow, SkillReport, GUARANTEE_NOTE, readLock, toRecordEntries |
 | Outras fontes | src/skills/source.ts | OFFICIAL_SOURCE, OFFICIAL_SOURCES, resolveSource |
-| Outras fontes | src/specsfy/executor.ts | resolveSpecsfyBin, SpecsfyJson, realSpecsfyExecutor |
-| Outras fontes | src/specsfy/install.ts | InstallOptions, InstallResult, installSpecsfy |
+| Outras fontes | src/specsfy/executor.ts | resolveSpecsfyBin, SpecsfyJson, realSpecsfyExecutor, describeSpecsfyCommand |
+| Outras fontes | src/specsfy/install.ts | buildSpecsfyInstallArgs, InstallOptions, InstallResult, installSpecsfy |
 | Outras fontes | src/telemetry/read.ts | readTrace |
 | Outras fontes | src/telemetry/trace.ts | TRACE_ID_LENGTH, TraceSource, generateId, nowIso, realSource |
 | Outras fontes | src/version.ts | readVersion |
+| Testes | tests/approval-comando-argv-alterado.test.ts | — |
+| Testes | tests/approval-comando-ja-aprovado.test.ts | — |
+| Testes | tests/approval-command-fixtures.ts | itemFake, registryFake |
+| Testes | tests/approval-documento-json-registro.test.ts | projetoComAlvo, rodar |
+| Testes | tests/approval-grava-no-registro.test.ts | — |
+| Testes | tests/approval-plan-completo.test.ts | — |
+| Testes | tests/approval-recusa-nao-grava.test.ts | — |
+| Testes | tests/approval-registro-corrompido.test.ts | — |
 | Testes | tests/aprovacao-contexto-canalizado.test.ts | — |
 | Testes | tests/aprovacao-contexto-terminal.test.ts | — |
 | Testes | tests/aprovacao-documento-aprova.test.ts | — |
@@ -68,6 +78,8 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/backends-paridade-real.test.ts | — |
 | Testes | tests/backends-suportados-presentes.test.ts | — |
 | Testes | tests/backends-versao-sem-help.test.ts | — |
+| Testes | tests/bridge-ausente-do-plano.test.ts | — |
+| Testes | tests/bridge-real.test.ts | — |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
 | Testes | tests/cli-approval-real.test.ts | projetoComAlvo |

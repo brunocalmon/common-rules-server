@@ -9,6 +9,7 @@ import { readRecordFile } from "./setup/write.js";
 import { RECORD_PATH } from "./setup/record.js";
 import { realSkillsExecutor } from "./skills/executor.js";
 import { realSpecsfyExecutor } from "./specsfy/executor.js";
+import { realBridgeEnvironment } from "./setup/bridge.js";
 import { readVersion } from "./version.js";
 import { detectBackends, realBackendEnvironment } from "./backends/detect.js";
 import { listOllamaModels } from "./models/ollama.js";
@@ -56,6 +57,7 @@ function formatSetup(): CommandOutcome {
     previous,
     skills: { execute: realSkillsExecutor() },
     specsfy: { execute: realSpecsfyExecutor() },
+    bridgeEnv: realBridgeEnvironment(),
     approval: {},
   });
   if (r.installed.length === 0) return { output: r.report, exitCode: r.exitCode };

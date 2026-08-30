@@ -1,10 +1,11 @@
 import { readFileSync } from "node:fs";
 import type { ApprovalChannel } from "./context.js";
 import { renderPlan, type PlannedItem } from "./render.js";
+import type { DependencyCommandItem } from "./plan.js";
 
 /** Fonte de decisão, síncrona por desenho — ver `TraceSource` para o mesmo padrão. */
 export interface DecisionSource {
-  ask(planned: PlannedItem[]): boolean;
+  ask(hooks: PlannedItem[], commands: DependencyCommandItem[]): boolean;
 }
 
 /** Baixo nível: obtém os bytes de onde a decisão viria. Substituível sem trocar `DecisionSource` inteira. */
@@ -47,8 +48,8 @@ function documentSource(stdin: StdinReader): DecisionSource {
  */
 function interactiveSource(stdin: StdinReader): DecisionSource {
   return {
-    ask: (planned) => {
-      process.stdout.write(renderPlan(planned).text);
+    ask: (hooks, commands) => {
+      process.stdout.write(renderPlan(hooks, commands).text);
       process.stdout.write("\nAprovar? [s/N] ");
       const resposta = stdin.read().trim().toLowerCase();
       return resposta === "s" || resposta === "sim" || resposta === "y" || resposta === "yes";
@@ -72,9 +73,9 @@ export interface ApprovalResult {
  * Ausência de resposta é negativa, nunca consentimento: uma fonte que lança
  * não pode, por acidente de implementação, liberar a escrita.
  */
-export function interpret(source: DecisionSource, planned: PlannedItem[]): ApprovalResult {
+export function interpret(source: DecisionSource, hooks: PlannedItem[], commands: DependencyCommandItem[]): ApprovalResult {
   try {
-    return source.ask(planned) ? { approved: true } : { approved: false, reason: "recusado" };
+    return source.ask(hooks, commands) ? { approved: true } : { approved: false, reason: "recusado" };
   } catch {
     return { approved: false, reason: "a fonte de decisão falhou" };
   }

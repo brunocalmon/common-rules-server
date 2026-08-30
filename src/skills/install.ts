@@ -8,6 +8,15 @@ export const TARGET_AGENT = "claude-code";
 /** Devolve `null` quando o executável não existe. */
 export type Executor = (args: string[], cwd: string) => { status: number; skills?: string[] } | null;
 
+/**
+ * Argv real de `add`, extraída para ser reaproveitada por quem precisa
+ * conhecer o comando sem executá-lo — o plano de aprovação da fatia 1i
+ * (`PR-062`: o que é mostrado é o que roda, nunca uma descrição paralela).
+ */
+export function buildSkillsAddArgs(source: string): string[] {
+  return ["add", source, "-a", TARGET_AGENT, "--skill", "*", "--copy", "-y"];
+}
+
 export interface InstallOptions {
   root: string;
   source: unknown;
@@ -35,7 +44,7 @@ export function installSkills(opts: InstallOptions): InstallResult {
   const origem = resolveSource(opts.source);
   if (!origem.ok) return erro(origem.reason);
 
-  const base = [origem.source, "-a", TARGET_AGENT, "--skill", "*", "--copy", "-y"];
+  const base = buildSkillsAddArgs(origem.source).slice(1);
 
   // Enumerar antes de escrever é o que permite recusar conflito sem já ter
   // sobrescrito. Descobrir depois seria descobrir tarde demais.

@@ -1,6 +1,14 @@
 /** Devolve `null` quando o executável não existe. */
 export type Executor = (root: string) => { status: number; changed?: number; paths?: string[] } | null;
 
+/**
+ * Argv real, extraída para ser reaproveitada por quem precisa conhecer o
+ * comando sem executá-lo — o plano de aprovação da fatia 1i (`PR-062`).
+ */
+export function buildSpecsfyInstallArgs(root: string): string[] {
+  return ["install", "--project", root, "--json"];
+}
+
 export interface InstallOptions {
   root: string;
   execute: Executor;

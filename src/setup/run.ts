@@ -10,11 +10,20 @@ import { OFFICIAL_SOURCES } from "../skills/source.js";
 import { readLock, toRecordEntries } from "../skills/record.js";
 import { inspectSkills } from "../skills/inventory.js";
 import { installSpecsfy, type Executor as SpecsfyExecutor } from "../specsfy/install.js";
-import { bridgePythonSubsystem, type BridgeEnvironment } from "./bridge.js";
+import { describeSpecsfyCommand } from "../specsfy/executor.js";
+import { describeSkillsCommand } from "../skills/executor.js";
+import { bridgePythonSubsystem, VENV_DIR, type BridgeEnvironment } from "./bridge.js";
 import { matches, readRecord, RECORD_PATH, type InstallRecord, type SkillsRecordEntry, type RecordEntry } from "./record.js";
 import { readVersion } from "../version.js";
 import { resolveChannel, type TerminalContext } from "../approval/context.js";
 import { realSource as realApprovalSource, interpret, type DecisionSource, type StdinReader } from "../approval/decide.js";
+import {
+  assembleDependencyCommands,
+  partitionByApproval,
+  recordApproval,
+  type CommandCandidate,
+} from "../approval/plan.js";
+import { readApprovalRegistry, writeApprovalRegistry, realRegistryEnvironment, type RegistryEnvironment } from "../approval/registry.js";
 import { writeRecordFile, writeSettings } from "./write.js";
 
 /** Onde o arquivo do alvo é escrito, relativo ao projeto. */
@@ -29,6 +38,10 @@ export interface SetupOptions {
   dryRun?: boolean;
   previous?: InstallRecord | null;
   bridgeEnv?: BridgeEnvironment;
+  /** Onde a ponte Python cria `.venv-crg/`, quando executada. Ausente, usa a raiz do pacote `common-rules` (`bridgePythonSubsystem`'s próprio padrão) — existe para que a suíte não polua o próprio repositório. */
+  bridgeCwd?: string;
+  /** Fonte do registro de comandos de dependência aprovados. Ausente, usa `.common-rules/approved-commands.json` na raiz do projeto. */
+  registryEnv?: RegistryEnvironment;
   /**
    * Executor do instalador de skills. Ausente, a instalação é pulada, do mesmo
    * modo que a ponte Python só corre quando seu ambiente é fornecido.
@@ -125,7 +138,13 @@ export function runSetup(opts: SetupOptions): SetupResult {
   const skillsJaFeito =
     !opts.skills || skillsPrevias.length === 0 || skillsPrevias.every((s) => inspectSkills(raiz).dirs.includes(s.name));
   const specsfyJaFeito = !opts.specsfy || existsSync(join(raiz, ".specsfy"));
-  const jaFeito = hooksJaFeito && skillsJaFeito && specsfyJaFeito;
+
+  // Só a leitura de presença (sem subprocesso) decide se a ponte está
+  // pendente — a mesma economia que as duas checagens acima já fazem.
+  const bridgePreview = opts.bridgeEnv ? bridgePythonSubsystem({ env: opts.bridgeEnv, execute: false }) : { wouldInstall: null };
+  const bridgePending = bridgePreview.wouldInstall !== null;
+
+  const jaFeito = hooksJaFeito && skillsJaFeito && specsfyJaFeito && !bridgePending;
   if (jaFeito) {
     return {
       ...vazio, installed: traduzidos, settings,
@@ -134,13 +153,63 @@ export function runSetup(opts: SetupOptions): SetupResult {
     };
   }
 
+  // Candidatos de dependência: bin/args resolvidos sem executar nada (fatia
+  // 1i, `PR-062`) — é isto que faz o plano de aprovação mostrar o comando de
+  // verdade, e não uma descrição paralela do que skills/Specsfy/ponte fariam.
+  //
+  // Skills e Specsfy entram como candidatos sempre que configurados — o mesmo
+  // padrão de `installSkills`/`installSpecsfy` abaixo, que já são chamados
+  // incondicionalmente quando `jaFeito` é falso, deixando a idempotência real
+  // para dentro de cada instalador. `skillsJaFeito`/`specsfyJaFeito` só
+  // decidem se HÁ algo pendente no total (acima); quem decide se ESTE
+  // comando específico já foi aprovado antes é o registro, via
+  // `partitionByApproval` — não esta checagem.
+  const candidatos: CommandCandidate[] = [];
+  if (opts.skills) {
+    for (const source of opts.skills.sources ?? OFFICIAL_SOURCES) {
+      candidatos.push({
+        kind: "skills",
+        label: `instalar skills de ${source}`,
+        command: describeSkillsCommand(source),
+        pending: true,
+      });
+    }
+  }
+  if (opts.specsfy) {
+    candidatos.push({
+      kind: "specsfy",
+      label: "instalar framework Specsfy",
+      command: describeSpecsfyCommand(raiz),
+      pending: true,
+    });
+  }
+  if (bridgePending && bridgePreview.wouldInstall) {
+    candidatos.push({
+      kind: "bridge",
+      label: "instalar code-review-graph via uv",
+      command: { bin: "uv", args: ["pip", "install", "--python", VENV_DIR, bridgePreview.wouldInstall] },
+      pending: true,
+    });
+  }
+  const comandosDoPlano = assembleDependencyCommands(candidatos);
+
+  const registryEnv = opts.registryEnv ?? realRegistryEnvironment(raiz);
+  const registro = readApprovalRegistry(registryEnv);
+  const { pending: comandosPendentes } = partitionByApproval(registro, comandosDoPlano);
+
   // A aprovação precede toda escrita, inclusive a instalação de skills, e só
   // é consultada depois das duas saídas antecipadas acima — que não escrevem
-  // nada — para que AC-073 e AC-074 não recebam pergunta à toa.
-  if (opts.approval) {
+  // nada — para que AC-073 e AC-074 não recebam pergunta à toa. Um comando já
+  // aprovado antes, com o mesmo binário e argv exatos, não entra nesta
+  // pergunta de novo (`FR-072`, fatia 1i) — e quando hooks já batem e nenhum
+  // comando de dependência é novo, a pergunta inteira é pulada (`AC-118`):
+  // pedir aprovação de novo sobre o que já foi aprovado antes não é o que
+  // "em lote" significa.
+  const precisaAprovar = !hooksJaFeito || comandosPendentes.length > 0;
+  if (opts.approval && precisaAprovar) {
     const canal = resolveChannel(opts.approval.context);
     const fonte = opts.approval.source ?? realApprovalSource(canal, opts.approval.stdin);
-    const decisao = interpret(fonte, planned);
+    const decisao = interpret(fonte, planned, comandosPendentes);
     if (!decisao.approved) {
       return { ...vazio, planned, settings, report: `não escrito: ${decisao.reason ?? "recusado"}`, exitCode: 1 };
     }
@@ -200,9 +269,18 @@ export function runSetup(opts: SetupOptions): SetupResult {
     written.push(writeRecordFile(raiz, RECORD_PATH, record));
   }
 
+  // Aprovado (ou sem `approval` exigida), a ponte executa de verdade quando
+  // está pendente — substitui o `execute: false` fixo que nunca a deixava
+  // rodar em produção (fatia 1i).
   const ponte = opts.bridgeEnv
-    ? bridgePythonSubsystem({ env: opts.bridgeEnv, execute: false })
-    : { wouldInstall: null };
+    ? bridgePythonSubsystem({ env: opts.bridgeEnv, execute: bridgePending, cwd: opts.bridgeCwd })
+    : { wouldInstall: null, executed: false, refused: null };
+
+  // Grava depois da escrita real, nunca antes de uma recusa (que já retornou
+  // cedo acima) — o registro só cresce com o que de fato foi aprovado.
+  if (opts.write && comandosDoPlano.length > 0) {
+    writeApprovalRegistry(recordApproval(registro, comandosDoPlano), registryEnv);
+  }
 
   return {
     installed: traduzidos, planned, written, settings, record, recordPath: RECORD_PATH,
@@ -210,9 +288,10 @@ export function runSetup(opts: SetupOptions): SetupResult {
       `${traduzidos.length} hooks instalados em ${TARGET_SETTINGS}`,
       ...conjuntosPorOrigem.map((c) => c.report),
       framework?.report,
+      ponte.refused ? `ponte Python: ${ponte.refused}` : null,
       `execução ${trace}`,
     ].filter(Boolean).join("; "),
-    bridged: ponte.wouldInstall !== null,
+    bridged: ponte.executed,
     exitCode: 0,
   };
 }

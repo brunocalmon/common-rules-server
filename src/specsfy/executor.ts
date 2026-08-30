@@ -3,12 +3,13 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Executor } from "./install.js";
+import { buildSpecsfyInstallArgs } from "./install.js";
 
 /** Raiz do pacote `common-rules`, não do projeto alvo. */
 const packageRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /** Devolve o binário local do pacote `@promovaweb/specsfy`, ou nulo quando ausente. */
-function resolveSpecsfyBin(root: string = packageRoot()): string | null {
+export function resolveSpecsfyBin(root: string = packageRoot()): string | null {
   const bin = resolve(root, "node_modules", "@promovaweb", "specsfy", "bin", "specsfy.cjs");
   return existsSync(bin) ? bin : null;
 }
@@ -29,7 +30,7 @@ export function realSpecsfyExecutor(root: string = packageRoot()): Executor {
   const bin = resolveSpecsfyBin(root);
   return (raiz) => {
     if (bin === null) return null;
-    const r = spawnSync(bin, ["install", "--project", raiz, "--json"], {
+    const r = spawnSync(bin, buildSpecsfyInstallArgs(raiz), {
       cwd: raiz,
       encoding: "utf8",
       timeout: 120_000,
@@ -44,4 +45,21 @@ export function realSpecsfyExecutor(root: string = packageRoot()): Executor {
       return { status: 1 };
     }
   };
+}
+
+/**
+ * O comando que `realSpecsfyExecutor` de fato dispararia para `projectRoot`,
+ * sem executar nada — para o plano de aprovação (fatia 1i, `PR-062`). `null`
+ * quando o binário não existe, mesma convenção de `Executor`. `pkgRoot` é a
+ * raiz do pacote `common-rules` (para resolver o binário), distinta de
+ * `projectRoot` (o projeto alvo, que entra no argv via `--project`) — a
+ * mesma distinção que `realSpecsfyExecutor(root)`/`(raiz) => ...` já fazia.
+ */
+export function describeSpecsfyCommand(
+  projectRoot: string,
+  pkgRoot: string = packageRoot(),
+): { bin: string; args: string[] } | null {
+  const bin = resolveSpecsfyBin(pkgRoot);
+  if (bin === null) return null;
+  return { bin, args: buildSpecsfyInstallArgs(projectRoot) };
 }
