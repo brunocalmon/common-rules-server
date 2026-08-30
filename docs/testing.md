@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 114.
+- Arquivos de teste: 127.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -68,6 +68,19 @@
 | tests/mcp-tool-install.test.ts |
 | tests/mcp-tool-invalid-root.test.ts |
 | tests/mcp-tool-missing-root.test.ts |
+| tests/models-backend-ausente.test.ts |
+| tests/models-backend-recomendado.test.ts |
+| tests/models-fixtures.ts |
+| tests/models-injetavel.test.ts |
+| tests/models-local-nao-cabe.test.ts |
+| tests/models-local-recomendado.test.ts |
+| tests/models-ollama-ausente.test.ts |
+| tests/models-override-backend.test.ts |
+| tests/models-override-local.test.ts |
+| tests/models-override-parcial.test.ts |
+| tests/models-paridade-real.test.ts |
+| tests/models-recommend-real.test.ts |
+| tests/models-sem-credencial.test.ts |
 | tests/pinning.test.ts |
 | tests/scripts.test.ts |
 | tests/setup-bridge.test.ts |

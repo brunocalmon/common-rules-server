@@ -229,3 +229,35 @@ por `tests/backends-paridade-real.test.ts`.
 que o texto da camada `agent` — incluindo a marca `suportado`/`não suportado`
 — seja exercitável com um `Report` injetado, sem depender do que está
 instalado na máquina de quem roda a suíte.
+
+## Seleção de modelo
+
+Três módulos em `src/models/`, acrescentados pela SPEC-0009:
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/models/capacity.ts` | `readCapacity(env?)`, com `CapacityEnvironment` injetável — memória total e livre, via `os.totalmem`/`os.freemem` na fonte real. |
+| `src/models/ollama.ts` | `listOllamaModels(env?)`, com `OllamaEnvironment` injetável — presença do `ollama` via `which`-equivalente, lista de modelos via `ollama list`, cujo texto tabular é lido com colunas separadas por 2+ espaços e tamanho convertido de `"9.0 GB"` para bytes decimais. |
+| `src/models/recommend.ts` | `recommend(backends, ollama, capacity, override?)`, função pura sem I/O que combina as três fontes já resolvidas por quem chama. |
+
+`OllamaEnvironment`'s snapshot é `{present: boolean; models: OllamaModel[]}`,
+não um array simples — `ollama` ausente e `ollama` presente sem nenhum modelo
+baixado produzem o mesmo array vazio na fronteira da função, mas exigem texto
+de relato distinto; o sinal `present` é o que os distingue (`DEC-041`).
+
+O backend recomendado é o primeiro de `SUPPORTED_AGENT_BACKENDS` (fatia 1d)
+presente, na ordem declarada — determinístico, nunca por sondagem. O modelo
+local recomendado é o maior cujo tamanho cabe na memória livre (`<=`, sem
+margem de segurança). Um override humano (`--backend`/`--local-model` em
+`common-rules recommend`) substitui o cálculo correspondente sem revalidação
+contra presença ou capacidade — é a decisão da pessoa, não um convite para o
+comando recusá-la (`DEC-039`).
+
+Custo e uso de plano por backend ficam fora do cálculo: nenhum dos cinco
+backends suportados expõe essa informação sem rede e sem autenticação,
+verificado por execução real (`specs/completed/0009-fatia-1e-selecao-de-modelo/research/`).
+`recommendation.report` sempre declara essa ausência em vez de silenciá-la.
+
+`common-rules recommend` resolve as três fontes reais e imprime
+`recommendation.report`; exit code `0` quando um backend é recomendado ou
+sobreposto, `1` quando nenhum está presente e nenhum foi informado.

@@ -14,7 +14,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/approval/render.ts | PlannedItem, RenderedPlan, renderPlan |
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
-| Outras fontes | src/cli.ts | CommandOutcome, renderReport, formatReport, formatSetup, COMMANDS, ALIASES, resolveCommand, run |
+| Outras fontes | src/cli.ts | CommandOutcome, renderReport, formatReport, formatSetup, parseRecommendOverride, formatRecommend, COMMANDS, ALIASES |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
 | Outras fontes | src/hooks/claude-code.ts | TranslatedHook, EVENT_MAP, translateForClaudeCode, wrap, unwrap, FRAGMENT_START, FRAGMENT_END, PREAMBLE |
 | Outras fontes | src/hooks/detect.ts | TargetEnvironment, Detection, TARGET, EVIDENCE, detectTarget |
@@ -23,6 +23,9 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/mcp/root.ts | PROJECT_MARKERS, validateRoot |
 | Outras fontes | src/mcp/server.ts | SERVER_NAME, createServer |
 | Outras fontes | src/mcp/tool.ts | TOOL_NAME, TOOL_DESCRIPTION, SetupToolResult, executeSetup |
+| Outras fontes | src/models/capacity.ts | Capacity, CapacityEnvironment, realCapacityEnvironment, readCapacity |
+| Outras fontes | src/models/ollama.ts | OllamaModel, OllamaSnapshot, OllamaEnvironment, UNIDADES, tamanhoParaBytes, parseOllamaList, realOllamaEnvironment, listOllamaModels |
+| Outras fontes | src/models/recommend.ts | RecommendOverride, Recommendation, recomendarBackend, recomendarModeloLocal, relatar, recommend |
 | Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem |
 | Outras fontes | src/setup/env.ts | detectEnvironment |
 | Outras fontes | src/setup/record.ts | RecordEntry, SkillsRecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
@@ -97,6 +100,19 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/mcp-tool-install.test.ts | — |
 | Testes | tests/mcp-tool-invalid-root.test.ts | — |
 | Testes | tests/mcp-tool-missing-root.test.ts | — |
+| Testes | tests/models-backend-ausente.test.ts | — |
+| Testes | tests/models-backend-recomendado.test.ts | — |
+| Testes | tests/models-fixtures.ts | backendsFake, modeloFake, ollamaPresente, capacidadeFake |
+| Testes | tests/models-injetavel.test.ts | — |
+| Testes | tests/models-local-nao-cabe.test.ts | — |
+| Testes | tests/models-local-recomendado.test.ts | — |
+| Testes | tests/models-ollama-ausente.test.ts | — |
+| Testes | tests/models-override-backend.test.ts | — |
+| Testes | tests/models-override-local.test.ts | — |
+| Testes | tests/models-override-parcial.test.ts | — |
+| Testes | tests/models-paridade-real.test.ts | ollamaListReal |
+| Testes | tests/models-recommend-real.test.ts | — |
+| Testes | tests/models-sem-credencial.test.ts | VARIAVEIS_DE_CREDENCIAL |
 | Testes | tests/pinning.test.ts | PINNED |
 | Testes | tests/scripts.test.ts | — |
 | Testes | tests/setup-bridge.test.ts | — |

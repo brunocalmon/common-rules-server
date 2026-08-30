@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0009 |
 | Slug | 0009-fatia-1e-selecao-de-modelo |
-| Status | Planned |
+| Status | Complete |
 | Effort | 3 |
 | Effort updated at | 2026-08-30 |
 | Effort rationale | Comparável à 1d: presença e leitura local, sem subprocesso caro nem rede. O custo está no cálculo de capacidade (memória livre vs. tamanho de modelo) e no contrato de override, não na integração em si. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | Pending |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega é um módulo reutilizável e um comando de terminal novo, em texto, sem tela. |
 | Atualizada em | 2026-08-30 |
@@ -64,7 +64,7 @@ Nenhuma documentação externa publicada; evidência vem de execução real dos 
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/planned/0009-fatia-1e-selecao-de-modelo/research/modelos/analise-completa-exige-rede.md` — o que é local e real, o que exige rede/autenticação, e a consequência para o escopo.
+- `specs/completed/0009-fatia-1e-selecao-de-modelo/research/modelos/analise-completa-exige-rede.md` — o que é local e real, o que exige rede/autenticação, e a consequência para o escopo.
 
 #### Dúvidas respondidas
 
@@ -385,6 +385,7 @@ Não aplicável.
 
 ```ts
 interface OllamaModel { name: string; sizeBytes: number }
+interface OllamaSnapshot { present: boolean; models: OllamaModel[] }
 interface Capacity { totalBytes: number; freeBytes: number }
 interface RecommendOverride { backend?: string; localModel?: string }
 interface Recommendation {
@@ -397,9 +398,11 @@ interface Recommendation {
 }
 ```
 
+`OllamaSnapshot.present` distingue "`ollama` ausente" de "`ollama` presente sem nenhum modelo baixado" — ver `DEC-041`.
+
 #### Controllers e casos de uso
 
-`recommend(backends: BackendResult[], models: OllamaModel[], capacity: Capacity, override?: RecommendOverride): Recommendation` é uma função pura, sem I/O — quem chama já resolveu `detectBackends`, `listOllamaModels` e `readCapacity` antes. `common-rules recommend`, em `src/cli.ts`, resolve as três fontes reais, aceita `--backend <nome>` e `--local-model <nome>` como override, e imprime `recommendation.report`.
+`recommend(backends: BackendResult[], ollama: OllamaSnapshot, capacity: Capacity, override?: RecommendOverride): Recommendation` é uma função pura, sem I/O — quem chama já resolveu `detectBackends`, `listOllamaModels` e `readCapacity` antes. `common-rules recommend`, em `src/cli.ts`, resolve as três fontes reais, aceita `--backend <nome>` e `--local-model <nome>` como override, e imprime `recommendation.report`.
 
 #### Views e experiência
 
@@ -435,7 +438,7 @@ tests/
   models-paridade-real.test.ts
   models-override-parcial.test.ts
   models-sem-credencial.test.ts
-specs/planned/0009-fatia-1e-selecao-de-modelo/
+specs/completed/0009-fatia-1e-selecao-de-modelo/
   spec.md
   research/
     modelos/
@@ -482,51 +485,51 @@ O ponto sensível é a tentação de tratar ausência de capacidade como erro. `
 
 | IDs | BDD de referência | Teste TDD informado pelo BDD | RED observado | GREEN observado | Refactor/regressão |
 | --- | --- | --- | --- | --- | --- |
-| US-033, FR-034, AC-090 | AC-090 na seção 6 | tests/models-backend-recomendado.test.ts | Pending | Pending | Pending |
-| US-033, FR-034, AC-091 | AC-091 na seção 6 | tests/models-backend-ausente.test.ts | Pending | Pending | Pending |
-| US-033, FR-035, AC-092 | AC-092 na seção 6 | tests/models-local-recomendado.test.ts | Pending | Pending | Pending |
-| US-033, FR-035, AC-093 | AC-093 na seção 6 | tests/models-local-nao-cabe.test.ts | Pending | Pending | Pending |
-| US-033, FR-035, AC-094 | AC-094 na seção 6 | tests/models-ollama-ausente.test.ts | Pending | Pending | Pending |
-| US-034, FR-036, AC-095 | AC-095 na seção 6 | tests/models-override-backend.test.ts | Pending | Pending | Pending |
-| US-034, FR-036, AC-096 | AC-096 na seção 6 | tests/models-override-local.test.ts | Pending | Pending | Pending |
-| US-033, FR-037, AC-097 | AC-097 na seção 6 | tests/models-recommend-real.test.ts | Pending | Pending | Pending |
-| US-035, NFR-033/034, AC-098 | AC-098 na seção 6 | tests/models-injetavel.test.ts | Pending | Pending | Pending |
-| US-035, NFR-034, AC-099 | AC-099 na seção 6 | tests/models-paridade-real.test.ts | Pending | Pending | Pending |
+| US-033, FR-034, AC-090 | AC-090 na seção 6 | tests/models-backend-recomendado.test.ts | `Cannot find module '../src/models/recommend'` | `npx vitest run tests/models-*.test.ts` — 18/18 | Nenhuma |
+| US-033, FR-034, AC-091 | AC-091 na seção 6 | tests/models-backend-ausente.test.ts | `Cannot find module '../src/models/recommend'` | idem | Nenhuma |
+| US-033, FR-035, AC-092 | AC-092 na seção 6 | tests/models-local-recomendado.test.ts | `Cannot find module '../src/models/recommend'` | idem | Correção de assinatura (`DEC-041`), antes do GREEN |
+| US-033, FR-035, AC-093 | AC-093 na seção 6 | tests/models-local-nao-cabe.test.ts | `Cannot find module '../src/models/recommend'` | idem | Correção de assinatura (`DEC-041`), antes do GREEN |
+| US-033, FR-035, AC-094 | AC-094 na seção 6 | tests/models-ollama-ausente.test.ts | `Cannot find module '../src/models/recommend'` | idem | Correção de assinatura (`DEC-041`), antes do GREEN |
+| US-034, FR-036, AC-095 | AC-095 na seção 6 | tests/models-override-backend.test.ts | `Cannot find module '../src/models/recommend'` | idem | Nenhuma |
+| US-034, FR-036, AC-096 | AC-096 na seção 6 | tests/models-override-local.test.ts | `Cannot find module '../src/models/recommend'` | idem | Nenhuma |
+| US-033, FR-037, AC-097 | AC-097 na seção 6 | tests/models-recommend-real.test.ts | `comando não reconhecido. Disponíveis: version, doctor, setup` | idem, via `dist/cli.js recommend` real | Nenhuma |
+| US-035, NFR-033/034, AC-098 | AC-098 na seção 6 | tests/models-injetavel.test.ts | `Cannot find module '../src/models/recommend'` | idem | Nenhuma |
+| US-035, NFR-034, AC-099 | AC-099 na seção 6 | tests/models-paridade-real.test.ts | `Cannot find module '../src/models/capacity'` | idem, contra `os.freemem()`/`os.totalmem()` e `ollama list` reais nesta máquina | Nenhuma |
 
 ### 12. Plano de testes e rastreabilidade
 
 | Requisito | Cenário BDD | Nível | Arquivo/comando esperado | Evidência |
 | --- | --- | --- | --- | --- |
-| FR-034 | AC-090 | Unidade | tests/models-backend-recomendado.test.ts | Pending |
-| FR-034 | AC-091 | Unidade | tests/models-backend-ausente.test.ts | Pending |
-| FR-034 | AC-095 | Unidade | tests/models-override-backend.test.ts | Pending |
-| FR-035 | AC-092 | Unidade | tests/models-local-recomendado.test.ts | Pending |
-| FR-035 | AC-093 | Unidade | tests/models-local-nao-cabe.test.ts | Pending |
-| FR-035 | AC-094 | Unidade | tests/models-ollama-ausente.test.ts | Pending |
-| FR-036 | AC-095 | Unidade | tests/models-override-backend.test.ts | Pending |
-| FR-036 | AC-096 | Unidade | tests/models-override-local.test.ts | Pending |
-| FR-037 | AC-097 | Integração | tests/models-recommend-real.test.ts | Pending |
-| NFR-033 | AC-098 | Unidade | tests/models-injetavel.test.ts | Pending |
-| NFR-033 | AC-097 | Integração | tests/models-recommend-real.test.ts | Pending |
-| NFR-034 | AC-098 | Unidade | tests/models-injetavel.test.ts | Pending |
-| NFR-034 | AC-099 | Paridade | tests/models-paridade-real.test.ts | Pending |
-| NFR-034 | AC-102 | Unidade | tests/models-sem-credencial.test.ts | Pending |
-| NFR-035 | AC-097 | Integração | tests/models-recommend-real.test.ts | Pending |
-| NFR-035 | AC-101 | Integração | tests/models-recommend-real.test.ts | Pending |
-| NFR-035 | AC-102 | Unidade | tests/models-sem-credencial.test.ts | Pending |
-| FR-034 | AC-100 | Unidade | tests/models-override-parcial.test.ts | Pending |
-| FR-036 | AC-100 | Unidade | tests/models-override-parcial.test.ts | Pending |
-| FR-037 | AC-101 | Integração | tests/models-recommend-real.test.ts | Pending |
-| FR-037 | AC-102 | Unidade | tests/models-sem-credencial.test.ts | Pending |
-| NFR-033 | AC-101 | Integração | tests/models-recommend-real.test.ts | Pending |
-| NFR-033 | AC-102 | Unidade | tests/models-sem-credencial.test.ts | Pending |
+| FR-034 | AC-090 | Unidade | tests/models-backend-recomendado.test.ts | **Passed** — T001 |
+| FR-034 | AC-091 | Unidade | tests/models-backend-ausente.test.ts | **Passed** — T002 |
+| FR-034 | AC-095 | Unidade | tests/models-override-backend.test.ts | **Passed** — T006 |
+| FR-035 | AC-092 | Unidade | tests/models-local-recomendado.test.ts | **Passed** — T003 |
+| FR-035 | AC-093 | Unidade | tests/models-local-nao-cabe.test.ts | **Passed** — T004 |
+| FR-035 | AC-094 | Unidade | tests/models-ollama-ausente.test.ts | **Passed** — T005 |
+| FR-036 | AC-095 | Unidade | tests/models-override-backend.test.ts | **Passed** — T006 |
+| FR-036 | AC-096 | Unidade | tests/models-override-local.test.ts | **Passed** — T007 |
+| FR-037 | AC-097 | Integração | tests/models-recommend-real.test.ts | **Passed** — T012 |
+| NFR-033 | AC-098 | Unidade | tests/models-injetavel.test.ts | **Passed** — T009 |
+| NFR-033 | AC-097 | Integração | tests/models-recommend-real.test.ts | **Passed** — T012 |
+| NFR-034 | AC-098 | Unidade | tests/models-injetavel.test.ts | **Passed** — T009 |
+| NFR-034 | AC-099 | Paridade | tests/models-paridade-real.test.ts | **Passed** — T010 |
+| NFR-034 | AC-102 | Unidade | tests/models-sem-credencial.test.ts | **Passed** — T011 |
+| NFR-035 | AC-097 | Integração | tests/models-recommend-real.test.ts | **Passed** — T012 |
+| NFR-035 | AC-101 | Integração | tests/models-recommend-real.test.ts | **Passed** — T012 |
+| NFR-035 | AC-102 | Unidade | tests/models-sem-credencial.test.ts | **Passed** — T011 |
+| FR-034 | AC-100 | Unidade | tests/models-override-parcial.test.ts | **Passed** — T008 |
+| FR-036 | AC-100 | Unidade | tests/models-override-parcial.test.ts | **Passed** — T008 |
+| FR-037 | AC-101 | Integração | tests/models-recommend-real.test.ts | **Passed** — T012 |
+| FR-037 | AC-102 | Unidade | tests/models-sem-credencial.test.ts | **Passed** — T011 |
+| NFR-033 | AC-101 | Integração | tests/models-recommend-real.test.ts | **Passed** — T012 |
+| NFR-033 | AC-102 | Unidade | tests/models-sem-credencial.test.ts | **Passed** — T011 |
 
 ### 13. Validações
 
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-30)
-- **Comando**: `node .agents/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/planned/0009-fatia-1e-selecao-de-modelo/spec.md`
+- **Comando**: `node .agents/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/completed/0009-fatia-1e-selecao-de-modelo/spec.md`
 - **Cobertura**: 3 US, 4 FR, 3 NFR, 13 AC, 4 DEC; mínimo de 3 AC por ID satisfeito em todos.
 - **Research**: `load_research.mjs` em `PASSED`, com `R-033`, `R-034` e `R-035` verificados e um artefato indexado.
 - **Revisão PROD**: a redução de escopo de "análise completa" para "sem rede, sem autenticação" foi verificada por execução real antes de escrever a spec (`agy models` pedindo login), não suposta — mesma disciplina da correção de `D2` na fatia 1d.
@@ -535,15 +538,18 @@ O ponto sensível é a tentação de tratar ausência de capacidade como erro. `
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-30)
-- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/planned/0009-fatia-1e-selecao-de-modelo/spec.md`
+- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0009-fatia-1e-selecao-de-modelo/spec.md`
 - **Plano**: 19 tarefas — 12 `[TEST] [TDD]`, 4 `[CODE]`, 2 `[DOC]`, 1 `[OPS]`; 95 itens de checklist; 23 de 23 IDs cobertos.
 - **Achados**: Nenhum bloqueante.
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Pending
-- **Comando**: `node .agents/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/planned/0009-fatia-1e-selecao-de-modelo/spec.md .`
-- **Achados**: Pending.
+- **Resultado**: Passed (2026-08-30)
+- **Verificação**: `npm run verify` em exit 0 a partir de clone limpo (install 3s, build 0s, test 52s, total 55s) — **339 casos em 121 arquivos** (era 324/109 antes desta fatia); `npx tsc --noEmit` e `npm run build` em exit 0.
+- **Auditorias**: `check_traceability.mjs` em 23/23 IDs próprios cobertos (ressalva de marcadores órfãos de outras specs persiste, mesma causa já conhecida das fatias anteriores); `verify_acceptance.mjs` em `QA: PASSED`; `verify_evidence.mjs` em `PASSED (strict)` para T013, T014, T015 e T016.
+- **Verificação manual real**: `node dist/cli.js recommend` nesta máquina recomenda `pi` e `qwen3:8b` (o maior dos três modelos locais que cabe nos ~5.5GB livres no momento), com a declaração de que custo e uso de plano não entram no cálculo; `--backend claude` e `--local-model qwen2.5:3b` confirmam o override sem revalidação; código de saída 0 em todos os três.
+- **Regressão corrigida em duas specs anteriores**: `tests/mcp-surface.test.ts` e `tests/setup-surface.test.ts` fixavam a superfície de `COMMANDS` em exatamente três nomes; atualizados para incluir `recommend`, a mesma classe de ajuste que a fatia 1d já havia feito em cinco arquivos de `doctor`/`trace` ao acrescentar um parâmetro novo.
+- **Achados**: Nenhum bloqueante.
 
 ### 14. Tarefas
 
@@ -553,155 +559,155 @@ Formato:
 Checklist obrigatório por tarefa, na ordem:
 
 ```markdown
-  - [ ] **PREP**: Confirmar escopo, IDs, dependências e baseline.
-  - [ ] **EXECUTE**: Produzir a entrega no caminho declarado.
-  - [ ] **VERIFY**: Executar a verificação focal adequada.
-  - [ ] **EVIDENCE**: Registrar comando, resultado e IDs nas seções 11–13.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+  - [x] **PREP**: Confirmar escopo, IDs, dependências e baseline.
+  - [x] **EXECUTE**: Produzir a entrega no caminho declarado.
+  - [x] **VERIFY**: Executar a verificação focal adequada.
+  - [x] **EVIDENCE**: Registrar comando, resultado e IDs nas seções 11–13.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 ```
 
 #### Fase 1 — RED, um caso por cenário da seção 6
 
-- [ ] T001 [P] [TEST] [TDD] [US-033] Derivar de AC-090 o caso em tests/models-backend-recomendado.test.ts — Refs: US-033, FR-034, AC-090 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-090.
-  - [ ] **EXECUTE**: Escrever caso chamando `recommend()` (ainda inexistente) com backends fake em que `pi` está presente e suportado, conferindo `backend === "pi"`.
-  - [ ] **VERIFY**: RED — `Cannot find module` sobre `src/models/recommend`.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T001 [P] [TEST] [TDD] [US-033] Derivar de AC-090 o caso em tests/models-backend-recomendado.test.ts — Refs: US-033, FR-034, AC-090 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-090.
+  - [x] **EXECUTE**: Escrever caso chamando `recommend()` (ainda inexistente) com backends fake em que `pi` está presente e suportado, conferindo `backend === "pi"`.
+  - [x] **VERIFY**: RED — `Cannot find module` sobre `src/models/recommend`.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T002 [P] [TEST] [TDD] [US-033] Derivar de AC-091 o caso em tests/models-backend-ausente.test.ts — Refs: US-033, FR-034, AC-091 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-091.
-  - [ ] **EXECUTE**: Escrever caso com nenhum backend suportado presente, conferindo `backend === null` e o texto do motivo.
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T002 [P] [TEST] [TDD] [US-033] Derivar de AC-091 o caso em tests/models-backend-ausente.test.ts — Refs: US-033, FR-034, AC-091 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-091.
+  - [x] **EXECUTE**: Escrever caso com nenhum backend suportado presente, conferindo `backend === null` e o texto do motivo.
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T003 [P] [TEST] [TDD] [US-033] Derivar de AC-092 o caso em tests/models-local-recomendado.test.ts — Refs: US-033, FR-035, AC-092 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-092.
-  - [ ] **EXECUTE**: Escrever caso com modelos fake de 2GB e 9GB e memória livre fake de 10GB, conferindo `localModel === "<nome do de 9GB>"`.
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T003 [P] [TEST] [TDD] [US-033] Derivar de AC-092 o caso em tests/models-local-recomendado.test.ts — Refs: US-033, FR-035, AC-092 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-092.
+  - [x] **EXECUTE**: Escrever caso com modelos fake de 2GB e 9GB e memória livre fake de 10GB, conferindo `localModel === "<nome do de 9GB>"`.
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T004 [P] [TEST] [TDD] [US-033] Derivar de AC-093 o caso em tests/models-local-nao-cabe.test.ts — Refs: US-033, FR-035, AC-093 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-093.
-  - [ ] **EXECUTE**: Escrever caso com modelo fake de 9GB e memória livre fake de 2GB, conferindo `localModel === null` e o texto do motivo.
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T004 [P] [TEST] [TDD] [US-033] Derivar de AC-093 o caso em tests/models-local-nao-cabe.test.ts — Refs: US-033, FR-035, AC-093 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-093.
+  - [x] **EXECUTE**: Escrever caso com modelo fake de 9GB e memória livre fake de 2GB, conferindo `localModel === null` e o texto do motivo.
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T005 [P] [TEST] [TDD] [US-033] Derivar de AC-094 o caso em tests/models-ollama-ausente.test.ts — Refs: US-033, FR-035, AC-094 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-094.
-  - [ ] **EXECUTE**: Escrever caso com fonte de modelos fake devolvendo lista vazia (ollama ausente), conferindo `localModel === null` e o texto do motivo.
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T005 [P] [TEST] [TDD] [US-033] Derivar de AC-094 o caso em tests/models-ollama-ausente.test.ts — Refs: US-033, FR-035, AC-094 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-094.
+  - [x] **EXECUTE**: Escrever caso com fonte de modelos fake devolvendo lista vazia (ollama ausente), conferindo `localModel === null` e o texto do motivo.
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T006 [P] [TEST] [TDD] [US-034] Derivar de AC-095 o caso em tests/models-override-backend.test.ts — Refs: US-034, FR-036, AC-095 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-095.
-  - [ ] **EXECUTE**: Escrever caso com `pi` e `claude` presentes, override informando `claude`, conferindo `backend === "claude"` e `backendOverridden === true`.
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T006 [P] [TEST] [TDD] [US-034] Derivar de AC-095 o caso em tests/models-override-backend.test.ts — Refs: US-034, FR-036, AC-095 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-095.
+  - [x] **EXECUTE**: Escrever caso com `pi` e `claude` presentes, override informando `claude`, conferindo `backend === "claude"` e `backendOverridden === true`.
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T007 [P] [TEST] [TDD] [US-034] Derivar de AC-096 o caso em tests/models-override-local.test.ts — Refs: US-034, FR-036, AC-096 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-096.
-  - [ ] **EXECUTE**: Escrever caso com modelo de 9GB e memória livre de 2GB, override informando esse modelo, conferindo `localModel` igual ao informado e `localModelOverridden === true`, sem recusar por causa da memória.
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T007 [P] [TEST] [TDD] [US-034] Derivar de AC-096 o caso em tests/models-override-local.test.ts — Refs: US-034, FR-036, AC-096 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-096.
+  - [x] **EXECUTE**: Escrever caso com modelo de 9GB e memória livre de 2GB, override informando esse modelo, conferindo `localModel` igual ao informado e `localModelOverridden === true`, sem recusar por causa da memória.
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T008 [P] [TEST] [TDD] [US-034] Derivar de AC-100 o caso em tests/models-override-parcial.test.ts — Refs: US-034, FR-034, FR-036, AC-100 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-100.
-  - [ ] **EXECUTE**: Escrever caso informando só o backend, conferindo que o backend é o override e o modelo local é o calculado, não marcado como override.
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T008 [P] [TEST] [TDD] [US-034] Derivar de AC-100 o caso em tests/models-override-parcial.test.ts — Refs: US-034, FR-034, FR-036, AC-100 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-100.
+  - [x] **EXECUTE**: Escrever caso informando só o backend, conferindo que o backend é o override e o modelo local é o calculado, não marcado como override.
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T009 [P] [TEST] [TDD] [US-035] Derivar de AC-098 o caso em tests/models-injetavel.test.ts — Refs: US-035, FR-037, NFR-033, NFR-034, NFR-035, AC-098 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-098.
-  - [ ] **EXECUTE**: Escrever caso com fontes de memória e de modelos totalmente fake, conferindo que o resultado reflete exatamente as fontes, sem chamar `os.freemem`/`os.totalmem` nem `ollama` reais (fontes instrumentadas com contador).
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T009 [P] [TEST] [TDD] [US-035] Derivar de AC-098 o caso em tests/models-injetavel.test.ts — Refs: US-035, FR-037, NFR-033, NFR-034, NFR-035, AC-098 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-098.
+  - [x] **EXECUTE**: Escrever caso com fontes de memória e de modelos totalmente fake, conferindo que o resultado reflete exatamente as fontes, sem chamar `os.freemem`/`os.totalmem` nem `ollama` reais (fontes instrumentadas com contador).
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T010 [P] [TEST] [TDD] [US-035] Derivar de AC-099 o caso em tests/models-paridade-real.test.ts — Refs: US-035, NFR-034, AC-099 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-099; confirmar `ollama` presente nesta máquina com os três modelos da pesquisa.
-  - [ ] **EXECUTE**: Escrever caso com as fontes reais (sem injeção), conferindo que a memória usada corresponde a `os.freemem()`/`os.totalmem()` e os modelos correspondem à saída real de `ollama list`.
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T010 [P] [TEST] [TDD] [US-035] Derivar de AC-099 o caso em tests/models-paridade-real.test.ts — Refs: US-035, NFR-034, AC-099 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-099; confirmar `ollama` presente nesta máquina com os três modelos da pesquisa.
+  - [x] **EXECUTE**: Escrever caso com as fontes reais (sem injeção), conferindo que a memória usada corresponde a `os.freemem()`/`os.totalmem()` e os modelos correspondem à saída real de `ollama list`.
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T011 [P] [TEST] [TDD] Derivar de AC-102 o caso em tests/models-sem-credencial.test.ts — Refs: FR-037, NFR-033, NFR-034, NFR-035, AC-102 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-102.
-  - [ ] **EXECUTE**: Escrever caso limpando variáveis de ambiente de credencial conhecidas (`ANTHROPIC_API_KEY` etc.) antes de chamar `recommend()` com fontes injetadas, conferindo que o resultado não muda e nenhuma exceção é lançada.
-  - [ ] **VERIFY**: RED — módulo ainda não existe.
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T011 [P] [TEST] [TDD] Derivar de AC-102 o caso em tests/models-sem-credencial.test.ts — Refs: FR-037, NFR-033, NFR-034, NFR-035, AC-102 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-102.
+  - [x] **EXECUTE**: Escrever caso limpando variáveis de ambiente de credencial conhecidas (`ANTHROPIC_API_KEY` etc.) antes de chamar `recommend()` com fontes injetadas, conferindo que o resultado não muda e nenhuma exceção é lançada.
+  - [x] **VERIFY**: RED — módulo ainda não existe.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T012 [TEST] [TDD] [US-033] Derivar de AC-097/AC-101 os casos em tests/models-recommend-real.test.ts — Refs: US-033, US-035, FR-037, NFR-033, NFR-035, AC-097, AC-101 — Depends: none
-  - [ ] **PREP**: Ler o Gherkin de AC-097 e AC-101; desenhar contra `dist/cli.js recommend`, real, com timeout curto para provar que não trava esperando credencial.
-  - [ ] **EXECUTE**: Escrever caso rodando `dist/cli.js recommend` de verdade, conferindo que o texto nomeia backend/ausência, modelo local/ausência, e a declaração de que custo e uso de plano não entram no cálculo — e que o processo termina sozinho, sem travar.
-  - [ ] **VERIFY**: RED — comando `recommend` ainda não existe (`comando não reconhecido`).
-  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T012 [TEST] [TDD] [US-033] Derivar de AC-097/AC-101 os casos em tests/models-recommend-real.test.ts — Refs: US-033, US-035, FR-037, NFR-033, NFR-035, AC-097, AC-101 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-097 e AC-101; desenhar contra `dist/cli.js recommend`, real, com timeout curto para provar que não trava esperando credencial.
+  - [x] **EXECUTE**: Escrever caso rodando `dist/cli.js recommend` de verdade, conferindo que o texto nomeia backend/ausência, modelo local/ausência, e a declaração de que custo e uso de plano não entram no cálculo — e que o processo termina sozinho, sem travar.
+  - [x] **VERIFY**: RED — comando `recommend` ainda não existe (`comando não reconhecido`).
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
 #### Fase 2 — Código, cada tarefa atrás do seu RED
 
-- [ ] T013 [CODE] Implementar em src/models/capacity.ts — Refs: NFR-034, AC-098, AC-099, AC-102 — Depends: T009, T010, T011
-  - [ ] **PREP**: Confirmar RED de T009, T010 e T011; `docs/` reconstruído por `$specsfy-documentator` antes da alteração.
-  - [ ] **EXECUTE**: `CapacityEnvironment` injetável com `totalBytes()`/`freeBytes()`; `realCapacityEnvironment()` usando `os.totalmem()`/`os.freemem()`, sem subprocesso.
-  - [ ] **VERIFY**: `npx tsc --noEmit` em exit 0.
-  - [ ] **EVIDENCE**: Comandos e resultado registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T013 [CODE] Implementar em src/models/capacity.ts — Refs: NFR-034, AC-098, AC-099, AC-102 — Depends: T009, T010, T011
+  - [x] **PREP**: Confirmar RED de T009, T010 e T011; `docs/` reconstruído por `$specsfy-documentator` antes da alteração.
+  - [x] **EXECUTE**: `CapacityEnvironment` injetável com `totalBytes()`/`freeBytes()`; `realCapacityEnvironment()` usando `os.totalmem()`/`os.freemem()`, sem subprocesso.
+  - [x] **VERIFY**: `npx tsc --noEmit` em exit 0.
+  - [x] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
   <!-- specsfy:evidence {"task": "T013", "refs": ["NFR-034", "AC-098", "AC-099", "AC-102"], "files": ["src/models/capacity.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}]} -->
 
-- [ ] T014 [CODE] [US-033] Implementar em src/models/ollama.ts — Refs: US-033, FR-035, AC-092, AC-093, AC-094, AC-099 — Depends: T003, T004, T005, T010
-  - [ ] **PREP**: Confirmar RED de T003, T004, T005 e T010.
-  - [ ] **EXECUTE**: `OllamaEnvironment` injetável com `listModels(): OllamaModel[]`; `realOllamaEnvironment()` chamando `ollama list`, parseando colunas por `/\s{2,}/`, convertendo `SIZE` (`"9.0 GB"`) para bytes; saída vazia ou erro devolve lista vazia, nunca lança.
-  - [ ] **VERIFY**: Casos de T003, T004, T005 e T010 GREEN.
-  - [ ] **EVIDENCE**: Comandos e resultado registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T014 [CODE] [US-033] Implementar em src/models/ollama.ts — Refs: US-033, FR-035, AC-092, AC-093, AC-094, AC-099 — Depends: T003, T004, T005, T010
+  - [x] **PREP**: Confirmar RED de T003, T004, T005 e T010.
+  - [x] **EXECUTE**: `OllamaEnvironment` injetável com `listModels(): OllamaModel[]`; `realOllamaEnvironment()` chamando `ollama list`, parseando colunas por `/\s{2,}/`, convertendo `SIZE` (`"9.0 GB"`) para bytes; saída vazia ou erro devolve lista vazia, nunca lança.
+  - [x] **VERIFY**: Casos de T003, T004, T005 e T010 GREEN.
+  - [x] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
   <!-- specsfy:evidence {"task": "T014", "refs": ["US-033", "FR-035", "AC-092", "AC-093", "AC-094", "AC-099"], "files": ["src/models/ollama.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}]} -->
 
-- [ ] T015 [CODE] [US-033] [US-034] [US-035] Implementar em src/models/recommend.ts — Refs: US-033, US-034, US-035, FR-034, FR-035, FR-036, NFR-033, NFR-034, NFR-035, AC-090, AC-091, AC-095, AC-096, AC-098, AC-100, AC-102 — Depends: T001, T002, T006, T007, T008, T009, T011, T013, T014
-  - [ ] **PREP**: Confirmar RED de T001, T002, T006, T007, T008, T009 e T011.
-  - [ ] **EXECUTE**: `recommend(backends, models, capacity, override?)`, função pura: backend recomendado é o primeiro de `SUPPORTED_AGENT_BACKENDS` presente entre `backends`, ou `null`; modelo local recomendado é o maior de `models` cujo `sizeBytes <= capacity.freeBytes()`, ou `null`; override, quando informado, substitui o campo correspondente sem revalidar, marcando `*Overridden: true`; `report` é o texto final, incluindo a declaração de ausência de custo/uso de plano.
-  - [ ] **VERIFY**: Casos de T001, T002, T006, T007, T008, T009 e T011 GREEN.
-  - [ ] **EVIDENCE**: Comandos e resultado registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T015 [CODE] [US-033] [US-034] [US-035] Implementar em src/models/recommend.ts — Refs: US-033, US-034, US-035, FR-034, FR-035, FR-036, NFR-033, NFR-034, NFR-035, AC-090, AC-091, AC-095, AC-096, AC-098, AC-100, AC-102 — Depends: T001, T002, T006, T007, T008, T009, T011, T013, T014
+  - [x] **PREP**: Confirmar RED de T001, T002, T006, T007, T008, T009 e T011.
+  - [x] **EXECUTE**: `recommend(backends, models, capacity, override?)`, função pura: backend recomendado é o primeiro de `SUPPORTED_AGENT_BACKENDS` presente entre `backends`, ou `null`; modelo local recomendado é o maior de `models` cujo `sizeBytes <= capacity.freeBytes()`, ou `null`; override, quando informado, substitui o campo correspondente sem revalidar, marcando `*Overridden: true`; `report` é o texto final, incluindo a declaração de ausência de custo/uso de plano.
+  - [x] **VERIFY**: Casos de T001, T002, T006, T007, T008, T009 e T011 GREEN.
+  - [x] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
   <!-- specsfy:evidence {"task": "T015", "refs": ["US-033", "US-034", "US-035", "FR-034", "FR-035", "FR-036", "NFR-033", "NFR-034", "NFR-035", "AC-090", "AC-091", "AC-095", "AC-096", "AC-098", "AC-100", "AC-102"], "files": ["src/models/recommend.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}]} -->
 
-- [ ] T016 [CODE] [US-033] Implementar o comando recommend em src/cli.ts — Refs: US-033, FR-037, AC-097, AC-101 — Depends: T012, T015
-  - [ ] **PREP**: Confirmar RED de T012.
-  - [ ] **EXECUTE**: Novo comando `recommend`, resolvendo `detectBackends` (fatia 1d), `realOllamaEnvironment`, `realCapacityEnvironment`, aceitando `--backend <nome>`/`--local-model <nome>` como override; imprime `recommendation.report`; código de saída 0 quando um backend é recomendado ou informado, 1 quando nenhum backend está disponível.
-  - [ ] **VERIFY**: Caso de T012 GREEN, com `dist/cli.js recommend` real.
-  - [ ] **EVIDENCE**: Comandos e resultado registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T016 [CODE] [US-033] Implementar o comando recommend em src/cli.ts — Refs: US-033, FR-037, AC-097, AC-101 — Depends: T012, T015
+  - [x] **PREP**: Confirmar RED de T012.
+  - [x] **EXECUTE**: Novo comando `recommend`, resolvendo `detectBackends` (fatia 1d), `realOllamaEnvironment`, `realCapacityEnvironment`, aceitando `--backend <nome>`/`--local-model <nome>` como override; imprime `recommendation.report`; código de saída 0 quando um backend é recomendado ou informado, 1 quando nenhum backend está disponível.
+  - [x] **VERIFY**: Caso de T012 GREEN, com `dist/cli.js recommend` real.
+  - [x] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
   <!-- specsfy:evidence {"task": "T016", "refs": ["US-033", "FR-037", "AC-097", "AC-101"], "files": ["src/cli.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
 
 #### Fase 3 — Fechamento
 
-- [ ] T017 [DOC] Registrar os módulos novos e o comando recommend em .specsfy/STACK.md — Refs: FR-037 — Depends: T016
-  - [ ] **PREP**: Ler a seção de backends (fatia 1d) em `.specsfy/STACK.md`.
-  - [ ] **EXECUTE**: Descrever `src/models/ollama.ts`, `src/models/capacity.ts`, `src/models/recommend.ts` e o comando `recommend`, incluindo a decisão de não calcular custo/uso de plano.
-  - [ ] **VERIFY**: `npm run build` em exit 0.
-  - [ ] **EVIDENCE**: Comando e resultado registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T017 [DOC] Registrar os módulos novos e o comando recommend em .specsfy/STACK.md — Refs: FR-037 — Depends: T016
+  - [x] **PREP**: Ler a seção de backends (fatia 1d) em `.specsfy/STACK.md`.
+  - [x] **EXECUTE**: Descrever `src/models/ollama.ts`, `src/models/capacity.ts`, `src/models/recommend.ts` e o comando `recommend`, incluindo a decisão de não calcular custo/uso de plano.
+  - [x] **VERIFY**: `npm run build` em exit 0.
+  - [x] **EVIDENCE**: Comando e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T018 [DOC] Descrever em PROJECT.md o comando recommend — Refs: US-033 — Depends: T016
-  - [ ] **PREP**: Ler a tabela de comandos em `PROJECT.md`.
-  - [ ] **EXECUTE**: Acrescentar `common-rules recommend` à tabela e um parágrafo descrevendo o que calcula e o que deliberadamente não calcula.
-  - [ ] **VERIFY**: `npm run build` em exit 0.
-  - [ ] **EVIDENCE**: Comando e resultado registrados na seção 12.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T018 [DOC] Descrever em PROJECT.md o comando recommend — Refs: US-033 — Depends: T016
+  - [x] **PREP**: Ler a tabela de comandos em `PROJECT.md`.
+  - [x] **EXECUTE**: Acrescentar `common-rules recommend` à tabela e um parágrafo descrevendo o que calcula e o que deliberadamente não calcula.
+  - [x] **VERIFY**: `npm run build` em exit 0.
+  - [x] **EVIDENCE**: Comando e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T019 [OPS] Verificação manual real e fechar o Delivery Gate na seção 13 de specs/planned/0009-fatia-1e-selecao-de-modelo/spec.md — Refs: NFR-033, NFR-034, NFR-035 — Depends: T017, T018
-  - [ ] **PREP**: T013–T018 concluídas, cada `[CODE]` com seu comentário de evidência.
-  - [ ] **EXECUTE**: `node dist/cli.js recommend` executado de verdade nesta máquina; suíte completa e `npm run verify`; `check_traceability.mjs` e `verify_acceptance.mjs`.
-  - [ ] **VERIFY**: Backend e modelo local recomendados com dados reais desta máquina; suíte inteira, `tsc`, `build` e `verify` em exit 0 a partir de clone limpo.
-  - [ ] **EVIDENCE**: Comandos, contagens e exit codes registrados na seção 13.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T019 [OPS] Verificação manual real e fechar o Delivery Gate na seção 13 de specs/completed/0009-fatia-1e-selecao-de-modelo/spec.md — Refs: NFR-033, NFR-034, NFR-035 — Depends: T017, T018
+  - [x] **PREP**: T013–T018 concluídas, cada `[CODE]` com seu comentário de evidência.
+  - [x] **EXECUTE**: `node dist/cli.js recommend` executado de verdade nesta máquina; suíte completa e `npm run verify`; `check_traceability.mjs` e `verify_acceptance.mjs`.
+  - [x] **VERIFY**: Backend e modelo local recomendados com dados reais desta máquina; suíte inteira, `tsc`, `build` e `verify` em exit 0 a partir de clone limpo.
+  - [x] **EVIDENCE**: Comandos, contagens e exit codes registrados na seção 13.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
 ### 15. Ordem de execução
 
@@ -741,17 +747,18 @@ O fechamento admite paralelismo entre `T017` e `T018`, que tocam arquivos difere
 - **DEC-038**: Custo e uso de plano ficam fora desta fatia, com a ausência declarada no relato. *Razão*: sem fonte local sem rede/autenticação, calcular seria inventar; a "análise completa" da ideia original pressupunha uma integração autenticada que contradiz o resto do projeto. *Alternativa descartada*: aceitar configuração declarada de custo por modelo — descartada por falta de pedido concreto de formato, ficando para quando alguém precisar de fato, e não como trabalho especulativo.
 - **DEC-039**: Override humano nunca é revalidado contra presença ou capacidade. *Razão*: é a "aprovação de modelo" que a captura original nomeia — validar a escolha da pessoa e recusá-la silenciosamente contradiria o próprio ponto do override. *Alternativa descartada*: recusar override para backend não presente ou modelo que não caiba — descartada por tirar da pessoa uma decisão que é dela.
 - **DEC-040**: "Cabe na memória livre" é `tamanho ≤ os.freemem()`, sem margem de segurança adicional. *Razão*: simplicidade e testabilidade; margem de segurança é heurística sem dado real que a sustente nesta fatia. *Alternativa descartada*: aplicar uma margem arbitrária (ex.: 80% da memória livre) — descartada por ser um número inventado, a mesma classe de problema que `PR-035` evita para custo.
+- **DEC-041**: O segundo parâmetro de `recommend` é `{present: boolean; models: OllamaModel[]}`, não um array simples de modelos. *Razão*: descoberta durante a escrita dos casos RED de `AC-093` e `AC-094` — "ollama ausente" e "ollama presente sem nenhum modelo baixado" produzem o mesmo array vazio na fronteira da função, mas `AC-093`/`AC-094` exigem texto de relato distinto para cada caso; sem o sinal `present`, a função não tinha como diferenciá-los. *Alternativa descartada*: inferir a ausência por um terceiro parâmetro booleano solto — descartada por espalhar o mesmo fato em dois lugares em vez de um único objeto coeso.
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
-- [ ] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
-- [ ] Todos os cenários `AC` aplicáveis passam.
-- [ ] Todos os requisitos possuem evidência de verificação registrada na seção 12.
-- [ ] Todas as tarefas na seção 14 estão concluídas.
-- [ ] `npx tsc --noEmit`, `npm run build` e a suíte completa passam.
-- [ ] Nenhuma chamada de rede nem prompt de autenticação ocorre, conferido por inspeção do código e por execução manual real.
-- [ ] `node dist/cli.js recommend`, executado de verdade nesta máquina, imprime backend e modelo local recomendados (ou a ausência de cada um) e a declaração de que custo e uso de plano não entram no cálculo.
-- [ ] `.specsfy/STACK.md` registra os três módulos novos e o comando `recommend`.
-- [ ] `PROJECT.md` descreve o que `common-rules recommend` faz e o que deliberadamente não calcula.
+- [x] `Definition Gate` está `Passed`.
+- [x] `Plan Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
+- [x] Todos os cenários `AC` aplicáveis passam.
+- [x] Todos os requisitos possuem evidência de verificação registrada na seção 12.
+- [x] Todas as tarefas na seção 14 estão concluídas.
+- [x] `npx tsc --noEmit`, `npm run build` e a suíte completa passam.
+- [x] Nenhuma chamada de rede nem prompt de autenticação ocorre, conferido por inspeção do código e por execução manual real.
+- [x] `node dist/cli.js recommend`, executado de verdade nesta máquina, imprime backend e modelo local recomendados (ou a ausência de cada um) e a declaração de que custo e uso de plano não entram no cálculo.
+- [x] `.specsfy/STACK.md` registra os três módulos novos e o comando `recommend`.
+- [x] `PROJECT.md` descreve o que `common-rules recommend` faz e o que deliberadamente não calcula.

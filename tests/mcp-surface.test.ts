@@ -39,9 +39,9 @@ describe("AC-010 — nenhuma superfície das fatias restantes aparece", () => {
   });
 
   // SPECSFY: US-001 NFR-002 AC-010
-  it("a superfície do comando de terminal permanece com três comandos", async () => {
+  it("a superfície do comando de terminal não ganha uma tool própria de MCP", async () => {
     const { COMMANDS } = await import("../src/cli");
-    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "setup", "version"]);
+    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "recommend", "setup", "version"]);
   });
 });
 

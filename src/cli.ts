@@ -10,6 +10,10 @@ import { RECORD_PATH } from "./setup/record.js";
 import { realSkillsExecutor } from "./skills/executor.js";
 import { realSpecsfyExecutor } from "./specsfy/executor.js";
 import { readVersion } from "./version.js";
+import { detectBackends, realBackendEnvironment } from "./backends/detect.js";
+import { listOllamaModels } from "./models/ollama.js";
+import { readCapacity } from "./models/capacity.js";
+import { recommend, type RecommendOverride } from "./models/recommend.js";
 
 export interface CommandOutcome {
   output: string;
@@ -38,13 +42,6 @@ function formatReport(): CommandOutcome {
   return { output: renderReport(report), exitCode: report.exitCode };
 }
 
-/**
- * Superfície completa do esqueleto.
- *
- * Dois comandos, e nada além disso: setup, orquestração, aprovação e seleção de
- * modelo pertencem às fatias seguintes. `surface.test.ts` reprova se algum
- * deles vazar para cá antes da hora.
- */
 /** Formata o resultado do setup, sem decidir nada sobre ele. */
 function formatSetup(): CommandOutcome {
   // Ler o registro anterior é o que faz a idempotência valer na prática: sem
@@ -66,10 +63,39 @@ function formatSetup(): CommandOutcome {
   return { output: [r.report, ...linhas].join("\n"), exitCode: r.exitCode };
 }
 
-export const COMMANDS: Record<string, () => CommandOutcome> = {
+/** `--backend <nome>` e `--local-model <nome>` — override humano, nunca revalidado (FR-036, DEC-039). */
+function parseRecommendOverride(args: readonly string[]): RecommendOverride {
+  const override: RecommendOverride = {};
+  for (let i = 0; i < args.length; i++) {
+    const flag = args[i];
+    const valor = args[i + 1];
+    if (flag === "--backend" && valor !== undefined) {
+      override.backend = valor;
+      i++;
+    } else if (flag === "--local-model" && valor !== undefined) {
+      override.localModel = valor;
+      i++;
+    }
+  }
+  return override;
+}
+
+/** Resolve as três fontes reais e imprime `recommendation.report` (FR-037). */
+function formatRecommend(args: readonly string[]): CommandOutcome {
+  const r = recommend(
+    detectBackends(realBackendEnvironment()),
+    listOllamaModels(),
+    readCapacity(),
+    parseRecommendOverride(args),
+  );
+  return { output: r.report, exitCode: r.backend === null ? 1 : 0 };
+}
+
+export const COMMANDS: Record<string, (args: readonly string[]) => CommandOutcome> = {
   version: () => ({ output: readVersion(), exitCode: 0 }),
   doctor: formatReport,
   setup: formatSetup,
+  recommend: formatRecommend,
 };
 
 const ALIASES: Record<string, string> = {
@@ -78,6 +104,7 @@ const ALIASES: Record<string, string> = {
   version: "version",
   doctor: "doctor",
   setup: "setup",
+  recommend: "recommend",
 };
 
 /** Resolve o argumento recebido para um comando conhecido, ou null. */
@@ -95,7 +122,7 @@ export function run(args: readonly string[]): CommandOutcome {
   }
   const command = COMMANDS[name];
   if (command === undefined) return { output: `comando ${name} sem implementação`, exitCode: 2 };
-  return command();
+  return command(args.slice(1));
 }
 
 /**

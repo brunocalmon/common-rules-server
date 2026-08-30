@@ -7,13 +7,14 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 
 ## O que existe hoje
 
-**Três comandos e um servidor de protocolo, e nada além disso.**
+**Quatro comandos e um servidor de protocolo, e nada além disso.**
 
 | Comando | O que faz |
 | --- | --- |
 | `common-rules --version` | Imprime a versão declarada no manifesto |
 | `common-rules doctor` | Relata as três dependências do projeto e os backends de agente detectados, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, e o identificador da última execução |
 | `common-rules setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, e registra o que escreveu, identificando a execução e o momento |
+| `common-rules recommend` | Recomenda um backend de agente presente e, quando o `ollama` está disponível, o maior modelo local que cabe na memória livre, com override humano opcional |
 
 **Aprovação do plano.** `common-rules setup` apresenta o plano e aguarda aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita.
 
@@ -29,7 +30,7 @@ ok      context-mode — camada npm, origem local, versão 1.0.169
 ok      code-review-graph — camada python, origem global, versão 2.3.7
 ```
 
-Quinze módulos em `src/`, trinta e sete arquivos de teste, 133 casos.
+Trinta e dois módulos em `src/`, 121 arquivos de teste, 339 casos.
 
 O `setup` liga os subsistemas ao ciclo do agente e protege o repositório. Sete
 hooks: quatro conectam `context-mode` e `code-review-graph`, dois barram comando
@@ -63,6 +64,17 @@ com conteúdo próprio de orquestração do `common-rules` continua fora de esco
 adiado para o épico de extensões da Phase 2 — só a existência desses arquivos é
 garantida hoje.
 
+**Seleção de modelo.** `common-rules recommend` recomenda, de forma
+determinística e sem rede, um backend dentre os suportados presentes (na
+ordem de `pi`, `agy`, `claude`, `codex`, `goose`) e, quando o `ollama` está
+disponível, o maior modelo local cujo tamanho cabe na memória livre da
+máquina. Uma escolha humana explícita (`--backend`/`--local-model`) substitui
+o cálculo correspondente sem revalidação. **Custo e uso de plano por backend
+ficam deliberadamente fora do cálculo** — nenhum dos cinco backends
+suportados expõe essa informação sem exigir login, e calculá-la exigiria
+quebrar a garantia sem rede e sem autenticação que o projeto inteiro mantém;
+o relatório sempre declara essa ausência em vez de silenciá-la.
+
 **Servidor MCP**, com a tool `setup` única, sobre entrada e saída padrão pelo
 binário `common-rules-mcp`. Expõe a mesma lógica que o comando de terminal, e
 exige a raiz do projeto como parâmetro: o processo servidor não sabe em que
@@ -72,12 +84,11 @@ projeto está, e adivinhar escreveria na árvore errada relatando sucesso.
 
 Esta lista importa tanto quanto a anterior. Nada abaixo está implementado:
 
-- **Fluxo de aprovação** antes de execução.
-- **Detecção de backends de agente** — `pi`, `claude`, `cursor-agent`, `codex`,
-  `agy`, `goose`, `dsh` e Ollama. O `doctor` cobre somente as três dependências
-  do projeto.
-- **Seleção de modelo** pelo Orchestrator.
-- **Orquestração, subagentes e delegação.**
+- **Orquestração, subagentes e delegação.** Nenhum motor de Orchestrator
+  existe ainda — `recommend` calcula uma recomendação isolada, sem consumi-la
+  em nenhum fluxo automático.
+- **Custo e uso de plano** na seleção de modelo — deliberadamente fora de
+  escopo, não apenas ainda não construído (ver "Seleção de modelo" acima).
 - **Regras, skills e hooks próprios.**
 
 ## Finalidade

@@ -6,7 +6,7 @@ const PROIBIDOS = ["mcp", "serve", "approve", "agent", "model", "orchestrate"];
 describe("AC-011 — a fatia não entrega capacidade de outra", () => {
   // SPECSFY: US-001 US-003 FR-001 AC-011
   it("oferece identificação de versão, verificação e configuração", () => {
-    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "setup", "version"]);
+    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "recommend", "setup", "version"]);
   });
 
   // SPECSFY: US-001 FR-005 AC-011

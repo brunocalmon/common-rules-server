@@ -60,7 +60,7 @@ A Phase 1 empacotava seis entregas. Cada uma é comparável em tamanho à Phase 
 | 1b | Hooks, detecção, registro e ponte `uv`, via CLI | **SPEC-0003, concluída** |
 | 1c | Approval workflow interativo e JSON | **SPEC-0007, concluída** |
 | 1d | Detecção de backends e graceful degradation | **SPEC-0008, concluída** |
-| 1e | Seleção de modelo pelo Orchestrator | **SPEC-0009, definida** |
+| 1e | Seleção de modelo pelo Orchestrator | **SPEC-0009, concluída** |
 | 1f | Servidor MCP com a tool `setup` única | **SPEC-0004, concluída** |
 | 1g | Telemetria por `trace_id` no registro auditável | **SPEC-0006, concluída** |
 | 1h | Instalar specsfy e mattpocock lado a lado, com registro | **SPEC-0005, concluída** |
