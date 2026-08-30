@@ -10,6 +10,10 @@ import { spawnSync } from "node:child_process";
  * instalava nada — timeout generoso pelo mesmo motivo de
  * `tests/hooks-context-mode-comando.test.ts`: dois subprocessos reais de
  * terceiro, sob carga de suíte completa.
+ *
+ * `input` aprova pela entrada padrão: desde a reabertura da SPEC-0007,
+ * `formatSetup()` também liga `approval` real, e sem isso a execução seria
+ * lida como documento vazio — recusa, sem escrita.
  */
 describe("AC-036 / AC-038 — common-rules setup, de ponta a ponta, sem fixture", () => {
   it("instala as duas origens de skills e o framework Specsfy de verdade", () => {
@@ -17,7 +21,12 @@ describe("AC-036 / AC-038 — common-rules setup, de ponta a ponta, sem fixture"
     mkdirSync(join(raiz, ".claude"), { recursive: true });
     const cli = resolve(__dirname, "..", "dist", "cli.js");
 
-    const r = spawnSync("node", [cli, "setup"], { cwd: raiz, encoding: "utf8", timeout: 120_000 });
+    const r = spawnSync("node", [cli, "setup"], {
+      cwd: raiz,
+      encoding: "utf8",
+      input: JSON.stringify({ approved: true }),
+      timeout: 120_000,
+    });
     expect(r.status).toBe(0);
 
     const skills = existsSync(join(raiz, ".claude", "skills")) ? readdirSync(join(raiz, ".claude", "skills")) : [];

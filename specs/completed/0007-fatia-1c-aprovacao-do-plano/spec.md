@@ -30,6 +30,8 @@ Isso é aceitável enquanto o que se escreve são sete hooks conhecidos. Deixa d
 
 Há duas restrições concretas na superfície atual. O comando não lê entrada alguma — a varredura por `stdin`, `readline` e `isTTY` não devolve ocorrência — e o despacho é síncrono, com 232 casos dependendo dessa forma. E há ambientes sem pessoa: em integração contínua ninguém responde a uma pergunta no terminal.
 
+**Reabertura — 2026-08-30.** A entrega original implementou `src/approval/context.ts`, `render.ts` e `decide.ts` por completo, e `runSetup` já consulta a decisão antes de escrever — mas `src/cli.ts` nunca chegou a fornecer `opts.approval` real. O gap foi registrado explicitamente no próprio Delivery Gate original ("o wiring do comando fica para tarefa futura"), no mesmo padrão exato que `skills` teve antes da fatia 1h ser reaberta. Corrigido o gap de `skills`, a pessoa responsável pediu o mesmo tratamento para este. Nenhuma FR muda: `FR-060` a `FR-065` já exigiam exatamente este comportamento em produção — só a última linha, ligar `src/cli.ts`, nunca foi escrita.
+
 #### Resultado desejado
 
 O `setup` mostra o que fará e só faz depois de receber aprovação.
@@ -366,11 +368,42 @@ Feature: Alvo ausente
     And o relato informa que o alvo foi ignorado
 ```
 
+#### AC-075 — O comando real, sem canal injetado, aprova e escreve
+
+**Cobre**: US-060, FR-060, FR-065
+
+```gherkin
+@US-060 @FR-060 @FR-065 @AC-075
+Feature: Aprovação real de ponta a ponta
+
+  Scenario: common-rules setup roda sem terminal, com documento aprovando
+    Given um projeto com evidência de uso do alvo, e nada instalado ainda
+    When o common-rules setup roda de verdade, sem canal nem fonte injetados, recebendo {"approved":true} pela entrada padrão
+    Then os hooks são escritos em .claude/settings.json
+    And o relato não contém "não escrito"
+```
+
+#### AC-076 — O comando real, sem canal injetado, recusa e não escreve
+
+**Cobre**: US-061, FR-060, FR-064
+
+```gherkin
+@US-061 @FR-060 @FR-064 @AC-076
+Feature: Recusa real de ponta a ponta
+
+  Scenario: common-rules setup roda sem terminal, sem documento algum
+    Given um projeto com evidência de uso do alvo, e nada instalado ainda
+    When o common-rules setup roda de verdade, sem canal nem fonte injetados, com a entrada padrão vazia
+    Then nenhum arquivo é escrito
+    And o relato contém "não escrito"
+    And o código de saída é diferente de zero
+```
+
 ### 7. Requisitos
 
 #### Funcionais
 
-- **FR-060**: O `setup` deve apresentar o plano e obter aprovação antes de qualquer escrita, e não deve pedir aprovação quando não houver o que escrever.
+- **FR-060**: O `setup` deve apresentar o plano e obter aprovação antes de qualquer escrita, e não deve pedir aprovação quando não houver o que escrever. O comando de terminal, `src/cli.ts`, fornece o contexto real a toda execução — não basta o mecanismo existir testável por injeção na biblioteca; o comando de produção precisa efetivamente consultá-lo.
 - **FR-061**: O canal de aprovação deve ser escolhido pela presença de terminal na entrada padrão: interativo quando houver, documento quando não houver.
 - **FR-062**: No canal de documento, a decisão deve ser lida de um JSON pela entrada padrão.
 - **FR-063**: O plano deve ser apresentado em forma legível no canal interativo e em documento no canal automatizado, descrevendo cada item com nome, destino e evento.
@@ -426,6 +459,8 @@ O plano submetido é a lista `planned` que `runSetup` já produz. A decisão é 
 
 `runSetup` passa a consultar a decisão depois das duas saídas antecipadas que já existem — alvo não detectado e configuração já feita — e antes de qualquer escrita. Consultar antes dessas saídas pediria aprovação mesmo quando `AC-073` e `AC-074` exigem silêncio, porque `planned` já está montado nesse ponto mas nada será escrito. `src/cli.ts` fornece a implementação real, escolhida pelo contexto.
 
+`formatSetup()`, em `src/cli.ts`, passa a fornecer `approval: {}` a `runSetup` — objeto vazio, e não vários campos individuais: `context`, `source` e `stdin` já têm cada um seu próprio padrão real dentro de `resolveChannel` e `realSource`, e listar de novo aqui duplicaria a decisão de qual é a implementação real em dois lugares. Só o comando de terminal recebe essa ligação; o servidor MCP (`src/mcp/tool.ts`) segue sem `approval`, porque ler `stdin` de verdade dentro de um processo MCP colidiria com o protocolo JSON-RPC que já usa `stdin`/`stdout` como transporte — gate de escrita para o MCP é pergunta de outra fatia, não desta.
+
 #### Views e experiência
 
 Não aplicável. A seção 10 registra a ausência de interface.
@@ -462,6 +497,7 @@ tests/
   aprovacao-padrao-producao.test.ts
   aprovacao-sem-mudanca.test.ts
   aprovacao-sem-alvo.test.ts
+  cli-approval-real.test.ts        (novo — subprocesso real, sem canal injetado)
 ```
 
 ### 9. Modelo de dados
@@ -495,10 +531,11 @@ O documento de decisão é um JSON com um campo booleano de aprovação. Ausênc
 - **Unidade**: escolha do canal, renderização nas duas formas e interpretação da decisão, todas com entrada em memória.
 - **Integração**: `setup` sobre projetos descartáveis, com contexto e decisão injetados, conferindo o disco.
 - **Fidelidade**: comparação entre o plano apresentado e os arquivos escritos.
+- **Ponta a ponta real**: `cli-approval-real.test.ts` roda `dist/cli.js setup` de verdade, sem canal nem fonte injetados, alimentando a entrada padrão do subprocesso — documento aprovando, documento vazio. É a categoria que faltava nesta fatia: toda a suíte anterior prova a lógica de decisão, e nenhum caso prova que `src/cli.ts` de fato a consulta.
 - **Runner**: Vitest, pelo script `test:tdd`.
-- **Verificação manual**: nenhuma.
+- **Verificação manual**: `common-rules setup` executado de verdade num projeto descartável, aprovando e recusando pela entrada padrão.
 
-O ponto sensível é que esta fatia introduz um caminho em que **não** escrever é o comportamento correto. Casos que apenas conferem que os arquivos certos apareceram passariam sobre uma implementação que ignora a recusa. Por isso `AC-061`, `AC-067` e `AC-068` comparam a árvore do projeto antes e depois, e afirmam sobre a ausência de escrita, e não sobre a presença de um relato.
+O ponto sensível é que esta fatia introduz um caminho em que **não** escrever é o comportamento correto. Casos que apenas conferem que os arquivos certos apareceram passariam sobre uma implementação que ignora a recusa. Por isso `AC-061`, `AC-067` e `AC-068` comparam a árvore do projeto antes e depois, e afirmam sobre a ausência de escrita, e não sobre a presença de um relato. O mesmo vale para o caso real: `AC-076` confere ausência de arquivo, não apenas presença de mensagem de erro.
 
 ### 12. Plano de testes e rastreabilidade
 
@@ -533,6 +570,11 @@ O ponto sensível é que esta fatia introduz um caminho em que **não** escrever
 | NFR-062 | AC-062 | Integração | escrito igual ao planejado | **Passed** — aprovacao-libera-escrita, T017 |
 | NFR-062 | AC-069 | Unidade | formas coincidem | **Passed** — aprovacao-formas-equivalentes, T017 |
 | NFR-062 | AC-070 | Integração | item a item | **Passed** — aprovacao-plano-fiel, T019 |
+| FR-060 | AC-075 | Ponta a ponta real | setup real aprovado escreve | **Passed** — cli-approval-real, T024/T025 |
+| FR-060 | AC-076 | Ponta a ponta real | setup real recusado não escreve | **Passed** — cli-approval-real, T024/T025 |
+| FR-064 | AC-076 | Ponta a ponta real | entrada vazia real é negativa | **Passed** — cli-approval-real, T024/T025 |
+| FR-065 | AC-075 | Ponta a ponta real | sem canal nem fonte injetados, real decide | **Passed** — cli-approval-real, T024/T025 |
+| NFR-060 | AC-076 | Ponta a ponta real | nada escrito na recusa real | **Passed** — cli-approval-real, T024/T025 |
 
 ### 13. Validações
 
@@ -593,6 +635,23 @@ Nenhum desses quatro apareceria como falha se eu tivesse aceitado o RED superfic
 **Gap de wiring registrado, não escondido.** `src/cli.ts` ainda não passa `approval` real ao chamar `runSetup`, no mesmo padrão do gap que `skills` já tinha antes da fatia 1h. A garantia desta fatia vale hoje na biblioteca; o comando `common-rules setup` em produção ainda não gate a escrita por aprovação. Registrado em `.specsfy/STACK.md` e `PROJECT.md`, e não apresentado como concluído ponta a ponta.
 
 **Rastreabilidade com ressalva conhecida.** 27 de 27 identificadores desta fatia cobertos. `check_traceability` acusa 84 marcadores órfãos, todos das cinco specs anteriores — a colisão de identificadores continua sendo o único item vermelho do repositório.
+
+#### Gate do Ato II — Plano da reabertura 2026-08-30
+
+- **Resultado**: Passed
+- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0007-fatia-1c-aprovacao-do-plano/spec.md --allow-draft`
+- **Plano**: 5 tarefas novas (T024–T028) — 1 `[TEST] [TDD]`, 2 `[CODE]`/`[TEST]` de wiring, 1 `[DOC]`, 1 `[OPS]`; 28 tarefas no total, 29 IDs próprios cobertos.
+- **RED**: `T024` observou RED real no segundo caso — entrada padrão vazia contra `dist/cli.js setup` real não impedia escrita alguma, porque `approval` nunca era consultado em produção. O primeiro caso (aprovação) já passava mesmo sem a correção, confirmando que a lacuna estava exclusivamente na ausência do gate, não na escrita em si.
+- **Ajuste no ciclo de validação**: `T025`, desenhada inicialmente com um único predecessor `[TEST] [TDD]` (`T024`), precisou de três — acrescentados `T002` (`AC-061`, recusa preserva) e `T013` (`AC-072`, real quando ausente), duas tarefas já concluídas que exercitam exatamente o comportamento que `T025` ativa em produção.
+
+#### Gate do Ato III — Entrega da reabertura 2026-08-30
+
+- **Resultado**: Passed
+- **Verificação**: `npm run test:tdd` em exit 0, com **306 casos em 97 arquivos** (era 284/86 no fechamento anterior); `npx tsc --noEmit` e `npm run build` em exit 0; `npm run verify` em exit 0 a partir de clone limpo (install 5s, build 1s, test 18s, total 24s).
+- **Auditorias**: `check_traceability.mjs` em 29/29 IDs próprios cobertos; `verify_acceptance.mjs` em `QA: PASSED`.
+- **Verificação manual real**: `node dist/cli.js setup`, num projeto descartável, com `{"approved":true}` pela entrada padrão — hooks, skills das duas origens e o framework Specsfy escritos, código de saída zero; a mesma execução com entrada padrão vazia — nada escrito, relato `não escrito: recusado`, código de saída 1.
+- **Efeito colateral corrigido**: `tests/cli-setup-real.test.ts` (SPEC-0005) parou de provar instalação real assim que `approval` passou a gate a escrita — sua chamada ao `dist/cli.js setup` não alimentava a entrada padrão, o que agora é lido como documento vazio. `T026` corrigiu passando `input: JSON.stringify({approved:true})`; é o único teste pré-existente que a reabertura tocou, de 306.
+- **Documentação**: `docs/` reconstruído por `$specsfy-documentator`, `--check` em exit 0, monitor de contexto em `CURRENT`; `.specsfy/STACK.md` e `PROJECT.md` deixaram de descrever o wiring como pendência e passaram a descrever o comportamento real.
 
 #### Suposições
 
@@ -789,6 +848,44 @@ Quinze tarefas, uma por `AC`, cada uma em arquivo próprio de `tests/`. Nenhuma 
   - [x] **EVIDENCE**: Comandos, contagens e exit codes registrados na seção 13.
   - [x] **IMPROVE**: `--full-chain` não acusou cadeia quebrada nesta fatia, ao contrário das três anteriores. Escrever as refs de evidência com os identificadores exatos das tarefas, e não por título, evitou o defeito recorrente.
 
+#### Fase 4 — Reabertura 2026-08-30: ligar o comando real
+
+- [x] T024 [TEST] [TDD] [US-060] Derivar de AC-075/AC-076 o caso de ponta a ponta real em tests/cli-approval-real.test.ts — Refs: US-060, US-061, FR-060, FR-064, FR-065, NFR-060, AC-075, AC-076 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-075 e AC-076; confirmar que hoje `formatSetup()` não fornece `approval` a `runSetup`, então qualquer entrada padrão — vazia ou não — produz o mesmo resultado: escrita sem consulta.
+  - [x] **EXECUTE**: Escrever dois casos contra `dist/cli.js setup` real, sem `Executor` nem canal/fonte injetados, sobre projeto descartável com evidência de alvo: (1) entrada padrão `{"approved":true}` resulta em hooks escritos em `.claude/settings.json`; (2) entrada padrão vazia resulta em nenhum arquivo escrito, relato contendo "não escrito" e código de saída diferente de zero.
+  - [x] **VERIFY**: RED no segundo caso — hoje a entrada vazia não impede escrita alguma, porque `approval` nunca é consultado; o primeiro caso já passaria mesmo sem a correção, o que confirma que a lacuna está na ausência do gate, não na escrita em si.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [x] T025 [CODE] [US-060] Ligar approval real em src/cli.ts — Refs: US-060, US-061, FR-060, FR-064, FR-065, AC-075, AC-076 — Depends: T002, T003, T013, T024
+  - [x] **PREP**: Confirmar RED de T024.
+  - [x] **EXECUTE**: `formatSetup()` passa `approval: {}` a `runSetup` — objeto vazio: `context`, `source` e `stdin` já têm cada um sua implementação real por padrão dentro de `resolveChannel`/`realSource`, e listá-los aqui duplicaria essa decisão.
+  - [x] **VERIFY**: Caso de T024 GREEN, com `dist/cli.js setup` real gatendo a escrita pela entrada padrão.
+  - [x] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+  <!-- specsfy:evidence {"task": "T025", "refs": ["US-060", "US-061", "FR-060", "FR-064", "FR-065", "AC-075", "AC-076"], "files": ["src/cli.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}, {"run": "npx vitest run tests/cli-approval-real.test.ts", "exit": 0}]} -->
+
+- [x] T026 [TEST] Ajustar tests/cli-setup-real.test.ts para o gate real — Refs: FR-060 — Depends: T025
+  - [x] **PREP**: `tests/cli-setup-real.test.ts` (SPEC-0005, AC-036/AC-038) roda `dist/cli.js setup` sem alimentar a entrada padrão; com `approval` ligado, isso agora é entrada vazia, que `T025` faz virar recusa — o teste pararia de provar o que provava, sem que a asserção em si mudasse de sentido.
+  - [x] **EXECUTE**: Passar `input: JSON.stringify({ approved: true })` ao `spawnSync` desse teste, para que ele continue exercitando a instalação real das skills e do framework Specsfy, e não a recusa.
+  - [x] **VERIFY**: `tests/cli-setup-real.test.ts` volta a GREEN, com os mesmos quatro artefatos confirmados em disco.
+  - [x] **EVIDENCE**: Comando e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [x] T027 [DOC] Atualizar .specsfy/STACK.md e PROJECT.md removendo o gap registrado — Refs: FR-060 — Depends: T025
+  - [x] **PREP**: Localizar as duas menções ao gap de wiring do `approval` em `.specsfy/STACK.md` e `PROJECT.md`.
+  - [x] **EXECUTE**: Substituir a descrição de gap pendente pela descrição do comportamento real: `common-rules setup` consulta aprovação de verdade, com os dois canais.
+  - [x] **VERIFY**: `npm run build` em exit 0.
+  - [x] **EVIDENCE**: Comando e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [x] T028 [OPS] Verificação manual real e fechar o Delivery Gate da reabertura na seção 13 de specs/completed/0007-fatia-1c-aprovacao-do-plano/spec.md — Refs: NFR-060, NFR-061, NFR-062 — Depends: T024, T025, T026, T027
+  - [x] **PREP**: T024–T027 concluídas, cada `[CODE]` com seu comentário de evidência.
+  - [x] **EXECUTE**: `node dist/cli.js setup` executado de verdade num projeto descartável, aprovando pela entrada padrão e, em execução separada, recusando; suíte completa e `npm run verify`.
+  - [x] **VERIFY**: Suíte inteira em exit 0; `tsc` e `build` em exit 0; `verify` em exit 0 a partir de clone limpo; os dois caminhos reais (aprovado, recusado) inspecionados em disco.
+  - [x] **EVIDENCE**: Comandos, contagens e exit codes registrados na seção 13.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
 ### 15. Ordem de execução
 
 A Fase 1 inteira em paralelo: quinze arquivos distintos, sem dependência entre si. Não há dependência nova a instalar.
@@ -798,6 +895,10 @@ A Fase 2 segue a direção da dependência. `T016` é a única sem predecessor d
 Caminho crítico: `T001 → T017 → T018 → T019 → T020 → T022`. Seis das vinte e duas tarefas.
 
 O fechamento admite paralelismo entre `T020` e `T021`, que tocam arquivos diferentes, mas ambos precisam de `T019` para descrever a superfície real.
+
+**Reabertura 2026-08-30.** `T024` não tem predecessor de código — é RED contra o comando real, que já existe. `T025` a segue e é a única mudança de produção desta reabertura: uma linha em `src/cli.ts`. `T026` depende de `T025` porque só faz sentido ajustar `cli-setup-real.test.ts` depois que o gate passa a existir de fato. `T027` (documentação) roda em paralelo com `T026`, ambos dependendo só de `T025`. `T028` fecha.
+
+Caminho crítico da reabertura: `T024 → T025 → T028`.
 
 ## Ato III — Entregar e validar
 
@@ -835,11 +936,12 @@ Registradas na seção 13, todas reversíveis.
 - [x] `Definition Gate` está `Passed`.
 - [x] `Plan Gate` está `Passed`.
 - [x] `Delivery Gate` está `Passed`.
-- [x] Todos os cenários `AC` aplicáveis passam.
+- [x] Todos os cenários `AC` aplicáveis passam, incluindo os novos `AC-075` e `AC-076`.
 - [x] Todos os requisitos possuem evidência de verificação registrada na seção 12.
 - [x] Todas as tarefas da seção 14 estão concluídas.
 - [x] Os três caminhos de negativa foram conferidos por comparação da árvore do projeto, e não por leitura do relato.
-- [x] Nenhum caso da suíte consulta terminal real ou entrada padrão real.
-- [x] O despacho do comando permanece síncrono, e os 232 casos anteriores seguem passando.
-- [x] `.specsfy/STACK.md` registra os módulos novos.
-- [x] `PROJECT.md` descreve que o `setup` pede aprovação antes de escrever.
+- [x] Nenhum caso de unidade ou integração consulta terminal real ou entrada padrão real — a categoria de ponta a ponta real (`AC-075`, `AC-076`) alimenta a entrada padrão de um subprocesso real, não do processo de teste, e isso é o que ela existe para provar.
+- [x] O despacho do comando permanece síncrono, e os 306 casos anteriores seguem passando.
+- [x] `common-rules setup`, executado de ponta a ponta sobre um projeto descartável de verdade, sem canal nem fonte injetados: aprovado pela entrada padrão, escreve; recusado, não escreve nada e sai com código diferente de zero.
+- [x] `.specsfy/STACK.md` registra o wiring real, sem descrevê-lo mais como pendência.
+- [x] `PROJECT.md` descreve que o `setup` pede aprovação antes de escrever, sem ressalva de gap.

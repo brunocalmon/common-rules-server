@@ -55,6 +55,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/aprovacao-sem-mudanca.test.ts | — |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
+| Testes | tests/cli-approval-real.test.ts | projetoComAlvo |
 | Testes | tests/cli-setup-real.test.ts | — |
 | Testes | tests/cli-symlink.test.ts | viaLink |
 | Testes | tests/cycle-command.test.ts | ROOT |

@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 100.
+- Arquivos de teste: 101.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -28,6 +28,7 @@
 | tests/aprovacao-sem-mudanca.test.ts |
 | tests/budget.test.ts |
 | tests/build.test.ts |
+| tests/cli-approval-real.test.ts |
 | tests/cli-setup-real.test.ts |
 | tests/cli-symlink.test.ts |
 | tests/cycle-command.test.ts |

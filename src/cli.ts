@@ -48,6 +48,7 @@ function formatSetup(): CommandOutcome {
     previous,
     skills: { execute: realSkillsExecutor() },
     specsfy: { execute: realSpecsfyExecutor() },
+    approval: {},
   });
   if (r.installed.length === 0) return { output: r.report, exitCode: r.exitCode };
   const linhas = r.installed.map((h) => `  ${h.name} — evento ${h.event}, em ${TARGET_SETTINGS}`);

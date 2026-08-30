@@ -173,7 +173,12 @@ Três módulos em `src/approval/`, acrescentados pela SPEC-0007:
 | `src/approval/decide.ts` | Interpreta a decisão da fonte escolhida, tratando exceção, entrada vazia e documento inválido como negativa. |
 
 `SetupOptions.approval` é opcional, no mesmo padrão de `skills` e `bridgeEnv`:
-ausente, nada é consultado. O comando de terminal em `src/cli.ts` ainda não
-passa um valor real — gap conhecido, análogo ao que `skills` já tinha antes da
-fatia 1h — e por isso a garantia desta fatia vale hoje na biblioteca, e não
-ainda ponta a ponta pelo comando `common-rules setup`.
+ausente, nada é consultado. `src/cli.ts` liga `approval: {}` em toda execução
+de `common-rules setup`, desde a reabertura de 2026-08-30 — objeto vazio, e
+não campos individuais: `context`, `source` e `stdin` já têm cada um sua
+implementação real por padrão dentro de `resolveChannel`/`realSource`.
+`tests/cli-approval-real.test.ts` prova a integração completa sem nenhum
+canal nem fonte injetados, alimentando a entrada padrão do subprocesso real.
+O servidor MCP (`src/mcp/tool.ts`) segue sem `approval`: ler `stdin` de
+verdade dentro de um processo MCP colidiria com o protocolo JSON-RPC, que já
+usa `stdin`/`stdout` como transporte.
