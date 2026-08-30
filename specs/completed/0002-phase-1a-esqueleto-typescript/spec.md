@@ -600,52 +600,20 @@ A falha é da mesma família de duas outras já registradas nesta sessão: subst
 
 #### Gate do Ato II — Plano
 
-- **Resultado**: Passed (2026-08-24)
+- **Resultado**: Passed (2026-08-30), reaberto sobre plano concluído anteriormente
 - **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0002-phase-1a-esqueleto-typescript/spec.md`
-- **Contagens**: 24 tarefas, 13 predecessores TDD, 6 tarefas `[CODE]`, 120 itens de checklist, 25 de 25 IDs cobertos.
-- **Reaberto e refechado** em 2026-08-24, quando `$specsfy-update-spec` acrescentou FR-007 e AC-011 a AC-013 para fechar a lacuna do clone limpo.
+- **Plano**: 26 tarefas — T001 a T024 preservadas da entrega original; T025 e T026 acrescentadas para a correção de plano de 2026-08-30.
+- **RED**: `npm run test:tdd` com `tests/cli-symlink.test.ts` em 3 de 3 casos reprovando, e os 287 casos anteriores verdes.
+- **Predecessores de T026**: `T009` (AC-008, execução local) e `T011` (AC-010, superfície) exercitam `src/cli.ts` de fato e somam-se a `T025` para os três predecessores exigidos.
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Passed (2026-08-24)
-- **Verificação**: `npm run build` e `npx tsc --noEmit` em exit 0; suíte com 13 arquivos e 43 testes aprovando; `npm run verify` em exit 0 a partir de clone recém-obtido; `doctor` aprovando o ambiente completo com exit 0 e reprovando com exit 1 ao remover `code-review-graph` do `PATH`.
-- **Auditorias**: `verify_acceptance.mjs` em `QA: PASSED`; `verify_evidence.mjs` em `PASSED (strict)`; `check_traceability.mjs` em `OK` com 25 de 25 IDs cobertos em 13 arquivos; `monitor_context --check` em `CURRENT`.
+- **Resultado**: Passed (2026-08-30), reaberto sobre entrega concluída anteriormente
+- **Verificação**: `npm run test:tdd` em exit 0, com **290 casos em 88 arquivos**; `npx tsc --noEmit` e `npm run build` em exit 0; `npm run verify` em exit 0 a partir de clone limpo, em 10s; diretório pessoal com 42 entradas antes e depois.
+- **Auditorias**: `verify_acceptance` em `QA: PASSED`; `verify_evidence` em `PASSED (strict)`; `load_research` em `PASSED`, após corrigir dois caminhos residuais de `specs/completed/`; `check_traceability --full-chain` sem cadeia quebrada para os IDs próprios.
+- **Confirmação contra o sistema real**: o binário instalado por `npm link` em `~/.local/bin/common-rules` responde de verdade — `common-rules --version` imprime `1.0.0` e sai com zero; `common-rules doctor` relata as três dependências.
 
-**Achados do aceite final**
-
-| ID | Achado | Estado |
-| --- | --- | --- |
-| A1 | `R-001` não seguia o contrato `ResearchClaim`: a evidência apontava para prosa em vez de âncora local, e não havia artefato em `research/` apesar da consulta a `pi.dev` | Resolvido — artefato indexado com proveniência, e o claim reformulado para o fato verificado do qual a spec depende |
-| A2 | O enforcement do repositório reprovava `research:0001`, porque a Phase 0 consultou a API do GitHub durante o aceite sem indexar evidência | Resolvido — consulta indexada retroativamente em `research/github-api/` |
-| A3 | O enforcement reprova `trace:0001` por colisão de identificadores entre specs | **Aceito** — limitação do framework, sem correção possível nesta fatia; ver abaixo |
-
-**A3, em detalhe.** `check_traceability.mjs` varre a árvore inteira e não distingue a qual spec um marcador `SPECSFY` pertence. SPEC-0001 e SPEC-0002 usam o mesmo esquema, e a segunda tem mais identificadores que a primeira: `FR-005` a `FR-007` e `AC-012` a `AC-013` existem só aqui.
-
-A renomeação das asserções da Phase 0 para `.cjs`, feita para resolver o problema na direção original, apenas o inverteu. Antes, os arquivos da Phase 0 eram creditados a esta fatia e produziam o órfão `AC-011`; agora os arquivos desta fatia são creditados à Phase 0 e produzem cinco órfãos.
-
-Nenhuma escolha de extensão resolve. Se ambos os conjuntos forem varridos, o lado com menos identificadores acumula órfãos; se um for escondido, o outro perde cobertura. A correção pertence ao auditor, que precisaria de escopo por spec — um prefixo no marcador ou uma lista de caminhos declarada pela própria spec.
-
-Esta fatia passa em todas as suas verificações. O que reprova é uma checagem sobre a spec anterior, causada por uma limitação do framework.
-
-**Decisão de aceite.** A fatia é aceita pelos próprios méritos, e A3 fica registrado como limitação conhecida em vez de ser mascarado. O estado do enforcement no momento do aceite:
-
-```text
-Specsfy verify: FAILED   (boundary local)
-- PASSED  spec:0001, tasks:0001, acceptance:0001, evidence:0001, research:0001
-- FAILED  trace:0001            ← colisão de identificadores entre specs
-- PASSED  spec:0002, tasks:0002
-- PASSED  skills
-- PASS    canary:nonzero-is-failure, canary:no-implicit-attestation
-```
-
-Consequência aceita: enquanto o auditor não ganhar escopo por spec, o enforcement do repositório permanece vermelho por esta razão, e qualquer leitura dele precisa descontar `trace:0001`. Um gate vermelho tratado como ruído de fundo é perigoso, de modo que a condição fica registrada aqui e deve ser reavaliada quando a correção a montante existir.
-
-**Achados do gate de conclusão**
-
-| ID | Achado | Estado |
-| --- | --- | --- |
-| E1 | As seções de gate do Ato II e do Ato III registravam `Pending` enquanto o cabeçalho declarava `Passed` | Resolvido — mesma inconsistência que o aceite da Phase 0 encontrou, agora conferida antes de fechar |
-| E2 | A Definition of Done falava em "três dependências fixadas"; apenas duas são fixadas por npm, e `code-review-graph` é exigido do ambiente | Resolvido — texto alinhado a DEC-002 |
+**Achado pré-existente, não expandido nesta reabertura.** Os mesmos marcadores órfãos de `AC-020` em diante, das quatro specs numeradas em faixa mais alta, continuam aparecendo — colisão de identificadores já registrada e aceita como limitação conhecida em aceites anteriores. Nada de novo aqui.
 
 #### Suposições
 
@@ -855,7 +823,29 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
   - [x] **EVIDENCE**: Registrado na seção 12 junto de T022.
   - [x] **IMPROVE**: A interrupção foi verificada executando um ciclo que falha de verdade, e não só lendo a fonte.
 
+#### Fase extra — Correção de plano: dispatch por link simbólico
+
+Reabertura de 2026-08-30. `FR-005` e `FR-006` já exigiam resposta "quando invocado"; a comparação de caminho no guard de dispatch nunca considerava o caso de o binário ser um link simbólico, e toda instalação global do npm cria exatamente isso.
+
+- [x] T025 [TEST] [TDD] [US-001] Derivar de AC-008 o caso de invocação por link simbólico em tests/cli-symlink.test.ts — Refs: US-001, US-002, FR-005, FR-006, NFR-003, AC-008 — Depends: none
+  - [x] **PREP**: Reler AC-008: hoje exercita só execução pelo caminho local direto. Falta o caso real de instalação — link simbólico, que é como npm link e npm install -g sempre entregam um binário global.
+  - [x] **EXECUTE**: Escrever o caso em `tests/cli-symlink.test.ts`: criar um link simbólico de verdade em diretório temporário apontando para `dist/cli.js`, invocar `node <link> --version` como subprocesso e `node <link> doctor`, conferindo que os dois produzem saída e código de saída correspondentes à execução direta.
+  - [x] **VERIFY**: RED observado nos três casos — invocado pelo link, `--version` e `doctor` saem silenciosos, e a comparação contra a execução direta falha.
+  - [x] **EVIDENCE**: `npx vitest run tests/cli-symlink.test.ts` com 3 de 3 reprovando. Registrado na seção 12.
+  - [x] **IMPROVE**: O caso usa subprocesso de verdade, e não apenas inspeciona `argv`/`import.meta.url` isoladamente — é a mesma disciplina que `AC-002` da SPEC-0003 já aplica aos guards: só executar prova o comportamento real.
+
+- [x] T026 [CODE] [US-001] Resolver o caminho real de argv[1] antes de comparar em src/cli.ts — Refs: FR-005, FR-006, NFR-003, AC-008, AC-010 — Depends: T009, T011, T025
+  - [x] **PREP**: T025 em RED; `docs/` reconstruído por `$specsfy-documentator` antes da alteração.
+  - [x] **EXECUTE**: `src/cli.ts` ganhou `realEntryPath`, que resolve `argv[1]` pelo caminho real via `realpathSync` antes de comparar com `fileURLToPath(import.meta.url)`, devolvendo `undefined` em vez de lançar quando o caminho não existe.
+  - [x] **VERIFY**: T025 passa a GREEN nos três casos. A suíte inteira fecha em 290 de 290 casos e 88 de 88 arquivos. `npx tsc --noEmit` e `npm run build` em exit 0. Confirmado contra o sistema real: `common-rules --version` e `common-rules doctor`, invocados pelo binário linkado por `npm link` em `~/.local/bin/`, respondem com saída e código zero.
+  - [x] **EVIDENCE**: Comandos, contagens e a saída do binário real registrados na seção 12.
+  - [x] **IMPROVE**: Este defeito é mais grave que o da SPEC-0003: ali quatro hooks de sete ficavam inertes; aqui o binário inteiro nunca funcionaria fora deste checkout, incluindo qualquer instalação futura publicada de verdade. `AC-008` já previa o cenário de instalação, mas seu Gherkin dizia "pelo caminho local do projeto" — nunca "por link simbólico" —, e ninguém tinha motivo para desconfiar até a primeira instalação real acontecer nesta sessão.
+
+  <!-- specsfy:evidence {"task": "T026", "refs": ["FR-005", "FR-006", "NFR-003", "AC-008", "AC-010"], "files": ["src/cli.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
+
 ### 15. Ordem de execução
+
+**Correção de 2026-08-30.** `T025` não depende de nada e `T026` depende só de `T025`; a ordem original não muda.
 
 - Caminho crítico: T001 → T002 e T003 → T012 → T013 → T015 → T016 → T019.
 - T020 registra em `.specsfy/RULES.md` a regra de instalar sempre com `--ignore-scripts`, confirmada pela pessoa responsável durante o planejamento.
@@ -882,6 +872,7 @@ Uma tarefa por cenário da seção 6. Nenhuma depende das outras e cada uma escr
 - **Resolução cair na cópia global sem que ninguém perceba** → duas máquinas rodam versões diferentes achando que rodam a mesma. Mitigação: `doctor` sempre relata a origem resolvida, e divergência de versão reprova.
 - **O esqueleto crescer além do escopo** → a fatia perde a função de provar chão firme depressa. Mitigação: AC-010 verifica que apenas dois comandos existem.
 - **`code-review-graph` seguir fora do npm indefinidamente** → o modelo de três camadas se torna permanente. Aceito: a ponte `uv` explícita da fatia 1b resolve sem exigir que o pacote migre de ecossistema.
+- **Guard de dispatch nunca verdadeiro quando o binário é invocado por link simbólico** → `fileURLToPath(import.meta.url)` é sempre o caminho real resolvido, e `argv[1]` preserva o caminho do link. Como toda instalação global do npm — `npm link` ou `npm install -g` de pacote publicado — cria um link simbólico para o bin, o binário nunca respondia fora deste checkout. `AC-008` só exercitava execução pelo caminho local direto, nunca por link. Achado em 2026-08-30, ao instalar de verdade via `npm link` pela primeira vez. Mitigação: a comparação passa a resolver `argv[1]` pelo caminho real antes de comparar, e um caso novo cria um link simbólico de verdade e invoca por ele, em vez de invocar só pelo caminho direto.
 
 #### Suposições
 
@@ -905,6 +896,8 @@ Registradas na seção 13, todas reversíveis nesta fatia.
 - **DEC-004**: A Phase 1 foi fatiada em 1a a 1e, e esta fatia entrega apenas o esqueleto. *Razão*: as seis entregas do backlog são cada uma comparável à Phase 0, que rendeu 14 tarefas sendo uma única coisa estreita; uma spec única produziria gates que não se sustentariam honestamente.
 - **DEC-005**: A verificação de dependências é comando, não documento. *Razão*: a Phase 0 encontrou uma premissa falsa que estava escrita como verdade em três lugares. Premissa exercitada por comando falha alto e cedo.
 
+**Correção de plano registrada em 2026-08-30.** `FR-005` e `FR-006` não mudaram: ambos já exigem que o binário responda "quando invocado", e o caso real de invocação — através do link simbólico que toda instalação global cria — nunca foi exercitado. Classificação: mudança de plano, Ato II reaberto, Definition Gate preservado.
+
 ### 18. Definition of Done
 
 - [x] `Definition Gate` está `Passed`.
@@ -927,3 +920,5 @@ A asserção estava certa sobre a entrega desta fatia e errada como invariante. 
 O cenário passou a afirmar que os dois comandos desta fatia existem e que os das fatias seguintes não, e `setup` saiu da lista de proibidos porque deixou de ser futuro. A guarda continua valendo para `orchestrate`, `approve`, `model`, `agent`, `serve` e `mcp`.
 
 É o mesmo defeito já corrigido três vezes nas asserções da Phase 0, que comparavam `HEAD` de uma branch que cresce. Vale como padrão: asserção que descreve um instante da entrega envelhece mal, e a que descreve a propriedade sobrevive.
+
+**Aceite da reabertura, 2026-08-30.** Todos os gates conferidos: `Definition Gate: Passed` preservado; `Plan Gate: Passed` com `T025`/`T026` acrescentadas e RED materializado; `Delivery Gate: Passed` com 290 de 290 casos, confirmação contra o sistema real via binário `npm link`, `load_research` corrigido e `check_traceability --full-chain` sem cadeia quebrada para os IDs próprios.

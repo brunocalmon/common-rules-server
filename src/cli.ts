@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
+import { realpathSync } from "node:fs";
 import { defaultEnvironment, inspectDependencies } from "./doctor.js";
 import { runSetup, TARGET_SETTINGS } from "./setup/run.js";
 import { detectEnvironment } from "./setup/env.js";
@@ -76,9 +77,28 @@ export function run(args: readonly string[]): CommandOutcome {
   return command();
 }
 
+/**
+ * Resolve `argv[1]` pelo caminho real antes de comparar.
+ *
+ * Toda instalação global do npm — `npm link` ou `npm install -g` de pacote
+ * publicado — entrega o binário como link simbólico. `argv[1]` preserva o
+ * caminho do link, e `fileURLToPath(import.meta.url)` é sempre o caminho
+ * real; comparar os dois direto nunca bate fora deste checkout. Devolve
+ * `undefined` em vez de lançar quando o caminho não existe, para que o guard
+ * simplesmente não dispare em vez de derrubar o processo.
+ */
+function realEntryPath(caminho: string | undefined): string | undefined {
+  if (caminho === undefined) return undefined;
+  try {
+    return realpathSync(caminho);
+  } catch {
+    return undefined;
+  }
+}
+
 // Só executa quando invocado como binário; importar o módulo não imprime nada,
 // o que é o que permite a surface.test.ts inspecionar COMMANDS sem efeito.
-if (argv[1] !== undefined && fileURLToPath(import.meta.url) === argv[1]) {
+if (fileURLToPath(import.meta.url) === realEntryPath(argv[1])) {
   const { output, exitCode } = run(argv.slice(2));
   (exitCode === 0 ? stdout : stderr).write(`${output}\n`);
   exit(exitCode);

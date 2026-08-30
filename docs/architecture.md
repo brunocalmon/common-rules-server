@@ -5,8 +5,8 @@
 
 | Tipo | Quantidade |
 | --- | --- |
-| Código | 116 |
-| Testes | 91 |
+| Código | 117 |
+| Testes | 92 |
 
 ## Diagramas
 

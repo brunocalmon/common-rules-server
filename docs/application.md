@@ -12,7 +12,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/approval/context.ts | TerminalContext, realTerminalContext, resolveChannel |
 | Outras fontes | src/approval/decide.ts | DecisionSource, StdinReader, documentSource, interactiveSource, realSource, ApprovalResult, interpret |
 | Outras fontes | src/approval/render.ts | PlannedItem, RenderedPlan, renderPlan |
-| Outras fontes | src/cli.ts | CommandOutcome, formatReport, formatSetup, COMMANDS, ALIASES, resolveCommand, run |
+| Outras fontes | src/cli.ts | CommandOutcome, formatReport, formatSetup, COMMANDS, ALIASES, resolveCommand, run, realEntryPath |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
 | Outras fontes | src/hooks/claude-code.ts | TranslatedHook, EVENT_MAP, translateForClaudeCode, wrap, unwrap, FRAGMENT_START, FRAGMENT_END, PREAMBLE |
 | Outras fontes | src/hooks/detect.ts | TargetEnvironment, Detection, TARGET, EVIDENCE, detectTarget |
@@ -52,6 +52,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/aprovacao-sem-mudanca.test.ts | — |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
+| Testes | tests/cli-symlink.test.ts | viaLink |
 | Testes | tests/cycle-command.test.ts | ROOT |
 | Testes | tests/cycle-failure.test.ts | ROOT |
 | Testes | tests/cycle-timings.test.ts | ROOT |
