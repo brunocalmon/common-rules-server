@@ -5,14 +5,14 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0008 |
 | Slug | 0008-fatia-1d-deteccao-backends |
-| Status | Defined |
+| Status | Planned |
 | Effort | 3 |
 | Effort updated at | 2026-08-30 |
 | Effort rationale | A lógica de detecção é pequena — presença e versão via `which`/`--version`, sem sondagem de capacidade em tempo de execução. O custo está em estender `doctor` com uma terceira camada sem quebrar o contrato de saída das duas existentes, e em fixar a lista suportada com evidência real por backend. |
 | ClickUp Task | |
 | Milestones | |
 | Definition Gate | Passed |
-| Plan Gate | Pending |
+| Plan Gate | Passed |
 | Delivery Gate | Pending |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega acontece dentro de `common-rules doctor`, um comando de terminal já existente, sem tela. |
@@ -65,7 +65,7 @@ Nenhuma documentação externa publicada; toda a evidência vem de `--help` e de
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/defined/0008-fatia-1d-deteccao-backends/research/backends/invocacao-sem-interacao.md` — tabela de capacidade por backend, com versão, flag/subcomando de invocação sem interação, saída estruturada quando houver, e a evidência de execução real de `codex exec` e `goose run`.
+- `specs/planned/0008-fatia-1d-deteccao-backends/research/backends/invocacao-sem-interacao.md` — tabela de capacidade por backend, com versão, flag/subcomando de invocação sem interação, saída estruturada quando houver, e a evidência de execução real de `codex exec` e `goose run`.
 
 #### Dúvidas respondidas
 
@@ -373,7 +373,7 @@ tests/
   backends-detector-injetavel.test.ts
   backends-paridade-real.test.ts
   doctor-camada-agent.test.ts
-specs/defined/0008-fatia-1d-deteccao-backends/
+specs/planned/0008-fatia-1d-deteccao-backends/
   spec.md
   research/
     backends/
@@ -449,7 +449,7 @@ O ponto sensível é a tentação de sondar `--help` em produção para decidir 
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-30)
-- **Comando**: `node .agents/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/defined/0008-fatia-1d-deteccao-backends/spec.md`
+- **Comando**: `node .agents/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/planned/0008-fatia-1d-deteccao-backends/spec.md`
 - **Cobertura**: 3 US, 4 FR, 3 NFR, 10 AC, 5 DEC; mínimo de 3 AC por ID satisfeito em todos, inclusive os que exigiram ACs adicionais (`AC-086`–`AC-089`) para cobrir `US-031`, `US-032`, `FR-031`, `FR-032`, `FR-033`, `NFR-030`, `NFR-031`, `NFR-032`.
 - **Research**: `load_research.mjs` em `PASSED`, com `R-030`, `R-031` e `R-032` verificados e um artefato indexado.
 - **Revisão ARCH**: a mudança de `exitCode` (`dependenciasOk`) precisa filtrar a camada `agent` explicitamente — hoje é `results.every(r => r.present)`, e simplesmente empurrar entradas `agent` para `results` sem esse filtro quebraria `PR-032`/`NFR-031`. Confirmado contra o código real de `src/doctor.ts` antes deste gate; registrado na seção 8 para a tarefa de código não reintroduzir o erro.
@@ -457,23 +457,162 @@ O ponto sensível é a tentação de sondar `--help` em produção para decidir 
 
 #### Gate do Ato II — Plano
 
-- **Resultado**: Pending
-- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/defined/0008-fatia-1d-deteccao-backends/spec.md`
-- **Achados**: Pending.
+- **Resultado**: Passed (2026-08-30)
+- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/planned/0008-fatia-1d-deteccao-backends/spec.md`
+- **Plano**: 16 tarefas — 10 `[TEST] [TDD]`, 3 `[CODE]`, 2 `[DOC]`, 1 `[OPS]`; 80 itens de checklist; 20 de 20 IDs cobertos.
+- **Achados**: Nenhum bloqueante.
 
 #### Gate do Ato III — Entrega
 
 - **Resultado**: Pending
-- **Comando**: `node .agents/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/defined/0008-fatia-1d-deteccao-backends/spec.md .`
+- **Comando**: `node .agents/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/planned/0008-fatia-1d-deteccao-backends/spec.md .`
 - **Achados**: Pending.
 
 ### 14. Tarefas
 
-Preenchida por `$specsfy-05-tasks`.
+Formato:
+`- [ ] TNNN [P?] [TIPO] [US-NNN?] Ação com caminho — Refs: IDs — Depends: IDs|none`
+
+Checklist obrigatório por tarefa, na ordem:
+
+```markdown
+  - [ ] **PREP**: Confirmar escopo, IDs, dependências e baseline.
+  - [ ] **EXECUTE**: Produzir a entrega no caminho declarado.
+  - [ ] **VERIFY**: Executar a verificação focal adequada.
+  - [ ] **EVIDENCE**: Registrar comando, resultado e IDs nas seções 11–13.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+```
+
+#### Fase 1 — RED, um caso por cenário da seção 6
+
+- [ ] T001 [P] [TEST] [TDD] [US-030] Derivar de AC-080 o caso em tests/backends-suportados-presentes.test.ts — Refs: US-030, FR-030, FR-031, AC-080 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-080 e fixar o critério: os cinco suportados presentes aparecem com presença, versão e marca de suportado.
+  - [ ] **EXECUTE**: Escrever o caso com uma fonte de resolução fake que devolve versão para os cinco nomes suportados, conferindo `detectBackends` (ainda inexistente).
+  - [ ] **VERIFY**: RED — `Cannot find module` sobre `src/backends/detect`.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T002 [P] [TEST] [TDD] [US-030] Derivar de AC-081 o caso em tests/backends-ausencia-nao-afeta-saida.test.ts — Refs: US-030, FR-030, PR-032, NFR-031, AC-081 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-081.
+  - [ ] **EXECUTE**: Escrever o caso chamando `inspectDependencies` (ainda sem a camada `agent`) com uma fonte em que nenhum backend está presente, conferindo `exitCode` igual ao de um ambiente com `npm`/`python` completos e nenhum backend.
+  - [ ] **VERIFY**: RED — `inspectDependencies` ainda não aceita fonte de backend nem inclui a camada `agent`.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T003 [P] [TEST] [TDD] [US-031] Derivar de AC-082 o caso em tests/backends-nao-suportado-presente.test.ts — Refs: US-031, FR-032, FR-033, AC-082 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-082.
+  - [ ] **EXECUTE**: Escrever o caso com `dsh` presente e os cinco suportados ausentes, conferindo que `dsh` aparece como presente e não suportado.
+  - [ ] **VERIFY**: RED — módulo ainda não existe.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T004 [P] [TEST] [TDD] [US-030] Derivar de AC-083 o caso em tests/backends-lista-fixa-sem-sondagem.test.ts — Refs: US-030, FR-032, NFR-030, AC-083 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-083.
+  - [ ] **EXECUTE**: Escrever o caso com uma fonte instrumentada que registra cada chamada, conferindo que nenhuma chamada além da que resolve presença/versão ocorre — nenhum `--print`, prompt ou equivalente.
+  - [ ] **VERIFY**: RED — módulo ainda não existe.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T005 [P] [TEST] [TDD] [US-032] Derivar de AC-084 o caso em tests/backends-detector-injetavel.test.ts — Refs: US-032, FR-030, NFR-032, AC-084 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-084.
+  - [ ] **EXECUTE**: Escrever o caso com uma fonte fake marcando `codex` ausente e os demais presentes, conferindo que o resultado reflete exatamente a fonte, sem tocar o `PATH` real.
+  - [ ] **VERIFY**: RED — módulo ainda não existe.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T006 [P] [TEST] [TDD] [US-032] Derivar de AC-085 o caso em tests/backends-paridade-real.test.ts — Refs: US-032, NFR-032, AC-085 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-085; confirmar os cinco backends suportados presentes nesta máquina (pesquisa da seção 2).
+  - [ ] **EXECUTE**: Escrever o caso com a fonte real (sem injeção), conferindo que o resultado para cada backend corresponde a rodar `which`/`--version` diretamente.
+  - [ ] **VERIFY**: RED — módulo ainda não existe.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T007 [P] [TEST] [TDD] [US-031] Derivar de AC-086 o caso em tests/backends-convivencia-status.test.ts — Refs: US-031, FR-031, FR-033, NFR-031, AC-086 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-086.
+  - [ ] **EXECUTE**: Escrever o caso com `pi` presente, `dsh` presente e `agy` ausente, conferindo os três status simultaneamente e que `exitCode` não muda por causa deles.
+  - [ ] **VERIFY**: RED — módulo ainda não existe.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T008 [P] [TEST] [TDD] Derivar de AC-087 o caso em tests/backends-versao-sem-help.test.ts — Refs: FR-030, NFR-030, AC-087 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-087.
+  - [ ] **EXECUTE**: Escrever o caso com uma fonte instrumentada que registra qual flag cada chamada usa, conferindo que só `--version` é usado, nunca `--help`.
+  - [ ] **VERIFY**: RED — módulo ainda não existe.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T009 [P] [TEST] [TDD] [US-031] [US-032] Derivar de AC-088 o caso em tests/backends-determinismo-misto.test.ts — Refs: US-031, US-032, FR-032, FR-033, NFR-031, NFR-032, AC-088 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-088.
+  - [ ] **EXECUTE**: Escrever o caso com `pi` suportado presente, `codex` suportado ausente e `dsh` não suportado presente, rodando duas vezes com a mesma fonte e conferindo relatos idênticos e `exitCode` inalterado.
+  - [ ] **VERIFY**: RED — módulo ainda não existe.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T010 [P] [TEST] [TDD] Derivar de AC-089 o caso em tests/doctor-camada-agent-texto.test.ts — Refs: FR-031, NFR-030, NFR-031, AC-089 — Depends: none
+  - [ ] **PREP**: Ler o Gherkin de AC-089; confirmar como `formatReport()` hoje itera `results` em `src/cli.ts`.
+  - [ ] **EXECUTE**: Escrever o caso chamando `formatReport()`/`run(["doctor"])` com um backend suportado presente e um ausente, conferindo que o texto nomeia a camada `agent` distinta de `npm`/`python`, sem chamada de `--help`, e que o código de saída reflete só `npm`/`python`.
+  - [ ] **VERIFY**: RED — a camada `agent` ainda não existe no texto.
+  - [ ] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+#### Fase 2 — Código, cada tarefa atrás do seu RED
+
+- [ ] T011 [CODE] [US-031] Implementar em src/backends/known.ts — Refs: US-031, FR-032, FR-033, AC-082, AC-086, AC-088 — Depends: T003, T007, T009
+  - [ ] **PREP**: Confirmar RED de T003, T007 e T009; `docs/` reconstruído por `$specsfy-documentator` antes da alteração.
+  - [ ] **EXECUTE**: `SUPPORTED_AGENT_BACKENDS` (`pi`, `agy`, `claude`, `codex`, `goose`) e `KNOWN_AGENT_BACKENDS` (os cinco suportados mais `dsh` e `cursor-agent`), como constantes nomeadas, sem lógica.
+  - [ ] **VERIFY**: `npx tsc --noEmit` em exit 0.
+  - [ ] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+  <!-- specsfy:evidence {"task": "T011", "refs": ["US-031", "FR-032", "FR-033", "AC-082", "AC-086", "AC-088"], "files": ["src/backends/known.ts"], "commands": [{"run": "npx tsc --noEmit", "exit": 0}]} -->
+
+- [ ] T012 [CODE] [US-030] [US-032] Implementar em src/backends/detect.ts — Refs: US-030, US-032, FR-030, NFR-030, NFR-032, AC-080, AC-083, AC-084, AC-085, AC-087 — Depends: T001, T004, T005, T006, T008, T011
+  - [ ] **PREP**: Confirmar RED de T001, T004, T005, T006 e T008.
+  - [ ] **EXECUTE**: `BackendEnvironment` injetável com `resolveVersion(name): string | null`; `realBackendEnvironment()` usando o mesmo `probe()` que `src/doctor.ts` já usa para `code-review-graph`, chamando só `<backend> --version`; `detectBackends(env, KNOWN_AGENT_BACKENDS, SUPPORTED_AGENT_BACKENDS)` devolve um resultado por candidato, com presença, versão e a marca de suportado.
+  - [ ] **VERIFY**: Casos de T001, T004, T005, T006 e T008 GREEN.
+  - [ ] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+  <!-- specsfy:evidence {"task": "T012", "refs": ["US-030", "US-032", "FR-030", "NFR-030", "NFR-032", "AC-080", "AC-083", "AC-084", "AC-085", "AC-087"], "files": ["src/backends/detect.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}]} -->
+
+- [ ] T013 [CODE] [US-030] [US-031] Estender a camada agent em src/doctor.ts — Refs: US-030, US-031, FR-031, PR-032, NFR-031, AC-081, AC-086, AC-088, AC-089 — Depends: T002, T007, T009, T010, T012
+  - [ ] **PREP**: Confirmar RED de T002, T007, T009 e T010. Reconfirmar contra o código real: `dependenciasOk` hoje é `results.every(r => r.present)` — a mudança precisa filtrar `layer !== "agent"` nesse cálculo, não só ao montar `results` (achado já registrado no Gate do Ato I).
+  - [ ] **EXECUTE**: `Layer` ganha `"agent"`; `inspectDependencies` chama `detectBackends` e empurra o resultado em `results` com `layer: "agent"`, `origin: "global"`; `dependenciasOk` passa a ser `results.filter(r => r.layer !== "agent").every(r => r.present)`. `formatReport()` em `src/cli.ts` não muda de assinatura — já itera `results` genericamente.
+  - [ ] **VERIFY**: Casos de T002, T007, T009 e T010 GREEN; os 311 casos anteriores seguem verdes.
+  - [ ] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+  <!-- specsfy:evidence {"task": "T013", "refs": ["US-030", "US-031", "FR-031", "PR-032", "NFR-031", "AC-081", "AC-086", "AC-088", "AC-089"], "files": ["src/doctor.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
+
+#### Fase 3 — Fechamento
+
+- [ ] T014 [DOC] Registrar o módulo novo e a terceira camada em .specsfy/STACK.md — Refs: FR-031 — Depends: T013
+  - [ ] **PREP**: Ler a seção de `doctor` em `.specsfy/STACK.md`.
+  - [ ] **EXECUTE**: Descrever `src/backends/known.ts`, `src/backends/detect.ts`, a camada `agent` e por que ela nunca afeta `exitCode`.
+  - [ ] **VERIFY**: `npm run build` em exit 0.
+  - [ ] **EVIDENCE**: Comando e resultado registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T015 [DOC] Descrever em PROJECT.md que doctor relata backends de agente — Refs: US-030 — Depends: T013
+  - [ ] **PREP**: Localizar a linha de `doctor` na tabela de comandos de `PROJECT.md`.
+  - [ ] **EXECUTE**: Descrever a terceira camada, informativa, e a lista suportada.
+  - [ ] **VERIFY**: `npm run build` em exit 0.
+  - [ ] **EVIDENCE**: Comando e resultado registrados na seção 12.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [ ] T016 [OPS] Verificação manual real e fechar o Delivery Gate na seção 13 de specs/planned/0008-fatia-1d-deteccao-backends/spec.md — Refs: NFR-030, NFR-031, NFR-032 — Depends: T014, T015
+  - [ ] **PREP**: T011–T015 concluídas, cada `[CODE]` com seu comentário de evidência.
+  - [ ] **EXECUTE**: `node dist/cli.js doctor` executado de verdade nesta máquina; suíte completa e `npm run verify`; `check_traceability.mjs` e `verify_acceptance.mjs`.
+  - [ ] **VERIFY**: Os cinco backends suportados aparecem com a versão real da pesquisa; `exitCode` de `doctor` inalterado em relação a antes desta fatia; suíte inteira, `tsc`, `build` e `verify` em exit 0 a partir de clone limpo.
+  - [ ] **EVIDENCE**: Comandos, contagens e exit codes registrados na seção 13.
+  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
 ### 15. Ordem de execução
 
-Preenchida por `$specsfy-05-tasks`.
+A Fase 1 inteira em paralelo: dez arquivos distintos, sem dependência entre si.
+
+A Fase 2 segue a dependência entre módulos. `T011` (`known.ts`) não depende de código, só de nomear duas listas. `T012` (`detect.ts`) consome `T011`. `T013` (`doctor.ts`) consome `T012` e é quem de fato ativa a terceira camada e o filtro de `exitCode`.
+
+Caminho crítico: `T001 → T012 → T013 → T016`. Quatro das dezesseis tarefas, passando por `T012` porque a detecção é predecessora tanto da extensão de `doctor` quanto de qualquer consumo futuro pela fatia 1e.
+
+O fechamento admite paralelismo entre `T014` e `T015`, que tocam arquivos diferentes, mas ambos precisam de `T013` concluída para descrever a superfície real.
 
 ## Ato III — Entregar e validar
 
