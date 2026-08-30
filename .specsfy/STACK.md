@@ -144,6 +144,20 @@ fornecia `skills` nem `specsfy` a `runSetup` — o `setup` real não instalava
 coisa alguma. `tests/cli-setup-real.test.ts` prova a integração completa sem
 nenhum executor injetado.
 
+**"Já configurado" cobre o disco, não só o registro.** `runSetup` decidia
+isso olhando só os hooks (`matches()`, nome e versão contra o registro
+anterior); apagar `.claude/skills/` ou `.specsfy/` por fora e rodar `setup`
+de novo relatava sucesso sem restaurar nada — reproduzido de verdade numa
+segunda reabertura, no mesmo dia. `jaFeito` passou a ser a conjunção de três
+checagens independentes e baratas — sem subprocesso: hooks batendo
+(`matches()`), cada skill antes registrada ainda presente em
+`inspectSkills(raiz).dirs`, e `.specsfy/` existindo quando `opts.specsfy` foi
+fornecido. Qualquer uma falsa invalida o curto-circuito inteiro, e a execução
+segue para a aprovação e para os instaladores reais — já idempotentes por si.
+`tests/cli-setup-drift-real.test.ts` prova a restauração de ponta a ponta;
+`tests/setup-jafeito-skills-specsfy.test.ts` prova que, sem drift, nenhum
+executor é invocado.
+
 ## Telemetria da execução
 
 Dois módulos em `src/telemetry/`, acrescentados pela SPEC-0006:

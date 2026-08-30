@@ -5,8 +5,8 @@
 
 | Tipo | Quantidade |
 | --- | --- |
-| Código | 129 |
-| Testes | 101 |
+| Código | 131 |
+| Testes | 103 |
 
 ## Diagramas
 

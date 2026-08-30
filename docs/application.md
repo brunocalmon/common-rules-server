@@ -56,6 +56,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
 | Testes | tests/cli-approval-real.test.ts | projetoComAlvo |
+| Testes | tests/cli-setup-drift-real.test.ts | projetoComAlvo, rodar |
 | Testes | tests/cli-setup-real.test.ts | — |
 | Testes | tests/cli-symlink.test.ts | viaLink |
 | Testes | tests/cycle-command.test.ts | ROOT |
@@ -90,6 +91,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/setup-dryrun.test.ts | — |
 | Testes | tests/setup-idempotent.test.ts | — |
 | Testes | tests/setup-install.test.ts | — |
+| Testes | tests/setup-jafeito-skills-specsfy.test.ts | executorSpecsfyFake, executorSpecsfyQueLancaSeChamado |
 | Testes | tests/setup-record.test.ts | — |
 | Testes | tests/setup-revert.test.ts | — |
 | Testes | tests/setup-surface.test.ts | PROIBIDOS |

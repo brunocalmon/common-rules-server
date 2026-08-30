@@ -5,15 +5,15 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0005 |
 | Slug | 0005-fatia-1h-skills-lado-a-lado |
-| Status | Defined |
+| Status | Complete |
 | Effort | 5 |
 | Effort updated at | 2026-08-29 |
 | Effort rationale | O `setup` e o registro já existem. O custo está em acoplar um instalador de terceiro que simboliza por padrão, não fixa conteúdo e falha de formas que precisam chegar como falha. |
 | ClickUp Task | |
 | Milestones | |
 | Definition Gate | Passed |
-| Plan Gate | Pending |
-| Delivery Gate | Pending |
+| Plan Gate | Passed |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — a entrega acontece dentro de um comando de terminal já existente, sem tela. |
 | Atualizada em | 2026-08-29 |
@@ -97,10 +97,10 @@ Dois README públicos e o registro npm. As notas ficam em `research/`, sem repro
 
 #### Artefatos de pesquisa armazenados
 
-- `specs/defined/0005-fatia-1h-skills-lado-a-lado/research/instalador-skills/interface-da-cli.md` — interface observada da CLI, com proveniência, as flags relevantes e a consequência do padrão por link. Contém a correção da afirmação sobre ausência de lockfile.
-- `specs/defined/0005-fatia-1h-skills-lado-a-lado/research/instalador-skills/coexistencia-observada.md` — execução real em projeto descartável, com contagem antes e depois, ausência de links, arquivos não criados e a forma do lockfile encontrado.
-- `specs/defined/0005-fatia-1h-skills-lado-a-lado/research/reabertura-2026-08-30/segunda-origem-oficial.md` — execução real do `skills add promovaweb/specsfy`, confirmando a segunda origem oficial e sua forma.
-- `specs/defined/0005-fatia-1h-skills-lado-a-lado/research/reabertura-2026-08-30/specsfy-install-real.md` — execução real do `specsfy install --project <raiz> --json`, confirmando o que ele grava e que é subprocesso distinto do `skills`.
+- `specs/completed/0005-fatia-1h-skills-lado-a-lado/research/instalador-skills/interface-da-cli.md` — interface observada da CLI, com proveniência, as flags relevantes e a consequência do padrão por link. Contém a correção da afirmação sobre ausência de lockfile.
+- `specs/completed/0005-fatia-1h-skills-lado-a-lado/research/instalador-skills/coexistencia-observada.md` — execução real em projeto descartável, com contagem antes e depois, ausência de links, arquivos não criados e a forma do lockfile encontrado.
+- `specs/completed/0005-fatia-1h-skills-lado-a-lado/research/reabertura-2026-08-30/segunda-origem-oficial.md` — execução real do `skills add promovaweb/specsfy`, confirmando a segunda origem oficial e sua forma.
+- `specs/completed/0005-fatia-1h-skills-lado-a-lado/research/reabertura-2026-08-30/specsfy-install-real.md` — execução real do `specsfy install --project <raiz> --json`, confirmando o que ele grava e que é subprocesso distinto do `skills`.
 
 #### Dúvidas respondidas
 
@@ -810,16 +810,16 @@ O ponto sensível é que os dois instaladores são subprocessos de terceiro. Os 
 | NFR-021 | AC-037 | Integração | origem que falha não vira sucesso da outra | **Passed** — skills-segunda-origem, T030/T041 |
 | NFR-021 | AC-040 | Integração | instalador do framework ausente não vira sucesso | **Passed** — specsfy-install-falha, T034/T039 |
 | NFR-021 | AC-041 | Integração | relato fiel de nada mudou | **Passed** — specsfy-install-idempotente, T033/T039 |
-| FR-030 | AC-077 | Ponta a ponta real | skills apagadas são restauradas | Pendente |
-| FR-030 | AC-078 | Ponta a ponta real | framework apagado é restaurado | Pendente |
-| FR-030 | AC-079 | Integração | sem drift, curto-circuito preservado | Pendente |
+| FR-030 | AC-077 | Ponta a ponta real | skills apagadas são restauradas | **Passed** — cli-setup-drift-real, T047/T050 |
+| FR-030 | AC-078 | Ponta a ponta real | framework apagado é restaurado | **Passed** — cli-setup-drift-real, T048/T050 |
+| FR-030 | AC-079 | Integração | sem drift, curto-circuito preservado | **Passed** — setup-jafeito-skills-specsfy, T049/T050 |
 
 ### 13. Validações
 
 #### Gate do Ato I — Definição
 
 - **Resultado**: READY (2026-08-29), reconfirmado no aceite final em 2026-08-29
-- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md`
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md`
 - **Cobertura**: 3 US, 7 FR, 3 NFR, 16 AC, 9 DEC; mínimo de 3 AC por ID satisfeito nos treze. Identificadores de 020 a 035, conforme a regra de faixa por spec.
 - **Research**: `load_research.mjs` em `PASSED`, com `R-020` e `R-021` verificados e dois artefatos indexados.
 
@@ -867,7 +867,7 @@ O ponto sensível é que os dois instaladores são subprocessos de terceiro. Os 
 #### Gate do Ato II — Plano
 
 - **Resultado**: Passed (2026-08-29)
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md`
+- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md`
 - **Plano**: 27 tarefas — 16 `[TEST] [TDD]`, 6 `[CODE]`, 3 `[DOC]`, 2 `[OPS]`; 135 itens de checklist; 29 de 29 IDs cobertos.
 - **RED**: `npm run test:tdd` com dezesseis arquivos novos reprovando por `Cannot find module` sobre `src/skills/source`, `src/skills/inventory`, `src/skills/install` e `src/skills/record`, e os 133 casos anteriores verdes. 50 casos marcados com `SPECSFY`, cobrindo os dezesseis `AC`.
 - **Rastreabilidade**: `check_traceability.mjs` em 29 de 29 IDs cobertos sobre 55 arquivos de teste.
@@ -901,7 +901,7 @@ O ponto sensível é que os dois instaladores são subprocessos de terceiro. Os 
 #### Gate do Ato II — Plano da reabertura 2026-08-30
 
 - **Resultado**: Passed
-- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md --allow-draft`
+- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md --allow-draft`
 - **Plano**: 17 tarefas novas (T030–T046) — 7 `[TEST] [TDD]`, 6 `[CODE]`, 2 `[DOC]`, 2 `[OPS]`; 46 tarefas no total, 39 IDs próprios cobertos.
 - **RED**: cada uma das sete tarefas `[TEST] [TDD]` (T030–T036) observou RED real antes do código correspondente — `Cannot find module` para os módulos ainda inexistentes (`src/skills/executor`, `src/specsfy/install`, `src/specsfy/executor`), rejeição de origem para `promovaweb/specsfy` em `tests/skills-segunda-origem.test.ts`, e ausência dos quatro artefatos (`.claude/skills/` com as duas origens, `.specsfy/`, `.agents/skills/`, `CLAUDE.md`, `AGENTS.md`) em `tests/cli-setup-real.test.ts`, rodado contra `dist/cli.js setup` real — o mesmo comando que a pessoa responsável rodou manualmente para descobrir o defeito.
 - **Ajuste no ciclo de validação**: `validate_tasks.mjs` exigiu no mínimo três predecessores `[TEST] [TDD]` rastreáveis por tarefa `[CODE]`; `T037`, `T038` e `T040`, desenhadas inicialmente com um ou dois, foram ajustadas para três, acrescentando `T036` (o teste de ponta a ponta real) como predecessor comum às duas frentes — correto, porque é ele quem de fato prova que o wiring final funciona.
@@ -933,6 +933,20 @@ O ponto sensível é que os dois instaladores são subprocessos de terceiro. Os 
 | DR9 | Achado irmão sobre `doctor`/`NPM_SUBSYSTEMS`: investigado e fechado sem ação — `NPM_SUBSYSTEMS` é, por `DEC-002` da SPEC-0002, o conjunto fechado dos três subsistemas orquestrados; `skills` é instalador, não subsistema, e já tem relato próprio via `reportSkills()`/`FR-024`. Adicioná-lo misturaria dois conceitos sem ganho | NOTE | Fechado sem promoção — `specs/inbox/2026-08-30-122248-doctor-nao-lista-skills-vercel-labs-entre-npm-subsystems.md` |
 
 **Sobre o desenho da correção.** A alternativa mais simples — sempre chamar os instaladores reais, ignorando `jaFeito` para skills/specsfy — foi descartada por custo: pagaria três subprocessos reais em toda execução de `setup`, mesmo quando nada mudou, o caso comum. A verificação de presença em disco (sem subprocesso) captura o cenário real que motivou a reabertura — conteúdo apagado por fora — a um custo desprezível, e preserva o curto-circuito original quando ele continua correto.
+
+#### Gate do Ato II — Plano da segunda reabertura, 2026-08-30
+
+- **Resultado**: Passed
+- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md --allow-draft`
+- **Plano**: 6 tarefas novas (T047–T052) — 3 `[TEST] [TDD]`, 1 `[CODE]`, 1 `[DOC]`, 1 `[OPS]`; 52 tarefas no total, 43 IDs próprios cobertos.
+- **RED**: `T047` e `T048` observaram RED real contra `dist/cli.js setup` — instalar, apagar `.claude/skills/` (ou `.specsfy/`), reinstalar não restaurava nada, com o relato "já estava configurado" mascarando a ausência. `T049` (controle de curto-circuito) já passava antes do código de produção, por acidente: a segunda chamada nunca alcançava o bloco de skills/specsfy — registrado como guarda de regressão, não como RED genuíno.
+
+#### Gate do Ato III — Entrega da segunda reabertura, 2026-08-30
+
+- **Resultado**: Passed
+- **Verificação**: `npm run test:tdd` em exit 0, com **311 casos em 99 arquivos** (era 306/97 antes desta reabertura); `npx tsc --noEmit` e `npm run build` em exit 0; `npm run verify` em exit 0 a partir de clone limpo (install 5s, build 1s, test 49s, total 55s).
+- **Verificação manual real**: sequência completa num projeto descartável — 1ª execução instala 57 skills e `.specsfy/`; apagar `.claude/skills/` e reexecutar restaura as 57; apagar `.specsfy/` e reexecutar restaura o framework; uma quarta execução sem nada apagado, mesmo sem entrada padrão nenhuma (`< /dev/null`), continua relatando "já estava configurado" sem travar nem pedir aprovação.
+- **Documentação**: `docs/` reconstruído por `$specsfy-documentator`, `--check` em exit 0, monitor de contexto em `CURRENT`; `.specsfy/STACK.md` e `PROJECT.md` descrevem a reconciliação de drift.
 
 #### Suposições
 
@@ -1172,7 +1186,7 @@ Dezesseis tarefas, uma por `AC`, cada uma em arquivo próprio de `tests/`. Nenhu
   - [x] **EVIDENCE**: Trecho alterado e saída de `git status` registrados na seção 12.
   - [x] **IMPROVE**: A decisão só ficou clara depois de T029: sem a persistência no registro do projeto, manter o lockfile ignorado teria perdido a procedência. A ordem das tarefas escondeu isso, e a dependência de T026 em T021 deveria ter sido em T029.
 
-- [x] T027 [OPS] Fechar o Delivery Gate na seção 13 de specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md — Refs: NFR-020, NFR-021, NFR-022 — Depends: T024, T025, T026, T029
+- [x] T027 [OPS] Fechar o Delivery Gate na seção 13 de specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md — Refs: NFR-020, NFR-021, NFR-022 — Depends: T024, T025, T026, T029
   - [x] **PREP**: Vinte e oito tarefas concluídas, e cada `[CODE]` com seu comentário de evidência.
   - [x] **EXECUTE**: Suíte completa, `npm run verify`, e os auditores de aceite, evidência, rastreabilidade e research.
   - [x] **VERIFY**: 184 casos em 54 arquivos; `tsc` e `build` em exit 0; `verify` em exit 0 a partir de clone limpo, em 5s; diretório pessoal com 42 entradas antes e depois.
@@ -1296,19 +1310,64 @@ Dezesseis tarefas, uma por `AC`, cada uma em arquivo próprio de `tests/`. Nenhu
   - [x] **EVIDENCE**: Comando e resultado registrados na seção 12.
   - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [x] T045 [OPS] Verificação manual real em projeto descartável, registrada em specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md — Refs: FR-020, FR-027, FR-028, FR-029, NFR-020, NFR-021, NFR-022 — Depends: T042
+- [x] T045 [OPS] Verificação manual real em projeto descartável, registrada em specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md — Refs: FR-020, FR-027, FR-028, FR-029, NFR-020, NFR-021, NFR-022 — Depends: T042
   - [x] **PREP**: `npm run build` limpo.
   - [x] **EXECUTE**: `node dist/cli.js setup` executado de verdade num projeto descartável fora deste repositório (`git init` prévio, `.claude/` vazio como evidência de alvo), sem nenhum `Executor` injetado.
   - [x] **VERIFY**: Saída: `7 hooks instalados...; 37 skills copiadas a partir de mattpocock/skills; 20 skills copiadas a partir de promovaweb/specsfy; specsfy atualizado: 34 arquivo(s); execução <trace>`. Inspeção direta: `.claude/skills/` com 57 entradas (37 mattpocock + 20 specsfy), nenhuma link simbólico; `.specsfy/`, `.agents/skills/`, `CLAUDE.md`, `AGENTS.md` presentes. Reexecução imediata: `já estava configurado: 7 hooks inalterados`, sem erro.
   - [x] **EVIDENCE**: Saída dos dois comandos e listagem dos diretórios/arquivos criados, registradas acima e na seção 12.
   - [x] **IMPROVE**: A reexecução revelou que `runSetup` sai cedo quando os hooks já estão instalados (`jaFeito`), antes de chegar ao trecho que chama `installSkills`/`installSpecsfy` — ou seja, um segundo `setup` não tenta ressincronizar skills nem framework quando alguém apaga `.claude/skills/` manualmente mas os hooks permanecem. `AC-039` exige só "não falha nem duplica", que esse comportamento satisfaz; ressincronizar drift é uma pergunta mais ampla sobre a idempotência de `runSetup` na sua totalidade — afeta hooks, skills, specsfy e trace igualmente —, não desta fatia isolada. Registrado como achado para decisão da pessoa responsável, sem alterar comportamento aqui.
 
-- [x] T046 [OPS] Fechar o Delivery Gate da reabertura na seção 13 de specs/defined/0005-fatia-1h-skills-lado-a-lado/spec.md — Refs: NFR-020, NFR-021, NFR-022 — Depends: T043, T044, T045
+- [x] T046 [OPS] Fechar o Delivery Gate da reabertura na seção 13 de specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md — Refs: NFR-020, NFR-021, NFR-022 — Depends: T043, T044, T045
   - [x] **PREP**: T030–T045 concluídas, cada `[CODE]` com seu comentário de evidência.
   - [x] **EXECUTE**: Suíte completa, `npm run verify`, `check_traceability.mjs`, `verify_acceptance.mjs` e `verify_repo.mjs`.
   - [x] **VERIFY**: 96 arquivos / 304 casos em exit 0; `tsc --noEmit` e `npm run build` em exit 0; `npm run verify` em exit 0 a partir de clone limpo (install 5s, build 1s, test 16s, total 22s); `check_traceability` em 39/39 IDs próprios cobertos; `verify_acceptance` em `QA: PASSED`.
   - [x] **EVIDENCE**: Comandos, contagens e exit codes registrados na seção 13.
   - [x] **IMPROVE**: Nenhuma melhoria adicional necessária além do achado já registrado em `T045`.
+
+#### Fase 8 — Segunda reabertura 2026-08-30: setup resincroniza drift
+
+- [x] T047 [TEST] [TDD] [US-020] Derivar de AC-077 o caso de drift real de skills em tests/cli-setup-drift-real.test.ts — Refs: US-020, FR-030, AC-077 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-077; confirmar que hoje `runSetup` decide "já configurado" olhando só hooks.
+  - [x] **EXECUTE**: Escrever caso contra `dist/cli.js setup` real: 1ª execução aprovada instala tudo; `rm -rf .claude/skills`; 2ª execução aprovada confere que `.claude/skills/` volta a ter entradas de mattpocock e de specsfy.
+  - [x] **VERIFY**: RED — hoje a 2ª execução relata "já estava configurado" e não restaura nada; `.claude/skills/` permanece vazio.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [x] T048 [TEST] [TDD] [US-023] Derivar de AC-078 o caso de drift real do framework em tests/cli-setup-drift-real.test.ts — Refs: US-023, FR-030, AC-078 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-078.
+  - [x] **EXECUTE**: Escrever caso no mesmo arquivo de `T047`: 1ª execução aprovada instala tudo; `rm -rf .specsfy`; 2ª execução aprovada confere que `.specsfy/` volta a existir.
+  - [x] **VERIFY**: RED — mesma causa de `T047`.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [x] T049 [TEST] [TDD] [US-020] [US-023] Derivar de AC-079 o caso de curto-circuito preservado em tests/setup-jafeito-skills-specsfy.test.ts — Refs: US-020, US-023, FR-030, AC-079 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-079; desenhar executores fake com contador de chamadas para `skills` e para `specsfy`.
+  - [x] **EXECUTE**: Escrever caso chamando `runSetup` duas vezes com hooks, skills e framework todos presentes e batendo com `opts.previous`; confere que a 2ª chamada não invoca os executores de `skills` nem de `specsfy` nenhuma vez, e não consulta `opts.approval`.
+  - [x] **VERIFY**: RED só se a implementação futura passar a chamar os executores sempre — hoje o caso já passaria por acidente, já que a 2ª chamada nunca alcança o bloco de skills/specsfy; registrado como controle para não regredir depois do fix.
+  - [x] **EVIDENCE**: Comando e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [x] T050 [CODE] [US-020] [US-023] Redefinir jaFeito em src/setup/run.ts — Refs: US-020, US-023, FR-030, AC-077, AC-078, AC-079 — Depends: T047, T048, T049
+  - [x] **PREP**: Confirmar RED de `T047` e `T048`, e GREEN-por-acidente de `T049`.
+  - [x] **EXECUTE**: Mover o cálculo de `raiz` para antes da checagem de `jaFeito`. Substituir `jaFeito = matches(...)` por `hooksJaFeito && skillsJaFeito && specsfyJaFeito`, com `skillsJaFeito`/`specsfyJaFeito` calculados via `inspectSkills(raiz).dirs` e `existsSync(join(raiz, ".specsfy"))`, sem subprocesso.
+  - [x] **VERIFY**: Casos de `T047`, `T048` e `T049` GREEN; os 306 casos anteriores seguem verdes.
+  - [x] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+  <!-- specsfy:evidence {"task": "T050", "refs": ["US-020", "US-023", "FR-030", "AC-077", "AC-078", "AC-079"], "files": ["src/setup/run.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
+
+- [x] T051 [DOC] Registrar a redefinição de "já configurado" em .specsfy/STACK.md — Refs: FR-030 — Depends: T050
+  - [x] **PREP**: Ler a seção do `runSetup` em `.specsfy/STACK.md`.
+  - [x] **EXECUTE**: Descrever as três checagens que compõem `jaFeito` e por que existem, sem duplicar o que a seção 8 da spec já registra em detalhe.
+  - [x] **VERIFY**: `npm run build` em exit 0.
+  - [x] **EVIDENCE**: Comando e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+
+- [x] T052 [OPS] Verificação manual real e fechar o Delivery Gate da segunda reabertura na seção 13 de specs/completed/0005-fatia-1h-skills-lado-a-lado/spec.md — Refs: NFR-020, NFR-021, NFR-022 — Depends: T047, T048, T049, T050, T051
+  - [x] **PREP**: T047–T051 concluídas, cada `[CODE]` com seu comentário de evidência.
+  - [x] **EXECUTE**: Repetir manualmente a reprodução da seção 1 — instalar, apagar `.claude/skills/`, reinstalar; instalar, apagar `.specsfy/`, reinstalar; suíte completa e `npm run verify`.
+  - [x] **VERIFY**: Os dois cenários de drift restauram o conteúdo; suíte inteira e `verify` em exit 0 a partir de clone limpo.
+  - [x] **EVIDENCE**: Comandos, contagens e exit codes registrados na seção 13.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
 ### 15. Ordem de execução
 
@@ -1325,6 +1384,10 @@ O fechamento admite paralelismo entre `T024`, `T025` e `T026`, que tocam arquivo
 **Reabertura 2026-08-30.** `T030` a `T036` são a Fase 5, todas sem predecessor de código e paralelas entre si — cada uma escreve num arquivo próprio de `tests/`. `T037` e `T038` seguem `T030`, `T031` e `T036`; `T039` e `T040` seguem `T032`–`T036`; as duas duplas compartilham `T036` como predecessor comum — o teste de ponta a ponta real, que é quem afinal prova a integração completa —, mas continuam livres para rodar em paralelo entre si. `T041` (wiring em `run.ts`) precisa de `T037` e `T039` prontas — é quem primeiro faz as duas origens do `skills` e o `specsfy install` conviverem na mesma execução. `T042` (wiring em `cli.ts`) é a última tarefa de código: só ela fecha o teste de ponta a ponta real de `T036`, e é o motivo direto da reabertura. `T043`–`T045` fecham em paralelo depois de `T041`/`T042`, e `T046` fecha o Delivery Gate.
 
 Caminho crítico da reabertura: `T030 → T037 → T041 → T042 → T046` (a origem nova precisa existir antes do wiring de `run.ts`, que precisa existir antes do wiring de `cli.ts`, que é o que o teste de ponta a ponta real de `T036` cobra).
+
+**Segunda reabertura 2026-08-30.** `T047`, `T048` e `T049` são RED independentes, paralelas entre si. `T050` — a única mudança de produção — consome as três. `T051` (documentação) e o início de `T052` (verificação manual) seguem `T050`; `T052` fecha o Delivery Gate depois de `T051`.
+
+Caminho crítico: `T047 → T050 → T052`.
 
 ## Ato III — Entregar e validar
 
@@ -1370,18 +1433,18 @@ Registradas na seção 13, todas reversíveis.
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
-- [ ] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
-- [ ] Todos os cenários `AC` aplicáveis passam, incluindo os novos `AC-077` a `AC-079`.
-- [ ] Todos os requisitos possuem evidência de verificação registrada na seção 12, incluindo `FR-030`.
-- [ ] Todas as tarefas da seção 14 estão concluídas.
-- [ ] Nenhuma entrada instalada é link simbólico, conferido por inspeção do sistema de arquivos.
-- [ ] O diretório do usuário tem a mesma árvore antes e depois da suíte.
-- [ ] Os três caminhos de falha do instalador `skills` foram exercitados e nenhum produz relato de sucesso.
-- [ ] O caminho de falha do instalador `specsfy install` foi exercitado e não produz relato de sucesso.
-- [ ] `common-rules setup`, executado de ponta a ponta sobre um projeto descartável de verdade, sem `Executor` injetado, deixa em disco: `.claude/skills/` com as skills de `mattpocock/skills` e de `promovaweb/specsfy`; `.specsfy/`, `.agents/skills/`, `CLAUDE.md` e `AGENTS.md` reais.
-- [ ] Apagar `.claude/skills/` ou `.specsfy/` manualmente e rodar `setup` de novo, com os hooks intactos, restaura o que faltar — verificado de ponta a ponta, sem `Executor` injetado.
-- [ ] Com hooks, skills e framework todos intactos, `setup` continua relatando "já estava configurado" sem consultar aprovação nem invocar instalador algum.
-- [ ] `.specsfy/STACK.md` registra os dois instaladores, os módulos novos e a ampliação do registro.
-- [ ] `PROJECT.md` descreve que o `setup` instala os dois conjuntos de skills e o framework Specsfy, e o que o `doctor` passa a relatar.
+- [x] `Definition Gate` está `Passed`.
+- [x] `Plan Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
+- [x] Todos os cenários `AC` aplicáveis passam, incluindo os novos `AC-077` a `AC-079`.
+- [x] Todos os requisitos possuem evidência de verificação registrada na seção 12, incluindo `FR-030`.
+- [x] Todas as tarefas da seção 14 estão concluídas.
+- [x] Nenhuma entrada instalada é link simbólico, conferido por inspeção do sistema de arquivos.
+- [x] O diretório do usuário tem a mesma árvore antes e depois da suíte.
+- [x] Os três caminhos de falha do instalador `skills` foram exercitados e nenhum produz relato de sucesso.
+- [x] O caminho de falha do instalador `specsfy install` foi exercitado e não produz relato de sucesso.
+- [x] `common-rules setup`, executado de ponta a ponta sobre um projeto descartável de verdade, sem `Executor` injetado, deixa em disco: `.claude/skills/` com as skills de `mattpocock/skills` e de `promovaweb/specsfy`; `.specsfy/`, `.agents/skills/`, `CLAUDE.md` e `AGENTS.md` reais.
+- [x] Apagar `.claude/skills/` ou `.specsfy/` manualmente e rodar `setup` de novo, com os hooks intactos, restaura o que faltar — verificado de ponta a ponta, sem `Executor` injetado.
+- [x] Com hooks, skills e framework todos intactos, `setup` continua relatando "já estava configurado" sem consultar aprovação nem invocar instalador algum.
+- [x] `.specsfy/STACK.md` registra os dois instaladores, os módulos novos e a ampliação do registro.
+- [x] `PROJECT.md` descreve que o `setup` instala os dois conjuntos de skills e o framework Specsfy, e o que o `doctor` passa a relatar.

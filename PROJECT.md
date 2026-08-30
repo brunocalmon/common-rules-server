@@ -17,6 +17,8 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 
 **Aprovação do plano.** `common-rules setup` apresenta o plano e aguarda aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita.
 
+**Reconciliação de drift.** `setup` só relata "já estava configurado" quando hooks, skills e o framework Specsfy estão de fato presentes no disco — não só quando os hooks batem com o registro. Apagar `.claude/skills/` ou `.specsfy/` por fora e rodar `setup` de novo restaura o que faltar.
+
 Exemplo real de `doctor`:
 
 ```text

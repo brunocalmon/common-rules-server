@@ -1,5 +1,5 @@
-import { readFileSync, readdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { detectTarget, TARGET, type TargetEnvironment } from "../hooks/detect.js";
 import { readHook } from "../hooks/source.js";
@@ -8,6 +8,7 @@ import { realSource, type TraceSource } from "../telemetry/trace.js";
 import { installSkills, type Executor as SkillsExecutor, type InstallResult as SkillsInstallResult } from "../skills/install.js";
 import { OFFICIAL_SOURCES } from "../skills/source.js";
 import { readLock, toRecordEntries } from "../skills/record.js";
+import { inspectSkills } from "../skills/inventory.js";
 import { installSpecsfy, type Executor as SpecsfyExecutor } from "../specsfy/install.js";
 import { bridgePythonSubsystem, type BridgeEnvironment } from "./bridge.js";
 import { matches, readRecord, RECORD_PATH, type InstallRecord, type SkillsRecordEntry, type RecordEntry } from "./record.js";
@@ -110,8 +111,21 @@ export function runSetup(opts: SetupOptions): SetupResult {
     };
   }
 
-  // Já configurado pelo mesmo conjunto e pela mesma versão: nada a fazer.
-  const jaFeito = matches(opts.previous ?? null, hooks.map((h) => h.name), version);
+  const raiz = opts.root ?? process.cwd();
+
+  // Já configurado pelo mesmo conjunto e pela mesma versão: nada a fazer —
+  // mas hooks batendo não basta. Skills e o framework Specsfy podem ter sido
+  // apagados por fora do `setup`, e "já configurado" precisa ser uma
+  // afirmação sobre o disco, não só sobre o registro. As duas checagens
+  // extras são baratas — sistema de arquivos, sem subprocesso — porque
+  // chamar os instaladores reais a cada execução só para descobrir se há o
+  // que fazer pagaria um custo desnecessário no caso comum, em que nada mudou.
+  const hooksJaFeito = matches(opts.previous ?? null, hooks.map((h) => h.name), version);
+  const skillsPrevias = opts.previous?.skills ?? [];
+  const skillsJaFeito =
+    !opts.skills || skillsPrevias.length === 0 || skillsPrevias.every((s) => inspectSkills(raiz).dirs.includes(s.name));
+  const specsfyJaFeito = !opts.specsfy || existsSync(join(raiz, ".specsfy"));
+  const jaFeito = hooksJaFeito && skillsJaFeito && specsfyJaFeito;
   if (jaFeito) {
     return {
       ...vazio, installed: traduzidos, settings,
@@ -140,7 +154,6 @@ export function runSetup(opts: SetupOptions): SetupResult {
   const entradas: RecordEntry[] = traduzidos.map((h) => ({
     name: h.name, target: TARGET_SETTINGS, version, installedAt: agora, event: h.event,
   }));
-  const raiz = opts.root ?? process.cwd();
   // A instalação precede o registro: é o lockfile que ela produz que fornece a
   // procedência gravada aqui. Montar o registro antes deixaria a lista vazia.
   //
