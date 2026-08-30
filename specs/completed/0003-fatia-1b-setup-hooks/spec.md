@@ -760,33 +760,20 @@ A decisão registrada em SPEC-0002 foi aceitar a limitação e documentar o verm
 
 #### Gate do Ato II — Plano
 
-- **Resultado**: Passed (2026-08-24)
+- **Resultado**: Passed (2026-08-30), reaberto sobre plano concluído anteriormente
 - **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0003-fatia-1b-setup-hooks/spec.md`
-- **Contagens**: 23 tarefas, 13 predecessores TDD, 7 tarefas `[CODE]`, 115 itens de checklist, 27 de 27 IDs cobertos.
-- **RED comprovado**: os treze cenários têm asserção reprovando antes de qualquer código de produção. Onze por módulo inexistente e um por asserção nomeada; nenhum por sintaxe, importação ou ambiente.
-
-**Achados do planejamento**
-
-| ID | Achado | Estado |
-| --- | --- | --- |
-| P1 | A estrutura de arquivos da seção 8 é anterior a `AC-012` e `AC-013`, criados na validação, e nomeia dois arquivos que nenhum cenário exige | Registrado — o plano usa treze arquivos, um por cenário; a seção 8 não é editável nesta etapa |
-| P2 | Uma substituição de texto assumiu âncora inexistente nesta spec, pela terceira vez na sessão | Resolvido — a asserção de escrita interrompeu antes de gravar, em vez de perder o conteúdo em silêncio |
+- **Plano**: 25 tarefas — T001 a T023 preservadas da entrega original; T024 e T025 acrescentadas para a correção de plano de 2026-08-30.
+- **RED**: `npm run test:tdd` com `tests/hooks-raw-command.test.ts` em 3 de 3 casos reprovando, e os 284 casos anteriores verdes.
+- **Predecessores de T025**: `T009` e `T013`, que já exercitam `readHook`/`translateForClaudeCode` pelo caminho de bloco de código, somam-se a `T024` para os três predecessores exigidos — se a correção quebrasse a fidelidade dos guards, esses dois capturariam.
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Passed (2026-08-24)
-- **Verificação**: `npm run build` e `npx tsc --noEmit` em exit 0; suíte com **27 arquivos e 94 testes aprovando**; `npm run verify` em exit 0 a partir de clone limpo, em 6s contra orçamento de 300; diretório pessoal com 45 entradas antes e depois da suíte.
-- **Auditorias**: `verify_acceptance` em `QA: PASSED` para os treze; `verify_evidence` em `PASSED (strict)`; `check_traceability` em `OK`; `load_research` em `PASSED`; `build_documentation --check` em exit 0.
-- **Guards**: quatro chamadas de subprocesso em `hooks-blocking` e `hooks-permissive`, e sete usos de `unwrap` conferindo a ida e a volta em `hooks-escape` e `hooks-corpus`.
+- **Resultado**: Passed (2026-08-30), reaberto sobre entrega concluída anteriormente
+- **Verificação**: `npm run test:tdd` em exit 0, com **287 casos em 87 arquivos**; `npx tsc --noEmit` e `npm run build` em exit 0; `npm run verify` em exit 0 a partir de clone limpo, em 6s; diretório pessoal com 42 entradas antes e depois.
+- **Auditorias**: `verify_acceptance` em `QA: PASSED`; `verify_evidence` em `PASSED (strict)`; `load_research` em `PASSED`, após corrigir dois caminhos que ainda apontavam para `specs/completed/` depois da reabertura.
+- **Confirmação contra o artefato real**: regerando `.claude/settings.json` deste próprio repositório, os quatro comandos de despacho — `code-review-graph update --brief` e as três invocações de `context-mode hook` — aparecem no arquivo. Antes da correção, o fragmento ficava vazio.
 
-**Achados do gate de conclusão**
-
-| ID | Achado | Estado |
-| --- | --- | --- |
-| E1 | A coluna de evidência da matriz seguia em `Pending` nas 26 linhas, e `verify_acceptance` reprovava os treze critérios | Resolvido — mesma omissão que o gate da SPEC-0002 encontrou, agora conferida antes de fechar |
-| E2 | `AC-012` e `AC-013` não tinham linha na matriz, por terem sido criados durante a validação, depois de ela existir | Resolvido — seis linhas acrescentadas |
-
-Ambos são de registro, e não de comportamento: a fatia estava verde e a matriz não dizia. É a terceira vez na sessão em que uma seção escrita antes de uma mudança posterior deixa de acompanhá-la, depois da estrutura de arquivos da seção 8 e da lista de comandos proibidos da SPEC-0002.
+**Achado pré-existente, não expandido nesta reabertura.** `check_traceability --full-chain` acusa cadeia quebrada em `AC-001` a `AC-012`: os comentários de evidência de `T001` a `T023`, escritos na entrega original, listam `US`/`FR` mas não os `AC` correspondentes. É a mesma classe de achado já registrada como `A4` no aceite da `SPEC-0004`, ali restrita a `AC-010`–`AC-013` porque a checagem então era menos abrangente; agora aparece em mais IDs sob a mesma bandeira `--kinds US,FR,NFR,AC`. Não toquei nos comentários de `T001` a `T023`: reescrever evidência histórica para incluir referências que não foram registradas na entrega original violaria a regra da própria skill de atualização, e o escopo desta reabertura é o bug de fidelidade do fragmento, não uma auditoria retroativa de vinte e três tarefas já concluídas. Fica registrado para decisão de quem responde pelo produto, junto do achado equivalente já aberto.
 
 #### Suposições
 
@@ -983,7 +970,29 @@ Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `
   - [x] **IMPROVE**: Foi acrescentado `tests/setup-writes.test.ts`, que verifica o disco em projeto descartável. A ausência dessa verificação é o que permitiu o defeito principal atravessar sete tarefas.
   <!-- specsfy:evidence {"task": "T023", "refs": ["US-001", "US-002", "US-003", "FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006", "FR-007", "FR-008", "NFR-001", "NFR-002", "NFR-003"], "files": ["src/setup/write.ts", "tests/setup-writes.test.ts", "src/cli.ts"], "commands": [{"run": "npm run verify", "exit": 0}, {"run": "npm run test:tdd", "exit": 0}]} -->
 
+#### Fase 4 — Correção de plano: fidelidade do fragmento para hooks de despacho
+
+Reabertura de 2026-08-30. `FR-002` já exigia embutir o fragmento sem alteração; a implementação satisfazia isso só para hooks com bloco de código no corpo, e os quatro que declaram `raw_command` no frontmatter sem bloco produziam fragmento vazio — no-op silencioso em produção.
+
+- [x] T024 [TEST] [TDD] [US-001] Derivar de AC-010 o caso de fidelidade para hook sem bloco de código em tests/hooks-raw-command.test.ts — Refs: US-001, FR-002, AC-010 — Depends: none
+  - [x] **PREP**: Reler AC-010, que já exige comparação byte a byte, e aplicá-lo ao caso que faltava: um hook cujo único conteúdo é `raw_command` no frontmatter, sem bloco de código.
+  - [x] **EXECUTE**: Escrever o caso em `tests/hooks-raw-command.test.ts`: traduzir `code-review-graph-update.md` e os três `context-mode-*.md`, extrair o fragmento embutido em cada script gerado e confirmar que ele é exatamente o valor de `raw_command`, e não vazio.
+  - [x] **VERIFY**: RED observado nas três asserções — fragmento vazio, script sem o comando, e a execução como subprocesso não injeta o marcador porque não há o que substituir.
+  - [x] **EVIDENCE**: `npx vitest run tests/hooks-raw-command.test.ts` com 3 de 3 reprovando. Registrado na seção 12.
+  - [x] **IMPROVE**: O caso também executa cada script como subprocesso — não só inspeciona o texto —, na mesma disciplina que AC-002 já aplica aos guards: ler o texto certo não prova que o comando roda.
+
+- [x] T025 [CODE] [US-001] Ler raw_command quando não houver bloco de código em src/hooks/source.ts — Refs: FR-002, AC-009, AC-010, AC-013 — Depends: T009, T013, T024
+  - [x] **PREP**: T024 em RED; `docs/` reconstruído por `$specsfy-documentator` antes da alteração.
+  - [x] **EXECUTE**: `readHook` em `src/hooks/source.ts` passa a usar `raw_command` do frontmatter quando `scriptFrom(body)` devolve vazio, preservando prioridade ao bloco de código quando os dois existirem.
+  - [x] **VERIFY**: T024 passa a GREEN nas três asserções. A suíte inteira fecha em 287 de 287 casos e 87 de 87 arquivos. `npx tsc --noEmit` e `npm run build` em exit 0. Regerando `.claude/settings.json` deste próprio repositório, os quatro comandos — `code-review-graph update --brief` e as três invocações de `context-mode hook` — aparecem de fato no arquivo, onde antes o fragmento ficava vazio.
+  - [x] **EVIDENCE**: Comandos, contagens e a confirmação contra o `.claude/settings.json` real registrados na seção 12.
+  - [x] **IMPROVE**: A correção é de duas linhas, mas o defeito sobreviveu a um Delivery Gate inteiro porque nenhuma asserção afirmava sobre o conteúdo do fragmento desses quatro hooks — só sobre presença, nome e evento. É a mesma classe de falso-verde que apareceu nas SPEC-0004, SPEC-0005, SPEC-0006 e SPEC-0007, aqui na forma mais antiga do repositório: uma spec `Complete` continha um requisito (`FR-002`) que a implementação nunca satisfazia de fato para um subconjunto dos casos, e passou despercebido porque o teste confirmava a forma do script gerado, e não o que ele executa.
+
+  <!-- specsfy:evidence {"task": "T025", "refs": ["FR-002", "AC-009", "AC-010", "AC-013"], "files": ["src/hooks/source.ts"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
+
 ### 15. Ordem de execução
+
+**Correção de 2026-08-30.** `T024` não depende de nada e `T025` depende só de `T024`; a ordem original das fases 1 a 3 não muda.
 
 - Caminho crítico: T009, T010 e T013 → T014 → T015 → T019 → T020 → T023.
 - Tarefas paralelas: T001 a T013, porque cada uma escreve num arquivo distinto de `tests/` e nenhuma depende do resultado das outras.
@@ -1004,6 +1013,7 @@ Uma tarefa por cenário da seção 6. Cada uma escreve num arquivo distinto de `
 #### Riscos
 
 - **Escape consumido duas vezes na tradução** → todos os guards passam a permitir tudo, e o arquivo gerado parece correto. É o defeito crítico que a v0.2.8 registrou. Mitigação: AC-010 compara byte a byte, e AC-002 exige execução.
+- **Fragmento extraído só de bloco de código, hook de despacho sem corpo vira no-op silencioso** → `FR-002` exige embutir o fragmento sem alteração, e a implementação satisfaz isso apenas quando o hook tem bloco de código no corpo. Os quatro hooks que declaram `raw_command` no frontmatter sem bloco — `code-review-graph-update`, `context-mode-pretooluse`, `context-mode-posttooluse`, `context-mode-stop` — produzem fragmento vazio, e a asserção existente confirmava só a forma do script gerado, não seu conteúdo executável. Achado em 2026-08-30, ao investigar por que `code-review-graph` nunca era acionado num teste manual local. Mitigação: `scriptFrom` passa a usar `raw_command` quando não há bloco de código, e um caso novo executa esse fragmento como subprocesso e confere que o comando de fato roda — a mesma disciplina de execução que `AC-002` já aplica aos guards.
 - **Guard estreito demais ou largo demais** → ou não protege, ou impede trabalho ordinário. A v0.2.8 registrou as duas falhas. Mitigação: AC-002 e AC-003 são pares, e nenhum passa sozinho.
 - **Escrita destruindo configuração de terceiro** → a pessoa perde ajuste que não era nosso. Mitigação: a seção 7 exige preservar bloco alheio, e o caso está entre os erros previstos.
 - **Detecção por presença de diretório dando falso positivo** → configurar editor que a pessoa não usa. Mitigação: registrada como suposição reversível; AC-006 fixa o comportamento na ausência.
@@ -1022,6 +1032,8 @@ Registradas na seção 13, todas reversíveis nesta fatia.
 - **DEC-005**: Tradução e escrita vivem em módulos separados. *Razão*: é o que permite verificar a fidelidade do escape sem tocar o sistema de arquivos. Na v0.2.8 os dois estavam no mesmo caminho, e o duplo consumo do escape passou por revisão porque o arquivo gerado parecia correto.
 - **DEC-006**: O registro fica dentro do projeto, em formato estruturado. *Razão*: escrever configuração sem rastro impede reexecução segura e torna reversão adivinhação. *Alternativa descartada*: `.env`, herança dos placeholders que deixaram de existir.
 
+**Correção de plano registrada em 2026-08-30.** `FR-002` não mudou: o requisito de embutir o fragmento sem alteração já cobria este caso. A solução técnica é que estava incompleta — `scriptFrom` só extraía de bloco de código — e passa a ler `raw_command` do frontmatter quando não há bloco. Classificação: mudança de plano, Ato II reaberto, Definition Gate preservado.
+
 ### 18. Definition of Done
 
 - [x] `Definition Gate` está `Passed`.
@@ -1035,3 +1047,5 @@ Registradas na seção 13, todas reversíveis nesta fatia.
 - [x] A árvore do diretório pessoal permanece inalterada: 45 entradas antes e depois da suíte.
 - [x] `.specsfy/STACK.md` registra os sete módulos com evidência, o alvo suportado e os caminhos de estado; cada módulo citado foi conferido por script contra o disco.
 - [x] `PROJECT.md` lista `common-rules setup` entre as capacidades, e a única menção restante na lista de ausências descreve o servidor MCP, não o comando.
+
+**Aceite da reabertura, 2026-08-30.** Todos os gates conferidos: `Definition Gate: Passed` preservado sem alteração de requisito; `Plan Gate: Passed` com `T024`/`T025` acrescentadas e RED materializado; `Delivery Gate: Passed` com 287 de 287 casos, confirmação contra o `.claude/settings.json` real deste repositório, e o achado pré-existente de `--full-chain` registrado sem expansão de escopo.

@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"after-file-edit\"\n\n# >>> fragmento do hook\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"after-file-edit\"\n\n# >>> fragmento do hook\ncode-review-graph update --brief\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
           }
         ]
       },
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"after-file-edit\"\n\n# >>> fragmento do hook\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"after-file-edit\"\n\n# >>> fragmento do hook\ncontext-mode hook {ide} posttooluse\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"before-shell\"\n\n# >>> fragmento do hook\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"before-shell\"\n\n# >>> fragmento do hook\ncontext-mode hook {ide} pretooluse\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
           }
         ]
       },
@@ -67,7 +67,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"stop\"\n\n# >>> fragmento do hook\n\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"stop\"\n\n# >>> fragmento do hook\ncontext-mode hook {ide} stop\n# <<< fragmento do hook\n\n# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
           }
         ]
       }

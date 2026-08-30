@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 90.
+- Arquivos de teste: 91.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -37,6 +37,7 @@
 | tests/hooks-corpus.test.ts |
 | tests/hooks-escape.test.ts |
 | tests/hooks-permissive.test.ts |
+| tests/hooks-raw-command.test.ts |
 | tests/hooks-translate.test.ts |
 | tests/local-run.test.ts |
 | tests/manifest.test.ts |

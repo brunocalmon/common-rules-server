@@ -61,6 +61,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/hooks-corpus.test.ts | CORPUS |
 | Testes | tests/hooks-escape.test.ts | HOSTIL |
 | Testes | tests/hooks-permissive.test.ts | CORPUS, rodarGuard |
+| Testes | tests/hooks-raw-command.test.ts | HOOKS_SEM_BLOCO, comandoDeclarado |
 | Testes | tests/hooks-translate.test.ts | CORPUS |
 | Testes | tests/local-run.test.ts | ROOT |
 | Testes | tests/manifest.test.ts | NPM_SUBSYSTEMS |
