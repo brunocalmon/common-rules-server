@@ -58,12 +58,13 @@ A Phase 1 empacotava seis entregas. Cada uma é comparável em tamanho à Phase 
 | --- | --- | --- |
 | 1a | Esqueleto executável: manifesto, build, runner, dependências resolvidas | **SPEC-0002, concluída** |
 | 1b | Hooks, detecção, registro e ponte `uv`, via CLI | **SPEC-0003, concluída** |
-| 1c | Approval workflow interativo e JSON | A especificar |
+| 1c | Approval workflow interativo e JSON | **SPEC-0007, concluída** |
 | 1d | Detecção de backends e graceful degradation | A especificar |
 | 1e | Seleção de modelo pelo Orchestrator | A especificar |
 | 1f | Servidor MCP com a tool `setup` única | **SPEC-0004, concluída** |
 | 1g | Telemetria por `trace_id` no registro auditável | **SPEC-0006, concluída** |
 | 1h | Instalar specsfy e mattpocock lado a lado, com registro | **SPEC-0005, concluída** |
+| 1i | Aprovação em lote dos comandos das dependências, no `setup` | A especificar |
 
 Decisões desta fatia: pacote `@brunocalmon/common-rules` com binário `common-rules`, porque `common-rules` sem escopo está ocupado no npm por um pacote abandonado desde 2023. Runner Vitest. ESM e Node maior ou igual a 20 como defaults reversíveis.
 
@@ -165,3 +166,25 @@ dois conjuntos de skills, íntegros e lado a lado em `.claude/skills/`, sem que 
 `skills`, da vercel-labs, já que o autor não publica no npm. O brief está em
 `specs/backlog/0005-fatia-1h-skills-lado-a-lado.md`. A camada de orquestração em
 `CLAUDE.md` ficou fora desta fatia e foi para o épico de extensões da Phase 2.
+
+## Decisões das fatias 1c, 1d e 1e, tomadas em 2026-08-29
+
+**Estado da máquina, verificado nesta data.** Os oito backends estão instalados —
+`claude`, `cursor-agent`, `codex`, `pi`, `agy`, `goose`, `dsh` e `ollama` —, e
+apenas `aider` está ausente. A nota de 2026-08-24, acima, listava cinco como
+ausentes e envelheceu. O `ollama` responde e tem três modelos locais:
+`cogito:14b`, `qwen2.5:3b` e `qwen3:8b`. Na varredura de `--help`, `pi` expõe
+`--print` e `agy` expõe `--json-schema`, `--output-format` e `--print`; `codex`,
+`goose` e `dsh` não expuseram flag equivalente.
+
+- **D1, escopo da 1c**: a aprovação em lote de comandos vira **fatia própria, a 1i**, e não parte da 1c. *Razão*: são problemas com ciclos de vida distintos. A 1c decide o canal de aprovação de um plano, que é efêmero e por execução; o whitelisting decide o escopo permanente de comandos permitidos, que é configuração persistente e sensível. Fundir faria a 1c crescer até o tamanho que o refatiamento de 2026-08-24 já rejeitou.
+- **D2, lista suportada da 1d**: entram **`pi`, `agy` e `claude`**. *Razão*: a `DEC-002` da SPEC-0002 fixa detecção **por capacidade, nunca por presença**. Estar instalado não torna um backend acionável por um Orchestrator que roda como subprocesso não interativo, e `codex`, `goose` e `dsh` não expuseram modo headless na varredura. Isso fecha a pendência registrada acima: **`codex` fica fora** até que alguém demonstre por execução a invocação sem interação, e entrará por acréscimo de um caso, não por reescrita. *Distinção que a spec precisa escrever*: o `doctor` **relata** todos os backends encontrados; a lista **suportada** é a dos três.
+- **D3, verificação da degradação graciosa na 1d**: o detector é **injetável**, no mesmo padrão do `Environment` da fatia 1a e do executor da 1b, de modo que a ausência vire caso de teste em vez de acidente da máquina. *Razão*: exercitar contra `aider`, hoje o único ausente, produziria cobertura que evapora quando alguém o instalar; e exigir contêiner limpo pede infraestrutura que a suíte não tem. Mantém-se um caso de paridade contra a máquina real, para provar que a interface injetada corresponde ao detector verdadeiro.
+- **D4, o que a 1e entrega**: **relatório com recomendação e override humano**. *Razão*: a decisão vinculante da captura original é que o Orchestrator pede aprovação de plano **e de modelo** antes de executar. Aplicar automaticamente inverteria isso, e entregar apenas inventário descartaria a "análise completa, não heurística" que a captura pede. *Restrição para a spec*: custo e capacidade saem de dado local ou de configuração declarada — nada de tabela de preços chumbada no código, que envelhece em silêncio.
+
+**Ordem decidida**: 1c, depois 1d, depois 1e, e a 1i por último. A 1e consome a
+lista suportada da 1d e o canal de aprovação da 1c.
+
+**Implicação técnica registrada**: o `doctor` hoje conhece as camadas `npm` e
+`python`. A 1d acrescenta a terceira, de backends de agente, e o tipo `Layer`
+passa a ter três valores.

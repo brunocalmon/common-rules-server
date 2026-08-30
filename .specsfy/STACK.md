@@ -148,3 +148,19 @@ havia tentado o caminho oposto — congelar o instante em `new Date(0)` para dar
 previsibilidade aos casos — e o resultado foi um registro que afirmava, em toda
 máquina, que a instalação ocorrera em 1970. Determinismo de teste se obtém
 injetando a fonte, e não falsificando o valor em produção.
+
+## Aprovação do plano
+
+Três módulos em `src/approval/`, acrescentados pela SPEC-0007:
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/approval/context.ts` | Escolhe o canal de aprovação pela presença de terminal na entrada padrão. |
+| `src/approval/render.ts` | Deriva as formas de texto e documento do plano a partir de um único percurso, para que não divirjam entre si. |
+| `src/approval/decide.ts` | Interpreta a decisão da fonte escolhida, tratando exceção, entrada vazia e documento inválido como negativa. |
+
+`SetupOptions.approval` é opcional, no mesmo padrão de `skills` e `bridgeEnv`:
+ausente, nada é consultado. O comando de terminal em `src/cli.ts` ainda não
+passa um valor real — gap conhecido, análogo ao que `skills` já tinha antes da
+fatia 1h — e por isso a garantia desta fatia vale hoje na biblioteca, e não
+ainda ponta a ponta pelo comando `common-rules setup`.

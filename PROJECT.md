@@ -15,6 +15,8 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 | `common-rules doctor` | Relata as três dependências do projeto, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, e o identificador da última execução |
 | `common-rules setup` | Instala os sete hooks no editor detectado, instala os conjuntos de skills e registra o que escreveu, identificando a execução e o momento |
 
+**Aprovação do plano.** A biblioteca que o `setup` usa (`runSetup`) sabe apresentar o plano e aguardar aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita. O comando de terminal ainda não aciona esse mecanismo por padrão; a garantia vale hoje na biblioteca.
+
 Exemplo real de `doctor`:
 
 ```text

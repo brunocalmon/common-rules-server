@@ -9,6 +9,9 @@ Relação: relaciona cada arquivo observado à sua superfície.
 
 | Categoria | Arquivo | Símbolos |
 | --- | --- | --- |
+| Outras fontes | src/approval/context.ts | TerminalContext, realTerminalContext, resolveChannel |
+| Outras fontes | src/approval/decide.ts | DecisionSource, StdinReader, documentSource, interactiveSource, realSource, ApprovalResult, interpret |
+| Outras fontes | src/approval/render.ts | PlannedItem, RenderedPlan, renderPlan |
 | Outras fontes | src/cli.ts | CommandOutcome, formatReport, formatSetup, COMMANDS, ALIASES, resolveCommand, run |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
 | Outras fontes | src/hooks/claude-code.ts | TranslatedHook, EVENT_MAP, translateForClaudeCode, wrap, unwrap, FRAGMENT_START, FRAGMENT_END, PREAMBLE |
@@ -30,6 +33,23 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/telemetry/read.ts | readTrace |
 | Outras fontes | src/telemetry/trace.ts | TRACE_ID_LENGTH, TraceSource, generateId, nowIso, realSource |
 | Outras fontes | src/version.ts | readVersion |
+| Testes | tests/aprovacao-contexto-canalizado.test.ts | — |
+| Testes | tests/aprovacao-contexto-terminal.test.ts | — |
+| Testes | tests/aprovacao-documento-aprova.test.ts | — |
+| Testes | tests/aprovacao-documento-malformado.test.ts | — |
+| Testes | tests/aprovacao-documento-recusa.test.ts | — |
+| Testes | tests/aprovacao-documento-sem-campo.test.ts | — |
+| Testes | tests/aprovacao-entrada-vazia.test.ts | — |
+| Testes | tests/aprovacao-fixtures.ts | projeto, arvore, contextoFixo, decisaoFixa, decisaoQueLancaSeChamada, documentoFixo |
+| Testes | tests/aprovacao-fonte-injetada.test.ts | — |
+| Testes | tests/aprovacao-formas-equivalentes.test.ts | PLANO |
+| Testes | tests/aprovacao-libera-escrita.test.ts | — |
+| Testes | tests/aprovacao-padrao-producao.test.ts | — |
+| Testes | tests/aprovacao-plano-apresentado.test.ts | — |
+| Testes | tests/aprovacao-plano-fiel.test.ts | — |
+| Testes | tests/aprovacao-recusa-preserva.test.ts | — |
+| Testes | tests/aprovacao-sem-alvo.test.ts | — |
+| Testes | tests/aprovacao-sem-mudanca.test.ts | — |
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
 | Testes | tests/cycle-command.test.ts | ROOT |

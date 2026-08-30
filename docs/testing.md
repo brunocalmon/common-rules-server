@@ -3,12 +3,29 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 73.
+- Arquivos de teste: 90.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
 | Arquivo |
 | --- |
+| tests/aprovacao-contexto-canalizado.test.ts |
+| tests/aprovacao-contexto-terminal.test.ts |
+| tests/aprovacao-documento-aprova.test.ts |
+| tests/aprovacao-documento-malformado.test.ts |
+| tests/aprovacao-documento-recusa.test.ts |
+| tests/aprovacao-documento-sem-campo.test.ts |
+| tests/aprovacao-entrada-vazia.test.ts |
+| tests/aprovacao-fixtures.ts |
+| tests/aprovacao-fonte-injetada.test.ts |
+| tests/aprovacao-formas-equivalentes.test.ts |
+| tests/aprovacao-libera-escrita.test.ts |
+| tests/aprovacao-padrao-producao.test.ts |
+| tests/aprovacao-plano-apresentado.test.ts |
+| tests/aprovacao-plano-fiel.test.ts |
+| tests/aprovacao-recusa-preserva.test.ts |
+| tests/aprovacao-sem-alvo.test.ts |
+| tests/aprovacao-sem-mudanca.test.ts |
 | tests/budget.test.ts |
 | tests/build.test.ts |
 | tests/cycle-command.test.ts |

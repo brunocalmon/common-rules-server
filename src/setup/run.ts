@@ -11,6 +11,8 @@ import { readLock, toRecordEntries } from "../skills/record.js";
 import { bridgePythonSubsystem, type BridgeEnvironment } from "./bridge.js";
 import { matches, readRecord, RECORD_PATH, type InstallRecord, type SkillsRecordEntry, type RecordEntry } from "./record.js";
 import { readVersion } from "../version.js";
+import { resolveChannel, type TerminalContext } from "../approval/context.js";
+import { realSource as realApprovalSource, interpret, type DecisionSource, type StdinReader } from "../approval/decide.js";
 import { writeRecordFile, writeSettings } from "./write.js";
 
 /** Onde o arquivo do alvo é escrito, relativo ao projeto. */
@@ -37,6 +39,12 @@ export interface SetupOptions {
    * produção, que foi o defeito corrigido pela SPEC-0006.
    */
   trace?: TraceSource;
+  /**
+   * Como obter aprovação do plano antes de escrever. Ausente na chamada da
+   * biblioteca, o comando de terminal é quem decide passar um valor real por
+   * padrão — do mesmo modo que `skills` fica de fora até ser fornecido.
+   */
+  approval?: { context?: TerminalContext; source?: DecisionSource; stdin?: StdinReader };
 }
 
 export interface SetupResult {
@@ -100,6 +108,18 @@ export function runSetup(opts: SetupOptions): SetupResult {
       record: readRecord(opts.previous ?? null),
       report: `já estava configurado: ${traduzidos.length} hooks inalterados em ${TARGET_SETTINGS}`,
     };
+  }
+
+  // A aprovação precede toda escrita, inclusive a instalação de skills, e só
+  // é consultada depois das duas saídas antecipadas acima — que não escrevem
+  // nada — para que AC-073 e AC-074 não recebam pergunta à toa.
+  if (opts.approval) {
+    const canal = resolveChannel(opts.approval.context);
+    const fonte = opts.approval.source ?? realApprovalSource(canal, opts.approval.stdin);
+    const decisao = interpret(fonte, planned);
+    if (!decisao.approved) {
+      return { ...vazio, planned, settings, report: `não escrito: ${decisao.reason ?? "recusado"}`, exitCode: 1 };
+    }
   }
 
   // Consumida uma vez por execução, e não por entrada: um identificador que
