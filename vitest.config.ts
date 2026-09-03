@@ -22,14 +22,13 @@ export default defineConfig({
     //    de `spawnSync` (não um timeout) — sintoma de exaustão de recursos
     //    do SO por excesso de fork() concorrentes, não de lentidão.
     //
-    // `testTimeout` mais alto resolve (1); `maxForks` mais baixo reduz a
+    // `testTimeout` mais alto resolve (1); `maxWorkers` mais baixo reduz a
     // pressão de fork() concorrente que causava (2), trocando paralelismo
-    // máximo por estabilidade sob carga real.
+    // máximo por estabilidade sob carga real. `poolOptions.forks.maxForks`
+    // foi removido no Vitest 4 (achado real, 2026-09-02, rodando a suíte:
+    // aviso de depreciação "poolOptions was removed... now top-level
+    // options") — a opção de fato aplicada hoje é `maxWorkers`.
     testTimeout: 30_000,
-    poolOptions: {
-      forks: {
-        maxForks: 4,
-      },
-    },
+    maxWorkers: 4,
   },
 });

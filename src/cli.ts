@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
-import { realpathSync } from "node:fs";
+import { realpathSync, readFileSync } from "node:fs";
 import { defaultEnvironment, inspectDependencies, type Report } from "./doctor.js";
-import { runSetup, TARGET_SETTINGS } from "./setup/run.js";
+import { runSetup, TARGET_SETTINGS, loadHooks } from "./setup/run.js";
 import { detectEnvironment } from "./setup/env.js";
 import { readRecordFile } from "./setup/write.js";
 import { RECORD_PATH } from "./setup/record.js";
@@ -15,6 +15,10 @@ import { detectBackends, realBackendEnvironment } from "./backends/detect.js";
 import { listOllamaModels } from "./models/ollama.js";
 import { readCapacity } from "./models/capacity.js";
 import { recommend, type RecommendOverride } from "./models/recommend.js";
+import { realChecksumEnvironment, readExtensionRegistry } from "./extensions/registry.js";
+import { createExtension, realTargetFileEnvironment, resolveTargetPath, listPresentExtensionNames } from "./extensions/create.js";
+import { diagnoseExtensions } from "./extensions/diagnose.js";
+import { repairExtension, realQuarantineEnvironment } from "./extensions/repair.js";
 
 export interface CommandOutcome {
   output: string;
@@ -35,7 +39,10 @@ export function renderReport(report: Report): string {
     const suportado = d.layer === "agent" ? `, ${d.supported ? "suportado" : "não suportado"}` : "";
     return `${head} — camada ${d.layer}, origem ${d.origin}, versão ${d.version}${suportado}`;
   });
-  return lines.join("\n");
+  const divergentes = (report.divergentExtensions ?? []).map(
+    (d) => `divergente extensão "${d.name}" — alvo ${d.target}, ${d.reason}`,
+  );
+  return [...lines, ...divergentes].join("\n");
 }
 
 function formatReport(): CommandOutcome {
@@ -93,11 +100,83 @@ function formatRecommend(args: readonly string[]): CommandOutcome {
   return { output: r.report, exitCode: r.backend === null ? 1 : 0 };
 }
 
+/** Lê `--flag valor` da linha de comando; flags sem valor seguinte são ignoradas. */
+function parseFlags(args: readonly string[]): Record<string, string> {
+  const flags: Record<string, string> = {};
+  for (let i = 0; i < args.length; i++) {
+    const flag = args[i];
+    const valor = args[i + 1];
+    if (flag?.startsWith("--") && valor !== undefined) {
+      flags[flag.slice(2)] = valor;
+      i++;
+    }
+  }
+  return flags;
+}
+
+const USO_EXTENSION_CREATE =
+  "uso: common-rules extension create --category <override|extension|new> --target <alvo> --name <nome> --file <arquivo-com-o-conteudo>";
+
+/** `common-rules extension create` — único caminho de escrita de um artefato de extensão (FR-080, NFR-083). */
+function formatExtensionCreate(args: readonly string[]): CommandOutcome {
+  const { category, target, name, file } = parseFlags(args);
+  if (category !== "override" && category !== "extension" && category !== "new") {
+    return { output: USO_EXTENSION_CREATE, exitCode: 2 };
+  }
+  if (!target || !name || !file) {
+    return { output: USO_EXTENSION_CREATE, exitCode: 2 };
+  }
+  const root = process.cwd();
+  const content = readFileSync(file, "utf8");
+  const managedHooks = loadHooks().map((h) => h.name);
+  const resultado = createExtension({
+    category,
+    name,
+    target,
+    content,
+    registryEnv: realChecksumEnvironment(root),
+    targetEnv: realTargetFileEnvironment(root),
+    managedHooks,
+  });
+  if (!resultado.ok) return { output: resultado.reason ?? "recusado", exitCode: 1 };
+  return { output: `extensão "${name}" criada em ${resolveTargetPath(target)}`, exitCode: 0 };
+}
+
+/** `common-rules extension repair` — quarentena o divergente e restaura o original, nunca apaga (FR-084, FR-085). */
+function formatExtensionRepair(args: readonly string[]): CommandOutcome {
+  const { name } = parseFlags(args);
+  if (!name) return { output: "uso: common-rules extension repair --name <nome>", exitCode: 2 };
+
+  const root = process.cwd();
+  const registryEnv = realChecksumEnvironment(root);
+  const targetEnv = realTargetFileEnvironment(root);
+  const registry = readExtensionRegistry(registryEnv);
+  const divergentes = diagnoseExtensions(registry, targetEnv, listPresentExtensionNames(root));
+  const divergente = divergentes.find((d) => d.name === name);
+  if (!divergente) return { output: `"${name}" não está divergente; nada para reparar`, exitCode: 1 };
+
+  const resultado = repairExtension(divergente, {
+    registry,
+    targetEnv,
+    quarantineEnv: realQuarantineEnvironment(root),
+  });
+  if (!resultado.ok) return { output: resultado.reason ?? "reparo recusado", exitCode: 1 };
+  return { output: `"${name}" reparado; conteúdo divergente movido para ${resultado.quarantinePath}`, exitCode: 0 };
+}
+
+function formatExtension(args: readonly string[]): CommandOutcome {
+  const sub = args[0];
+  if (sub === "create") return formatExtensionCreate(args.slice(1));
+  if (sub === "repair") return formatExtensionRepair(args.slice(1));
+  return { output: "uso: common-rules extension <create|repair> ...", exitCode: 2 };
+}
+
 export const COMMANDS: Record<string, (args: readonly string[]) => CommandOutcome> = {
   version: () => ({ output: readVersion(), exitCode: 0 }),
   doctor: formatReport,
   setup: formatSetup,
   recommend: formatRecommend,
+  extension: formatExtension,
 };
 
 const ALIASES: Record<string, string> = {
@@ -107,6 +186,7 @@ const ALIASES: Record<string, string> = {
   doctor: "doctor",
   setup: "setup",
   recommend: "recommend",
+  extension: "extension",
 };
 
 /** Resolve o argumento recebido para um comando conhecido, ou null. */

@@ -313,3 +313,44 @@ instalador, como já era); só pede aprovação quando hooks não batem ou algum
 comando de dependência não está no registro — um comando já aprovado antes,
 com o mesmo binário e argv exatos, não gera pergunta de novo, mesmo quando a
 execução precisa reinstalar por drift.
+
+## Extensões locais e reparo assistido
+
+Seis módulos novos em `src/extensions/`, acrescentados pela SPEC-0011, para
+que um hotfix local (hook, regra, ou o próprio roteador em `CLAUDE.md`/
+`AGENTS.md`) sobreviva a uma reinstalação sem esperar release:
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/extensions/registry.ts` | `ExtensionArtifact`/`ExtensionRegistry`; `ChecksumEnvironment` injetável (mesmo padrão de `RegistryEnvironment`, `SPEC-0010`); `readExtensionRegistry`/`writeExtensionRegistry` em `.common-rules/extensions.json` — ausente ou corrompido resolve para `{ artifacts: [] }`, nunca lança. |
+| `src/extensions/anchor.ts` | `insertAnchor`/`readAnchor`/`computeChecksum` — âncora `<!-- common-rules:<categoria>:<nome>:start/end -->`, mesmo comentário HTML que `.specsfy/Spec.md` já usa para o próprio Specsfy; checksum SHA-256 sobre o conteúdo bruto. |
+| `src/extensions/create.ts` | `createExtension(opts)` — único caminho de escrita de um artefato: grava a âncora no arquivo alvo (`resolveTargetPath` resolve `CLAUDE.md`/`AGENTS.md` para a raiz, qualquer outro `target` para `.common-rules/extensions/<target>.md`) e o checksum no registro; recusa categoria `new` para um dos sete hooks gerenciados e conflito de nome sem escolha padrão. |
+| `src/extensions/diagnose.ts` | `diagnoseExtensions(registry, targetEnv, presentNames)` — função pura de leitura, nunca escreve: compara checksum real contra o registrado e relata artefato presente sem registro correspondente. |
+| `src/extensions/repair.ts` | `repairExtension(divergent, opts)` — move o conteúdo divergente para `.common-rules/quarantine/<timestamp>-<nome>` (sem expiração automática) e restaura o original a partir do `content` gravado no registro; recusa o reparo inteiro se a quarentena não for gravável, em vez de reparar pela metade. |
+| `src/extensions/router.ts` | `buildRouterBlock()`/`buildAgentsPointer()` — texto minimalista que ensina o agente a acionar a skill de fachada em vez de ler `.common-rules/extensions/` inteiro; consumidos via `createExtension`. |
+
+Dois comandos novos em `src/cli.ts`: `common-rules extension create
+--category <override|extension|new> --target <alvo> --name <nome> --file
+<arquivo>` e `common-rules extension repair --name <nome>`. `src/doctor.ts`
+ganhou uma quarta fonte de relato — `inspectDependencies` recebeu um
+parâmetro `diagnoseExtensionsFn` injetável (default `realDiagnoseExtensions`,
+que só toca disco na CLI real), seguindo o mesmo padrão de
+`backendEnv` já usado para não quebrar determinismo em teste pré-existente
+(a mesma classe de defeito que a `SPEC-0008` já corrigiu). A divergência de
+extensão entra no `exitCode` do `doctor` diretamente, ao contrário da camada
+`agent` — que é só informativa.
+
+`src/setup/run.ts` monta o candidato do roteador (`CLAUDE.md`/`AGENTS.md`)
+sempre que `opts.write` é verdadeiro, tanto no caminho "já configurado"
+quanto no caminho de escrita plena — idempotente pelo próprio
+`createExtension` (recusa por conflito de nome quando o artefato já existe).
+Diferente de skills/Specsfy/ponte, o roteador não é candidato do registro de
+aprovação em lote de dependência de terceiro (`SPEC-0010`): não é um comando
+externo, então não pede aprovação própria.
+
+Princípio central, testado em `tests/extensions-doctor-divergencia.test.ts`
+e `tests/extensions-checksum-ausente.test.ts`: **detectabilidade, não
+prevenção** — o checksum nunca impede uma escrita fora da CLI; ele garante
+que essa escrita apareça na próxima leitura do `doctor`. E **reversibilidade
+sem exceção**: nenhuma operação deste sistema apaga conteúdo — divergência
+vira quarentena, sempre.

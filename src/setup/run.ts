@@ -25,6 +25,9 @@ import {
 } from "../approval/plan.js";
 import { readApprovalRegistry, writeApprovalRegistry, realRegistryEnvironment, type RegistryEnvironment } from "../approval/registry.js";
 import { writeRecordFile, writeSettings } from "./write.js";
+import { realChecksumEnvironment } from "../extensions/registry.js";
+import { createExtension, realTargetFileEnvironment } from "../extensions/create.js";
+import { buildRouterBlock, buildAgentsPointer } from "../extensions/router.js";
 
 /** Onde o arquivo do alvo é escrito, relativo ao projeto. */
 export const TARGET_SETTINGS = ".claude/settings.json";
@@ -81,6 +84,33 @@ export interface SetupResult {
   report: string;
   bridged: boolean;
   exitCode: number;
+}
+
+/**
+ * Garante o roteador em `CLAUDE.md`/`AGENTS.md` — não é comando de terceiro
+ * (`T018`), então passa fora do registro de aprovação em lote de dependência
+ * (`SPEC-0010`); a idempotência vem do próprio `createExtension`, que recusa
+ * por conflito de nome quando o artefato já existe (`FR-086`, `FR-087`).
+ */
+function ensureRouterCandidates(raiz: string): void {
+  const registryEnv = realChecksumEnvironment(raiz);
+  const targetEnv = realTargetFileEnvironment(raiz);
+  createExtension({
+    category: "extension",
+    name: "router",
+    target: "CLAUDE.md",
+    content: buildRouterBlock(),
+    registryEnv,
+    targetEnv,
+  });
+  createExtension({
+    category: "extension",
+    name: "agents-pointer",
+    target: "AGENTS.md",
+    content: buildAgentsPointer(),
+    registryEnv,
+    targetEnv,
+  });
 }
 
 const hooksDir = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "hooks");
@@ -152,6 +182,10 @@ export function runSetup(opts: SetupOptions): SetupResult {
 
   const jaFeito = hooksJaFeito && skillsJaFeito && specsfyJaFeito && !bridgePending;
   if (jaFeito) {
+    // Roteador é idempotente pelo próprio `createExtension` (recusa por
+    // conflito de nome) e não é comando de terceiro, então não bloqueia nem
+    // depende do restante já estar pendente (FR-086, FR-087, DEC-083).
+    if (opts.write) ensureRouterCandidates(raiz);
     return {
       ...vazio, installed: traduzidos, settings,
       record: readRecord(opts.previous ?? null),
@@ -273,6 +307,10 @@ export function runSetup(opts: SetupOptions): SetupResult {
   if (opts.write) {
     written.push(writeSettings(raiz, TARGET_SETTINGS, settings));
     written.push(writeRecordFile(raiz, RECORD_PATH, record));
+    // Mesma aprovação do plano de hooks já decidida acima — o roteador não
+    // passa pelo registro de aprovação em lote de dependência de terceiro
+    // (SPEC-0010), porque não é um comando externo (T018).
+    ensureRouterCandidates(raiz);
   }
 
   // Aprovado (ou sem `approval` exigida), a ponte executa de verdade quando

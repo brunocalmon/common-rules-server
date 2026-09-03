@@ -7,14 +7,16 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 
 ## O que existe hoje
 
-**Quatro comandos e um servidor de protocolo, e nada além disso.**
+**Cinco comandos e um servidor de protocolo, e nada além disso.**
 
 | Comando | O que faz |
 | --- | --- |
 | `common-rules --version` | Imprime a versão declarada no manifesto |
-| `common-rules doctor` | Relata as três dependências do projeto e os backends de agente detectados, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, e o identificador da última execução |
-| `common-rules setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, e registra o que escreveu, identificando a execução e o momento |
+| `common-rules doctor` | Relata as três dependências do projeto e os backends de agente detectados, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, cada extensão local divergente do que a CLI gravou, e o identificador da última execução |
+| `common-rules setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, escreve o roteador do `common-rules` em `CLAUDE.md`/`AGENTS.md`, e registra o que escreveu, identificando a execução e o momento |
 | `common-rules recommend` | Recomenda um backend de agente presente e, quando o `ollama` está disponível, o maior modelo local que cabe na memória livre, com override humano opcional |
+| `common-rules extension create` | Cria um artefato de extensão local (`override`/`extension`, nunca `new` para um dos sete hooks gerenciados) — hook, regra ou o próprio roteador — que sobrevive a uma reinstalação |
+| `common-rules extension repair` | Move o conteúdo de uma extensão divergente para `.common-rules/quarantine/` e restaura o original, sem apagar nada |
 
 **Aprovação do plano, em lote.** `common-rules setup` apresenta o plano e aguarda aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita. O plano lista cada comando de dependência que a execução de fato dispararia — hooks, instalador de skills por origem, instalador do framework Specsfy e a ponte Python, quando aplicável — não só os hooks. Um comando já aprovado antes, com o mesmo binário e argv exatos, não pede aprovação de novo, mesmo quando a execução precisa reinstalar por drift; qualquer diferença no argv, como uma versão diferente, conta como comando novo. O registro fica em `.common-rules/approved-commands.json`, local ao projeto.
 
@@ -30,7 +32,7 @@ ok      context-mode — camada npm, origem local, versão 1.0.169
 ok      code-review-graph — camada python, origem global, versão 2.3.7
 ```
 
-Trinta e quatro módulos em `src/`, 130 arquivos de teste, 352 casos.
+Quarenta módulos em `src/`, 141 arquivos de teste, 363 casos.
 
 O `setup` liga os subsistemas ao ciclo do agente e protege o repositório. Sete
 hooks: quatro conectam `context-mode` e `code-review-graph`, dois barram comando
@@ -57,12 +59,27 @@ fixada pela origem, e dizer isso faz parte do relato.
 
 Separadamente, o mesmo `setup` executa o instalador de projeto do próprio
 framework Specsfy (`specsfy install --project <raiz>`), deixando `.specsfy/`,
-`.agents/skills/`, `CLAUDE.md` e `AGENTS.md` presentes e atualizados — sem o
-`common-rules` escrever ou compor o conteúdo desses arquivos por conta própria;
-quem o faz é o instalador do próprio Specsfy. Enriquecer `CLAUDE.md`/`AGENTS.md`
-com conteúdo próprio de orquestração do `common-rules` continua fora de escopo,
-adiado para o épico de extensões da Phase 2 — só a existência desses arquivos é
-garantida hoje.
+`.agents/skills/`, `CLAUDE.md` e `AGENTS.md` presentes e atualizados — quem
+compõe o conteúdo desses arquivos é o instalador do próprio Specsfy. Por cima
+disso, o `setup` acrescenta sua própria seção — um roteador minimalista em
+`CLAUDE.md` e um ponteiro mínimo em `AGENTS.md`, ambos gravados pelo mesmo
+caminho único de criação de extensão, ancorados por comentário HTML e
+idempotentes (não reescreve quando já presentes).
+
+**Extensões locais e reparo assistido.** Um hotfix local — customizar um dos
+sete hooks, adicionar uma regra nova, ou ajustar o próprio roteador — sobrevive
+a uma reinstalação sem esperar release. `common-rules extension create` grava
+o conteúdo com uma âncora HTML no arquivo alvo (o próprio `CLAUDE.md`/
+`AGENTS.md`, ou `.common-rules/extensions/<nome>.md`) e o checksum em
+`.common-rules/extensions.json` — o único caminho de escrita; uma skill de
+fachada (`common-rules-extension-creator`) entrevista a pessoa e aciona esse
+comando, nunca escreve arquivo por conta própria. `doctor` relata cada
+artefato cujo conteúdo real diverge do checksum registrado, sem nunca
+corrigir sozinho — detectabilidade, não prevenção. `common-rules extension
+repair --name <nome>` move o conteúdo divergente para
+`.common-rules/quarantine/` (sem expiração automática) e restaura o original;
+recusa o reparo inteiro se a quarentena não for gravável, em vez de reparar
+pela metade.
 
 **Seleção de modelo.** `common-rules recommend` recomenda, de forma
 determinística e sem rede, um backend dentre os suportados presentes (na
@@ -89,7 +106,10 @@ Esta lista importa tanto quanto a anterior. Nada abaixo está implementado:
   em nenhum fluxo automático.
 - **Custo e uso de plano** na seleção de modelo — deliberadamente fora de
   escopo, não apenas ainda não construído (ver "Seleção de modelo" acima).
-- **Regras, skills e hooks próprios.**
+- **Hidratação sob demanda de uma extensão de hook.** Uma extensão local
+  hoje cria, sobrevive e é reparada; consumir seu conteúdo para alterar de
+  fato o comando renderizado em `.claude/settings.json` fica para um
+  incremento futuro (Fatia D, adiada em `BACKLOG-0004`).
 
 ## Finalidade
 

@@ -23,6 +23,9 @@ export interface DependencyResult {
 import { reportSkills, type SkillReportRow } from "./skills/record.js";
 import { readTrace, type TraceRead } from "./telemetry/read.js";
 import { detectBackends, realBackendEnvironment, type BackendEnvironment } from "./backends/detect.js";
+import { readExtensionRegistry, realChecksumEnvironment } from "./extensions/registry.js";
+import { realTargetFileEnvironment, listPresentExtensionNames } from "./extensions/create.js";
+import { diagnoseExtensions, type DivergentArtifact } from "./extensions/diagnose.js";
 
 export interface Report {
   results: DependencyResult[];
@@ -33,6 +36,8 @@ export interface Report {
   note?: string;
   /** Identificador da última execução registrada, quando uma raiz é informada. */
   trace?: TraceRead;
+  /** Artefato de extensão divergente, quando uma raiz é informada — nunca repara, só relata (`PR-082`). */
+  divergentExtensions?: DivergentArtifact[];
 }
 
 /**
@@ -78,6 +83,7 @@ export function inspectDependencies(
   env: Environment,
   root?: string,
   backendEnv: BackendEnvironment = realBackendEnvironment(),
+  diagnoseExtensionsFn: (root: string) => DivergentArtifact[] = realDiagnoseExtensions,
 ): Report {
   const results: DependencyResult[] = [];
 
@@ -117,12 +123,19 @@ export function inspectDependencies(
   // Somente leitura: o `doctor` relata a deriva e não a repara. Reparo
   // destrutivo permanece fora de escopo.
   const conjuntos = reportSkills(root);
+
+  // Divergência de extensão é responsabilidade do próprio common-rules, não
+  // de uma dependência de terceiro — entra no exitCode diretamente, ao
+  // contrário da camada `agent` (`DEC-084`).
+  const divergentes = diagnoseExtensionsFn(root);
+
   return {
     results,
     skills: conjuntos.results,
     note: conjuntos.note,
     trace: readTrace(root),
-    exitCode: dependenciasOk && conjuntos.exitCode === 0 ? 0 : 1,
+    divergentExtensions: divergentes,
+    exitCode: dependenciasOk && conjuntos.exitCode === 0 && divergentes.length === 0 ? 0 : 1,
   };
 }
 
@@ -142,6 +155,15 @@ const probe = (command: string, args: string[]): string | null => {
     return null;
   }
 };
+
+/** Fonte real, usada pela linha de comando — o único lugar que toca disco para diagnosticar extensão. */
+function realDiagnoseExtensions(root: string): DivergentArtifact[] {
+  return diagnoseExtensions(
+    readExtensionRegistry(realChecksumEnvironment(root)),
+    realTargetFileEnvironment(root),
+    listPresentExtensionNames(root),
+  );
+}
 
 /** Ambiente real, usado pela linha de comando. Somente lê; nunca instala. */
 export function defaultEnvironment(root: string = projectRoot()): Environment {

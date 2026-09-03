@@ -1,0 +1,20 @@
+{
+  "artifacts": [
+    {
+      "category": "extension",
+      "name": "router",
+      "target": "CLAUDE.md",
+      "content": "## common-rules\n\nPara criar, ajustar ou reparar uma extensão local (hook, regra ou este\npróprio roteador), acione a skill `common-rules-extension-creator` em vez\nde ler `.common-rules/extensions/` diretamente.",
+      "checksum": "ca0968485717a44baae6592effad473b89757b930d6a1a75114aa122b0c95eb8",
+      "createdAt": "2026-09-03T11:52:36.207Z"
+    },
+    {
+      "category": "extension",
+      "name": "agents-pointer",
+      "target": "AGENTS.md",
+      "content": "Para o roteador do `common-rules`, leia a seção `common-rules` em `CLAUDE.md`.",
+      "checksum": "fb3a5af95bd45a5b279ffb5d4d95eff9c56052739584e7403b8de1e0aa86e585",
+      "createdAt": "2026-09-03T11:52:36.208Z"
+    }
+  ]
+}

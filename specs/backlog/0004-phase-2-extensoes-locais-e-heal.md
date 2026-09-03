@@ -3,15 +3,15 @@
 | Metainformação | Valor |
 | --- | --- |
 | ID | BACKLOG-0004 |
-| Status | Ready for specification |
+| Status | Promoted |
 | Produto | common-rules |
 | Épico | Phase 2 — extensibilidade local |
 | Funcionalidade | Extensões locais, reparo assistido e hidratação adiada |
 | Tipo | épico |
-| Prioridade | Posterior à Phase 1; não inicia antes de 1c, 1d e 1e |
+| Prioridade | Desbloqueada — Phase 1 fechou por completo em 2026-09-02 |
 | Milestones | |
 | Criado em | 2026-08-29 |
-| Spec promovida | Nenhuma |
+| Spec promovida | specs/completed/0011-extensoes-locais-reparo-assistido/spec.md (Complete, 2026-09-03) |
 
 ## Ideia original
 
@@ -135,25 +135,30 @@ Scenario: artefato do setup não aceita categoria new
 - **D5**: A camada de orquestração em `CLAUDE.md` pertence a este épico, e não à fatia 1h. *Razão*: é o roteador do sistema de override, da mesma família de âncoras e extensões desta entrega; colocá-la na fatia de instalação duplicaria mecanismo. Instalar os dois ecossistemas e registrar já tem valor de ponta a ponta sozinho. *Nota*: esta fatia escapou do refinamento inicial do ADR 001, onde constava como roteador de uma linha, e voltou por uma diretiva posterior.
 - **D4**: O sistema de extensões cobre apenas os artefatos que o próprio `setup` escreve — os sete hooks e seu registro. *Razão*: estender a skills do `specsfy` violaria a imutabilidade do upstream e criaria um fork do motor de skills; escopo aberto a qualquer dependência não tem fronteira definida.
 
-**Propostas do ADR rejeitadas, registradas para não serem herdadas**
+**Decisões tomadas em 2026-09-02, ao desbloquear o épico com a Phase 1 fechada**
 
-- Instalar as ferramentas upstream em diretórios oficiais, contra a proibição de instalar globalmente na SPEC-0002.
-- `doctor` que bloqueia, reverte ou exclui, capacidade destrutiva em comando de diagnóstico.
-- "Fallback silencioso" diante de divergência, contra a decisão de recusar em vez de adivinhar.
-- A afirmação de que o checksum impede injeção de prompt. O mesmo processo escreve o arquivo e o registro; a propriedade real é detectabilidade.
+- **D6**: A âncora de injeção é comentário HTML, no mesmo padrão que o Specsfy já usa e comprova neste repositório (`<!-- specsfy:framework:start/end -->`) — `<!-- common-rules:extension:<nome>:start/end -->`, e o equivalente para `override`. *Razão*: consistência com um mecanismo que já funciona no próprio projeto, em vez de inventar um segundo formato de âncora para o mesmo problema.
+- **D7**: A quarentena vive em `.common-rules/quarantine/`, sem política de expiração automática. *Razão*: consistente com onde `install.json`/`approved-commands.json` (`SPEC-0005`, `SPEC-0010`) já vivem; expirar implicaria apagar, o que contradiz a regra já fixada de "quarentena em vez de exclusão, sempre". Mesmo padrão de não inventar prazo sem pedido real que `SPEC-0009` (D2) e `SPEC-0010` (`DEC-070`) já aplicaram.
+- **D8**: A fatia C (camada de orquestração em `CLAUDE.md`/`AGENTS.md`) entra nesta especificação junto com A e B, não fica mais adiada. *Razão*: o gatilho nomeado no diagnóstico anterior era especificamente a fatia 1d (`AGENTS.md` "fica de fora até a fatia 1d abrir a detecção de outros backends") — `SPEC-0008` já entregou isso, e a Phase 1 inteira fechou. O diagnóstico de "fatia C adiada" datava de antes da fatia 1d existir e ficou desatualizado.
 
-**Riscos**
+**Riscos resolvidos em 2026-09-02**
 
-- Sem inventário de propriedade por dependência, a proteção de `new` vira lista chumbada que envelhece a cada atualização do `specsfy`.
-- Quarentena sem política de expiração acumula lixo indefinidamente.
-- O formato das âncoras de injeção ainda não foi decidido, e escolha ruim aqui contamina todos os artefatos gerados.
+- ~~O formato das âncoras de injeção ainda não foi decidido~~ — resolvido por D6.
+- ~~Quarentena sem política de expiração acumula lixo indefinidamente~~ — aceito deliberadamente por D7; limpeza manual fica com quem usa, não com o sistema.
+- ~~Sem inventário de propriedade por dependência, a proteção de `new` vira lista chumbada~~ — sem efeito prático: D4 já restringe o sistema de extensões aos artefatos que o próprio `setup` escreve, nunca a artefato de dependência, então não há inventário de terceiro a confirmar.
 
 ## Pronto para desenvolvimento
 
-Diagnóstico: o brief é suficiente para especificar as fatias A e B. A fatia C permanece adiada com gatilho nomeado. Não é autorização de implementação: o épico não começa antes de a Phase 1 fechar.
-
-Decisões que a especificação ainda precisa tomar: formato das âncoras de injeção; onde vive a quarentena e se expira; se o reparo é subcomando do `doctor` ou comando irmão; e confirmação de que `context-mode` e `code-review-graph` publicam inventário de propriedade.
+Diagnóstico atualizado em 2026-09-02: a Phase 1 fechou por completo (`SPEC-0001` a `SPEC-0010`, fatias 1a a 1i concluídas). O brief é suficiente para especificar as fatias A, B e C juntas — nenhuma decisão bloqueante restante. A fatia D (hidratação sob demanda) segue adiada por D1, sem gatilho novo.
 
 ## Próximo passo
 
-Fechar a Phase 1 antes de especificar este épico. A ordem imediata continua sendo implementar a SPEC-0004 a partir de T015, depois as fatias 1c, 1d, 1e e a fatia nova de telemetria.
+As fatias A, B e C foram entregues por completo em `SPEC-0011`
+(`specs/completed/0011-extensoes-locais-reparo-assistido/spec.md`, `Complete`
+em 2026-09-03): `common-rules extension create`/`extension repair`, checksum
+por âncora HTML, quarentena sem expiração em `.common-rules/quarantine/`, e o
+roteador em `CLAUDE.md`/ponteiro em `AGENTS.md`, todos verificados de ponta a
+ponta com `dist/cli.js` real, não só em fixture de teste. A fatia D
+(hidratação sob demanda) segue deliberadamente adiada por D1, sem gatilho
+novo — este épico não tem próximo passo pendente até que uma segunda IDE
+entre no escopo.

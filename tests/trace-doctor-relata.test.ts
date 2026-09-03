@@ -4,9 +4,10 @@ import { projeto, gravarRegistro, registroAntigo, ID_FIXO } from "./trace-fixtur
 import { semBackends } from "./backends-fixtures";
 
 const ambiente = { resolveNpm: () => "1.0.0", resolveLocalPython: () => "2.3.7", resolveOnPath: () => null };
+const semExtensoes = () => [];
 
 function relatorio(raiz: string) {
-  return inspectDependencies(ambiente, raiz, semBackends);
+  return inspectDependencies(ambiente, raiz, semBackends, semExtensoes);
 }
 
 describe("AC-046 — o identificador aparece no diagnóstico", () => {
