@@ -272,10 +272,10 @@ Feature: Checksum ausente é divergência, não falha
 
 #### AC-136 — `CLAUDE.md` ganha a seção própria do `common-rules` no primeiro `setup`
 
-**Cobre**: US-082, FR-086, FR-087, NFR-083
+**Cobre**: US-082, FR-086, FR-087, FR-088, NFR-083
 
 ```gherkin
-@US-082 @FR-086 @FR-087 @NFR-083 @AC-136
+@US-082 @FR-086 @FR-087 @FR-088 @NFR-083 @AC-136
 Feature: Roteador em CLAUDE.md
 
   Scenario: Setup roda pela primeira vez com a extensão ativa
@@ -287,10 +287,10 @@ Feature: Roteador em CLAUDE.md
 
 #### AC-137 — `AGENTS.md` ganha um ponteiro mínimo, sem duplicar `CLAUDE.md`
 
-**Cobre**: US-082, FR-086, FR-087, NFR-083
+**Cobre**: US-082, FR-086, FR-087, FR-088, NFR-083
 
 ```gherkin
-@US-082 @FR-086 @FR-087 @NFR-083 @AC-137
+@US-082 @FR-086 @FR-087 @FR-088 @NFR-083 @AC-137
 Feature: AGENTS.md aponta para CLAUDE.md
 
   Scenario: Setup roda e AGENTS.md ainda não tem o ponteiro
@@ -302,10 +302,10 @@ Feature: AGENTS.md aponta para CLAUDE.md
 
 #### AC-138 — Skill de fachada nunca escreve arquivo diretamente
 
-**Cobre**: US-080, US-082, FR-080, FR-086, FR-087, NFR-083
+**Cobre**: US-080, US-082, FR-080, FR-086, FR-087, FR-088, NFR-083
 
 ```gherkin
-@US-080 @US-082 @FR-080 @FR-086 @FR-087 @NFR-083 @AC-138
+@US-080 @US-082 @FR-080 @FR-086 @FR-087 @FR-088 @NFR-083 @AC-138
 Feature: Skill de fachada só aciona a CLI
 
   Scenario: Skill entrevista a pessoa e emite o comando
@@ -330,6 +330,22 @@ Feature: Reparo falha inteiro, não pela metade
     And o artefato divergente permanece exatamente como estava
 ```
 
+#### AC-140 — Setup entrega a skill de fachada no projeto-alvo
+
+**Cobre**: US-080, US-082, FR-088, NFR-083
+
+```gherkin
+@US-080 @US-082 @FR-088 @NFR-083 @AC-140
+Feature: Skill de fachada chega ao projeto-alvo
+
+  Scenario: Setup roda pela primeira vez com a skill empacotada
+    Given um projeto sem a skill common-rules-extension-creator instalada
+    When o setup roda e aprova o plano
+    Then .claude/skills/common-rules-extension-creator/SKILL.md existe
+    And .agents/skills/common-rules-extension-creator/SKILL.md existe
+    And o conteúdo entregue é o mesmo empacotado em resources/skills/
+```
+
 ### 7. Requisitos
 
 #### Funcionais
@@ -342,6 +358,7 @@ Feature: Reparo falha inteiro, não pela metade
 - **FR-085**: O comando de reparo nunca deve apagar um artefato — divergência vira quarentena, sempre.
 - **FR-086**: O `setup`, quando a extensão do roteador estiver pendente, deve escrever em `CLAUDE.md` um bloco ancorado próprio do `common-rules`, pelo mesmo caminho único de criação de extensão.
 - **FR-087**: O `setup` deve escrever em `AGENTS.md` um ponteiro mínimo para o bloco de `CLAUDE.md`, sem duplicar o conteúdo do roteador.
+- **FR-088**: O `setup` deve entregar a skill de fachada `common-rules-extension-creator`, empacotada com o próprio `common-rules`, nos diretórios de skill do projeto-alvo — nunca deixá-la parada só no pacote sem uso possível pela pessoa.
 
 #### Não funcionais
 
@@ -447,9 +464,10 @@ src/extensions/
   repair.ts
   router.ts
 src/doctor.ts        (alterado — quarta fonte de relato: divergência de extensão)
-src/setup/run.ts      (alterado — candidato do roteador CLAUDE.md/AGENTS.md)
+src/setup/run.ts      (alterado — candidato do roteador CLAUDE.md/AGENTS.md; entrega das skills empacotadas)
 src/cli.ts            (alterado — comandos `extension create` e `extension repair`)
-.claude/skills/common-rules-extension-creator/  (nova skill de fachada, fora deste repositório em consumidores; aqui, referência de conteúdo)
+src/skills/deliver.ts (correção pós-`Complete`: entrega real da skill empacotada no projeto-alvo)
+resources/skills/common-rules-extension-creator/SKILL.md  (correção pós-`Complete`: movida de `.claude/skills/`/`skills/` soltos na raiz para `resources/`, no mesmo padrão de `resources/hooks/`; fonte real que o `setup` copia, não mais "referência de conteúdo" nunca entregue)
 tests/
   extensions-create-*.test.ts
   extensions-new-recusado-hook.test.ts
@@ -461,7 +479,9 @@ tests/
   extensions-router-claude-md.test.ts
   extensions-router-agents-md.test.ts
   extensions-facade-nao-escreve.test.ts
-specs/defined/0011-extensoes-locais-reparo-assistido/
+  skills-deliver.test.ts (correção pós-`Complete`)
+  setup-delivers-bundled-skill.test.ts (correção pós-`Complete`)
+specs/completed/0011-extensoes-locais-reparo-assistido/
   spec.md
 ```
 
@@ -540,6 +560,7 @@ comando que a encontrou.
 | US-082, FR-087, AC-137 | AC-137 na seção 6 | tests/extensions-router-agents-md.test.ts | `expected false to be true` — AGENTS.md sem o ponteiro | GREEN | Sem regressão — suíte completa GREEN |
 | US-080, FR-080, AC-138 | AC-138 na seção 6 | tests/extensions-facade-nao-escreve.test.ts | `ENOENT` — skills/common-rules-extension-creator/SKILL.md inexistente | GREEN | Sem regressão — suíte completa GREEN |
 | US-081, FR-084, AC-139 | AC-139 na seção 6 | tests/extensions-repair-quarentena-nao-gravavel.test.ts | `Cannot find module ../src/extensions/repair` | GREEN (reconfirmado após adicionar `content` a `ExtensionArtifact`) | Sem regressão — suíte completa GREEN |
+| US-080, US-082, FR-088, AC-140 | AC-140 na seção 6 (correção pós-`Complete`) | tests/skills-deliver.test.ts, tests/setup-delivers-bundled-skill.test.ts | `Cannot find module '../src/skills/deliver'` / `'../skills/deliver.js'` (reconfirmado por remoção temporária do arquivo, não assumido) | GREEN | Sem regressão — suíte completa GREEN (145/370) |
 
 ### 12. Plano de testes e rastreabilidade
 
@@ -562,26 +583,29 @@ comando que a encontrou.
 | NFR-082 | AC-133 | Unidade | tests/extensions-doctor-divergencia.test.ts | Passed |
 | NFR-082 | AC-135 | Unidade | tests/extensions-checksum-ausente.test.ts | Passed |
 | NFR-083 | AC-138 | Unidade | tests/extensions-facade-nao-escreve.test.ts | Passed |
+| FR-088 | AC-140 | Integração | tests/setup-delivers-bundled-skill.test.ts, tests/skills-deliver.test.ts | Passed |
 
 ### 13. Validações
 
 #### Gate do Ato I — Definição
 
-- **Resultado**: READY (2026-09-02)
+- **Resultado original**: READY (2026-09-02)
 - **Comando**: `node .agents/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/defined/0011-extensoes-locais-reparo-assistido/spec.md`
 - **Cobertura**: 3 US, 8 FR, 4 NFR, 10 AC, 5 DEC; mínimo de 3 AC por ID satisfeito em todos.
 - **Origem**: `BACKLOG-0004`, refinado nesta mesma sessão (D6, D7, D8) antes desta especificação — brief já cobria problema, atores, escopo, jornadas e critérios de aceite em Gherkin; nenhuma pergunta nova foi necessária além das três decisões pendentes.
 - **Achados**: Nenhum bloqueante.
+- **Reaberto em 2026-09-03** (`$specsfy-update-spec`, correção pós-`Complete`): acrescido `FR-088`/`AC-140`/`DEC-085` — a skill de fachada precisa ser entregue de verdade no projeto-alvo, não só existir no pacote. Ver seção 17.
 
 #### Gate do Ato II — Plano
 
-- **Resultado**: Passed (2026-09-03)
+- **Resultado original**: Passed (2026-09-03)
 - **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/defined/0011-extensoes-locais-reparo-assistido/spec.md --allow-draft` → `VALID DRAFT` (total=21 complete=18 tdd=10 code=8 checklist_items=126 checklist_complete=108 covered_spec_ids=25 required_spec_ids=25)
 - **Achados**: Nenhum bloqueante. T001–T010 observaram RED real antes de T011–T018 os tornarem GREEN (seção 11); T019–T021 (fechamento) ainda pendentes no momento deste gate.
+- **Reaberto e reaprovado em 2026-09-03**: acrescidos T022/T023 (Fase 4, correção pós-`Complete`), com `FR-088` recebendo `T007`/`T008`/`T009`/`T022` como predecessores TDD (mínimo de três satisfeito reaproveitando os casos irmãos já `GREEN` de AC-136/137/138, mesmo padrão de cobertura secundária já usado na definição original). `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/completed/0011-extensoes-locais-reparo-assistido/spec.md --allow-draft` → `VALID DRAFT` (total=23 complete=23 tdd=11 code=9 checklist_items=138 checklist_complete=138 covered_spec_ids=27 required_spec_ids=27).
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Passed (2026-09-03)
+- **Resultado original**: Passed (2026-09-03)
 - **Comandos**:
   - `node .agents/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/in-progress/0011-extensoes-locais-reparo-assistido/spec.md .` → 25/25 IDs de SPEC-0011 cobertos em 151 arquivos de teste (os "marcadores órfãos" listados pertencem a outras specs já `completed` — o mesmo script relata a mesma lista de nomes de outras specs como órfã até checando uma spec já `completed`, confirmado comparando com `specs/completed/0001-.../spec.md`; não é gap real desta spec).
   - `node .agents/skills/specsfy-06-tdd-bdd/scripts/verify_acceptance.mjs specs/in-progress/0011-extensoes-locais-reparo-assistido/spec.md .` → `QA: PASSED`.
@@ -591,6 +615,14 @@ comando que a encontrou.
   - Verificação manual real em diretório temporário (`node dist/cli.js`): `extension create` → `doctor` detecta zero divergência → edição fora da CLI dentro da âncora → `doctor` nomeia o artefato divergente e sai com código 1 → `extension repair` → conteúdo original restaurado, divergente preservado em `.common-rules/quarantine/`, `doctor` volta a sair com código 0.
   - `setup` real em projeto novo (sem terminal, aprovação por documento JSON via stdin): `CLAUDE.md` ganha `<!-- common-rules:extension:router:start/end -->`, `AGENTS.md` ganha o ponteiro, convivendo sem conflito com os blocos do próprio Specsfy; segunda execução idêntica byte a byte (idempotente, via caminho "já estava configurado").
 - **Achados**: Um bug real de correção encontrado só pela verificação manual (T021, `IMPROVE`): `diagnoseExtensions` comparava presença em disco por `target` contra `name` no registro, relatando falso positivo para cada artefato cujo `name` diverge do `target`. Corrigido antes do fechamento deste gate, com regressão própria; suíte completa reconfirmada GREEN depois da correção (143/143 arquivos).
+- **Reaberto e refechado em 2026-09-03** (correção pós-`Complete`, `FR-088`/`AC-140`/`DEC-085`/`T022`/`T023`):
+  - `npx tsc --noEmit` → exit 0.
+  - `npm run build` → exit 0.
+  - Suíte completa → 145 arquivos, 370 casos, todos GREEN.
+  - `node .agents/skills/specsfy-06-tdd-bdd/scripts/verify_acceptance.mjs specs/completed/0011-extensoes-locais-reparo-assistido/spec.md .` → `QA: PASSED`.
+  - `node .agents/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/completed/0011-extensoes-locais-reparo-assistido/spec.md .` → 27/27 IDs de SPEC-0011 cobertos em 153 arquivos de teste.
+  - `node dist/cli.js setup` real, num diretório novo, sem terminal (aprovação por documento JSON): confirmado `.claude/skills/common-rules-extension-creator/SKILL.md` e `.agents/skills/common-rules-extension-creator/SKILL.md` presentes, com o conteúdo empacotado em `resources/skills/`.
+  - `.specsfy/PACKAGES.md` ficou fora deste ciclo: `package.json` mudou só o campo `files` (`hooks` → `resources`), sem alterar nenhuma dependência — nada para o inventário reconstruir. `monitor_context.mjs` continua sinalizando isso como aberto, sem um `--acknowledge-packages-no-change` equivalente ao que existe para `PROJECT.md`/`RULES.md`; registrado aqui como lacuna de ferramenta de terceiro, não ignorado silenciosamente.
 
 ### 14. Tarefas
 
@@ -658,7 +690,7 @@ Checklist obrigatório por tarefa, na ordem:
   - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
   - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [x] T007 [P] [TEST] [TDD] [US-082] Derivar de AC-136 o caso em tests/extensions-router-claude-md.test.ts — Refs: US-082, FR-086, FR-087, NFR-083, AC-136 — Depends: none
+- [x] T007 [P] [TEST] [TDD] [US-082] Derivar de AC-136 o caso em tests/extensions-router-claude-md.test.ts — Refs: US-082, FR-086, FR-087, FR-088, NFR-083, AC-136 — Depends: none
   - [x] **PREP**: Ler o Gherkin de AC-136.
   - [x] **EXECUTE**: Escrever caso com `setup` rodando num projeto sem seção do `common-rules` em `CLAUDE.md`, conferindo o bloco ancorado com o roteador minimalista e o checksum registrado.
   - [x] **VERIFY**: RED — `Cannot find module` sobre `src/extensions/router`.
@@ -666,7 +698,7 @@ Checklist obrigatório por tarefa, na ordem:
   - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
   - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [x] T008 [P] [TEST] [TDD] [US-082] Derivar de AC-137 o caso em tests/extensions-router-agents-md.test.ts — Refs: US-082, FR-086, FR-087, NFR-083, AC-137 — Depends: none
+- [x] T008 [P] [TEST] [TDD] [US-082] Derivar de AC-137 o caso em tests/extensions-router-agents-md.test.ts — Refs: US-082, FR-086, FR-087, FR-088, NFR-083, AC-137 — Depends: none
   - [x] **PREP**: Ler o Gherkin de AC-137.
   - [x] **EXECUTE**: Escrever caso com `setup` rodando sem o ponteiro em `AGENTS.md`, conferindo o ponteiro mínimo e a ausência de duplicação do conteúdo do roteador.
   - [x] **VERIFY**: RED — módulo ainda não existe.
@@ -674,7 +706,7 @@ Checklist obrigatório por tarefa, na ordem:
   - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
   - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [x] T009 [P] [TEST] [TDD] [US-080] Derivar de AC-138 o caso em tests/extensions-facade-nao-escreve.test.ts — Refs: US-080, US-082, FR-080, FR-086, FR-087, NFR-083, AC-138 — Depends: none
+- [x] T009 [P] [TEST] [TDD] [US-080] Derivar de AC-138 o caso em tests/extensions-facade-nao-escreve.test.ts — Refs: US-080, US-082, FR-080, FR-086, FR-087, FR-088, NFR-083, AC-138 — Depends: none
   - [x] **PREP**: Ler o Gherkin de AC-138 e o conteúdo previsto da skill de fachada.
   - [x] **EXECUTE**: Escrever caso confirmando que a skill de fachada, na sua definição, só emite o comando de CLI e não contém lógica de escrita de arquivo ou registro.
   - [x] **VERIFY**: RED — skill/conteúdo previsto ainda não existe.
@@ -792,6 +824,25 @@ Checklist obrigatório por tarefa, na ordem:
   - [x] **EVIDENCE**: Comandos, contagens e exit codes registrados na seção 13.
   - [x] **IMPROVE**: `diagnoseExtensions` comparava presença em disco (por `target`) contra `name` no registro — cada artefato íntegro cujo `name` difere do `target` (o caso comum) aparecia como falso órfão. Achado só pela verificação real deste `T021` (nenhum teste unitário pré-existente exercitava `name !== target`); corrigido em `src/extensions/diagnose.ts`, com `renderReport` (`src/cli.ts`) estendido para nomear a extensão divergente no texto real do `doctor`, e regressão em `tests/extensions-diagnose-nome-diferente-do-alvo.test.ts` e `tests/doctor-cli-nomeia-extensao-divergente.test.ts`.
 
+#### Fase 4 — Correção pós-`Complete` (FR-088, AC-140, DEC-085)
+
+- [x] T022 [TEST] [TDD] [US-080] [US-082] Derivar de AC-140 os casos em tests/skills-deliver.test.ts e tests/setup-delivers-bundled-skill.test.ts — Refs: US-080, US-082, FR-088, NFR-083, AC-140 — Depends: none
+  - [x] **PREP**: Ler o Gherkin de AC-140. Diferente da Fase 1, o código já existia quando os testes foram escritos (a pessoa responsável apontou o defeito depois de `Complete`, e a correção foi feita antes da formalização do caso) — RED reconfirmado explicitamente por remoção temporária de `src/skills/deliver.ts`, não assumido por construção.
+  - [x] **EXECUTE**: Casos de unidade para `readBundledSkill`/`deliverBundledSkill` e um caso de integração rodando `runSetup` de ponta a ponta, conferindo `.claude/skills/common-rules-extension-creator/SKILL.md` e `.agents/skills/common-rules-extension-creator/SKILL.md`.
+  - [x] **VERIFY**: RED confirmado — `Cannot find module '../src/skills/deliver'` / `'../skills/deliver.js'`, ao mover `src/skills/deliver.ts` para fora do projeto e rodar os dois arquivos.
+  - [x] **VISUAL**: Não aplicável — sem interface, comando de terminal.
+  - [x] **EVIDENCE**: Comando e causa do RED registrados na seção 12.
+  - [x] **IMPROVE**: Nenhuma melhoria adicional — o próprio ciclo já é a melhoria sobre a Fase 1–3.
+
+- [x] T023 [CODE] Implementar src/skills/deliver.ts e ligar deliverLocalSkills em src/setup/run.ts — Refs: FR-088, AC-140 — Depends: T007, T008, T009, T022
+  - [x] **PREP**: Confirmar RED de T022.
+  - [x] **EXECUTE**: `readBundledSkill`/`deliverBundledSkill`/`realSkillWriteEnvironment` em `src/skills/deliver.ts`, lendo de `resources/skills/<nome>/`; `deliverLocalSkills(raiz)` em `src/setup/run.ts`, chamado nos dois pontos onde `ensureRouterCandidates` já era chamado (caminho "já configurado" e escrita plena) — mesma idempotência por sobrescrita de conteúdo igual, mesmo padrão do roteador. `hooks/` e `skills/` movidos para `resources/hooks/`/`resources/skills/` (`DEC-085`); `hooksDir()` e o campo `files` de `package.json` atualizados.
+  - [x] **VERIFY**: Casos de T022 GREEN; `npx tsc --noEmit` e `npm run build` em exit 0; suíte completa (145 arquivos, 370 casos) GREEN; `node dist/cli.js setup` real num diretório temporário confirmando os dois caminhos entregues.
+  - [x] **VISUAL**: Não aplicável — sem interface, comando de terminal.
+  - [x] **EVIDENCE**: Comandos e resultado registrados na seção 12.
+  - [x] **IMPROVE**: Nenhuma melhoria adicional além da própria correção.
+  <!-- specsfy:evidence {"task": "T023", "refs": ["FR-088", "AC-140"], "files": ["src/skills/deliver.ts", "src/setup/run.ts", "resources/hooks", "resources/skills/common-rules-extension-creator/SKILL.md", "package.json"], "commands": [{"run": "npm run test:tdd", "exit": 0}, {"run": "npx tsc --noEmit", "exit": 0}, {"run": "npm run build", "exit": 0}]} -->
+
 ### 15. Ordem de execução
 
 A Fase 1 inteira em paralelo: dez arquivos distintos, sem dependência entre si.
@@ -839,6 +890,7 @@ superfície real.
 - **DEC-082**: A fatia C (roteador em `CLAUDE.md`/`AGENTS.md`) entra nesta especificação, junto com A e B. *Razão*: `D8` — o gatilho nomeado (fatia 1d) já foi satisfeito, e a Phase 1 fechou por completo.
 - **DEC-083**: O sistema de extensões cobre só os sete hooks, o registro do `setup` e o próprio bloco de `CLAUDE.md`/`AGENTS.md` que esta fatia acrescenta — nunca artefato de dependência de terceiro. *Razão*: `D4` — estender skills do Specsfy violaria a imutabilidade do upstream e criaria um fork do motor de skills.
 - **DEC-084**: `doctor` relata divergência de extensão como responsabilidade própria do `common-rules`, não como quarta camada de dependência — o exit code do `doctor` reflete essa divergência diretamente, diferente da camada `agent` (fatia 1d), que é puramente informativa. *Razão*: uma extensão divergente é sobre o que o próprio `common-rules` escreveu, não sobre o que uma dependência de terceiro expõe; tratá-la como informativa esconderia um problema que é literalmente do escopo desta ferramenta.
+- **DEC-085** (correção pós-`Complete`, 2026-09-03): Cada artefato de origem que o `setup` lê e leva para o projeto-alvo — hooks e skills locais empacotadas — vive sob um único diretório `resources/` na raiz do pacote (`resources/hooks/`, `resources/skills/<nome>/`), no lugar de diretórios soltos (`hooks/`, `skills/`). A skill `common-rules-extension-creator` é entregue de verdade em `.claude/skills/` e `.agents/skills/` do projeto-alvo por `src/skills/deliver.ts`, chamado por `runSetup` no mesmo ponto onde o roteador já era garantido. *Razão*: a pessoa responsável revisou o resultado real da entrega e encontrou a skill parada na raiz do projeto sem nenhum código a instalando — `AC-138`/`FR-080` originais provaram que a fachada nunca escreve arquivo, mas nenhum requisito cobria que ela precisa *chegar* ao projeto-alvo para existir de fato; a seção 8 original já antecipava a entrega ("fora deste repositório em consumidores") sem nunca implementá-la. *Achado*: `.claude/skills/`/`.agents/skills/` são ambos populados pelo instalador real de terceiro (`npx skills add`) para o alvo `claude-code` — confirmado inspecionando este próprio repositório após uma execução real — então a entrega da skill local espelha o mesmo par de diretórios, em vez de escolher um e adivinhar errado o outro.
 
 ### 18. Definition of Done
 
@@ -854,3 +906,4 @@ superfície real.
 - [x] `CLAUDE.md` e `AGENTS.md`, gerados por um `setup` real num projeto novo, contêm a seção/ponteiro do `common-rules`.
 - [x] `.specsfy/STACK.md` registra os módulos novos de `src/extensions/`.
 - [x] `PROJECT.md` descreve o sistema de extensões locais e o comando de reparo.
+- [x] (correção pós-`Complete`) `.claude/skills/common-rules-extension-creator/SKILL.md` e `.agents/skills/common-rules-extension-creator/SKILL.md`, gerados por um `setup` real num projeto novo, existem de fato — não só a referência de conteúdo no pacote.

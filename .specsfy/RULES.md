@@ -63,3 +63,15 @@ aceito, e a regra existe para impedir que o problema cresça, não para desfazer
 o passado. A correção de fato pertence ao `@promovaweb/specsfy`, que é dono do
 auditor; editá-lo aqui violaria a imutabilidade do upstream e seria desfeito no
 próximo `specsfy install`.
+
+## Layout de artefatos-fonte do setup
+
+- Todo arquivo que serve de base/template/import para o setup levar a um projeto-alvo vive sob resources/ na raiz do pacote: resources/hooks/*.md (hooks empacotados), resources/skills/<nome>/ (skills locais autoradas neste pacote, distintas de mattpocock/specsfy, que vêm de fora via installSkills). Nunca soltar esses artefatos direto na raiz do projeto (hooks/, skills/).
+
+## Nomenclatura de skills locais
+
+- Toda skill local autorada por este pacote (não vinda de mattpocock/skills nem de promovaweb/specsfy) usa o prefixo common-rules-<nome-do-artefato>, mesmo padrão do specsfy-<nome>, para nunca colidir dentro de .claude/skills/ ou .agents/skills/ de quem instala.
+
+## Idioma padrão de código e artefatos
+
+- src/**/*.ts, tests/**/*.ts, comentários, identificadores e artefatos empacotados pelo common-rules (skills locais, textos de CLI) são em inglês. Exceção técnica confirmada: specs/**/*.md permanecem em português, porque os scripts validadores do framework Specsfy (ferramenta externa, .agents/skills/specsfy-*/scripts/*.mjs) têm hardcoded títulos de seção e frases em português (ex.: validate_spec.mjs, verify_acceptance.mjs) — traduzir as specs quebraria a esteira de validação inteira. .specsfy/Spec.md também não é traduzido: é publicado pela própria ferramenta Specsfy, não por este projeto.

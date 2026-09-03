@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { translateForClaudeCode } from "../src/hooks/claude-code";
 import { readHook } from "../src/hooks/source";
 
-const CORPUS = resolve(__dirname, "../hooks");
+const CORPUS = resolve(__dirname, "../resources/hooks");
 const hook = (n: string) => readHook(readFileSync(resolve(CORPUS, `${n}.md`), "utf8"));
 
 describe("AC-009 — a tradução preserva a semântica de bloqueio", () => {

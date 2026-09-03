@@ -54,8 +54,11 @@ e não cria `dist/`; build limpo sai com zero e cria.
 
 ### Hooks empacotados com o produto
 
-Os sete hooks portados da v0.2.8 vivem em `hooks/`, na raiz do pacote, e são
-declarados em `files` do manifesto. Não vivem dentro de `specs/`: o caminho de
+Os sete hooks portados da v0.2.8 vivem em `resources/hooks/`, na raiz do
+pacote, e são declarados em `files` do manifesto. Movidos de `hooks/` para
+`resources/hooks/` na SPEC-0011: `resources/` unifica todo artefato de origem
+que o `setup` lê e leva para o projeto-alvo, incluindo agora as skills locais
+(`resources/skills/`). Não vivem dentro de `specs/`: o caminho de
 uma spec muda conforme ela avança de estado, e código que dependesse dele
 quebraria a cada transição — como de fato quebrou, com `ENOENT`, ao mover a
 SPEC-0003 de `defined` para `in-progress`.
@@ -354,3 +357,26 @@ prevenção** — o checksum nunca impede uma escrita fora da CLI; ele garante
 que essa escrita apareça na próxima leitura do `doctor`. E **reversibilidade
 sem exceção**: nenhuma operação deste sistema apaga conteúdo — divergência
 vira quarentena, sempre.
+
+### Entrega de skills locais empacotadas (`src/skills/deliver.ts`)
+
+Correção pós-entrega da SPEC-0011: a skill de fachada
+`common-rules-extension-creator` é autorada dentro deste pacote — diferente
+de `mattpocock/skills`/`promovaweb/specsfy`, que vêm de fora via
+`installSkills`. Ela vive em `resources/skills/common-rules-extension-creator/`
+(fonte empacotada, declarada em `files` do manifesto, no mesmo padrão de
+`resources/hooks/`) e `deliverBundledSkill` a copia, sem checksum nem
+registro, para os dois diretórios que o instalador real já popula para o
+único alvo suportado hoje (`claude-code`): `.claude/skills/` e
+`.agents/skills/`. `runSetup` chama `deliverLocalSkills` sempre que
+`opts.write` é verdadeiro — mesmo padrão de idempotência do roteador
+(`ensureRouterCandidates`): sobrescrita do mesmo conteúdo é barata e segura,
+porque é conteúdo do próprio pacote, nunca algo que a pessoa editou à mão.
+
+Achado real: a primeira versão da SPEC-0011 deixou essa skill parada em
+`skills/` na raiz do projeto, sem nenhum código a entregando — o teste
+existente (`extensions-facade-nao-escreve.test.ts`) só conferia que o
+arquivo existia e tinha certas propriedades, nunca que o `setup` a instalava
+em algum lugar. `tests/setup-delivers-bundled-skill.test.ts` cobre isso de
+ponta a ponta agora, e uma execução real de `dist/cli.js setup` confirmou os
+dois caminhos populados.

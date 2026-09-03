@@ -16,7 +16,7 @@ describe("AC-009 — o comando final não contém placeholder não resolvido", (
   // SPECSFY: US-002 FR-002 AC-009
   it("nenhum fragmento contém a chave {ide}", () => {
     for (const nome of HOOKS_CONTEXT_MODE) {
-      const hook = readHook(readFileSync(join("hooks", nome), "utf8"));
+      const hook = readHook(readFileSync(join("resources", "hooks", nome), "utf8"));
       expect(hook.script).not.toContain("{ide}");
     }
   });
@@ -24,7 +24,7 @@ describe("AC-009 — o comando final não contém placeholder não resolvido", (
   // SPECSFY: US-002 FR-002 AC-009
   it("o comando começa com context-mode hook claude-code", () => {
     for (const nome of HOOKS_CONTEXT_MODE) {
-      const hook = readHook(readFileSync(join("hooks", nome), "utf8"));
+      const hook = readHook(readFileSync(join("resources", "hooks", nome), "utf8"));
       expect(hook.script.trim()).toMatch(/^context-mode hook claude-code /);
     }
   });
@@ -35,7 +35,7 @@ describe("AC-009 — o comando final não contém placeholder não resolvido", (
   // `npm run verify` roda install, build e suíte juntos — foi exatamente
   // isso que produziu um falso vermelho na primeira execução deste caso.
   it("o script traduzido executa de verdade e não lança por sintaxe", () => {
-    const hook = readHook(readFileSync(join("hooks", "context-mode-pretooluse.md"), "utf8"));
+    const hook = readHook(readFileSync(join("resources", "hooks", "context-mode-pretooluse.md"), "utf8"));
     const traduzido = translateForClaudeCode(hook);
     const dir = mkdtempSync(join(tmpdir(), "crs-cm-"));
     const caminho = join(dir, "hook.sh");

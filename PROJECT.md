@@ -32,7 +32,7 @@ ok      context-mode — camada npm, origem local, versão 1.0.169
 ok      code-review-graph — camada python, origem global, versão 2.3.7
 ```
 
-Quarenta módulos em `src/`, 141 arquivos de teste, 363 casos.
+Quarenta e um módulos em `src/`, 145 arquivos de teste, 370 casos.
 
 O `setup` liga os subsistemas ao ciclo do agente e protege o repositório. Sete
 hooks: quatro conectam `context-mode` e `code-review-graph`, dois barram comando
@@ -73,7 +73,10 @@ o conteúdo com uma âncora HTML no arquivo alvo (o próprio `CLAUDE.md`/
 `AGENTS.md`, ou `.common-rules/extensions/<nome>.md`) e o checksum em
 `.common-rules/extensions.json` — o único caminho de escrita; uma skill de
 fachada (`common-rules-extension-creator`) entrevista a pessoa e aciona esse
-comando, nunca escreve arquivo por conta própria. `doctor` relata cada
+comando, nunca escreve arquivo por conta própria. Essa skill é empacotada
+com o próprio `common-rules` (`resources/skills/`, junto de `resources/hooks/`)
+e o `setup` a entrega em `.claude/skills/`/`.agents/skills/` do projeto-alvo,
+sem checksum — é conteúdo do pacote, não algo que a pessoa customiza. `doctor` relata cada
 artefato cujo conteúdo real diverge do checksum registrado, sem nunca
 corrigir sozinho — detectabilidade, não prevenção. `common-rules extension
 repair --name <nome>` move o conteúdo divergente para

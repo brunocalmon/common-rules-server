@@ -16,8 +16,14 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/approval/render.ts | PlannedItem, RenderedPlan, renderPlan |
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
-| Outras fontes | src/cli.ts | CommandOutcome, renderReport, formatReport, formatSetup, parseRecommendOverride, formatRecommend, COMMANDS, ALIASES |
+| Outras fontes | src/cli.ts | CommandOutcome, renderReport, formatReport, formatSetup, parseRecommendOverride, formatRecommend, parseFlags, USO_EXTENSION_CREATE |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
+| Outras fontes | src/extensions/anchor.ts | anchorMarkers, insertAnchor, readAnchor, readAnchorRange, computeChecksum |
+| Outras fontes | src/extensions/create.ts | TargetFileEnvironment, ROTEADOR_ARQUIVOS, resolveTargetPath, EXTENSIONS_DIR, realTargetFileEnvironment, listPresentExtensionNames, CreateOptions, CreateResult |
+| Outras fontes | src/extensions/diagnose.ts | DivergentArtifact, diagnoseExtensions |
+| Outras fontes | src/extensions/registry.ts | ExtensionArtifact, ExtensionRegistry, ChecksumEnvironment, REGISTRY_PATH, realChecksumEnvironment, readExtensionRegistry, writeExtensionRegistry |
+| Outras fontes | src/extensions/repair.ts | QuarantineEnvironment, QUARANTINE_DIR, realQuarantineEnvironment, RepairResult, repairExtension |
+| Outras fontes | src/extensions/router.ts | buildRouterBlock, buildAgentsPointer |
 | Outras fontes | src/hooks/claude-code.ts | TranslatedHook, EVENT_MAP, translateForClaudeCode, wrap, unwrap, FRAGMENT_START, FRAGMENT_END, PREAMBLE |
 | Outras fontes | src/hooks/detect.ts | TargetEnvironment, Detection, TARGET, EVIDENCE, detectTarget |
 | Outras fontes | src/hooks/source.ts | Hook, EVENTS, scalar, scriptFrom, readHook |
@@ -31,8 +37,9 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem, realBridgeEnvironment |
 | Outras fontes | src/setup/env.ts | detectEnvironment |
 | Outras fontes | src/setup/record.ts | RecordEntry, SkillsRecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
-| Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, loadHooks, runSetup |
+| Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, ensureRouterCandidates, BUNDLED_SKILLS, SKILL_TARGET_DIRS, deliverLocalSkills, loadHooks |
 | Outras fontes | src/setup/write.ts | writeSettings, writeRecordFile, readRecordFile |
+| Outras fontes | src/skills/deliver.ts | BundledSkillFile, readBundledSkill, SkillWriteEnvironment, realSkillWriteEnvironment, deliverBundledSkill |
 | Outras fontes | src/skills/executor.ts | resolveSkillsBin, parseSkillNames, realSkillsExecutor, describeSkillsCommand |
 | Outras fontes | src/skills/install.ts | TARGET_AGENT, buildSkillsAddArgs, InstallOptions, InstallResult, installSkills |
 | Outras fontes | src/skills/inventory.ts | SKILLS_DIR, SkillsInspection, inspectSkills |
@@ -90,8 +97,21 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/cycle-failure.test.ts | ROOT |
 | Testes | tests/cycle-timings.test.ts | ROOT |
 | Testes | tests/doctor-camada-agent-texto.test.ts | — |
+| Testes | tests/doctor-cli-nomeia-extensao-divergente.test.ts | — |
 | Testes | tests/doctor-missing.test.ts | — |
 | Testes | tests/doctor-ok.test.ts | — |
+| Testes | tests/extensions-checksum-ausente.test.ts | — |
+| Testes | tests/extensions-conflito-nome.test.ts | — |
+| Testes | tests/extensions-create-sobrevive-setup.test.ts | — |
+| Testes | tests/extensions-diagnose-nome-diferente-do-alvo.test.ts | — |
+| Testes | tests/extensions-doctor-divergencia.test.ts | — |
+| Testes | tests/extensions-facade-nao-escreve.test.ts | — |
+| Testes | tests/extensions-fixtures.ts | registryFake, checksumEnvFake, targetEnvFake |
+| Testes | tests/extensions-new-recusado-hook.test.ts | — |
+| Testes | tests/extensions-repair-quarentena-nao-gravavel.test.ts | — |
+| Testes | tests/extensions-repair-quarentena.test.ts | realRegistryEnv, realTargetEnv |
+| Testes | tests/extensions-router-agents-md.test.ts | — |
+| Testes | tests/extensions-router-claude-md.test.ts | — |
 | Testes | tests/hooks-blocking.test.ts | CORPUS, rodarGuard |
 | Testes | tests/hooks-context-mode-comando.test.ts | HOOKS_CONTEXT_MODE |
 | Testes | tests/hooks-corpus.test.ts | CORPUS |
@@ -128,6 +148,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/pinning.test.ts | PINNED |
 | Testes | tests/scripts.test.ts | — |
 | Testes | tests/setup-bridge.test.ts | — |
+| Testes | tests/setup-delivers-bundled-skill.test.ts | — |
 | Testes | tests/setup-detect.test.ts | — |
 | Testes | tests/setup-dryrun.test.ts | — |
 | Testes | tests/setup-idempotent.test.ts | — |
@@ -135,10 +156,12 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/setup-jafeito-skills-specsfy.test.ts | executorSpecsfyFake, executorSpecsfyQueLancaSeChamado |
 | Testes | tests/setup-record.test.ts | — |
 | Testes | tests/setup-revert.test.ts | — |
+| Testes | tests/setup-skills-sem-registro-anterior.test.ts | — |
 | Testes | tests/setup-surface.test.ts | PROIBIDOS |
 | Testes | tests/setup-writes.test.ts | projeto |
 | Testes | tests/skills-confinamento.test.ts | — |
 | Testes | tests/skills-conflito.test.ts | comConflito |
+| Testes | tests/skills-deliver.test.ts | writeEnvFake |
 | Testes | tests/skills-doctor-deriva.test.ts | projetoDivergente |
 | Testes | tests/skills-doctor-garantia.test.ts | projetoInstalado |
 | Testes | tests/skills-doctor-presenca.test.ts | projetoConsistente |

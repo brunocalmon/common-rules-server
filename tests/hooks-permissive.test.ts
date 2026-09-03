@@ -6,7 +6,7 @@ import { resolve, join } from "node:path";
 import { readHook } from "../src/hooks/source";
 import { translateForClaudeCode } from "../src/hooks/claude-code";
 
-const CORPUS = resolve(__dirname, "../hooks");
+const CORPUS = resolve(__dirname, "../resources/hooks");
 
 // Executa o guard de verdade. Verificar que o texto gerado contém a string
 // esperada não prova bloqueio: foi assim que o defeito da v0.2.8 passou.

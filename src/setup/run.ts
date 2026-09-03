@@ -28,6 +28,7 @@ import { writeRecordFile, writeSettings } from "./write.js";
 import { realChecksumEnvironment } from "../extensions/registry.js";
 import { createExtension, realTargetFileEnvironment } from "../extensions/create.js";
 import { buildRouterBlock, buildAgentsPointer } from "../extensions/router.js";
+import { readBundledSkill, deliverBundledSkill, realSkillWriteEnvironment } from "../skills/deliver.js";
 
 /** Onde o arquivo do alvo é escrito, relativo ao projeto. */
 export const TARGET_SETTINGS = ".claude/settings.json";
@@ -113,7 +114,26 @@ function ensureRouterCandidates(raiz: string): void {
   });
 }
 
-const hooksDir = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "hooks");
+/** Locally-authored skills bundled with this package, delivered by `setup` itself — never fetched from a third-party source. */
+const BUNDLED_SKILLS = ["common-rules-extension-creator"];
+
+/** Both directories the real installer observably populates for the one supported target (`claude-code`) today. */
+const SKILL_TARGET_DIRS = [".claude/skills", ".agents/skills"];
+
+/**
+ * Copies every bundled skill's files into the project's skill directories.
+ *
+ * Same-content overwrite every run — cheap, side-effect-free, and safe since
+ * this is package-shipped content, never something a person edited by hand.
+ */
+function deliverLocalSkills(raiz: string): void {
+  const env = realSkillWriteEnvironment(raiz);
+  for (const name of BUNDLED_SKILLS) {
+    deliverBundledSkill(readBundledSkill(name), name, SKILL_TARGET_DIRS, env);
+  }
+}
+
+const hooksDir = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "resources", "hooks");
 
 /** Lê os hooks empacotados. Vivem em `hooks/` na raiz, e não em `specs/`, cujo caminho muda. */
 export function loadHooks(dir: string = hooksDir()): ReturnType<typeof readHook>[] {
@@ -185,7 +205,10 @@ export function runSetup(opts: SetupOptions): SetupResult {
     // Roteador é idempotente pelo próprio `createExtension` (recusa por
     // conflito de nome) e não é comando de terceiro, então não bloqueia nem
     // depende do restante já estar pendente (FR-086, FR-087, DEC-083).
-    if (opts.write) ensureRouterCandidates(raiz);
+    if (opts.write) {
+      ensureRouterCandidates(raiz);
+      deliverLocalSkills(raiz);
+    }
     return {
       ...vazio, installed: traduzidos, settings,
       record: readRecord(opts.previous ?? null),
@@ -311,6 +334,7 @@ export function runSetup(opts: SetupOptions): SetupResult {
     // passa pelo registro de aprovação em lote de dependência de terceiro
     // (SPEC-0010), porque não é um comando externo (T018).
     ensureRouterCandidates(raiz);
+    deliverLocalSkills(raiz);
   }
 
   // Aprovado (ou sem `approval` exigida), a ponte executa de verdade quando

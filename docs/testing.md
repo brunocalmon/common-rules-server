@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 137.
+- Arquivos de teste: 153.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -56,8 +56,21 @@
 | tests/cycle-failure.test.ts |
 | tests/cycle-timings.test.ts |
 | tests/doctor-camada-agent-texto.test.ts |
+| tests/doctor-cli-nomeia-extensao-divergente.test.ts |
 | tests/doctor-missing.test.ts |
 | tests/doctor-ok.test.ts |
+| tests/extensions-checksum-ausente.test.ts |
+| tests/extensions-conflito-nome.test.ts |
+| tests/extensions-create-sobrevive-setup.test.ts |
+| tests/extensions-diagnose-nome-diferente-do-alvo.test.ts |
+| tests/extensions-doctor-divergencia.test.ts |
+| tests/extensions-facade-nao-escreve.test.ts |
+| tests/extensions-fixtures.ts |
+| tests/extensions-new-recusado-hook.test.ts |
+| tests/extensions-repair-quarentena-nao-gravavel.test.ts |
+| tests/extensions-repair-quarentena.test.ts |
+| tests/extensions-router-agents-md.test.ts |
+| tests/extensions-router-claude-md.test.ts |
 | tests/hooks-blocking.test.ts |
 | tests/hooks-context-mode-comando.test.ts |
 | tests/hooks-corpus.test.ts |
@@ -94,6 +107,7 @@
 | tests/pinning.test.ts |
 | tests/scripts.test.ts |
 | tests/setup-bridge.test.ts |
+| tests/setup-delivers-bundled-skill.test.ts |
 | tests/setup-detect.test.ts |
 | tests/setup-dryrun.test.ts |
 | tests/setup-idempotent.test.ts |
@@ -101,10 +115,12 @@
 | tests/setup-jafeito-skills-specsfy.test.ts |
 | tests/setup-record.test.ts |
 | tests/setup-revert.test.ts |
+| tests/setup-skills-sem-registro-anterior.test.ts |
 | tests/setup-surface.test.ts |
 | tests/setup-writes.test.ts |
 | tests/skills-confinamento.test.ts |
 | tests/skills-conflito.test.ts |
+| tests/skills-deliver.test.ts |
 | tests/skills-doctor-deriva.test.ts |
 | tests/skills-doctor-garantia.test.ts |
 | tests/skills-doctor-presenca.test.ts |

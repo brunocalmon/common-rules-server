@@ -1,55 +1,55 @@
 {
   "target": "claude-code",
   "version": "1.0.0",
-  "trace": "a63bc33597907e10940892927ae869b9",
+  "trace": "724f2be9e3ab6c0f8d7cd73b5cf7d5c0",
   "hooks": [
     {
       "name": "code-review-graph-update",
       "target": ".claude/settings.json",
       "version": "1.0.0",
-      "installedAt": "2026-09-03T12:10:22.418Z",
+      "installedAt": "2026-09-03T13:03:30.342Z",
       "event": "PostToolUse"
     },
     {
       "name": "context-mode-posttooluse",
       "target": ".claude/settings.json",
       "version": "1.0.0",
-      "installedAt": "2026-09-03T12:10:22.418Z",
+      "installedAt": "2026-09-03T13:03:30.342Z",
       "event": "PostToolUse"
     },
     {
       "name": "context-mode-pretooluse",
       "target": ".claude/settings.json",
       "version": "1.0.0",
-      "installedAt": "2026-09-03T12:10:22.418Z",
+      "installedAt": "2026-09-03T13:03:30.342Z",
       "event": "PreToolUse"
     },
     {
       "name": "context-mode-stop",
       "target": ".claude/settings.json",
       "version": "1.0.0",
-      "installedAt": "2026-09-03T12:10:22.418Z",
+      "installedAt": "2026-09-03T13:03:30.342Z",
       "event": "Stop"
     },
     {
       "name": "guard-destructive",
       "target": ".claude/settings.json",
       "version": "1.0.0",
-      "installedAt": "2026-09-03T12:10:22.418Z",
+      "installedAt": "2026-09-03T13:03:30.342Z",
       "event": "PreToolUse"
     },
     {
       "name": "guard-secrets",
       "target": ".claude/settings.json",
       "version": "1.0.0",
-      "installedAt": "2026-09-03T12:10:22.418Z",
+      "installedAt": "2026-09-03T13:03:30.342Z",
       "event": "PreToolUse"
     },
     {
       "name": "protect-authorship",
       "target": ".claude/settings.json",
       "version": "1.0.0",
-      "installedAt": "2026-09-03T12:10:22.418Z",
+      "installedAt": "2026-09-03T13:03:30.342Z",
       "event": "PreToolUse"
     }
   ]

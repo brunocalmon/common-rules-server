@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { readHook } from "../src/hooks/source";
 import { translateForClaudeCode, renderSettings, extractScripts, unwrap } from "../src/hooks/claude-code";
 
-const CORPUS = resolve(__dirname, "../hooks");
+const CORPUS = resolve(__dirname, "../resources/hooks");
 const nomes = () =>
   readdirSync(CORPUS).filter((f) => f.endsWith(".md") && f !== "README.md").map((f) => f.slice(0, -3));
 
