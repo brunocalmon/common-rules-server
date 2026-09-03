@@ -7,21 +7,21 @@ const reportBase: Report = {
   exitCode: 1,
 };
 
-describe("AC-133 — o texto do doctor nomeia o artefato de extensão divergente", () => {
+describe("AC-133 — doctor's text names the divergent extension artifact", () => {
   // SPECSFY: US-081 FR-083 FR-085 NFR-080 NFR-082 AC-133
-  it("nomeia cada artefato divergente no texto renderizado", () => {
+  it("names each divergent artifact in the rendered text", () => {
     const report: Report = {
       ...reportBase,
-      divergentExtensions: [{ name: "minha-extensao", target: "meu-hook", reason: "checksum-mismatch" }],
+      divergentExtensions: [{ name: "my-extension", target: "my-hook", reason: "checksum-mismatch" }],
     };
-    const texto = renderReport(report);
-    expect(texto).toMatch(/minha-extensao/);
-    expect(texto).toMatch(/checksum-mismatch/);
+    const text = renderReport(report);
+    expect(text).toMatch(/my-extension/);
+    expect(text).toMatch(/checksum-mismatch/);
   });
 
   // SPECSFY: US-081 FR-083 FR-085 NFR-080 NFR-082 AC-133
-  it("sem divergência, nenhuma linha extra aparece", () => {
-    const texto = renderReport(reportBase);
-    expect(texto).not.toMatch(/divergente/);
+  it("with no divergence, no extra line appears", () => {
+    const text = renderReport(reportBase);
+    expect(text).not.toMatch(/divergent/);
   });
 });

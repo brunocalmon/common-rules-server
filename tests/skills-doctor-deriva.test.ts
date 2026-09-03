@@ -2,40 +2,40 @@ import { describe, it, expect } from "vitest";
 import { rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { reportSkills } from "../src/skills/record";
-import { arvore, projetoComSkills, escreverLock, CONJUNTO_MATTPOCOCK } from "./skills-fixtures";
+import { fileTree, projectWithSkills, writeLock, MATTPOCOCK_SET } from "./skills-fixtures";
 
-/** Registro diz três; o disco perdeu um. */
-function projetoDivergente(): { raiz: string; sumido: string } {
-  const raiz = projetoComSkills();
-  for (const n of CONJUNTO_MATTPOCOCK) {
-    mkdirSync(join(raiz, ".claude", "skills", n), { recursive: true });
-    writeFileSync(join(raiz, ".claude", "skills", n, "SKILL.md"), "corpo\n");
+/** Record says three; the disk lost one. */
+function divergentProject(): { root: string; missing: string } {
+  const root = projectWithSkills();
+  for (const n of MATTPOCOCK_SET) {
+    mkdirSync(join(root, ".claude", "skills", n), { recursive: true });
+    writeFileSync(join(root, ".claude", "skills", n, "SKILL.md"), "body\n");
   }
-  escreverLock(raiz, CONJUNTO_MATTPOCOCK);
-  const sumido = CONJUNTO_MATTPOCOCK[1]!;
-  rmSync(join(raiz, ".claude", "skills", sumido), { recursive: true, force: true });
-  return { raiz, sumido };
+  writeLock(root, MATTPOCOCK_SET);
+  const missing = MATTPOCOCK_SET[1]!;
+  rmSync(join(root, ".claude", "skills", missing), { recursive: true, force: true });
+  return { root, missing };
 }
 
-describe("AC-025 — conteúdo alterado depois da instalação", () => {
+describe("AC-025 — content changed after installation", () => {
   // SPECSFY: US-021 FR-024 AC-025
-  it("nomeia o conjunto divergente", () => {
-    const { raiz, sumido } = projetoDivergente();
-    const divergentes = reportSkills(raiz).results.filter((r) => r.diverged).map((r) => r.name);
-    expect(divergentes).toContain(sumido);
+  it("names the divergent set", () => {
+    const { root, missing } = divergentProject();
+    const diverged = reportSkills(root).results.filter((r) => r.diverged).map((r) => r.name);
+    expect(diverged).toContain(missing);
   });
 
   // SPECSFY: US-021 FR-024 AC-025
-  it("sai com código diferente de zero", () => {
-    const { raiz } = projetoDivergente();
-    expect(reportSkills(raiz).exitCode).not.toBe(0);
+  it("exits with a non-zero code", () => {
+    const { root } = divergentProject();
+    expect(reportSkills(root).exitCode).not.toBe(0);
   });
 
   // SPECSFY: US-021 NFR-020 AC-025
-  it("nenhum arquivo é criado, alterado ou removido", () => {
-    const { raiz } = projetoDivergente();
-    const antes = arvore(raiz);
-    reportSkills(raiz);
-    expect(arvore(raiz)).toEqual(antes);
+  it("no file is created, changed or removed", () => {
+    const { root } = divergentProject();
+    const before = fileTree(root);
+    reportSkills(root);
+    expect(fileTree(root)).toEqual(before);
   });
 });

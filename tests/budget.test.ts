@@ -5,8 +5,8 @@ import { resolve } from "node:path";
 
 const BUDGET_SECONDS = 300;
 
-// Os tempos vivem dentro de .git, fora da árvore versionada, pelo mesmo motivo
-// que o estado de execução da Phase 0: um registro de execução não é fonte.
+// Timings live inside .git, outside the versioned tree, for the same
+// reason as Phase 0's run state: a run record isn't a source.
 const timingsPath = () => {
   const gitDir = execFileSync("git", ["rev-parse", "--absolute-git-dir"], {
     encoding: "utf8",
@@ -16,16 +16,16 @@ const timingsPath = () => {
 const timings = (): Record<string, number> =>
   existsSync(timingsPath()) ? JSON.parse(readFileSync(timingsPath(), "utf8")) : {};
 
-describe("AC-009 — instalação, build e testes cabem no orçamento", () => {
-  for (const etapa of ["install", "build", "test"]) {
+describe("AC-009 — install, build and tests fit the budget", () => {
+  for (const step of ["install", "build", "test"]) {
     // SPECSFY: US-001 FR-002 FR-003 NFR-001 AC-009
-    it(`registra o tempo da etapa ${etapa}`, () => {
-      expect(timings()[etapa]).toBeTypeOf("number");
+    it(`records the ${step} step's time`, () => {
+      expect(timings()[step]).toBeTypeOf("number");
     });
   }
 
   // SPECSFY: US-001 NFR-001 AC-009
-  it("soma as três etapas abaixo de cinco minutos", () => {
+  it("sums the three steps under five minutes", () => {
     const t = timings();
     const total = (t.install ?? 0) + (t.build ?? 0) + (t.test ?? 0);
     expect(Object.keys(t)).toHaveLength(3);

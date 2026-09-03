@@ -1,6 +1,6 @@
 import type { DependencyCommandItem } from "./plan.js";
 
-/** Item do plano, na mesma forma que `runSetup` já produz por ensaio. */
+/** Plan item, in the same shape `runSetup` already produces for a dry run. */
 export interface PlannedItem {
   name: string;
   target: string;
@@ -8,26 +8,26 @@ export interface PlannedItem {
 }
 
 export interface RenderedPlan {
-  /** Forma legível, para o canal interativo. */
+  /** Readable form, for the interactive channel. */
   text: string;
-  /** Forma em documento JSON, para o canal automatizado. */
+  /** JSON document form, for the automated channel. */
   document: string;
 }
 
 /**
- * Renderiza o plano nas duas formas a partir das mesmas duas listas.
+ * Renders the plan in both forms from the same two lists.
  *
- * As duas derivam de um único percurso, para que `AC-069` não possa falhar
- * por deriva entre implementações que extraem os mesmos campos duas vezes.
- * Hooks e comandos de dependência (skills, Specsfy, ponte Python) convivem
- * lado a lado sem se fundir numa estrutura só (`FR-071`) — hooks não têm
- * `bin`/`args`, e o registro persistente desta fatia não se aplica a eles.
+ * Both derive from a single pass, so `AC-069` can't fail from drift
+ * between implementations that extract the same fields twice. Hooks and
+ * dependency commands (skills, Specsfy, Python bridge) coexist side by
+ * side without merging into a single structure (`FR-071`) — hooks have no
+ * `bin`/`args`, and this fatia's persistent registry doesn't apply to them.
  */
 export function renderPlan(hooks: readonly PlannedItem[], commands: readonly DependencyCommandItem[] = []): RenderedPlan {
   const hookLines = hooks.map((item) => `  ${item.name} — ${item.event} — ${item.target}`);
   const commandLines = commands.map((c) => `  ${c.label} — ${c.bin} ${c.args.join(" ")}`);
   const text = [
-    `Plano: ${hooks.length} hooks e ${commands.length} comandos de dependência a instalar.`,
+    `Plan: ${hooks.length} hooks and ${commands.length} dependency commands to install.`,
     ...hookLines,
     ...commandLines,
   ].join("\n");

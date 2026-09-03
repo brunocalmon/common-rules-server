@@ -1,49 +1,49 @@
 #!/usr/bin/env node
-// Executa o ciclo de verificação da fatia 1a e registra o tempo de cada etapa.
+// Runs fatia 1a's verification cycle and records each step's time.
 //
-// Existe porque a asserção de orçamento lê medições tomadas, e não as toma:
-// num clone recém-obtido não há registro algum, e a suíte reprova. Este script
-// é o passo que AC-009 descreve como "a pessoa executa as três etapas em
-// sequência", tornado repetível.
+// Exists because the budget assertion reads measurements already taken,
+// and doesn't take them itself: on a freshly obtained clone there's no
+// record at all, and the suite fails. This script is the step AC-009
+// describes as "the person runs the three steps in sequence," made repeatable.
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const ETAPAS = [
-  { nome: "install", comando: "npm", args: ["ci", "--ignore-scripts"] },
-  { nome: "build", comando: "npm", args: ["run", "build"] },
-  { nome: "test", comando: "npm", args: ["run", "test:tdd"] },
+const STEPS = [
+  { name: "install", command: "npm", args: ["ci", "--ignore-scripts"] },
+  { name: "build", command: "npm", args: ["run", "build"] },
+  { name: "test", command: "npm", args: ["run", "test:tdd"] },
 ];
 
 const gitDir = spawnSync("git", ["rev-parse", "--absolute-git-dir"], { encoding: "utf8" })
   .stdout.trim();
-const registro = resolve(gitDir, "phase1a-timings.json");
+const record = resolve(gitDir, "phase1a-timings.json");
 
-// A suíte afere um registro existente e não consegue medir a própria duração
-// enquanto roda. Por isso as medições de instalação e compilação são gravadas
-// antes da suíte, e a duração dela é atualizada depois. `test` parte do valor
-// da execução anterior, ou de zero num clone recém-obtido.
-const anterior = existsSync(registro) ? JSON.parse(readFileSync(registro, "utf8")) : {};
-const tempos = { install: 0, build: 0, test: anterior.test ?? 0 };
+// The suite measures an existing record and can't measure its own
+// duration while it runs. That's why the install and build measurements
+// are written before the suite, and its duration is updated afterward.
+// `test` starts from the previous run's value, or zero on a freshly
+// obtained clone.
+const previous = existsSync(record) ? JSON.parse(readFileSync(record, "utf8")) : {};
+const timings = { install: 0, build: 0, test: previous.test ?? 0 };
 
-for (const etapa of ETAPAS) {
-  const inicio = Date.now();
-  const r = spawnSync(etapa.comando, etapa.args, { stdio: "inherit" });
-  tempos[etapa.nome] = Math.round((Date.now() - inicio) / 1000);
+for (const step of STEPS) {
+  const start = Date.now();
+  const r = spawnSync(step.command, step.args, { stdio: "inherit" });
+  timings[step.name] = Math.round((Date.now() - start) / 1000);
 
-  if (etapa.nome !== "test") writeFileSync(registro, JSON.stringify(tempos));
+  if (step.name !== "test") writeFileSync(record, JSON.stringify(timings));
 
   if (r.status !== 0) {
-    // Interrompe na primeira reprovação: prosseguir mediria etapas que já não
-    // fazem sentido, e o registro parcial induziria a leitura de que o ciclo
-    // passou.
-    console.error(`\nciclo interrompido: a etapa ${etapa.nome} reprovou com código ${r.status}`);
+    // Stops at the first failure: continuing would measure steps that no
+    // longer make sense, and a partial record would suggest the cycle passed.
+    console.error(`\ncycle interrupted: step ${step.name} failed with code ${r.status}`);
     process.exit(r.status ?? 1);
   }
 }
 
-writeFileSync(registro, JSON.stringify(tempos));
+writeFileSync(record, JSON.stringify(timings));
 
-const total = Object.values(tempos).reduce((a, b) => a + b, 0);
-const detalhe = ETAPAS.map((e) => `${e.nome} ${tempos[e.nome]}s`).join(", ");
-console.log(`\nciclo concluído: ${detalhe} — total ${total}s`);
+const total = Object.values(timings).reduce((a, b) => a + b, 0);
+const detail = STEPS.map((s) => `${s.name} ${timings[s.name]}s`).join(", ");
+console.log(`\ncycle complete: ${detail} — total ${total}s`);

@@ -5,24 +5,24 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { realSpecsfyExecutor } from "../src/specsfy/executor";
 
-function raizGit(): string {
-  const raiz = mkdtempSync(join(tmpdir(), "crs-spex-"));
-  execSync("git init -q .", { cwd: raiz });
-  return raiz;
+function gitRoot(): string {
+  const root = mkdtempSync(join(tmpdir(), "crs-spex-"));
+  execSync("git init -q .", { cwd: root });
+  return root;
 }
 
-describe("AC-038 — executor real do specsfy install, sem fixture", () => {
+describe("AC-038 — real specsfy install executor, no fixture", () => {
   // SPECSFY: FR-028 FR-029 AC-038
-  it("grava .specsfy/, .agents/skills/, CLAUDE.md e AGENTS.md de verdade", () => {
-    const raiz = raizGit();
+  it("really writes .specsfy/, .agents/skills/, CLAUDE.md and AGENTS.md", () => {
+    const root = gitRoot();
     const execute = realSpecsfyExecutor();
-    const r = execute(raiz);
+    const r = execute(root);
     expect(r).not.toBeNull();
     expect(r?.status).toBe(0);
     expect(r?.changed ?? 0).toBeGreaterThan(0);
-    expect(existsSync(join(raiz, ".specsfy"))).toBe(true);
-    expect(existsSync(join(raiz, ".agents", "skills"))).toBe(true);
-    expect(existsSync(join(raiz, "CLAUDE.md"))).toBe(true);
-    expect(existsSync(join(raiz, "AGENTS.md"))).toBe(true);
+    expect(existsSync(join(root, ".specsfy"))).toBe(true);
+    expect(existsSync(join(root, ".agents", "skills"))).toBe(true);
+    expect(existsSync(join(root, "CLAUDE.md"))).toBe(true);
+    expect(existsSync(join(root, "AGENTS.md"))).toBe(true);
   }, 30_000);
 });

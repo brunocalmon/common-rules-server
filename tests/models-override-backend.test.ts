@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { recommend } from "../src/models/recommend";
-import { backendsFake, capacidadeFake, ollamaAusente } from "./models-fixtures";
+import { backendsFake, capacityFake, ollamaAbsent } from "./models-fixtures";
 
-describe("AC-095 — override de backend é respeitado, não recalculado", () => {
+describe("AC-095 — a backend override is honored, not recalculated", () => {
   // SPECSFY: US-034 FR-036 AC-095
-  it("com pi e claude presentes, informar claude recomenda claude como override", () => {
-    const r = recommend(backendsFake(["pi", "claude"]), ollamaAusente, capacidadeFake(0), {
+  it("with pi and claude present, specifying claude recommends claude as an override", () => {
+    const r = recommend(backendsFake(["pi", "claude"]), ollamaAbsent, capacityFake(0), {
       backend: "claude",
     });
     expect(r.backend).toBe("claude");

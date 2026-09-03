@@ -3,58 +3,58 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { PlannedItem } from "../src/approval/render";
 
-/** Raiz descartável com evidência de uso do alvo. */
-export function projeto(prefixo = "crs-ap-"): string {
-  const raiz = mkdtempSync(join(tmpdir(), prefixo));
-  writeFileSync(join(raiz, "package.json"), '{"name":"descartavel"}\n');
-  mkdirSync(join(raiz, ".claude"), { recursive: true });
-  writeFileSync(join(raiz, ".claude", "settings.json"), "{}\n");
-  return raiz;
+/** Disposable root with evidence of target use. */
+export function project(prefix = "crs-ap-"): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  writeFileSync(join(root, "package.json"), '{"name":"disposable"}\n');
+  mkdirSync(join(root, ".claude"), { recursive: true });
+  writeFileSync(join(root, ".claude", "settings.json"), "{}\n");
+  return root;
 }
 
-export function arvore(raiz: string): string[] {
-  if (!existsSync(raiz)) return [];
-  const saida: string[] = [];
-  const andar = (dir: string, prefixo: string): void => {
+export function fileTree(root: string): string[] {
+  if (!existsSync(root)) return [];
+  const output: string[] = [];
+  const walk = (dir: string, prefix: string): void => {
     for (const e of readdirSync(dir, { withFileTypes: true })) {
-      const rel = prefixo ? `${prefixo}/${e.name}` : e.name;
-      saida.push(rel);
-      if (e.isDirectory()) andar(join(dir, e.name), rel);
+      const rel = prefix ? `${prefix}/${e.name}` : e.name;
+      output.push(rel);
+      if (e.isDirectory()) walk(join(dir, e.name), rel);
     }
   };
-  andar(raiz, "");
-  return saida.sort();
+  walk(root, "");
+  return output.sort();
 }
 
-/** Contexto injetado: declara presença ou ausência de terminal na entrada padrão. */
-export function contextoFixo(temTerminal: boolean) {
-  return { hasTerminal: () => temTerminal };
+/** Injected context: declares presence or absence of a terminal on standard input. */
+export function fixedContext(hasTerminal: boolean) {
+  return { hasTerminal: () => hasTerminal };
 }
 
 /**
- * Fonte de decisão injetada, síncrona por desenho: `ask` devolve a resposta
- * diretamente, sem promessa, para que `runSetup` não precise virar
- * assíncrona. É o mesmo padrão de `TraceSource` e do executor de skills.
+ * Injected decision source, synchronous by design: `ask` returns the
+ * answer directly, without a promise, so `runSetup` doesn't need to
+ * become async. Same pattern as `TraceSource` and the skills executor.
  */
-export function decisaoFixa(aprovado: boolean, recebidos: PlannedItem[][] = []) {
+export function fixedDecision(approved: boolean, received: PlannedItem[][] = []) {
   return {
-    ask: (plano: PlannedItem[]): boolean => {
-      recebidos.push(plano);
-      return aprovado;
+    ask: (plan: PlannedItem[]): boolean => {
+      received.push(plan);
+      return approved;
     },
   };
 }
 
-/** Fonte que lança se for chamada — usada para provar ausência de pedido. */
-export function decisaoQueLancaSeChamada() {
+/** Source that throws if called — used to prove no request happened. */
+export function decisionThatThrowsIfCalled() {
   return {
     ask: (): boolean => {
-      throw new Error("aprovação não deveria ter sido solicitada");
+      throw new Error("approval shouldn't have been requested");
     },
   };
 }
 
-/** Fonte de canal de documento: devolve o texto que a "entrada padrão" conteria. */
-export function documentoFixo(texto: string) {
-  return { hasTerminal: () => false, readDocument: () => texto };
+/** Document-channel source: returns the text "standard input" would contain. */
+export function fixedDocument(text: string) {
+  return { hasTerminal: () => false, readDocument: () => text };
 }

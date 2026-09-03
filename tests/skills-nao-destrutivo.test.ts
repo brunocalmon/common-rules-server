@@ -3,39 +3,39 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { installSkills } from "../src/skills/install";
 import { readLock, toRecordEntries, reportSkills } from "../src/skills/record";
-import { arvore, projetoComSkills, executorFalso, foraDoProjeto, CONJUNTO_MATTPOCOCK } from "./skills-fixtures";
+import { fileTree, projectWithSkills, fakeExecutor, outsideProject, MATTPOCOCK_SET } from "./skills-fixtures";
 
-describe("AC-032 — recusa, conflito e reexecução preservam o que existe", () => {
+describe("AC-032 — refusal, conflict and rerun preserve what exists", () => {
   // SPECSFY: US-020 FR-026 NFR-020 AC-032
-  it("a recusa por conflito não apaga nada", async () => {
-    const raiz = projetoComSkills();
-    const nome = CONJUNTO_MATTPOCOCK[0]!;
-    mkdirSync(join(raiz, ".claude", "skills", nome), { recursive: true });
-    writeFileSync(join(raiz, ".claude", "skills", nome, "SKILL.md"), "preexistente\n");
-    const antes = arvore(raiz);
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("sucesso", raiz).fn });
-    for (const caminho of antes) expect(arvore(raiz)).toContain(caminho);
+  it("a conflict refusal deletes nothing", async () => {
+    const root = projectWithSkills();
+    const name = MATTPOCOCK_SET[0]!;
+    mkdirSync(join(root, ".claude", "skills", name), { recursive: true });
+    writeFileSync(join(root, ".claude", "skills", name, "SKILL.md"), "preexisting\n");
+    const before = fileTree(root);
+    await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("success", root).fn });
+    for (const path of before) expect(fileTree(root)).toContain(path);
   });
 
   // SPECSFY: US-020 FR-021 NFR-020 AC-032
-  it("a reexecução não apaga nada", async () => {
-    const raiz = projetoComSkills();
-    const opts = { root: raiz, source: "mattpocock/skills", execute: executorFalso("sucesso", raiz).fn };
+  it("rerunning deletes nothing", async () => {
+    const root = projectWithSkills();
+    const opts = { root, source: "mattpocock/skills", execute: fakeExecutor("success", root).fn };
     await installSkills(opts);
-    const meio = arvore(raiz);
-    await installSkills({ ...opts, previous: toRecordEntries(readLock(raiz)) });
-    for (const caminho of meio) expect(arvore(raiz)).toContain(caminho);
+    const middle = fileTree(root);
+    await installSkills({ ...opts, previous: toRecordEntries(readLock(root)) });
+    for (const path of middle) expect(fileTree(root)).toContain(path);
   });
 
   // SPECSFY: US-020 FR-022 NFR-022 AC-032
-  it("nada fora da raiz do projeto foi tocado em qualquer dos caminhos", async () => {
-    const raiz = projetoComSkills();
-    const vizinho = projetoComSkills("crs-vizinho-");
-    const antesVizinho = arvore(vizinho);
-    const antesFora = foraDoProjeto();
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("sucesso", raiz).fn });
-    reportSkills(raiz);
-    expect(arvore(vizinho)).toEqual(antesVizinho);
-    expect(foraDoProjeto()).toEqual(antesFora);
+  it("nothing outside the project root was touched on any path", async () => {
+    const root = projectWithSkills();
+    const neighbor = projectWithSkills("crs-neighbor-");
+    const beforeNeighbor = fileTree(neighbor);
+    const beforeOutside = outsideProject();
+    await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("success", root).fn });
+    reportSkills(root);
+    expect(fileTree(neighbor)).toEqual(beforeNeighbor);
+    expect(outsideProject()).toEqual(beforeOutside);
   });
 });

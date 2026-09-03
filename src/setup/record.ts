@@ -1,17 +1,17 @@
 export interface RecordEntry {
-  /** Nome canônico do hook instalado. */
+  /** Canonical name of the installed hook. */
   name: string;
-  /** Caminho, relativo ao projeto, onde a entrada foi escrita. */
+  /** Path, relative to the project, where the entry was written. */
   target: string;
-  /** Versão do pacote que instalou, para detectar defasagem. */
+  /** Version of the package that installed it, to detect drift. */
   version: string;
-  /** Momento da instalação, em ISO 8601. */
+  /** Moment of installation, in ISO 8601. */
   installedAt: string;
-  /** Evento sob o qual a entrada ficou no alvo, para localizá-la na remoção. */
+  /** Event under which the entry sits in the target, to locate it on removal. */
   event: string;
 }
 
-/** Procedência de um conjunto de skills, lida do lockfile do instalador. */
+/** Provenance of a skill set, read from the installer's lockfile. */
 export interface SkillsRecordEntry {
   name: string;
   source: string;
@@ -24,21 +24,21 @@ export interface SkillsRecordEntry {
 export interface InstallRecord {
   target: string;
   version: string;
-  /** Identificador da execução que gravou este registro. Ausente nos gravados antes da SPEC-0006. */
+  /** Identifier of the run that wrote this record. Absent in records written before SPEC-0006. */
   trace?: string;
   hooks: RecordEntry[];
-  /** Conjuntos instalados, quando houve instalação de skills. */
+  /** Installed sets, when skills were installed. */
   skills?: SkillsRecordEntry[];
 }
 
-/** Caminho do registro, sempre dentro do projeto. */
+/** Record path, always inside the project. */
 export const RECORD_PATH = ".common-rules/install.json";
 
 /**
- * Normaliza um registro lido de disco.
+ * Normalizes a record read from disk.
  *
- * Aceita o objeto já em memória, e não um caminho, para que a leitura seja
- * verificável sem tocar o sistema de arquivos.
+ * Accepts the object already in memory, not a path, so the read is
+ * verifiable without touching the filesystem.
  */
 export function readRecord(raw: InstallRecord | string | null): InstallRecord {
   if (raw === null) return { target: "", version: "", hooks: [] };
@@ -46,27 +46,27 @@ export function readRecord(raw: InstallRecord | string | null): InstallRecord {
   return { target: o.target ?? "", version: o.version ?? "", hooks: [...(o.hooks ?? [])] };
 }
 
-/** Serializa o registro. Devolve o objeto normalizado, para conferir a ida e a volta. */
+/** Serializes the record. Returns the normalized object, to check the round trip. */
 export function writeRecord(record: InstallRecord): InstallRecord {
   return readRecord(JSON.parse(JSON.stringify(record)) as InstallRecord);
 }
 
 /**
- * Lista o que precisa ser removido para desfazer a instalação.
+ * Lists what needs to be removed to undo the installation.
  *
- * Cada item carrega caminho e evento porque remover exige localizar a entrada
- * dentro do arquivo do alvo, e não apagar o arquivo inteiro: ele pode conter
- * configuração de terceiro que a ferramenta preservou ao escrever.
+ * Each item carries a path and event because removal requires locating
+ * the entry inside the target file, not deleting the whole file: it may
+ * contain third-party configuration the tool preserved while writing.
  */
 export function entriesToRemove(record: InstallRecord): { target: string; event: string; name: string }[] {
   return readRecord(record).hooks.map((h) => ({ target: h.target, event: h.event, name: h.name }));
 }
 
-/** Decide se o registro descreve o mesmo conjunto que se pretende instalar. */
+/** Decides whether the record describes the same set that's about to be installed. */
 export function matches(record: InstallRecord | null, names: readonly string[], version: string): boolean {
   if (record === null) return false;
   const r = readRecord(record);
   if (r.version !== version) return false;
-  const instalados = r.hooks.map((h) => h.name).sort();
-  return instalados.length === names.length && instalados.every((n, i) => n === [...names].sort()[i]);
+  const installed = r.hooks.map((h) => h.name).sort();
+  return installed.length === names.length && installed.every((n, i) => n === [...names].sort()[i]);
 }

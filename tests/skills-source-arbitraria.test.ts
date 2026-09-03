@@ -1,23 +1,23 @@
 import { describe, it, expect } from "vitest";
 import { resolveSource } from "../src/skills/source";
 
-describe("AC-035 — origem que não a oficial é recusada", () => {
+describe("AC-035 — a non-official source is refused", () => {
   // SPECSFY: US-022 FR-025 AC-035
-  it("recusa mais de uma forma de origem inválida", () => {
-    for (const origem of ["https://exemplo.invalido/skills", "../fora", "outro/repo", ""]) {
-      expect(resolveSource(origem).ok).toBe(false);
+  it("refuses more than one form of invalid source", () => {
+    for (const source of ["https://example.invalid/skills", "../outside", "another/repo", ""]) {
+      expect(resolveSource(source).ok).toBe(false);
     }
   });
 
   // SPECSFY: US-022 FR-025 AC-035
-  it("explica que a origem não é reconhecida", () => {
-    const r = resolveSource("outro/repo");
+  it("explains that the source isn't recognized", () => {
+    const r = resolveSource("another/repo");
     expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.reason).toMatch(/não reconhecid/i);
+    if (!r.ok) expect(r.reason).toMatch(/unrecognized/i);
   });
 
   // SPECSFY: US-022 NFR-021 AC-035
-  it("recusa entrada que não é texto, sem lançar", () => {
+  it("refuses non-text input, without throwing", () => {
     for (const v of [undefined, null, 42, {}]) expect(resolveSource(v).ok).toBe(false);
   });
 });

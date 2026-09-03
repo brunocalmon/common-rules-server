@@ -1,29 +1,29 @@
 import { describe, it, expect } from "vitest";
 import { installSkills } from "../src/skills/install";
 import { readLock } from "../src/skills/record";
-import { projetoComSkills, executorFalso } from "./skills-fixtures";
+import { projectWithSkills, fakeExecutor } from "./skills-fixtures";
 
-describe("AC-031 — a instalação é interrompida antes de terminar", () => {
+describe("AC-031 — installation is interrupted before finishing", () => {
   // SPECSFY: US-022 FR-020 AC-031
-  it("relata que o conjunto não ficou instalado", async () => {
-    const raiz = projetoComSkills();
-    const r = await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("erro", raiz).fn });
+  it("reports that the set wasn't left installed", async () => {
+    const root = projectWithSkills();
+    const r = await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("error", root).fn });
     expect(r.isError).toBe(true);
     expect(r.installed).toEqual([]);
   });
 
   // SPECSFY: US-022 NFR-021 AC-031
-  it("o registro não ganha entrada para conjunto incompleto", async () => {
-    const raiz = projetoComSkills();
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("erro", raiz).fn });
-    // O executor deixou um diretório para trás de propósito; o lockfile é que decide.
-    expect(readLock(raiz)).toBeNull();
+  it("the record doesn't gain an entry for an incomplete set", async () => {
+    const root = projectWithSkills();
+    await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("error", root).fn });
+    // The executor left a directory behind on purpose; the lockfile is what decides.
+    expect(readLock(root)).toBeNull();
   });
 
   // SPECSFY: US-022 FR-020 NFR-021 AC-031
-  it("parcial não passa por completo no relato", async () => {
-    const raiz = projetoComSkills();
-    const r = await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("erro", raiz).fn });
-    expect(r.report).not.toMatch(/instalad[oa]s? com sucesso/i);
+  it("partial doesn't pass as complete in the report", async () => {
+    const root = projectWithSkills();
+    const r = await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("error", root).fn });
+    expect(r.report).not.toMatch(/installed successfully/i);
   });
 });

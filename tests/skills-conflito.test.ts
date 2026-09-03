@@ -2,37 +2,37 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { installSkills } from "../src/skills/install";
-import { projetoComSkills, executorFalso, CONJUNTO_MATTPOCOCK } from "./skills-fixtures";
+import { projectWithSkills, fakeExecutor, MATTPOCOCK_SET } from "./skills-fixtures";
 
-/** Prepara um diretório cujo nome o outro conjunto também usaria. */
-function comConflito(): string {
-  const raiz = projetoComSkills();
-  const nome = CONJUNTO_MATTPOCOCK[0]!;
-  mkdirSync(join(raiz, ".claude", "skills", nome), { recursive: true });
-  writeFileSync(join(raiz, ".claude", "skills", nome, "SKILL.md"), "conteudo-preexistente\n");
-  return raiz;
+/** Prepares a directory whose name the other set would also use. */
+function withConflict(): string {
+  const root = projectWithSkills();
+  const name = MATTPOCOCK_SET[0]!;
+  mkdirSync(join(root, ".claude", "skills", name), { recursive: true });
+  writeFileSync(join(root, ".claude", "skills", name, "SKILL.md"), "preexisting-content\n");
+  return root;
 }
 
-describe("AC-027 — dois conjuntos disputam o mesmo nome de diretório", () => {
+describe("AC-027 — two sets compete for the same directory name", () => {
   // SPECSFY: US-022 FR-026 AC-027
-  it("recusa em vez de sobrescrever", async () => {
-    const raiz = comConflito();
-    const r = await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("sucesso", raiz).fn });
+  it("refuses instead of overwriting", async () => {
+    const root = withConflict();
+    const r = await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("success", root).fn });
     expect(r.isError).toBe(true);
   });
 
   // SPECSFY: US-022 FR-026 AC-027
-  it("nomeia o conflito", async () => {
-    const raiz = comConflito();
-    const r = await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("sucesso", raiz).fn });
-    expect(r.report).toContain(CONJUNTO_MATTPOCOCK[0]!);
+  it("names the conflict", async () => {
+    const root = withConflict();
+    const r = await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("success", root).fn });
+    expect(r.report).toContain(MATTPOCOCK_SET[0]!);
   });
 
   // SPECSFY: US-022 NFR-020 AC-027
-  it("o conteúdo do diretório existente permanece", async () => {
-    const raiz = comConflito();
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("sucesso", raiz).fn });
-    const p = join(raiz, ".claude", "skills", CONJUNTO_MATTPOCOCK[0]!, "SKILL.md");
-    expect(readFileSync(p, "utf8")).toContain("conteudo-preexistente");
+  it("the existing directory's content remains", async () => {
+    const root = withConflict();
+    await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("success", root).fn });
+    const p = join(root, ".claude", "skills", MATTPOCOCK_SET[0]!, "SKILL.md");
+    expect(readFileSync(p, "utf8")).toContain("preexisting-content");
   });
 });

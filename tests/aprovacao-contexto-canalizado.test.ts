@@ -1,21 +1,21 @@
 import { describe, it, expect } from "vitest";
 import { resolveChannel } from "../src/approval/context";
-import { contextoFixo } from "./aprovacao-fixtures";
+import { fixedContext } from "./aprovacao-fixtures";
 
-describe("AC-064 — sem terminal, a decisão vem do documento", () => {
+describe("AC-064 — without a terminal, the decision comes from the document", () => {
   // SPECSFY: US-061 FR-061 AC-064
-  it("o canal escolhido é o de documento", () => {
-    expect(resolveChannel(contextoFixo(false))).toBe("document");
+  it("the chosen channel is the document one", () => {
+    expect(resolveChannel(fixedContext(false))).toBe("document");
   });
 
   // SPECSFY: US-061 FR-061 AC-064
-  it("ausência de terminal nunca resulta em canal interativo", () => {
-    expect(resolveChannel(contextoFixo(false))).not.toBe("interactive");
+  it("absence of a terminal never results in the interactive channel", () => {
+    expect(resolveChannel(fixedContext(false))).not.toBe("interactive");
   });
 
   // SPECSFY: US-061 FR-061 AC-064
-  it("a escolha é determinística para o mesmo contexto", () => {
-    const ctx = contextoFixo(false);
+  it("the choice is deterministic for the same context", () => {
+    const ctx = fixedContext(false);
     expect(resolveChannel(ctx)).toBe(resolveChannel(ctx));
   });
 });

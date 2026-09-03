@@ -26,23 +26,24 @@ export interface CommandOutcome {
 }
 
 /**
- * Formata uma linha por dependência, com camada, origem e versão.
+ * Formats one line per dependency, with layer, origin and version.
  *
- * Extraído de `formatReport()` para ser exercitável com um `Report` injetado
- * — a fatia 1d precisa provar o texto da camada `agent` sem depender do que
- * está instalado na máquina de quem roda a suíte (NFR-032, SPEC-0008).
+ * Extracted from `formatReport()` to be exercisable with an injected
+ * `Report` — fatia 1d needs to prove the `agent` layer's text without
+ * depending on what's installed on the machine running the suite
+ * (NFR-032, SPEC-0008).
  */
 export function renderReport(report: Report): string {
   const lines = report.results.map((d) => {
-    const head = `${d.present ? "ok     " : "ausente"} ${d.name}`;
+    const head = `${d.present ? "ok     " : "absent "} ${d.name}`;
     if (!d.present) return `${head}\n        ${d.hint ?? ""}`.trimEnd();
-    const suportado = d.layer === "agent" ? `, ${d.supported ? "suportado" : "não suportado"}` : "";
-    return `${head} — camada ${d.layer}, origem ${d.origin}, versão ${d.version}${suportado}`;
+    const supported = d.layer === "agent" ? `, ${d.supported ? "supported" : "not supported"}` : "";
+    return `${head} — layer ${d.layer}, origin ${d.origin}, version ${d.version}${supported}`;
   });
-  const divergentes = (report.divergentExtensions ?? []).map(
-    (d) => `divergente extensão "${d.name}" — alvo ${d.target}, ${d.reason}`,
+  const divergent = (report.divergentExtensions ?? []).map(
+    (d) => `divergent extension "${d.name}" — target ${d.target}, ${d.reason}`,
   );
-  return [...lines, ...divergentes].join("\n");
+  return [...lines, ...divergent].join("\n");
 }
 
 function formatReport(): CommandOutcome {
@@ -50,11 +51,11 @@ function formatReport(): CommandOutcome {
   return { output: renderReport(report), exitCode: report.exitCode };
 }
 
-/** Formata o resultado do setup, sem decidir nada sobre ele. */
+/** Formats the setup result, without deciding anything about it. */
 function formatSetup(): CommandOutcome {
-  // Ler o registro anterior é o que faz a idempotência valer na prática: sem
-  // isto o comando reinstala e relata instalação a cada execução, ainda que o
-  // resultado em disco seja o mesmo.
+  // Reading the previous record is what makes idempotency hold in
+  // practice: without it the command reinstalls and reports an
+  // installation on every run, even though the result on disk is the same.
   const root = process.cwd();
   const previous = readRecordFile(root, RECORD_PATH);
   const r = runSetup({
@@ -68,28 +69,28 @@ function formatSetup(): CommandOutcome {
     approval: {},
   });
   if (r.installed.length === 0) return { output: r.report, exitCode: r.exitCode };
-  const linhas = r.installed.map((h) => `  ${h.name} — evento ${h.event}, em ${TARGET_SETTINGS}`);
-  return { output: [r.report, ...linhas].join("\n"), exitCode: r.exitCode };
+  const lines = r.installed.map((h) => `  ${h.name} — event ${h.event}, in ${TARGET_SETTINGS}`);
+  return { output: [r.report, ...lines].join("\n"), exitCode: r.exitCode };
 }
 
-/** `--backend <nome>` e `--local-model <nome>` — override humano, nunca revalidado (FR-036, DEC-039). */
+/** `--backend <name>` and `--local-model <name>` — human override, never revalidated (FR-036, DEC-039). */
 function parseRecommendOverride(args: readonly string[]): RecommendOverride {
   const override: RecommendOverride = {};
   for (let i = 0; i < args.length; i++) {
     const flag = args[i];
-    const valor = args[i + 1];
-    if (flag === "--backend" && valor !== undefined) {
-      override.backend = valor;
+    const value = args[i + 1];
+    if (flag === "--backend" && value !== undefined) {
+      override.backend = value;
       i++;
-    } else if (flag === "--local-model" && valor !== undefined) {
-      override.localModel = valor;
+    } else if (flag === "--local-model" && value !== undefined) {
+      override.localModel = value;
       i++;
     }
   }
   return override;
 }
 
-/** Resolve as três fontes reais e imprime `recommendation.report` (FR-037). */
+/** Resolves the three real sources and prints `recommendation.report` (FR-037). */
 function formatRecommend(args: readonly string[]): CommandOutcome {
   const r = recommend(
     detectBackends(realBackendEnvironment()),
@@ -100,36 +101,36 @@ function formatRecommend(args: readonly string[]): CommandOutcome {
   return { output: r.report, exitCode: r.backend === null ? 1 : 0 };
 }
 
-/** Lê `--flag valor` da linha de comando; flags sem valor seguinte são ignoradas. */
+/** Reads `--flag value` from the command line; flags with no following value are ignored. */
 function parseFlags(args: readonly string[]): Record<string, string> {
   const flags: Record<string, string> = {};
   for (let i = 0; i < args.length; i++) {
     const flag = args[i];
-    const valor = args[i + 1];
-    if (flag?.startsWith("--") && valor !== undefined) {
-      flags[flag.slice(2)] = valor;
+    const value = args[i + 1];
+    if (flag?.startsWith("--") && value !== undefined) {
+      flags[flag.slice(2)] = value;
       i++;
     }
   }
   return flags;
 }
 
-const USO_EXTENSION_CREATE =
-  "uso: common-rules extension create --category <override|extension|new> --target <alvo> --name <nome> --file <arquivo-com-o-conteudo>";
+const USAGE_EXTENSION_CREATE =
+  "usage: common-rules extension create --category <override|extension|new> --target <target> --name <name> --file <file-with-the-content>";
 
-/** `common-rules extension create` — único caminho de escrita de um artefato de extensão (FR-080, NFR-083). */
+/** `common-rules extension create` — sole write path for an extension artifact (FR-080, NFR-083). */
 function formatExtensionCreate(args: readonly string[]): CommandOutcome {
   const { category, target, name, file } = parseFlags(args);
   if (category !== "override" && category !== "extension" && category !== "new") {
-    return { output: USO_EXTENSION_CREATE, exitCode: 2 };
+    return { output: USAGE_EXTENSION_CREATE, exitCode: 2 };
   }
   if (!target || !name || !file) {
-    return { output: USO_EXTENSION_CREATE, exitCode: 2 };
+    return { output: USAGE_EXTENSION_CREATE, exitCode: 2 };
   }
   const root = process.cwd();
   const content = readFileSync(file, "utf8");
   const managedHooks = loadHooks().map((h) => h.name);
-  const resultado = createExtension({
+  const result = createExtension({
     category,
     name,
     target,
@@ -138,37 +139,37 @@ function formatExtensionCreate(args: readonly string[]): CommandOutcome {
     targetEnv: realTargetFileEnvironment(root),
     managedHooks,
   });
-  if (!resultado.ok) return { output: resultado.reason ?? "recusado", exitCode: 1 };
-  return { output: `extensão "${name}" criada em ${resolveTargetPath(target)}`, exitCode: 0 };
+  if (!result.ok) return { output: result.reason ?? "refused", exitCode: 1 };
+  return { output: `extension "${name}" created at ${resolveTargetPath(target)}`, exitCode: 0 };
 }
 
-/** `common-rules extension repair` — quarentena o divergente e restaura o original, nunca apaga (FR-084, FR-085). */
+/** `common-rules extension repair` — quarantines the divergent one and restores the original, never deletes (FR-084, FR-085). */
 function formatExtensionRepair(args: readonly string[]): CommandOutcome {
   const { name } = parseFlags(args);
-  if (!name) return { output: "uso: common-rules extension repair --name <nome>", exitCode: 2 };
+  if (!name) return { output: "usage: common-rules extension repair --name <name>", exitCode: 2 };
 
   const root = process.cwd();
   const registryEnv = realChecksumEnvironment(root);
   const targetEnv = realTargetFileEnvironment(root);
   const registry = readExtensionRegistry(registryEnv);
-  const divergentes = diagnoseExtensions(registry, targetEnv, listPresentExtensionNames(root));
-  const divergente = divergentes.find((d) => d.name === name);
-  if (!divergente) return { output: `"${name}" não está divergente; nada para reparar`, exitCode: 1 };
+  const divergent = diagnoseExtensions(registry, targetEnv, listPresentExtensionNames(root));
+  const item = divergent.find((d) => d.name === name);
+  if (!item) return { output: `"${name}" isn't divergent; nothing to repair`, exitCode: 1 };
 
-  const resultado = repairExtension(divergente, {
+  const result = repairExtension(item, {
     registry,
     targetEnv,
     quarantineEnv: realQuarantineEnvironment(root),
   });
-  if (!resultado.ok) return { output: resultado.reason ?? "reparo recusado", exitCode: 1 };
-  return { output: `"${name}" reparado; conteúdo divergente movido para ${resultado.quarantinePath}`, exitCode: 0 };
+  if (!result.ok) return { output: result.reason ?? "repair refused", exitCode: 1 };
+  return { output: `"${name}" repaired; divergent content moved to ${result.quarantinePath}`, exitCode: 0 };
 }
 
 function formatExtension(args: readonly string[]): CommandOutcome {
   const sub = args[0];
   if (sub === "create") return formatExtensionCreate(args.slice(1));
   if (sub === "repair") return formatExtensionRepair(args.slice(1));
-  return { output: "uso: common-rules extension <create|repair> ...", exitCode: 2 };
+  return { output: "usage: common-rules extension <create|repair> ...", exitCode: 2 };
 }
 
 export const COMMANDS: Record<string, (args: readonly string[]) => CommandOutcome> = {
@@ -189,7 +190,7 @@ const ALIASES: Record<string, string> = {
   extension: "extension",
 };
 
-/** Resolve o argumento recebido para um comando conhecido, ou null. */
+/** Resolves the received argument to a known command, or null. */
 export function resolveCommand(args: readonly string[]): string | null {
   const first = args[0];
   if (first === undefined) return null;
@@ -199,35 +200,36 @@ export function resolveCommand(args: readonly string[]): string | null {
 export function run(args: readonly string[]): CommandOutcome {
   const name = resolveCommand(args);
   if (name === null) {
-    const conhecidos = Object.keys(COMMANDS).join(", ");
-    return { output: `comando não reconhecido. Disponíveis: ${conhecidos}`, exitCode: 2 };
+    const known = Object.keys(COMMANDS).join(", ");
+    return { output: `unrecognized command. Available: ${known}`, exitCode: 2 };
   }
   const command = COMMANDS[name];
-  if (command === undefined) return { output: `comando ${name} sem implementação`, exitCode: 2 };
+  if (command === undefined) return { output: `command ${name} has no implementation`, exitCode: 2 };
   return command(args.slice(1));
 }
 
 /**
- * Resolve `argv[1]` pelo caminho real antes de comparar.
+ * Resolves `argv[1]` to its real path before comparing.
  *
- * Toda instalação global do npm — `npm link` ou `npm install -g` de pacote
- * publicado — entrega o binário como link simbólico. `argv[1]` preserva o
- * caminho do link, e `fileURLToPath(import.meta.url)` é sempre o caminho
- * real; comparar os dois direto nunca bate fora deste checkout. Devolve
- * `undefined` em vez de lançar quando o caminho não existe, para que o guard
- * simplesmente não dispare em vez de derrubar o processo.
+ * Every global npm install — `npm link` or `npm install -g` of a
+ * published package — delivers the binary as a symlink. `argv[1]`
+ * preserves the link's path, and `fileURLToPath(import.meta.url)` is
+ * always the real path; comparing the two directly never matches outside
+ * this checkout. Returns `undefined` instead of throwing when the path
+ * doesn't exist, so the guard simply doesn't fire instead of crashing the process.
  */
-function realEntryPath(caminho: string | undefined): string | undefined {
-  if (caminho === undefined) return undefined;
+function realEntryPath(path: string | undefined): string | undefined {
+  if (path === undefined) return undefined;
   try {
-    return realpathSync(caminho);
+    return realpathSync(path);
   } catch {
     return undefined;
   }
 }
 
-// Só executa quando invocado como binário; importar o módulo não imprime nada,
-// o que é o que permite a surface.test.ts inspecionar COMMANDS sem efeito.
+// Only runs when invoked as a binary; importing the module prints
+// nothing, which is what lets surface.test.ts inspect COMMANDS with no
+// side effect.
 if (fileURLToPath(import.meta.url) === realEntryPath(argv[1])) {
   const { output, exitCode } = run(argv.slice(2));
   (exitCode === 0 ? stdout : stderr).write(`${output}\n`);

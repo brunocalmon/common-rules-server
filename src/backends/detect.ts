@@ -2,14 +2,14 @@ import { execFileSync } from "node:child_process";
 import { KNOWN_AGENT_BACKENDS, SUPPORTED_AGENT_BACKENDS } from "./known.js";
 
 /**
- * Fonte de resolução, injetada para que a suíte não dependa do que está
- * instalado na máquina de quem a executa — mesmo padrão do `Environment` de
- * `doctor` e do `TargetEnvironment` da fatia 1a.
+ * Resolution source, injected so the suite doesn't depend on what's
+ * installed on the machine running it — same pattern as `doctor`'s
+ * `Environment` and fatia 1a's `TargetEnvironment`.
  */
 export interface BackendEnvironment {
-  /** Presença no `PATH`, independente de `--version` responder. */
+  /** Presence on `PATH`, independent of whether `--version` responds. */
   resolvePresence(name: string): boolean;
-  /** Versão relatada por `--version`, ou `null` quando não interpretável. */
+  /** Version reported by `--version`, or `null` when not interpretable. */
   resolveVersion(name: string): string | null;
 }
 
@@ -30,13 +30,13 @@ const commandExists = (name: string): boolean => {
 };
 
 /**
- * Extrai a versão da saída de `--version`.
+ * Extracts the version from `--version`'s output.
  *
- * O último token, que basta para `code-review-graph` em `doctor.ts`, quebra
- * aqui: `claude --version` devolve `2.1.251 (Claude Code)`, cujo último token
- * é `Code)`. Preferir o primeiro token que começa com dígito resolve
- * `claude` e `codex-cli 0.151.0` ao mesmo tempo, caindo no último token só
- * quando nenhum começa com dígito.
+ * The last token, which is enough for `code-review-graph` in `doctor.ts`,
+ * breaks here: `claude --version` returns `2.1.251 (Claude Code)`, whose
+ * last token is `Code)`. Preferring the first token that starts with a
+ * digit resolves `claude` and `codex-cli 0.151.0` at once, falling back to
+ * the last token only when none starts with a digit.
  */
 const probeVersion = (name: string): string | null => {
   try {
@@ -48,20 +48,20 @@ const probeVersion = (name: string): string | null => {
   }
 };
 
-/** Ambiente real. Presença via `which`, versão via `--version` — nunca `--help`. */
+/** Real environment. Presence via `which`, version via `--version` — never `--help`. */
 export function realBackendEnvironment(): BackendEnvironment {
   return { resolvePresence: commandExists, resolveVersion: probeVersion };
 }
 
 /**
- * Detecta cada backend candidato conhecido, sem invocar além do necessário
- * para presença e versão.
+ * Detects each known candidate backend, without invoking more than needed
+ * for presence and version.
  *
- * Presença não depende de `--version` responder: um backend presente cujo
- * `--version` falha ou não devolve saída interpretável continua presente,
- * com versão desconhecida — a mesma distinção entre "capaz" e "pronto para
- * responder" que a pesquisa desta fatia observou em `goose run` sem
- * credencial configurada.
+ * Presence doesn't depend on `--version` responding: a present backend
+ * whose `--version` fails or returns non-interpretable output stays
+ * present, with an unknown version — the same distinction between
+ * "capable" and "ready to respond" that this fatia's research observed in
+ * `goose run` without a configured credential.
  */
 export function detectBackends(
   env: BackendEnvironment,

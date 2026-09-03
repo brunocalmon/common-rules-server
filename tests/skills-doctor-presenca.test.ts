@@ -1,34 +1,34 @@
 import { describe, it, expect } from "vitest";
 import { reportSkills } from "../src/skills/record";
-import { projetoComSkills, escreverLock, CONJUNTO_MATTPOCOCK } from "./skills-fixtures";
+import { projectWithSkills, writeLock, MATTPOCOCK_SET } from "./skills-fixtures";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-/** Registro e disco em acordo: o estado sem divergência. */
-function projetoConsistente(): string {
-  const raiz = projetoComSkills();
-  for (const n of CONJUNTO_MATTPOCOCK) {
-    mkdirSync(join(raiz, ".claude", "skills", n), { recursive: true });
-    writeFileSync(join(raiz, ".claude", "skills", n, "SKILL.md"), `---\nname: ${n}\n---\ncorpo\n`);
+/** Record and disk agree: the no-divergence state. */
+function consistentProject(): string {
+  const root = projectWithSkills();
+  for (const n of MATTPOCOCK_SET) {
+    mkdirSync(join(root, ".claude", "skills", n), { recursive: true });
+    writeFileSync(join(root, ".claude", "skills", n, "SKILL.md"), `---\nname: ${n}\n---\nbody\n`);
   }
-  escreverLock(raiz, CONJUNTO_MATTPOCOCK);
-  return raiz;
+  writeLock(root, MATTPOCOCK_SET);
+  return root;
 }
 
-describe("AC-024 — o doctor enumera os conjuntos", () => {
+describe("AC-024 — doctor enumerates the sets", () => {
   // SPECSFY: US-021 FR-024 AC-024
-  it("nomeia cada conjunto", () => {
-    const nomes = reportSkills(projetoConsistente()).results.map((r) => r.name).sort();
-    expect(nomes).toEqual([...CONJUNTO_MATTPOCOCK].sort());
+  it("names each set", () => {
+    const names = reportSkills(consistentProject()).results.map((r) => r.name).sort();
+    expect(names).toEqual([...MATTPOCOCK_SET].sort());
   });
 
   // SPECSFY: US-021 FR-024 AC-024
-  it("nomeia a origem de cada um", () => {
-    for (const r of reportSkills(projetoConsistente()).results) expect(r.origin).toBe("mattpocock/skills");
+  it("names each one's source", () => {
+    for (const r of reportSkills(consistentProject()).results) expect(r.origin).toBe("mattpocock/skills");
   });
 
   // SPECSFY: US-021 FR-024 AC-024
-  it("sai com zero quando nada divergiu", () => {
-    expect(reportSkills(projetoConsistente()).exitCode).toBe(0);
+  it("exits with zero when nothing diverged", () => {
+    expect(reportSkills(consistentProject()).exitCode).toBe(0);
   });
 });

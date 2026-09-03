@@ -3,43 +3,43 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projeto, decisaoFixa, decisaoQueLancaSeChamada } from "./aprovacao-fixtures";
+import { project, fixedDecision, decisionThatThrowsIfCalled } from "./aprovacao-fixtures";
 
-describe("AC-073 — projeto já configurado não pede aprovação", () => {
-  const jaConfigurado = () => {
-    const raiz = projeto();
-    runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, approval: { source: decisaoFixa(true) } });
-    const registro = JSON.parse(readFileSync(join(raiz, ".common-rules", "install.json"), "utf8"));
-    return { raiz, registro };
+describe("AC-073 — an already configured project doesn't ask for approval", () => {
+  const alreadyConfigured = () => {
+    const root = project();
+    runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: fixedDecision(true) } });
+    const record = JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+    return { root, record };
   };
 
   // SPECSFY: US-062 FR-060 AC-073
-  it("uma fonte que lançaria se chamada não é acionada na reexecução", () => {
-    const { raiz, registro } = jaConfigurado();
+  it("a source that would throw if called isn't triggered on rerun", () => {
+    const { root, record } = alreadyConfigured();
     expect(() => runSetup({
-      env: detectEnvironment(raiz), root: raiz, write: true,
-      previous: registro, approval: { source: decisaoQueLancaSeChamada() },
+      env: detectEnvironment(root), root, write: true,
+      previous: record, approval: { source: decisionThatThrowsIfCalled() },
     })).not.toThrow();
   });
 
   // SPECSFY: US-062 FR-063 AC-073
-  it("o relato informa que já estava configurado", () => {
-    const { raiz, registro } = jaConfigurado();
-    const r = runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, previous: registro, approval: { source: decisaoQueLancaSeChamada() } });
-    expect(r.report).toMatch(/já estava configurado/i);
+  it("the report states it was already configured", () => {
+    const { root, record } = alreadyConfigured();
+    const r = runSetup({ env: detectEnvironment(root), root, write: true, previous: record, approval: { source: decisionThatThrowsIfCalled() } });
+    expect(r.report).toMatch(/already configured/i);
   });
 
   // SPECSFY: US-062 FR-060 AC-073
-  it("controle: a mesma fonte é de fato consultada numa primeira execução, provando que o mecanismo existe", () => {
-    const raiz = projeto();
-    const r = runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, approval: { source: decisaoQueLancaSeChamada() } });
+  it("control: the same source is actually consulted on a first run, proving the mechanism exists", () => {
+    const root = project();
+    const r = runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: decisionThatThrowsIfCalled() } });
     expect(r.exitCode).not.toBe(0);
   });
 
   // SPECSFY: US-062 FR-060 AC-073
-  it("o exit code segue de sucesso", () => {
-    const { raiz, registro } = jaConfigurado();
-    const r = runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, previous: registro, approval: { source: decisaoQueLancaSeChamada() } });
+  it("the exit code stays a success one", () => {
+    const { root, record } = alreadyConfigured();
+    const r = runSetup({ env: detectEnvironment(root), root, write: true, previous: record, approval: { source: decisionThatThrowsIfCalled() } });
     expect(r.exitCode).toBe(0);
   });
 });

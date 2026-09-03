@@ -5,29 +5,29 @@ import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
 const cli = resolve(__dirname, "..", "dist", "cli.js");
-const aprovado = JSON.stringify({ approved: true });
+const approved = JSON.stringify({ approved: true });
 
-function projetoComAlvo(): string {
-  const raiz = mkdtempSync(join(tmpdir(), "crs-registro-"));
-  mkdirSync(join(raiz, ".claude"), { recursive: true });
-  return raiz;
+function projectWithTarget(): string {
+  const root = mkdtempSync(join(tmpdir(), "crs-registry-"));
+  mkdirSync(join(root, ".claude"), { recursive: true });
+  return root;
 }
 
-function rodar(raiz: string, input: string) {
-  return spawnSync("node", [cli, "setup"], { cwd: raiz, encoding: "utf8", input, timeout: 120_000 });
+function run(root: string, input: string) {
+  return spawnSync("node", [cli, "setup"], { cwd: root, encoding: "utf8", input, timeout: 120_000 });
 }
 
-describe("AC-118 — execução por documento JSON usa o mesmo registro", () => {
+describe("AC-118 — a JSON document run uses the same registry", () => {
   // SPECSFY: US-070 US-071 US-072 FR-071 FR-074 NFR-071 AC-118
-  it("com o comando de skills já registrado, drift não pede aprovação de novo mesmo sem documento", () => {
-    const raiz = projetoComAlvo();
-    rodar(raiz, aprovado);
-    expect(existsSync(join(raiz, ".common-rules", "approved-commands.json"))).toBe(true);
+  it("with the skills command already registered, drift doesn't ask for approval again even with no document", () => {
+    const root = projectWithTarget();
+    run(root, approved);
+    expect(existsSync(join(root, ".common-rules", "approved-commands.json"))).toBe(true);
 
-    rmSync(join(raiz, ".claude", "skills"), { recursive: true, force: true });
+    rmSync(join(root, ".claude", "skills"), { recursive: true, force: true });
 
-    const segunda = rodar(raiz, "");
-    expect(segunda.status).toBe(0);
-    expect(existsSync(join(raiz, ".claude", "skills"))).toBe(true);
+    const second = run(root, "");
+    expect(second.status).toBe(0);
+    expect(existsSync(join(root, ".claude", "skills"))).toBe(true);
   }, 180_000);
 });

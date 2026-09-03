@@ -1,20 +1,20 @@
 /**
- * Contexto que decide o canal de aprovação.
+ * Context that decides the approval channel.
  *
- * Consultar apenas a presença de terminal na entrada padrão, e não uma flag,
- * é a escolha da fatia: quem automatiza não precisa lembrar de passar nada, e
- * o silêncio nunca é interpretado como consentimento.
+ * Consulting only whether standard input has a terminal, and not a flag,
+ * is this fatia's choice: whoever automates doesn't need to remember to
+ * pass anything, and silence is never interpreted as consent.
  */
 export interface TerminalContext {
   hasTerminal(): boolean;
 }
 
 /**
- * Contexto real, consultando o processo.
+ * Real context, consulting the process.
  *
- * `process.stdin.isTTY` é `undefined` fora de um terminal interativo, o que é
- * falso para a escolha do canal — o mesmo tratamento de `false`, sem caso
- * especial.
+ * `process.stdin.isTTY` is `undefined` outside an interactive terminal,
+ * which is falsy for the channel choice — the same treatment as `false`,
+ * no special case.
  */
 export function realTerminalContext(): TerminalContext {
   return { hasTerminal: () => Boolean(process.stdin.isTTY) };
@@ -23,10 +23,11 @@ export function realTerminalContext(): TerminalContext {
 export type ApprovalChannel = "interactive" | "document";
 
 /**
- * Escolhe o canal pela presença de terminal.
+ * Chooses the channel by terminal presence.
  *
- * Sem contexto injetado, consulta o processo real — mas nunca aprova por
- * omissão: a escolha do canal e a decisão em si são etapas separadas.
+ * Without an injected context, consults the real process — but never
+ * approves by default: choosing the channel and the decision itself are
+ * separate steps.
  */
 export function resolveChannel(ctx: TerminalContext = realTerminalContext()): ApprovalChannel {
   return ctx.hasTerminal() ? "interactive" : "document";

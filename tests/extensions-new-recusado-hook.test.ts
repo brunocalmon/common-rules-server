@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import { createExtension } from "../src/extensions/create";
 import { checksumEnvFake, targetEnvFake } from "./extensions-fixtures";
 
-describe("AC-131 — categoria new é recusada para os sete hooks", () => {
+describe("AC-131 — category new is refused for the seven hooks", () => {
   // SPECSFY: US-080 FR-080 FR-081 FR-082 AC-131
-  it("pedido de categoria new para um hook gerenciado é recusado com motivo", () => {
+  it("a request for category new on a managed hook is refused with a reason", () => {
     const r = createExtension({
       category: "new",
       name: "hack",
       target: "guard-destructive",
-      content: "# tentativa",
+      content: "# attempt",
       registryEnv: checksumEnvFake(),
       targetEnv: targetEnvFake(),
       managedHooks: ["guard-destructive", "guard-secrets"],

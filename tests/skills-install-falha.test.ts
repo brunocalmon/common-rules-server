@@ -1,27 +1,27 @@
 import { describe, it, expect } from "vitest";
 import { installSkills } from "../src/skills/install";
-import { projetoComSkills, executorFalso } from "./skills-fixtures";
+import { projectWithSkills, fakeExecutor } from "./skills-fixtures";
 
-describe("AC-028 — o instalador oficial não pode ser executado", () => {
-  const executar = async () => {
-    const raiz = projetoComSkills();
-    return installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("ausente", raiz).fn });
+describe("AC-028 — the official installer can't run", () => {
+  const run = async () => {
+    const root = projectWithSkills();
+    return installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("absent", root).fn });
   };
 
   // SPECSFY: US-022 FR-020 AC-028
-  it("a resposta indica que o conjunto não foi instalado", async () => {
-    const r = await executar();
+  it("the response states the set wasn't installed", async () => {
+    const r = await run();
     expect(r.isError).toBe(true);
     expect(r.installed).toEqual([]);
   });
 
   // SPECSFY: US-022 NFR-021 AC-028
-  it("não afirma sucesso", async () => {
-    expect((await executar()).report).not.toMatch(/instalad[oa]s? com sucesso|conclu[íi]d/i);
+  it("doesn't claim success", async () => {
+    expect((await run()).report).not.toMatch(/installed successfully|completed/i);
   });
 
   // SPECSFY: US-022 FR-020 NFR-021 AC-028
-  it("o relato nomeia a causa", async () => {
-    expect((await executar()).report).toMatch(/instalador|dispon[íi]vel|encontrad/i);
+  it("the report names the cause", async () => {
+    expect((await run()).report).toMatch(/installer|available/i);
   });
 });

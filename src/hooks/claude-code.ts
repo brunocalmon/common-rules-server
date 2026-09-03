@@ -1,6 +1,6 @@
 import type { CanonicalEvent, Hook } from "./source.js";
 
-/** Nome do evento no formato que o alvo usa. */
+/** Event name in the format the target uses. */
 export type TargetEvent = "PreToolUse" | "PostToolUse" | "Stop";
 
 export interface TranslatedHook {
@@ -17,39 +17,41 @@ const EVENT_MAP: Record<CanonicalEvent, TargetEvent> = {
 };
 
 /**
- * Converte um hook canônico para o formato do alvo.
+ * Converts a canonical hook to the target's format.
  *
- * Devolve estrutura e não escreve arquivo. Essa separação é deliberada: é o que
- * permite verificar a fidelidade do script sem tocar o disco. Na v0.2.8 escape
- * e escrita viviam no mesmo caminho, o escape foi consumido duas vezes e todos
- * os guards passaram a permitir tudo — defeito que sobreviveu à revisão porque
- * o arquivo gerado parecia correto.
+ * Returns a structure and doesn't write a file. This separation is
+ * deliberate: it's what lets the script's fidelity be verified without
+ * touching disk. In v0.2.8, escaping and writing lived on the same path,
+ * the escape was consumed twice, and every guard started allowing
+ * anything — a defect that survived review because the generated file
+ * looked correct.
  */
 export function translateForClaudeCode(hook: Hook): TranslatedHook {
   return {
     name: hook.name,
     event: EVENT_MAP[hook.event],
     blocking: hook.blocking,
-    // O fragmento atravessa sem qualquer transformação, embutido entre
-    // preâmbulo e pós-âmbulo. Escapar aqui e de novo na serialização é o
-    // defeito que esta fatia existe para evitar.
+    // The fragment passes through without any transformation, embedded
+    // between preamble and postamble. Escaping here and again during
+    // serialization is the defect this fatia exists to avoid.
     script: wrap(hook),
   };
 }
 
 /**
- * Envolve o fragmento no que o torna executável.
+ * Wraps the fragment in what makes it executable.
  *
- * O bloco dentro do Markdown não é script completo: lê variáveis que alguém
- * precisa fornecer e comunica por `decision` e `message`, que alguém precisa
- * emitir. O fragmento de `guard-destructive` termina no último `fi` sem
- * imprimir nada — sozinho, nunca bloquearia.
+ * The block inside the Markdown isn't a complete script: it reads
+ * variables someone needs to supply and communicates via `decision` and
+ * `message`, which someone needs to emit. The `guard-destructive`
+ * fragment ends at the last `fi` without printing anything — alone, it
+ * would never block.
  */
 function wrap(hook: Hook): string {
   return [PREAMBLE, `HOOK_EVENT=${JSON.stringify(hook.event)}`, "", FRAGMENT_START + hook.script + FRAGMENT_END, POSTAMBLE].join("\n");
 }
 
-/** Extrai o fragmento de volta, para conferir a ida e a volta. */
+/** Extracts the fragment back out, to check the round trip. */
 export function unwrap(command: string): string {
   const i = command.indexOf(FRAGMENT_START);
   const j = command.lastIndexOf(FRAGMENT_END);
@@ -57,8 +59,8 @@ export function unwrap(command: string): string {
   return command.slice(i + FRAGMENT_START.length, j);
 }
 
-const FRAGMENT_START = "# >>> fragmento do hook\n";
-const FRAGMENT_END = "\n# <<< fragmento do hook";
+const FRAGMENT_START = "# >>> hook fragment\n";
+const FRAGMENT_END = "\n# <<< hook fragment";
 
 const PREAMBLE = [
   "#!/usr/bin/env bash",
@@ -66,9 +68,10 @@ const PREAMBLE = [
   "decision=allow",
   "message=''",
   "PROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"",
-  // Extrair o comando do JSON, em vez de casar contra o JSON inteiro. O bruto
-  // também carrega prosa: uma mensagem de commit que menciona `rm -rf` faria um
-  // guard disparar sobre texto, e guard que atrapalha trabalho comum é desligado.
+  // Extract the command from the JSON, instead of matching against the
+  // whole JSON. The raw input also carries prose: a commit message
+  // mentioning `rm -rf` would make a guard fire on text, and a guard that
+  // gets in the way of normal work gets turned off.
   "HOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\",
   "  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')",
   "HOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\",
@@ -78,7 +81,7 @@ const PREAMBLE = [
 
 const POSTAMBLE = [
   "",
-  "# Emite a decisão que o fragmento definiu. Sem isto o fragmento não bloqueia.",
+  "# Emits the decision the fragment set. Without this, the fragment doesn't block.",
   "case \"$decision\" in",
   "  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;",
   "  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;",
@@ -96,16 +99,16 @@ export interface Settings {
 }
 
 /**
- * Monta o objeto de configuração do alvo.
+ * Assembles the target's configuration object.
  *
- * Devolve estrutura de dados, não texto. Quem serializa é quem escreve, e o
- * serializador do JSON faz o escape uma única vez.
+ * Returns a data structure, not text. Whoever serializes it is whoever
+ * writes it, and the JSON serializer escapes exactly once.
  */
 export function renderSettings(hooks: readonly TranslatedHook[]): Settings {
   const settings: Settings = { hooks: {} };
   for (const h of hooks) {
-    const lista = (settings.hooks[h.event] ??= []);
-    lista.push({
+    const list = (settings.hooks[h.event] ??= []);
+    list.push({
       matcher: h.name,
       hooks: [{ type: "command", command: h.script, ...(h.blocking ? { blocking: true } : {}) }],
     });
@@ -113,13 +116,13 @@ export function renderSettings(hooks: readonly TranslatedHook[]): Settings {
   return settings;
 }
 
-/** Recupera os scripts na ordem em que foram inseridos, para conferir a ida e a volta. */
+/** Recovers the scripts in the order they were inserted, to check the round trip. */
 export function extractScripts(settings: Settings): string[] {
-  const ordem: TargetEvent[] = ["PreToolUse", "PostToolUse", "Stop"];
+  const order: TargetEvent[] = ["PreToolUse", "PostToolUse", "Stop"];
   const out: string[] = [];
-  for (const evento of ordem) {
-    for (const entrada of settings.hooks[evento] ?? []) {
-      for (const h of entrada.hooks) out.push(h.command);
+  for (const event of order) {
+    for (const entry of settings.hooks[event] ?? []) {
+      for (const h of entry.hooks) out.push(h.command);
     }
   }
   return out;

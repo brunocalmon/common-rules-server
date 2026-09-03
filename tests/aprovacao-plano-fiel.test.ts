@@ -1,33 +1,33 @@
 import { describe, it, expect } from "vitest";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projeto, decisaoFixa } from "./aprovacao-fixtures";
+import { project, fixedDecision } from "./aprovacao-fixtures";
 
-describe("AC-070 — nada é escrito fora do que o plano previa", () => {
-  const executar = () => {
-    const raiz = projeto();
-    const recebidos: { name: string }[][] = [];
-    const r = runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, approval: { source: decisaoFixa(true, recebidos) } });
-    return { plano: recebidos[0] ?? [], instalado: r.installed };
+describe("AC-070 — nothing is written beyond what the plan foresaw", () => {
+  const run = () => {
+    const root = project();
+    const received: { name: string }[][] = [];
+    const r = runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: fixedDecision(true, received) } });
+    return { plan: received[0] ?? [], installed: r.installed };
   };
 
   // SPECSFY: US-060 NFR-062 AC-070
-  it("cada arquivo escrito corresponde a um item do plano", () => {
-    const { plano, instalado } = executar();
-    const nomesPlano = new Set(plano.map((p) => p.name));
-    for (const h of instalado) expect(nomesPlano.has(h.name)).toBe(true);
+  it("every written file matches a plan item", () => {
+    const { plan, installed } = run();
+    const planNames = new Set(plan.map((p) => p.name));
+    for (const h of installed) expect(planNames.has(h.name)).toBe(true);
   });
 
   // SPECSFY: US-060 NFR-062 AC-070
-  it("nenhum item do plano ficou por escrever", () => {
-    const { plano, instalado } = executar();
-    const nomesInstalados = new Set(instalado.map((h) => h.name));
-    for (const p of plano) expect(nomesInstalados.has(p.name)).toBe(true);
+  it("no plan item was left unwritten", () => {
+    const { plan, installed } = run();
+    const installedNames = new Set(installed.map((h) => h.name));
+    for (const p of plan) expect(installedNames.has(p.name)).toBe(true);
   });
 
   // SPECSFY: US-060 NFR-062 AC-070
-  it("a quantidade coincide exatamente", () => {
-    const { plano, instalado } = executar();
-    expect(instalado.length).toBe(plano.length);
+  it("the counts match exactly", () => {
+    const { plan, installed } = run();
+    expect(installed.length).toBe(plan.length);
   });
 });

@@ -1,41 +1,41 @@
 import { randomBytes } from "node:crypto";
 
-/** Comprimento fixo do identificador, em caracteres hexadecimais. */
+/** Fixed identifier length, in hex characters. */
 export const TRACE_ID_LENGTH = 32;
 
 /**
- * Origem do que não é determinístico nesta ferramenta.
+ * Source of this tool's non-determinism.
  *
- * É a única fonte de instante e de identificador, e existe para ser
- * substituível num lugar só. A fatia 1b tentou o caminho oposto — congelar o
- * instante em `new Date(0)` para dar previsibilidade aos casos — e o resultado
- * foi um registro que afirmava, em toda máquina, que a instalação ocorrera em
- * 1970. Determinismo se compra injetando a fonte, não falsificando o valor.
+ * The single source of instant and identifier, replaceable in one place.
+ * Fatia 1b tried the opposite path — freezing the instant at `new Date(0)`
+ * to give test cases predictability — and the result was a record that
+ * claimed, on every machine, that installation happened in 1970.
+ * Determinism is bought by injecting the source, not by faking the value.
  */
 export interface TraceSource {
-  /** Instante corrente, em ISO 8601. */
+  /** Current instant, in ISO 8601. */
   now(): string;
-  /** Identificador da execução. */
+  /** Run identifier. */
   id(): string;
 }
 
 /**
- * Produz um identificador opaco.
+ * Produces an opaque identifier.
  *
- * Deriva de bytes aleatórios e não de dado do ambiente, de modo que a
- * opacidade seja propriedade da construção em vez de resultado de filtragem:
- * não há nome de pessoa, de máquina ou caminho a remover, porque nenhum entra.
+ * Derived from random bytes, not from environment data, so opacity is a
+ * property of the construction rather than the result of filtering: there's
+ * no person name, machine name, or path to remove, because none goes in.
  */
 export function generateId(): string {
   return randomBytes(TRACE_ID_LENGTH / 2).toString("hex");
 }
 
-/** Instante corrente do relógio do sistema, em ISO 8601. */
+/** Current system clock instant, in ISO 8601. */
 export function nowIso(): string {
   return new Date().toISOString();
 }
 
-/** Origem real, usada quando nada é injetado. */
+/** Real source, used when nothing is injected. */
 export function realSource(): TraceSource {
   return { now: nowIso, id: generateId };
 }

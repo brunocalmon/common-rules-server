@@ -4,19 +4,19 @@ import { resolve } from "node:path";
 
 const manifest = () => JSON.parse(readFileSync(resolve(__dirname, "../package.json"), "utf8"));
 
-describe("AC-003 — a suíte executa pelo script exigido", () => {
+describe("AC-003 — the suite runs via the required script", () => {
   // SPECSFY: US-001 FR-003 AC-003
-  it("expõe test:tdd, como o enforcement do framework exige em projeto Node", () => {
+  it("exposes test:tdd, as the framework's enforcement requires in a Node project", () => {
     expect(manifest().scripts?.["test:tdd"]).toBeDefined();
   });
 
   // SPECSFY: US-001 FR-003 AC-003
-  it("faz test:tdd invocar o Vitest", () => {
+  it("makes test:tdd invoke Vitest", () => {
     expect(manifest().scripts["test:tdd"]).toMatch(/\bvitest\b/);
   });
 
   // SPECSFY: US-001 FR-003 NFR-001 AC-003
-  it("expõe também o script de build, do qual a suíte depende", () => {
+  it("also exposes the build script, which the suite depends on", () => {
     expect(manifest().scripts?.build).toBeDefined();
   });
 });

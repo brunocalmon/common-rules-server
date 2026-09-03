@@ -6,39 +6,39 @@ import { spawnSync } from "node:child_process";
 
 const cli = resolve(__dirname, "..", "dist", "cli.js");
 
-function projetoComAlvo(): string {
-  const raiz = mkdtempSync(join(tmpdir(), "crs-appr-"));
-  mkdirSync(join(raiz, ".claude"), { recursive: true });
-  return raiz;
+function projectWithTarget(): string {
+  const root = mkdtempSync(join(tmpdir(), "crs-appr-"));
+  mkdirSync(join(root, ".claude"), { recursive: true });
+  return root;
 }
 
-describe("AC-075 — o comando real, sem canal injetado, aprova e escreve", () => {
+describe("AC-075 — the real command, with no injected channel, approves and writes", () => {
   // SPECSFY: US-060 FR-060 FR-065 AC-075
-  it("documento aprovando pela entrada padrão libera a escrita", () => {
-    const raiz = projetoComAlvo();
+  it("a document approving via standard input unlocks the write", () => {
+    const root = projectWithTarget();
     const r = spawnSync("node", [cli, "setup"], {
-      cwd: raiz,
+      cwd: root,
       encoding: "utf8",
       input: JSON.stringify({ approved: true }),
       timeout: 120_000,
     });
-    expect(existsSync(join(raiz, ".claude", "settings.json"))).toBe(true);
-    expect(r.stdout).not.toMatch(/não escrito/);
+    expect(existsSync(join(root, ".claude", "settings.json"))).toBe(true);
+    expect(r.stdout).not.toMatch(/not written/);
   }, 120_000);
 });
 
-describe("AC-076 — o comando real, sem canal injetado, recusa e não escreve", () => {
+describe("AC-076 — the real command, with no injected channel, refuses and doesn't write", () => {
   // SPECSFY: US-061 FR-060 FR-064 NFR-060 AC-076
-  it("entrada padrão vazia é negativa, sem escrita", () => {
-    const raiz = projetoComAlvo();
+  it("empty standard input is a refusal, with no write", () => {
+    const root = projectWithTarget();
     const r = spawnSync("node", [cli, "setup"], {
-      cwd: raiz,
+      cwd: root,
       encoding: "utf8",
       input: "",
       timeout: 120_000,
     });
-    expect(existsSync(join(raiz, ".claude", "settings.json"))).toBe(false);
-    expect(r.stdout + r.stderr).toMatch(/não escrito/);
+    expect(existsSync(join(root, ".claude", "settings.json"))).toBe(false);
+    expect(r.stdout + r.stderr).toMatch(/not written/);
     expect(r.status).not.toBe(0);
   }, 120_000);
 });

@@ -3,31 +3,31 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projeto, origemFixa } from "./trace-fixtures";
+import { project, fixedSource } from "./trace-fixtures";
 
-describe("AC-041 — quem executou consegue nomear a execução", () => {
-  const executar = () => {
-    const raiz = projeto();
-    const r = runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, trace: origemFixa() });
-    const reg = JSON.parse(readFileSync(join(raiz, ".common-rules", "install.json"), "utf8"));
-    return { relato: r.report, gravado: reg["trace"] as string };
+describe("AC-041 — whoever ran it can name the run", () => {
+  const run = () => {
+    const root = project();
+    const r = runSetup({ env: detectEnvironment(root), root, write: true, trace: fixedSource() });
+    const rec = JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+    return { report: r.report, recorded: rec["trace"] as string };
   };
 
   // SPECSFY: US-040 FR-041 AC-041
-  it("o relato contém o identificador gravado", () => {
-    const { relato, gravado } = executar();
-    expect(relato).toContain(gravado);
+  it("the report contains the recorded identifier", () => {
+    const { report, recorded } = run();
+    expect(report).toContain(recorded);
   });
 
   // SPECSFY: US-040 FR-041 AC-041
-  it("o relato segue descrevendo os hooks", () => {
-    expect(executar().relato).toMatch(/hooks/);
+  it("the report still describes the hooks", () => {
+    expect(run().report).toMatch(/hooks/);
   });
 
   // SPECSFY: US-040 FR-041 AC-041
-  it("o identificado citado é o mesmo do registro, e não um literal", () => {
-    const a = executar(), b = executar();
-    expect(a.relato).toContain(a.gravado);
-    expect(b.relato).toContain(b.gravado);
+  it("the cited identifier is the same as the record's, not a literal", () => {
+    const a = run(), b = run();
+    expect(a.report).toContain(a.recorded);
+    expect(b.report).toContain(b.recorded);
   });
 });

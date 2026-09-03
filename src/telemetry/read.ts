@@ -3,12 +3,12 @@ import { join } from "node:path";
 import { RECORD_PATH } from "../setup/record.js";
 
 /**
- * Resultado da leitura do identificador.
+ * Result of reading the identifier.
  *
- * Os três casos são representados explicitamente em vez de por texto vazio,
- * para que quem consome distinga "não há registro" de "há registro sem
- * identificador". Colapsar os dois num valor vazio perderia justamente a
- * informação que o diagnóstico precisa dar.
+ * The three cases are represented explicitly instead of by an empty
+ * string, so that a consumer can tell "no record" apart from "record with
+ * no identifier." Collapsing the two into an empty value would lose
+ * exactly the information the diagnosis needs to give.
  */
 export type TraceRead =
   | { kind: "identified"; trace: string }
@@ -16,23 +16,23 @@ export type TraceRead =
   | { kind: "absent" };
 
 /**
- * Lê o identificador da última execução registrada, sem escrever.
+ * Reads the identifier of the last recorded run, without writing.
  *
- * Aceita registros gravados antes desta fatia, que não têm o campo e cujas
- * entradas trazem o instante da época. Nada é reescrito na leitura: relatar e
- * reparar são operações distintas neste produto.
+ * Accepts records written before this fatia, which lack the field and
+ * whose entries carry the epoch instant. Nothing is rewritten on read:
+ * reporting and repairing are distinct operations in this product.
  */
 export function readTrace(root: string): TraceRead {
-  const caminho = join(root, RECORD_PATH);
-  if (!existsSync(caminho)) return { kind: "absent" };
+  const path = join(root, RECORD_PATH);
+  if (!existsSync(path)) return { kind: "absent" };
   try {
-    const bruto = JSON.parse(readFileSync(caminho, "utf8")) as { trace?: unknown };
-    const trace = bruto.trace;
+    const raw = JSON.parse(readFileSync(path, "utf8")) as { trace?: unknown };
+    const trace = raw.trace;
     if (typeof trace === "string" && trace.length > 0) return { kind: "identified", trace };
     return { kind: "unidentified" };
   } catch {
-    // Registro ilegível é tratado como ausência de identificador, e não como
-    // falha do diagnóstico: o `doctor` continua relatando as dependências.
+    // An unreadable record is treated as a missing identifier, not as a
+    // diagnostic failure: `doctor` keeps reporting the dependencies.
     return { kind: "unidentified" };
   }
 }

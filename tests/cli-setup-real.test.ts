@@ -5,37 +5,37 @@ import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
 /**
- * Ponta a ponta real: nenhum `Executor` é injetado. É o mesmo comando que a
- * pessoa responsável rodou manualmente para descobrir que o `setup` nunca
- * instalava nada — timeout generoso pelo mesmo motivo de
- * `tests/hooks-context-mode-comando.test.ts`: dois subprocessos reais de
- * terceiro, sob carga de suíte completa.
+ * Real end to end: no `Executor` is injected. This is the same command the
+ * person responsible ran by hand to discover that `setup` never installed
+ * anything — generous timeout for the same reason as
+ * `tests/hooks-context-mode-comando.test.ts`: two real third-party
+ * subprocesses, under full-suite load.
  *
- * `input` aprova pela entrada padrão: desde a reabertura da SPEC-0007,
- * `formatSetup()` também liga `approval` real, e sem isso a execução seria
- * lida como documento vazio — recusa, sem escrita.
+ * `input` approves via standard input: since SPEC-0007 reopened,
+ * `formatSetup()` also wires in real `approval`, and without this the run
+ * would be read as an empty document — refused, no write.
  */
-describe("AC-036 / AC-038 — common-rules setup, de ponta a ponta, sem fixture", () => {
-  it("instala as duas origens de skills e o framework Specsfy de verdade", () => {
-    const raiz = mkdtempSync(join(tmpdir(), "crs-e2e-"));
-    mkdirSync(join(raiz, ".claude"), { recursive: true });
+describe("AC-036 / AC-038 — common-rules setup, end to end, no fixture", () => {
+  it("installs both skill sources and the Specsfy framework for real", () => {
+    const root = mkdtempSync(join(tmpdir(), "crs-e2e-"));
+    mkdirSync(join(root, ".claude"), { recursive: true });
     const cli = resolve(__dirname, "..", "dist", "cli.js");
 
     const r = spawnSync("node", [cli, "setup"], {
-      cwd: raiz,
+      cwd: root,
       encoding: "utf8",
       input: JSON.stringify({ approved: true }),
       timeout: 120_000,
     });
     expect(r.status).toBe(0);
 
-    const skills = existsSync(join(raiz, ".claude", "skills")) ? readdirSync(join(raiz, ".claude", "skills")) : [];
+    const skills = existsSync(join(root, ".claude", "skills")) ? readdirSync(join(root, ".claude", "skills")) : [];
     expect(skills.some((n) => n === "ask-matt" || n === "code-review")).toBe(true);
     expect(skills.some((n) => n.startsWith("specsfy-"))).toBe(true);
 
-    expect(existsSync(join(raiz, ".specsfy"))).toBe(true);
-    expect(existsSync(join(raiz, ".agents", "skills"))).toBe(true);
-    expect(existsSync(join(raiz, "CLAUDE.md"))).toBe(true);
-    expect(existsSync(join(raiz, "AGENTS.md"))).toBe(true);
+    expect(existsSync(join(root, ".specsfy"))).toBe(true);
+    expect(existsSync(join(root, ".agents", "skills"))).toBe(true);
+    expect(existsSync(join(root, "CLAUDE.md"))).toBe(true);
+    expect(existsSync(join(root, "AGENTS.md"))).toBe(true);
   }, 120_000);
 });

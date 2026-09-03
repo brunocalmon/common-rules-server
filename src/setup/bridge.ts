@@ -3,20 +3,21 @@ import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** Versão fixada do subsistema Python, verificada contra o PyPI em 2026-08-24. */
+/** Pinned version of the Python subsystem, checked against PyPI on 2026-08-24. */
 export const PYTHON_SUBSYSTEM = "code-review-graph";
 export const PINNED_VERSION = "2.3.7";
 
-/** Diretório do ambiente virtual, sempre dentro do projeto. */
+/** Virtual environment directory, always inside the project. */
 export const VENV_DIR = ".venv-crg";
 
 /**
- * Raiz do pacote `common-rules`, não do projeto alvo — mesma distinção que
- * `packageRoot()` já faz em `src/skills/executor.ts`/`src/specsfy/executor.ts`.
- * `doctor.ts`'s `defaultEnvironment()` já procura `.venv-crg` aqui, e não na
- * raiz do projeto alvo: os dois precisam concordar sobre onde a cópia local
- * vive, ou `doctor` continuaria relatando ausência depois de uma instalação
- * real bem-sucedida.
+ * The `common-rules` package's root, not the target project's — same
+ * distinction `packageRoot()` already makes in
+ * `src/skills/executor.ts`/`src/specsfy/executor.ts`. `doctor.ts`'s
+ * `defaultEnvironment()` already looks for `.venv-crg` here, not in the
+ * target project's root: the two need to agree on where the local copy
+ * lives, or `doctor` would keep reporting absence after a real,
+ * successful installation.
  */
 const packageRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -39,40 +40,41 @@ const commandExists = (name: string): boolean => {
 };
 
 export interface BridgeEnvironment {
-  /** Versão da cópia local do projeto, ou null. */
+  /** Version of the project's local copy, or null. */
   localVenv: string | null;
-  /** Versão alcançável pelo PATH, ou null. */
+  /** Version reachable via PATH, or null. */
   onPath: string | null;
-  /** Se `uv` está disponível para criar a cópia. */
+  /** Whether `uv` is available to create the copy. */
   hasUv: boolean;
 }
 
 export interface BridgeResult {
-  /** Especificador que seria instalado, ou null quando não há o que fazer. */
+  /** Specifier that would be installed, or null when there's nothing to do. */
   wouldInstall: string | null;
-  /** Diretório de destino, relativo ao projeto. */
+  /** Target directory, relative to the project. */
   targetDir: string;
-  /** Sempre falso: esta ferramenta não escreve no ambiente global. */
+  /** Always false: this tool never writes to the global environment. */
   touchesGlobal: boolean;
-  /** Motivo da recusa, quando houver. */
+  /** Refusal reason, when there is one. */
   refused: string | null;
-  /** Se a instalação chegou a ser executada. */
+  /** Whether the installation actually ran. */
   executed: boolean;
 }
 
 /**
- * Cria a cópia local do subsistema Python quando ela falta nas duas origens.
+ * Creates the Python subsystem's local copy when it's missing from both sources.
  *
- * Nunca escreve no ambiente global. `uv tool install` gravaria em
- * `~/.local/share/uv/tools/`, fora do projeto, e o ambiente da máquina é gerido
- * por um playbook declarativo cuja regra é que nada se instala manualmente.
- * Esta ponte usa ambiente virtual do projeto, que custa cerca de 262 MB e por
- * isso é criado sob pedido, e não a cada instalação.
+ * Never writes to the global environment. `uv tool install` would write to
+ * `~/.local/share/uv/tools/`, outside the project, and the machine's
+ * environment is managed by a declarative playbook whose rule is that
+ * nothing gets installed manually. This bridge uses the project's virtual
+ * environment, which costs about 262 MB and is therefore created on
+ * request, not on every installation.
  */
 export function bridgePythonSubsystem(opts: {
   env: BridgeEnvironment;
   execute: boolean;
-  /** Onde `.venv-crg/` é criado. Ausente, usa a raiz do pacote `common-rules` — o mesmo local que `doctor.ts` já verifica. */
+  /** Where `.venv-crg/` gets created. Absent, uses the `common-rules` package's root — the same place `doctor.ts` already checks. */
   cwd?: string;
 }): BridgeResult {
   const base: BridgeResult = {
@@ -83,15 +85,16 @@ export function bridgePythonSubsystem(opts: {
     executed: false,
   };
 
-  // A cópia local tem precedência: existindo, não há o que fazer.
+  // The local copy takes precedence: if it exists, there's nothing to do.
   if (opts.env.localVenv !== null) return base;
 
-  // A global serve para usar, mas não dispensa a ponte quando alguém a pede;
-  // quem decide é o chamador. Aqui, having-on-PATH também não exige ação.
+  // The global one is fine to use, but doesn't dismiss the bridge when
+  // someone asks for it; the caller decides that. Here, being on PATH
+  // doesn't require action either.
   if (opts.env.onPath !== null) return base;
 
   if (!opts.env.hasUv) {
-    return { ...base, refused: `${PYTHON_SUBSYSTEM} ausente e uv não está disponível para criar a cópia local` };
+    return { ...base, refused: `${PYTHON_SUBSYSTEM} is absent and uv isn't available to create the local copy` };
   }
 
   const spec = `${PYTHON_SUBSYSTEM}==${PINNED_VERSION}`;
@@ -103,17 +106,18 @@ export function bridgePythonSubsystem(opts: {
     execFileSync("uv", ["pip", "install", "--python", VENV_DIR, spec], { cwd, stdio: "inherit" });
     return { ...base, wouldInstall: spec, executed: true };
   } catch (error) {
-    // `uv venv` não depende de rede e já pode ter criado o diretório antes de
-    // `uv pip install` falhar (ex.: PyPI inacessível) — reportado como falha
-    // da ponte, nunca propagado como exceção não tratada.
-    const motivo = error instanceof Error ? error.message : String(error);
-    return { ...base, wouldInstall: spec, executed: false, refused: `instalação falhou: ${motivo}` };
+    // `uv venv` doesn't depend on the network and may have already
+    // created the directory before `uv pip install` fails (e.g. PyPI
+    // unreachable) — reported as a bridge failure, never propagated as
+    // an unhandled exception.
+    const reason = error instanceof Error ? error.message : String(error);
+    return { ...base, wouldInstall: spec, executed: false, refused: `installation failed: ${reason}` };
   }
 }
 
 /**
- * Ambiente real, usado pela linha de comando. Somente lê antes de decidir;
- * a escrita real fica inteiramente em `bridgePythonSubsystem`.
+ * Real environment, used by the command line. Only reads before deciding;
+ * the real write lives entirely in `bridgePythonSubsystem`.
  */
 export function realBridgeEnvironment(root: string = packageRoot()): BridgeEnvironment {
   return {

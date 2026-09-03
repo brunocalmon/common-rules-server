@@ -1,17 +1,18 @@
 /**
- * Origens aceitas para conjuntos de skills de engenharia, pelo mesmo instalador `skills`.
+ * Accepted sources for engineering skill sets, via the same `skills` installer.
  *
- * O autor de `mattpocock/skills` não publica no registro npm. O
- * `mattpocock-skills` que existe lá é publicação de terceiro, e o caminho que
- * o README do autor documenta é `npx skills@latest add mattpocock/skills`.
- * `promovaweb/specsfy` é a segunda origem oficial: é de lá que as skills do
- * próprio framework Specsfy chegam a `.claude/skills/`, pelo mesmo instalador
- * (`DEC-029`). Skills entram no contexto do agente como instruções, e por
- * isso a procedência é regra e não preferência.
+ * `mattpocock/skills`'s author doesn't publish to the npm registry. The
+ * `mattpocock-skills` package that exists there is a third-party publish,
+ * and the path the author's README documents is
+ * `npx skills@latest add mattpocock/skills`. `promovaweb/specsfy` is the
+ * second official source: it's where the Specsfy framework's own skills
+ * arrive at `.claude/skills/` from, via the same installer (`DEC-029`).
+ * Skills enter the agent's context as instructions, so provenance is a
+ * rule, not a preference.
  */
 export const OFFICIAL_SOURCE = "mattpocock/skills";
 
-/** As duas origens oficiais, na ordem em que o `setup` as instala. */
+/** The two official sources, in the order `setup` installs them. */
 export const OFFICIAL_SOURCES = [OFFICIAL_SOURCE, "promovaweb/specsfy"] as const;
 
 export type SourceCheck =
@@ -19,19 +20,19 @@ export type SourceCheck =
   | { ok: false; reason: string };
 
 /**
- * Aceita qualquer uma das origens oficiais e recusa as demais.
+ * Accepts either official source and refuses everything else.
  *
- * Devolve resultado em vez de lançar, para que quem chama escolha como
- * reportar. Não toca o sistema de arquivos, de modo que a regra seja
- * exercitável sem instalar nada.
+ * Returns a result instead of throwing, so the caller chooses how to
+ * report it. Doesn't touch the filesystem, so the rule is exercisable
+ * without installing anything.
  */
 export function resolveSource(input: unknown): SourceCheck {
-  const aceitas = OFFICIAL_SOURCES.join(", ");
+  const accepted = OFFICIAL_SOURCES.join(", ");
   if (typeof input !== "string" || input.length === 0) {
-    return { ok: false, reason: `origem não reconhecida: valor ausente. As aceitas são ${aceitas}` };
+    return { ok: false, reason: `unrecognized source: missing value. Accepted ones are ${accepted}` };
   }
   if (!(OFFICIAL_SOURCES as readonly string[]).includes(input)) {
-    return { ok: false, reason: `origem não reconhecida: ${input}. As aceitas são ${aceitas}` };
+    return { ok: false, reason: `unrecognized source: ${input}. Accepted ones are ${accepted}` };
   }
   return { ok: true, source: input };
 }

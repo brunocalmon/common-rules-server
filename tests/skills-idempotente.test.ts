@@ -1,35 +1,35 @@
 import { describe, it, expect } from "vitest";
 import { installSkills } from "../src/skills/install";
 import { readLock, toRecordEntries } from "../src/skills/record";
-import { arvore, projetoComSkills, executorFalso, CONJUNTO_MATTPOCOCK } from "./skills-fixtures";
+import { fileTree, projectWithSkills, fakeExecutor, MATTPOCOCK_SET } from "./skills-fixtures";
 
-describe("AC-029 — a segunda execução reconhece o estado", () => {
-  const duasVezes = async () => {
-    const raiz = projetoComSkills();
-    const opts = { root: raiz, source: "mattpocock/skills", execute: executorFalso("sucesso", raiz).fn };
+describe("AC-029 — the second run recognizes the state", () => {
+  const twice = async () => {
+    const root = projectWithSkills();
+    const opts = { root, source: "mattpocock/skills", execute: fakeExecutor("success", root).fn };
     await installSkills(opts);
-    const meio = arvore(raiz);
-    const segunda = await installSkills({ ...opts, previous: toRecordEntries(readLock(raiz)) });
-    return { raiz, meio, segunda };
+    const middle = fileTree(root);
+    const second = await installSkills({ ...opts, previous: toRecordEntries(readLock(root)) });
+    return { root, middle, second };
   };
 
   // SPECSFY: US-020 FR-023 AC-029
-  it("o registro mantém uma entrada por conjunto", async () => {
-    const { raiz } = await duasVezes();
-    const nomes = toRecordEntries(readLock(raiz)).map((e) => e.name);
-    expect(new Set(nomes).size).toBe(CONJUNTO_MATTPOCOCK.length);
-    expect(nomes.length).toBe(CONJUNTO_MATTPOCOCK.length);
+  it("the record keeps one entry per set", async () => {
+    const { root } = await twice();
+    const names = toRecordEntries(readLock(root)).map((e) => e.name);
+    expect(new Set(names).size).toBe(MATTPOCOCK_SET.length);
+    expect(names.length).toBe(MATTPOCOCK_SET.length);
   });
 
   // SPECSFY: US-020 NFR-020 AC-029
-  it("nenhum conteúdo instalado foi removido", async () => {
-    const { raiz, meio } = await duasVezes();
-    for (const caminho of meio) expect(arvore(raiz)).toContain(caminho);
+  it("no installed content was removed", async () => {
+    const { root, middle } = await twice();
+    for (const path of middle) expect(fileTree(root)).toContain(path);
   });
 
   // SPECSFY: US-020 FR-026 AC-029
-  it("a segunda execução não é relatada como instalação nova", async () => {
-    const { segunda } = await duasVezes();
-    expect(segunda.changed).toBe(false);
+  it("the second run isn't reported as a new install", async () => {
+    const { second } = await twice();
+    expect(second.changed).toBe(false);
   });
 });

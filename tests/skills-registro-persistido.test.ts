@@ -3,31 +3,31 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projetoComSkills, executorFalso, CONJUNTO_MATTPOCOCK } from "./skills-fixtures";
+import { projectWithSkills, fakeExecutor, MATTPOCOCK_SET } from "./skills-fixtures";
 
-/** Roda o setup completo, com o executor injetado, e devolve o registro gravado. */
-function registroGravado(): Record<string, unknown> {
-  const raiz = projetoComSkills();
+/** Runs the full setup, with the injected executor, and returns the written record. */
+function writtenRecord(): Record<string, unknown> {
+  const root = projectWithSkills();
   runSetup({
-    env: detectEnvironment(raiz),
-    root: raiz,
+    env: detectEnvironment(root),
+    root,
     write: true,
-    skills: { execute: executorFalso("sucesso", raiz).fn },
+    skills: { execute: fakeExecutor("success", root).fn },
   });
-  return JSON.parse(readFileSync(join(raiz, ".common-rules", "install.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
 }
 
-describe("AC-023 — o registro do projeto guarda a procedência dos conjuntos", () => {
+describe("AC-023 — the project record keeps the sets' provenance", () => {
   // SPECSFY: US-021 FR-023 AC-023
-  it("a lista skills existe no arquivo gravado", () => {
-    const reg = registroGravado();
-    expect(Array.isArray(reg["skills"])).toBe(true);
-    expect((reg["skills"] as unknown[]).length).toBe(CONJUNTO_MATTPOCOCK.length);
+  it("the skills list exists in the written file", () => {
+    const rec = writtenRecord();
+    expect(Array.isArray(rec["skills"])).toBe(true);
+    expect((rec["skills"] as unknown[]).length).toBe(MATTPOCOCK_SET.length);
   });
 
   // SPECSFY: US-021 FR-023 AC-023
-  it("cada entrada traz nome, origem, procedência e momento", () => {
-    for (const e of registroGravado()["skills"] as Record<string, unknown>[]) {
+  it("each entry carries name, source, provenance and instant", () => {
+    for (const e of writtenRecord()["skills"] as Record<string, unknown>[]) {
       expect(typeof e["name"]).toBe("string");
       expect(e["source"]).toBe("mattpocock/skills");
       expect(String(e["computedHash"])).toContain("hash-");
@@ -36,8 +36,8 @@ describe("AC-023 — o registro do projeto guarda a procedência dos conjuntos",
   });
 
   // SPECSFY: US-021 FR-023 AC-023
-  it("a lista hooks permanece como estava", () => {
-    const reg = registroGravado();
-    expect((reg["hooks"] as unknown[]).length).toBe(7);
+  it("the hooks list stays as it was", () => {
+    const rec = writtenRecord();
+    expect((rec["hooks"] as unknown[]).length).toBe(7);
   });
 });

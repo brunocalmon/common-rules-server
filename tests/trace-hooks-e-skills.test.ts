@@ -3,39 +3,39 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { origemFixa, INSTANTE_FIXO, ID_FIXO } from "./trace-fixtures";
-import { projetoComSkills, executorFalso } from "./skills-fixtures";
+import { fixedSource, FIXED_INSTANT, FIXED_ID } from "./trace-fixtures";
+import { projectWithSkills, fakeExecutor } from "./skills-fixtures";
 
-function registroCompleto(): Record<string, any> {
-  const raiz = projetoComSkills("crs-tr-sk-");
+function fullRecord(): Record<string, any> {
+  const root = projectWithSkills("crs-tr-sk-");
   runSetup({
-    env: detectEnvironment(raiz), root: raiz, write: true,
-    trace: origemFixa(),
-    skills: { execute: executorFalso("sucesso", raiz).fn },
+    env: detectEnvironment(root), root, write: true,
+    trace: fixedSource(),
+    skills: { execute: fakeExecutor("success", root).fn },
   });
-  return JSON.parse(readFileSync(join(raiz, ".common-rules", "install.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
 }
 
-describe("AC-051 — as duas listas do registro apontam a mesma execução", () => {
+describe("AC-051 — the record's two lists point to the same run", () => {
   // SPECSFY: US-040 FR-040 AC-051
-  it("o registro traz o identificador uma vez, para a execução inteira", () => {
-    expect(registroCompleto()["trace"]).toBe(ID_FIXO);
+  it("the record carries the identifier once, for the whole run", () => {
+    expect(fullRecord()["trace"]).toBe(FIXED_ID);
   });
 
   // SPECSFY: US-040 FR-041 AC-051
-  it("hooks e skills compartilham o mesmo instante", () => {
-    const reg = registroCompleto();
-    const instantes = new Set([
-      ...reg["hooks"].map((h: { installedAt: string }) => h.installedAt),
-      ...reg["skills"].map((s: { installedAt: string }) => s.installedAt),
+  it("hooks and skills share the same instant", () => {
+    const rec = fullRecord();
+    const instants = new Set([
+      ...rec["hooks"].map((h: { installedAt: string }) => h.installedAt),
+      ...rec["skills"].map((s: { installedAt: string }) => s.installedAt),
     ]);
-    expect([...instantes]).toEqual([INSTANTE_FIXO]);
+    expect([...instants]).toEqual([FIXED_INSTANT]);
   });
 
   // SPECSFY: US-040 FR-040 AC-051
-  it("as duas listas existem no mesmo registro", () => {
-    const reg = registroCompleto();
-    expect(reg["hooks"].length).toBe(7);
-    expect(reg["skills"].length).toBeGreaterThan(0);
+  it("both lists exist in the same record", () => {
+    const rec = fullRecord();
+    expect(rec["hooks"].length).toBe(7);
+    expect(rec["skills"].length).toBeGreaterThan(0);
   });
 });

@@ -8,35 +8,35 @@ import { translateForClaudeCode } from "../src/hooks/claude-code";
 
 const CORPUS = resolve(__dirname, "../resources/hooks");
 
-// Executa o guard de verdade. Verificar que o texto gerado contém a string
-// esperada não prova bloqueio: foi assim que o defeito da v0.2.8 passou.
-function rodarGuard(nome: string, comando: string): number {
-  const hook = readHook(readFileSync(resolve(CORPUS, `${nome}.md`), "utf8"));
+// Runs the real guard. Checking that the generated text contains the
+// expected string doesn't prove blocking: that's how the v0.2.8 defect got through.
+function runGuard(name: string, command: string): number {
+  const hook = readHook(readFileSync(resolve(CORPUS, `${name}.md`), "utf8"));
   const dir = mkdtempSync(join(tmpdir(), "guard-"));
-  const alvo = join(dir, "guard.sh");
-  writeFileSync(alvo, translateForClaudeCode(hook).script);
-  chmodSync(alvo, 0o755);
+  const target = join(dir, "guard.sh");
+  writeFileSync(target, translateForClaudeCode(hook).script);
+  chmodSync(target, 0o755);
   try {
-    execFileSync("bash", [alvo], { input: JSON.stringify({ command: comando }), encoding: "utf8" });
+    execFileSync("bash", [target], { input: JSON.stringify({ command }), encoding: "utf8" });
     return 0;
   } catch (e: unknown) {
     return (e as { status?: number }).status ?? 1;
   }
 }
 
-describe("AC-003 — trabalho comum continua permitido", () => {
+describe("AC-003 — ordinary work stays allowed", () => {
   // SPECSFY: US-002 FR-003 FR-006 AC-003
-  it("permite editar um arquivo de credencial, porque editar não é exibir", () => {
-    expect(rodarGuard("guard-secrets", "vim .env")).toBe(0);
+  it("allows editing a credential file, because editing isn't displaying", () => {
+    expect(runGuard("guard-secrets", "vim .env")).toBe(0);
   });
 
   // SPECSFY: US-002 FR-003 FR-006 AC-003
-  it("permite remoção comum de arquivo dentro do projeto", () => {
-    expect(rodarGuard("guard-destructive", "rm dist/cli.js")).toBe(0);
+  it("allows ordinary file removal inside the project", () => {
+    expect(runGuard("guard-destructive", "rm dist/cli.js")).toBe(0);
   });
 
   // SPECSFY: US-002 FR-006 AC-003
-  it("permite comando ordinário que apenas menciona o caminho protegido", () => {
-    expect(rodarGuard("guard-secrets", "grep -l KEY .env.example")).toBe(0);
+  it("allows an ordinary command that merely mentions the protected path", () => {
+    expect(runGuard("guard-secrets", "grep -l KEY .env.example")).toBe(0);
   });
 });

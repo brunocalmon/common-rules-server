@@ -1,33 +1,33 @@
 import { describe, it, expect } from "vitest";
 import { inspectDependencies } from "../src/doctor";
-import { projeto, gravarRegistro, registroAntigo, arvore } from "./trace-fixtures";
-import { semBackends } from "./backends-fixtures";
+import { project, writeRecord, oldRecord, fileTree } from "./trace-fixtures";
+import { noBackends } from "./backends-fixtures";
 
-const ambiente = { resolveNpm: () => "1.0.0", resolveLocalPython: () => "2.3.7", resolveOnPath: () => null };
-const semExtensoes = () => [];
+const env = { resolveNpm: () => "1.0.0", resolveLocalPython: () => "2.3.7", resolveOnPath: () => null };
+const noExtensions = () => [];
 
-function semTrace(): string {
-  const raiz = projeto();
-  gravarRegistro(raiz, registroAntigo());
-  return raiz;
+function withoutTrace(): string {
+  const root = project();
+  writeRecord(root, oldRecord());
+  return root;
 }
 
-describe("AC-047 — um registro gravado antes desta fatia é lido", () => {
+describe("AC-047 — a record written before this fatia is read", () => {
   // SPECSFY: US-041 FR-045 AC-047
-  it("a leitura ocorre sem erro", () => {
-    expect(() => inspectDependencies(ambiente, semTrace(), semBackends, semExtensoes)).not.toThrow();
+  it("the read happens without error", () => {
+    expect(() => inspectDependencies(env, withoutTrace(), noBackends, noExtensions)).not.toThrow();
   });
 
   // SPECSFY: US-041 FR-044 AC-047
-  it("o relato informa que a execução não foi identificada", () => {
-    expect(inspectDependencies(ambiente, semTrace(), semBackends, semExtensoes).trace?.kind).toBe("unidentified");
+  it("the report states the run wasn't identified", () => {
+    expect(inspectDependencies(env, withoutTrace(), noBackends, noExtensions).trace?.kind).toBe("unidentified");
   });
 
   // SPECSFY: US-041 NFR-042 AC-047
-  it("nada no disco é alterado pela leitura", () => {
-    const raiz = semTrace();
-    const antes = arvore(raiz);
-    inspectDependencies(ambiente, raiz, semBackends, semExtensoes);
-    expect(arvore(raiz)).toEqual(antes);
+  it("nothing on disk is changed by the read", () => {
+    const root = withoutTrace();
+    const before = fileTree(root);
+    inspectDependencies(env, root, noBackends, noExtensions);
+    expect(fileTree(root)).toEqual(before);
   });
 });

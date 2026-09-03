@@ -5,39 +5,39 @@ import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
 /**
- * Invoca o CLI através de um link simbólico real, no mesmo padrão que
- * `npm link` e `npm install -g` produzem para todo pacote instalado
- * globalmente. Execução direta do caminho real nunca exercitou este caso.
+ * Invokes the CLI through a real symlink, the same pattern `npm link` and
+ * `npm install -g` produce for every globally installed package. Direct
+ * execution of the real path never exercised this case.
  */
 function viaLink(...args: string[]): { stdout: string; stderr: string; status: number | null } {
-  const cliReal = resolve(__dirname, "..", "dist", "cli.js");
+  const realCli = resolve(__dirname, "..", "dist", "cli.js");
   const dir = mkdtempSync(join(tmpdir(), "crs-link-"));
   const link = join(dir, "common-rules");
-  symlinkSync(cliReal, link);
+  symlinkSync(realCli, link);
   const r = spawnSync("node", [link, ...args], { encoding: "utf8" });
   return { stdout: r.stdout, stderr: r.stderr, status: r.status };
 }
 
-describe("AC-008 — o binário responde quando invocado por link simbólico", () => {
+describe("AC-008 — the binary responds when invoked via symlink", () => {
   // SPECSFY: US-001 FR-005 AC-008
-  it("--version produz saída e sai com zero", () => {
+  it("--version produces output and exits with zero", () => {
     const r = viaLink("--version");
     expect(r.status).toBe(0);
     expect(r.stdout.trim().length).toBeGreaterThan(0);
   });
 
   // SPECSFY: US-002 FR-006 AC-008
-  it("doctor produz saída", () => {
+  it("doctor produces output", () => {
     const r = viaLink("doctor");
     expect((r.stdout + r.stderr).trim().length).toBeGreaterThan(0);
   });
 
   // SPECSFY: US-001 US-002 NFR-003 AC-008
-  it("a saída por link coincide com a saída por caminho direto", () => {
-    const cliReal = resolve(__dirname, "..", "dist", "cli.js");
-    const direto = spawnSync("node", [cliReal, "--version"], { encoding: "utf8" });
+  it("the output via link matches the output via the direct path", () => {
+    const realCli = resolve(__dirname, "..", "dist", "cli.js");
+    const direct = spawnSync("node", [realCli, "--version"], { encoding: "utf8" });
     const link = viaLink("--version");
-    expect(link.stdout).toBe(direto.stdout);
-    expect(link.status).toBe(direto.status);
+    expect(link.stdout).toBe(direct.stdout);
+    expect(link.status).toBe(direct.status);
   });
 });

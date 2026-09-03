@@ -1,14 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { detectBackends } from "../src/backends/detect";
-import { fonteFake } from "./backends-fixtures";
+import { sourceFake } from "./backends-fixtures";
 
-describe("AC-087 — resolução de versão nunca interpreta --help", () => {
+describe("AC-087 — version resolution never interprets --help", () => {
   // SPECSFY: FR-030 NFR-030 AC-087
-  it("a única flag usada é --version; --help nunca é consultado", () => {
-    const { env, chamadas } = fonteFake({ claude: "2.1.251" });
+  it("the only flag used is --version; --help is never consulted", () => {
+    const { env, calls } = sourceFake({ claude: "2.1.251" });
     detectBackends(env);
-    expect(chamadas.some((c) => c.tipo === "version")).toBe(true);
-    const tiposUsados = new Set(chamadas.map((c) => c.tipo));
-    expect([...tiposUsados].sort()).toEqual(["presence", "version"]);
+    expect(calls.some((c) => c.kind === "version")).toBe(true);
+    const usedKinds = new Set(calls.map((c) => c.kind));
+    expect([...usedKinds].sort()).toEqual(["presence", "version"]);
   });
 });

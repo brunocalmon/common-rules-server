@@ -3,30 +3,30 @@ import { runSetup } from "../src/setup/run";
 
 const env = { hasClaudeCode: true, files: [".claude/settings.json"] };
 
-describe("AC-005 — reexecutar não duplica", () => {
+describe("AC-005 — rerunning doesn't duplicate", () => {
   // SPECSFY: US-003 FR-007 NFR-002 AC-005
-  it("deixa a configuração do alvo idêntica na segunda execução", () => {
-    const um = runSetup({ env, write: true });
-    const dois = runSetup({ env, write: true, previous: um.record });
-    expect(dois.settings).toEqual(um.settings);
+  it("leaves the target's configuration identical on the second run", () => {
+    const one = runSetup({ env, write: true });
+    const two = runSetup({ env, write: true, previous: one.record });
+    expect(two.settings).toEqual(one.settings);
   });
 
   // SPECSFY: US-003 FR-007 AC-005
-  it("relata que já estava configurado", () => {
-    const um = runSetup({ env, write: true });
-    expect(runSetup({ env, write: true, previous: um.record }).report).toMatch(/já|inalterad/i);
+  it("reports it was already configured", () => {
+    const one = runSetup({ env, write: true });
+    expect(runSetup({ env, write: true, previous: one.record }).report).toMatch(/already|unchanged/i);
   });
 
   // SPECSFY: US-003 FR-005 NFR-002 AC-005
-  it("não acrescenta entrada duplicada ao registro", () => {
-    const um = runSetup({ env, write: true });
-    const dois = runSetup({ env, write: true, previous: um.record });
-    expect(dois.record.hooks).toHaveLength(7);
+  it("doesn't add a duplicate entry to the record", () => {
+    const one = runSetup({ env, write: true });
+    const two = runSetup({ env, write: true, previous: one.record });
+    expect(two.record.hooks).toHaveLength(7);
   });
 
   // SPECSFY: US-003 FR-008 AC-005
-  it("não recria a cópia local que já existe", () => {
-    const um = runSetup({ env, write: true });
-    expect(runSetup({ env, write: true, previous: um.record }).bridged).toBe(false);
+  it("doesn't recreate the local copy that already exists", () => {
+    const one = runSetup({ env, write: true });
+    expect(runSetup({ env, write: true, previous: one.record }).bridged).toBe(false);
   });
 });

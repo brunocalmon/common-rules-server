@@ -5,10 +5,10 @@ import { fileURLToPath } from "node:url";
 import type { Executor } from "./install.js";
 import { buildSpecsfyInstallArgs } from "./install.js";
 
-/** Raiz do pacote `common-rules`, não do projeto alvo. */
+/** The `common-rules` package's root, not the target project's. */
 const packageRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-/** Devolve o binário local do pacote `@promovaweb/specsfy`, ou nulo quando ausente. */
+/** Returns the local `@promovaweb/specsfy` package binary, or null when absent. */
 export function resolveSpecsfyBin(root: string = packageRoot()): string | null {
   const bin = resolve(root, "node_modules", "@promovaweb", "specsfy", "bin", "specsfy.cjs");
   return existsSync(bin) ? bin : null;
@@ -20,18 +20,18 @@ interface SpecsfyJson {
 }
 
 /**
- * Executor real do instalador de projeto do Specsfy, por subprocesso.
+ * Real executor for Specsfy's project installer, via subprocess.
  *
- * Ao contrário do `skills`, a saída é JSON estável: `{"changed", "paths"}`.
- * Saída não parseável como JSON, ou status diferente de zero, é falha —
- * nunca sucesso silencioso.
+ * Unlike `skills`, the output is stable JSON: `{"changed", "paths"}`.
+ * Output that doesn't parse as JSON, or a non-zero status, is a failure —
+ * never silent success.
  */
 export function realSpecsfyExecutor(root: string = packageRoot()): Executor {
   const bin = resolveSpecsfyBin(root);
-  return (raiz) => {
+  return (targetRoot) => {
     if (bin === null) return null;
-    const r = spawnSync(bin, buildSpecsfyInstallArgs(raiz), {
-      cwd: raiz,
+    const r = spawnSync(bin, buildSpecsfyInstallArgs(targetRoot), {
+      cwd: targetRoot,
       encoding: "utf8",
       timeout: 120_000,
     });
@@ -48,12 +48,13 @@ export function realSpecsfyExecutor(root: string = packageRoot()): Executor {
 }
 
 /**
- * O comando que `realSpecsfyExecutor` de fato dispararia para `projectRoot`,
- * sem executar nada — para o plano de aprovação (fatia 1i, `PR-062`). `null`
- * quando o binário não existe, mesma convenção de `Executor`. `pkgRoot` é a
- * raiz do pacote `common-rules` (para resolver o binário), distinta de
- * `projectRoot` (o projeto alvo, que entra no argv via `--project`) — a
- * mesma distinção que `realSpecsfyExecutor(root)`/`(raiz) => ...` já fazia.
+ * The command `realSpecsfyExecutor` would actually fire for `projectRoot`,
+ * without running anything — for the approval plan (fatia 1i, `PR-062`).
+ * `null` when the binary doesn't exist, same convention as `Executor`.
+ * `pkgRoot` is the `common-rules` package's root (to resolve the binary),
+ * distinct from `projectRoot` (the target project, which goes into the
+ * argv via `--project`) — the same distinction
+ * `realSpecsfyExecutor(root)`/`(targetRoot) => ...` already made.
  */
 export function describeSpecsfyCommand(
   projectRoot: string,

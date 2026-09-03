@@ -3,10 +3,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-/** Camada a que a dependência pertence. `agent`, da fatia 1d, é informativa — nunca afeta `exitCode`. */
+/** Layer the dependency belongs to. `agent`, from fatia 1d, is informative — never affects `exitCode`. */
 export type Layer = "npm" | "python" | "agent";
 
-/** Origem que resolveu a dependência. Local sempre tem precedência sobre global. */
+/** Origin that resolved the dependency. Local always takes precedence over global. */
 export type Origin = "local" | "global";
 
 export interface DependencyResult {
@@ -16,7 +16,7 @@ export interface DependencyResult {
   origin: Origin | null;
   version: string | null;
   hint?: string;
-  /** Só para `layer: "agent"`: capacidade de invocação sem interação demonstrada (SPEC-0008). */
+  /** Only for `layer: "agent"`: demonstrated hands-off invocation capability (SPEC-0008). */
   supported?: boolean;
 }
 
@@ -30,30 +30,30 @@ import { diagnoseExtensions, type DivergentArtifact } from "./extensions/diagnos
 export interface Report {
   results: DependencyResult[];
   exitCode: number;
-  /** Conjuntos de skills registrados, quando uma raiz é informada. */
+  /** Registered skill sets, when a root is given. */
   skills?: SkillReportRow[];
-  /** Declaração do alcance da garantia sobre os conjuntos. */
+  /** Statement of the guarantee's scope for the sets. */
   note?: string;
-  /** Identificador da última execução registrada, quando uma raiz é informada. */
+  /** Identifier of the last recorded run, when a root is given. */
   trace?: TraceRead;
-  /** Artefato de extensão divergente, quando uma raiz é informada — nunca repara, só relata (`PR-082`). */
+  /** Divergent extension artifact, when a root is given — never repairs, only reports (`PR-082`). */
   divergentExtensions?: DivergentArtifact[];
 }
 
 /**
- * Fontes de resolução, injetadas para que a verificação seja testável.
+ * Resolution sources, injected so the check is testable.
  *
- * Sem injeção, um teste consultaria o PATH real e provaria apenas em que
- * máquina rodou.
+ * Without injection, a test would consult the real PATH and would only
+ * prove which machine it ran on.
  */
 export interface Environment {
-  /** Versão do pacote npm em node_modules do projeto, ou null. */
+  /** Version of the npm package in the project's node_modules, or null. */
   resolveNpm(name: string): string | null;
-  /** Versão do pacote npm instalado globalmente, ou null. */
+  /** Version of the globally installed npm package, or null. */
   resolveGlobalNpm?(name: string): string | null;
-  /** Versão do subsistema Python no ambiente virtual do projeto, ou null. */
+  /** Version of the Python subsystem in the project's virtual environment, or null. */
   resolveLocalPython(): string | null;
-  /** Versão do subsistema Python alcançável pelo PATH, ou null. */
+  /** Version of the Python subsystem reachable via PATH, or null. */
   resolveOnPath(): string | null;
 }
 
@@ -61,12 +61,12 @@ export const NPM_SUBSYSTEMS = ["@promovaweb/specsfy", "context-mode"] as const;
 export const PYTHON_SUBSYSTEM = "code-review-graph";
 
 const NPM_HINT =
-  "declarado em dependencies; resolva-o localmente com uma instalação do projeto, sem instalar globalmente";
+  "declared in dependencies; resolve it locally with a project install, without installing globally";
 const PYTHON_HINT =
-  `${PYTHON_SUBSYSTEM} é ferramenta Python instalada por uv, e não um pacote npm; ` +
-  "crie a cópia local do projeto pela ponte explícita do setup, ou deixe-a disponível no PATH";
+  `${PYTHON_SUBSYSTEM} is a Python tool installed by uv, not an npm package; ` +
+  "create the project's local copy via setup's explicit bridge, or make it available on PATH";
 
-/** Aplica a regra de resolução: preferir a local, aceitar a global. */
+/** Applies the resolution rule: prefer local, accept global. */
 function pick(local: string | null, global: string | null): { origin: Origin | null; version: string | null } {
   if (local !== null) return { origin: "local", version: local };
   if (global !== null) return { origin: "global", version: global };
@@ -74,10 +74,10 @@ function pick(local: string | null, global: string | null): { origin: Origin | n
 }
 
 /**
- * Verifica as três dependências do projeto e relata origem e versão de cada uma.
+ * Checks the project's three dependencies and reports each one's origin and version.
  *
- * Não instala nada, em nenhuma origem: instalar pertence ao setup, e o ambiente
- * de destino é gerido por um playbook declarativo.
+ * Installs nothing, from any origin: installing belongs to setup, and the
+ * target environment is managed by a declarative playbook.
  */
 export function inspectDependencies(
   env: Environment,
@@ -104,8 +104,8 @@ export function inspectDependencies(
     ...(present ? {} : { hint: PYTHON_HINT }),
   });
 
-  // Camada informativa: backend de agente nunca instalado por este projeto
-  // (PR-031), então ausência nunca entra em `dependenciasOk` (PR-032).
+  // Informative layer: agent backend never installed by this project
+  // (PR-031), so absence never enters `dependenciesOk` (PR-032).
   for (const backend of detectBackends(backendEnv)) {
     results.push({
       name: backend.name,
@@ -117,25 +117,25 @@ export function inspectDependencies(
     });
   }
 
-  const dependenciasOk = results.filter((r) => r.layer !== "agent").every((r) => r.present);
-  if (root === undefined) return { results, exitCode: dependenciasOk ? 0 : 1 };
+  const dependenciesOk = results.filter((r) => r.layer !== "agent").every((r) => r.present);
+  if (root === undefined) return { results, exitCode: dependenciesOk ? 0 : 1 };
 
-  // Somente leitura: o `doctor` relata a deriva e não a repara. Reparo
-  // destrutivo permanece fora de escopo.
-  const conjuntos = reportSkills(root);
+  // Read-only: `doctor` reports drift and doesn't repair it. Destructive
+  // repair remains out of scope.
+  const sets = reportSkills(root);
 
-  // Divergência de extensão é responsabilidade do próprio common-rules, não
-  // de uma dependência de terceiro — entra no exitCode diretamente, ao
-  // contrário da camada `agent` (`DEC-084`).
-  const divergentes = diagnoseExtensionsFn(root);
+  // Extension divergence is common-rules' own responsibility, not a
+  // third-party dependency's — it enters the exitCode directly, unlike
+  // the `agent` layer (`DEC-084`).
+  const divergent = diagnoseExtensionsFn(root);
 
   return {
     results,
-    skills: conjuntos.results,
-    note: conjuntos.note,
+    skills: sets.results,
+    note: sets.note,
     trace: readTrace(root),
-    divergentExtensions: divergentes,
-    exitCode: dependenciasOk && conjuntos.exitCode === 0 && divergentes.length === 0 ? 0 : 1,
+    divergentExtensions: divergent,
+    exitCode: dependenciesOk && sets.exitCode === 0 && divergent.length === 0 ? 0 : 1,
   };
 }
 
@@ -156,7 +156,7 @@ const probe = (command: string, args: string[]): string | null => {
   }
 };
 
-/** Fonte real, usada pela linha de comando — o único lugar que toca disco para diagnosticar extensão. */
+/** Real source, used by the command line — the only place that touches disk to diagnose an extension. */
 function realDiagnoseExtensions(root: string): DivergentArtifact[] {
   return diagnoseExtensions(
     readExtensionRegistry(realChecksumEnvironment(root)),
@@ -165,7 +165,7 @@ function realDiagnoseExtensions(root: string): DivergentArtifact[] {
   );
 }
 
-/** Ambiente real, usado pela linha de comando. Somente lê; nunca instala. */
+/** Real environment, used by the command line. Only reads; never installs. */
 export function defaultEnvironment(root: string = projectRoot()): Environment {
   return {
     resolveNpm: (name) => readInstalledVersion(resolve(root, "node_modules", name, "package.json")),

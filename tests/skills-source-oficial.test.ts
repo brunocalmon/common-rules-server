@@ -3,29 +3,29 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { resolveSource, OFFICIAL_SOURCE } from "../src/skills/source";
 import { toRecordEntries, readLock } from "../src/skills/record";
-import { projetoComSkills, escreverLock, CONJUNTO_MATTPOCOCK } from "./skills-fixtures";
+import { projectWithSkills, writeLock, MATTPOCOCK_SET } from "./skills-fixtures";
 
-describe("AC-034 — a origem gravada no registro é a oficial", () => {
+describe("AC-034 — the source written in the record is the official one", () => {
   // SPECSFY: US-021 FR-025 AC-034
-  it("a origem oficial é aceita", () => {
+  it("the official source is accepted", () => {
     expect(resolveSource(OFFICIAL_SOURCE).ok).toBe(true);
   });
 
   // SPECSFY: US-021 FR-023 AC-034
-  it("as entradas do registro trazem a origem lida do lockfile", () => {
-    const raiz = projetoComSkills();
-    escreverLock(raiz, CONJUNTO_MATTPOCOCK);
-    const entradas = toRecordEntries(readLock(raiz));
-    expect(entradas).toHaveLength(CONJUNTO_MATTPOCOCK.length);
-    for (const e of entradas) expect(e.source).toBe(OFFICIAL_SOURCE);
+  it("the record's entries carry the source read from the lockfile", () => {
+    const root = projectWithSkills();
+    writeLock(root, MATTPOCOCK_SET);
+    const entries = toRecordEntries(readLock(root));
+    expect(entries).toHaveLength(MATTPOCOCK_SET.length);
+    for (const e of entries) expect(e.source).toBe(OFFICIAL_SOURCE);
   });
 
   // SPECSFY: US-021 FR-023 FR-025 AC-034
-  it("nenhuma outra origem aparece no registro", () => {
-    const raiz = projetoComSkills();
-    escreverLock(raiz, CONJUNTO_MATTPOCOCK);
-    const bruto = JSON.parse(readFileSync(join(raiz, "skills-lock.json"), "utf8"));
-    const origens = new Set(Object.values<{ source: string }>(bruto.skills).map((s) => s.source));
-    expect([...origens]).toEqual([OFFICIAL_SOURCE]);
+  it("no other source appears in the record", () => {
+    const root = projectWithSkills();
+    writeLock(root, MATTPOCOCK_SET);
+    const raw = JSON.parse(readFileSync(join(root, "skills-lock.json"), "utf8"));
+    const sources = new Set(Object.values<{ source: string }>(raw.skills).map((s) => s.source));
+    expect([...sources]).toEqual([OFFICIAL_SOURCE]);
   });
 });

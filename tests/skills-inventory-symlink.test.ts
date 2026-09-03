@@ -1,26 +1,26 @@
 import { describe, it, expect } from "vitest";
 import { inspectSkills } from "../src/skills/inventory";
-import { projetoComSkills, trocarPorLink } from "./skills-fixtures";
+import { projectWithSkills, replaceWithSymlink } from "./skills-fixtures";
 
-describe("AC-033 — um conjunto presente como link é tratado como inválido", () => {
+describe("AC-033 — a set present as a link is treated as invalid", () => {
   // SPECSFY: US-020 FR-021 AC-033
-  it("o link é detectado", () => {
-    const raiz = projetoComSkills();
-    trocarPorLink(raiz, "specsfy-setup");
-    expect(inspectSkills(raiz).symlinks.length).toBeGreaterThan(0);
+  it("the link is detected", () => {
+    const root = projectWithSkills();
+    replaceWithSymlink(root, "specsfy-setup");
+    expect(inspectSkills(root).symlinks.length).toBeGreaterThan(0);
   });
 
   // SPECSFY: US-020 FR-022 AC-033
-  it("o resultado é inválido", () => {
-    const raiz = projetoComSkills();
-    trocarPorLink(raiz, "specsfy-setup");
-    expect(inspectSkills(raiz).ok).toBe(false);
+  it("the result is invalid", () => {
+    const root = projectWithSkills();
+    replaceWithSymlink(root, "specsfy-setup");
+    expect(inspectSkills(root).ok).toBe(false);
   });
 
   // SPECSFY: US-020 NFR-022 AC-033
-  it("a razão cita que o conteúdo precisa viver dentro do projeto", () => {
-    const raiz = projetoComSkills();
-    trocarPorLink(raiz, "specsfy-setup");
-    expect(inspectSkills(raiz).reason ?? "").toMatch(/dentro do projeto|link/i);
+  it("the reason cites that the content needs to live inside the project", () => {
+    const root = projectWithSkills();
+    replaceWithSymlink(root, "specsfy-setup");
+    expect(inspectSkills(root).reason ?? "").toMatch(/inside the project|link/i);
   });
 });

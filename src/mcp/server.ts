@@ -2,24 +2,23 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { readVersion } from "../version.js";
 import { TOOL_NAME, TOOL_DESCRIPTION, inputShape, outputShape, executeSetup } from "./tool.js";
 
-/** Nome com que o servidor se identifica no handshake. */
+/** Name the server identifies itself with in the handshake. */
 export const SERVER_NAME = "common-rules";
 
 /**
- * Monta o servidor com a única tool desta fatia.
+ * Assembles the server with this fatia's single tool.
  *
- * A versão vem de `readVersion()`, a mesma fonte que o comando de terminal
- * reporta, para que os dois pontos de entrada não possam divergir por
- * esquecimento.
+ * The version comes from `readVersion()`, the same source the terminal
+ * command reports, so the two entry points can't drift apart by accident.
  */
 export function createServer(): McpServer {
-  const servidor = new McpServer({ name: SERVER_NAME, version: readVersion() });
+  const server = new McpServer({ name: SERVER_NAME, version: readVersion() });
 
-  servidor.registerTool(
+  server.registerTool(
     TOOL_NAME,
     { description: TOOL_DESCRIPTION, inputSchema: inputShape, outputSchema: outputShape },
     async (args) => executeSetup(args),
   );
 
-  return servidor;
+  return server;
 }

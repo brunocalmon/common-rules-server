@@ -4,9 +4,9 @@ import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projeto, decisaoFixa } from "./aprovacao-fixtures";
+import { project, fixedDecision } from "./aprovacao-fixtures";
 
-const temUv = (): boolean => {
+const hasUv = (): boolean => {
   try {
     execFileSync("which", ["uv"], { stdio: ["ignore", "ignore", "ignore"] });
     return true;
@@ -15,22 +15,23 @@ const temUv = (): boolean => {
   }
 };
 
-describe("AC-116 — a ponte Python executa de verdade quando aprovada", () => {
+describe("AC-116 — the Python bridge actually runs when approved", () => {
   // SPECSFY: US-072 FR-074 NFR-072 AC-116
-  it("com code-review-graph ausente das duas origens e uv disponível, .venv-crg é criado de verdade", () => {
-    if (!temUv()) return;
-    const raiz = projeto();
+  it("with code-review-graph absent from both sources and uv available, .venv-crg is really created", () => {
+    if (!hasUv()) return;
+    const root = project();
     runSetup({
-      env: detectEnvironment(raiz),
-      root: raiz,
+      env: detectEnvironment(root),
+      root,
       write: true,
       bridgeEnv: { localVenv: null, onPath: null, hasUv: true },
-      // Descartável: sem isto, a ponte real criaria .venv-crg na raiz do
-      // próprio pacote common-rules (onde `doctor.ts` de fato a procura),
-      // poluindo este repositório como efeito colateral de rodar a suíte.
-      bridgeCwd: raiz,
-      approval: { source: decisaoFixa(true) },
+      // Disposable: without this, the real bridge would create .venv-crg
+      // at the common-rules package's own root (where `doctor.ts` actually
+      // looks for it), polluting this repository as a side effect of
+      // running the suite.
+      bridgeCwd: root,
+      approval: { source: fixedDecision(true) },
     });
-    expect(existsSync(join(raiz, ".venv-crg"))).toBe(true);
+    expect(existsSync(join(root, ".venv-crg"))).toBe(true);
   }, 120_000);
 });

@@ -3,42 +3,42 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projeto } from "./aprovacao-fixtures";
+import { project } from "./aprovacao-fixtures";
 
-describe("AC-065 — o documento autoriza a execução", () => {
-  const rodar = (raiz: string) => runSetup({
-    env: detectEnvironment(raiz), root: raiz, write: true,
+describe("AC-065 — the document authorizes the run", () => {
+  const run = (root: string) => runSetup({
+    env: detectEnvironment(root), root, write: true,
     approval: { context: { hasTerminal: () => false }, stdin: { read: () => '{"approved": true}' } },
   });
 
   // SPECSFY: US-061 FR-062 AC-065
-  it("o documento é de fato lido antes de decidir", () => {
-    const raiz = projeto();
-    let lido = 0;
+  it("the document is actually read before deciding", () => {
+    const root = project();
+    let readCount = 0;
     runSetup({
-      env: detectEnvironment(raiz), root: raiz, write: true,
-      approval: { context: { hasTerminal: () => false }, stdin: { read: () => { lido += 1; return '{"approved": true}'; } } },
+      env: detectEnvironment(root), root, write: true,
+      approval: { context: { hasTerminal: () => false }, stdin: { read: () => { readCount += 1; return '{"approved": true}'; } } },
     });
-    expect(lido).toBe(1);
+    expect(readCount).toBe(1);
   });
 
   // SPECSFY: US-061 FR-062 AC-065
-  it("a execução ocorre", () => {
-    const raiz = projeto();
-    expect(rodar(raiz).exitCode).toBe(0);
+  it("the run happens", () => {
+    const root = project();
+    expect(run(root).exitCode).toBe(0);
   });
 
   // SPECSFY: US-061 FR-062 AC-065
-  it("os arquivos previstos existem", () => {
-    const raiz = projeto();
-    rodar(raiz);
-    expect(existsSync(join(raiz, ".claude", "settings.json"))).toBe(true);
-    expect(existsSync(join(raiz, ".common-rules", "install.json"))).toBe(true);
+  it("the expected files exist", () => {
+    const root = project();
+    run(root);
+    expect(existsSync(join(root, ".claude", "settings.json"))).toBe(true);
+    expect(existsSync(join(root, ".common-rules", "install.json"))).toBe(true);
   });
 
   // SPECSFY: US-061 FR-062 AC-065
-  it("o número de hooks instalados é o esperado", () => {
-    const raiz = projeto();
-    expect(rodar(raiz).installed.length).toBe(7);
+  it("the number of installed hooks is as expected", () => {
+    const root = project();
+    expect(run(root).installed.length).toBe(7);
   });
 });

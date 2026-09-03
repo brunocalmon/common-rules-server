@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { recommend } from "../src/models/recommend";
-import { backendsFake, modeloFake, capacidadeFake, ollamaPresente } from "./models-fixtures";
+import { backendsFake, modelFake, capacityFake, ollamaPresent } from "./models-fixtures";
 
-const VARIAVEIS_DE_CREDENCIAL = [
+const CREDENTIAL_VARIABLES = [
   "ANTHROPIC_API_KEY",
   "OPENAI_API_KEY",
   "GOOGLE_API_KEY",
@@ -10,26 +10,26 @@ const VARIAVEIS_DE_CREDENCIAL = [
   "CLAUDE_API_KEY",
 ];
 
-describe("AC-102 — nenhuma variável de ambiente de credencial é lida durante o cálculo", () => {
+describe("AC-102 — no credential environment variable is read during the calculation", () => {
   // SPECSFY: FR-037 NFR-033 NFR-034 NFR-035 AC-102
-  it("o resultado não muda em função da ausência dessas variáveis, sem lançar exceção", () => {
-    const originais = VARIAVEIS_DE_CREDENCIAL.map((nome) => [nome, process.env[nome]] as const);
+  it("the result doesn't change based on the absence of these variables, without throwing", () => {
+    const original = CREDENTIAL_VARIABLES.map((name) => [name, process.env[name]] as const);
     try {
-      for (const nome of VARIAVEIS_DE_CREDENCIAL) process.env[nome] = "valor-fake-presente";
-      const modelos = [modeloFake("qwen2.5:3b", 2)];
-      const comCredenciais = recommend(backendsFake(["pi"]), ollamaPresente(modelos), capacidadeFake(10));
+      for (const name of CREDENTIAL_VARIABLES) process.env[name] = "fake-present-value";
+      const models = [modelFake("qwen2.5:3b", 2)];
+      const withCredentials = recommend(backendsFake(["pi"]), ollamaPresent(models), capacityFake(10));
 
-      for (const nome of VARIAVEIS_DE_CREDENCIAL) delete process.env[nome];
-      let semCredenciais;
+      for (const name of CREDENTIAL_VARIABLES) delete process.env[name];
+      let withoutCredentials;
       expect(() => {
-        semCredenciais = recommend(backendsFake(["pi"]), ollamaPresente(modelos), capacidadeFake(10));
+        withoutCredentials = recommend(backendsFake(["pi"]), ollamaPresent(models), capacityFake(10));
       }).not.toThrow();
 
-      expect(semCredenciais).toEqual(comCredenciais);
+      expect(withoutCredentials).toEqual(withCredentials);
     } finally {
-      for (const [nome, valor] of originais) {
-        if (valor === undefined) delete process.env[nome];
-        else process.env[nome] = valor;
+      for (const [name, value] of original) {
+        if (value === undefined) delete process.env[name];
+        else process.env[name] = value;
       }
     }
   });

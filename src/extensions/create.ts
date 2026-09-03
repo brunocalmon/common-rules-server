@@ -5,24 +5,24 @@ import { readExtensionRegistry, writeExtensionRegistry } from "./registry.js";
 import { insertAnchor, computeChecksum } from "./anchor.js";
 
 /**
- * Fonte de leitura/escrita do arquivo alvo, injetada — mesmo padrão das
- * demais fontes de resolução deste projeto.
+ * Read/write source for the target file, injected — same pattern as this
+ * project's other resolution sources.
  */
 export interface TargetFileEnvironment {
   read(path: string): string;
   write(path: string, content: string): void;
 }
 
-const ROTEADOR_ARQUIVOS = new Set(["CLAUDE.md", "AGENTS.md"]);
+const ROUTER_FILES = new Set(["CLAUDE.md", "AGENTS.md"]);
 
-/** Qual arquivo `target` resolve — a raiz para CLAUDE.md/AGENTS.md, um artefato próprio para o resto. */
+/** Which file `target` resolves to — the root for CLAUDE.md/AGENTS.md, its own artifact for everything else. */
 export function resolveTargetPath(target: string): string {
-  return ROTEADOR_ARQUIVOS.has(target) ? target : `.common-rules/extensions/${target}.md`;
+  return ROUTER_FILES.has(target) ? target : `.common-rules/extensions/${target}.md`;
 }
 
 export const EXTENSIONS_DIR = ".common-rules/extensions";
 
-/** Ambiente real, usado pela linha de comando. Somente lê/escreve os caminhos resolvidos, nunca mais. */
+/** Real environment, used by the command line. Only reads/writes the resolved paths, never more. */
 export function realTargetFileEnvironment(root: string): TargetFileEnvironment {
   return {
     read: (path: string) => {
@@ -37,7 +37,7 @@ export function realTargetFileEnvironment(root: string): TargetFileEnvironment {
   };
 }
 
-/** Nomes dos arquivos presentes em `.common-rules/extensions/`, sem a extensão `.md` — usado pelo `doctor` para achar artefato sem registro (`AC-135`). */
+/** Names of the files present in `.common-rules/extensions/`, without the `.md` extension — used by `doctor` to find an artifact with no record (`AC-135`). */
 export function listPresentExtensionNames(root: string): string[] {
   const dir = join(root, EXTENSIONS_DIR);
   if (!existsSync(dir)) return [];
@@ -53,12 +53,12 @@ export interface CreateOptions {
   content: string;
   registryEnv: ChecksumEnvironment;
   targetEnv: TargetFileEnvironment;
-  /** Nomes dos sete hooks gerenciados. Ausente, resolve para `[]` — quem chama do `setup` real passa a lista real. */
+  /** Names of the seven managed hooks. Absent, resolves to `[]` — the real `setup` caller passes the real list. */
   managedHooks?: string[];
   /**
-   * Origem do instante gravado em `createdAt`. Ausente, usa `Date.now`
-   * real — existe para não repetir o defeito que a `SPEC-0006` já corrigiu
-   * (instante congelado ou não injetável em teste).
+   * Source of the instant recorded in `createdAt`. Absent, uses the real
+   * `Date.now` — exists to avoid repeating the defect `SPEC-0006` already
+   * fixed (a frozen or non-injectable instant in tests).
    */
   now?: () => string;
 }
@@ -70,33 +70,33 @@ export interface CreateResult {
 }
 
 /**
- * Cria um artefato de extensão pelo único caminho de escrita — grava a
- * âncora no arquivo alvo e registra o checksum. Recusa `new` para um dos
- * sete hooks gerenciados (`FR-081`) e conflito de nome sem escolha padrão
- * (`FR-082`).
+ * Creates an extension artifact via the sole write path — writes the
+ * anchor into the target file and records the checksum. Refuses `new`
+ * for one of the seven managed hooks (`FR-081`) and a name conflict with
+ * no default choice (`FR-082`).
  */
 export function createExtension(opts: CreateOptions): CreateResult {
   const managedHooks = opts.managedHooks ?? [];
   if (opts.category === "new" && managedHooks.includes(opts.target)) {
     return {
       ok: false,
-      reason: `categoria new recusada: "${opts.target}" é um dos sete hooks gerenciados pelo setup; use override ou extension`,
+      reason: `category new refused: "${opts.target}" is one of the seven hooks setup manages; use override or extension`,
     };
   }
 
-  const registro = readExtensionRegistry(opts.registryEnv);
-  const conflito = registro.artifacts.find((a) => a.name === opts.name);
-  if (conflito) {
+  const registry = readExtensionRegistry(opts.registryEnv);
+  const conflict = registry.artifacts.find((a) => a.name === opts.name);
+  if (conflict) {
     return {
       ok: false,
-      reason: `conflito de nome: "${opts.name}" já está registrado — escolha pular ou substituir explicitamente`,
+      reason: `name conflict: "${opts.name}" is already registered — explicitly choose to skip or replace`,
     };
   }
 
   const path = resolveTargetPath(opts.target);
-  const atual = opts.targetEnv.read(path);
-  const atualizado = insertAnchor(atual, opts.category, opts.name, opts.content);
-  opts.targetEnv.write(path, atualizado);
+  const current = opts.targetEnv.read(path);
+  const updated = insertAnchor(current, opts.category, opts.name, opts.content);
+  opts.targetEnv.write(path, updated);
 
   const artifact: ExtensionArtifact = {
     category: opts.category,
@@ -106,7 +106,7 @@ export function createExtension(opts: CreateOptions): CreateResult {
     checksum: computeChecksum(opts.content),
     createdAt: (opts.now ?? (() => new Date().toISOString()))(),
   };
-  writeExtensionRegistry({ artifacts: [...registro.artifacts, artifact] }, opts.registryEnv);
+  writeExtensionRegistry({ artifacts: [...registry.artifacts, artifact] }, opts.registryEnv);
 
   return { ok: true, artifact };
 }

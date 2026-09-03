@@ -2,11 +2,11 @@ import { existsSync, statSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 
 /**
- * Marcadores que fazem um diretório parecer a raiz de um projeto.
+ * Markers that make a directory look like a project's root.
  *
- * Vive numa constante nomeada, e não espalhado em condição, porque a seção 13
- * da spec o registra como suposição reversível: se a validação se mostrar
- * frouxa ou estrita demais, o ajuste acontece aqui.
+ * Lives in a named constant, not scattered across a condition, because
+ * section 13 of the spec records it as a reversible assumption: if
+ * validation turns out too loose or too strict, the adjustment happens here.
  */
 export const PROJECT_MARKERS = [".git", "package.json", ".claude"] as const;
 
@@ -15,42 +15,42 @@ export type RootCheck =
   | { ok: false; reason: string };
 
 /**
- * Confirma que o caminho informado pode receber a configuração.
+ * Confirms the given path can receive the configuration.
  *
- * A observação que originou `R-001` mostrou três servidores do protocolo em
- * execução, dois com o diretório pessoal como diretório de trabalho e um
- * apontando para outro projeto. Nenhum tinha a raiz correta. Por isso esta
- * função não consulta `process.cwd()` nem variável de ambiente: o único dado
- * que ela considera é o argumento recebido.
+ * The observation that led to `R-001` found three protocol servers
+ * running, two with the home directory as working directory and one
+ * pointing at another project. None had the correct root. That's why this
+ * function never consults `process.cwd()` or an environment variable: the
+ * only data it considers is the argument it receives.
  *
- * Devolve o resultado em vez de lançar, para que quem chama escolha como
- * reportar a recusa.
+ * Returns the result instead of throwing, so the caller chooses how to
+ * report the refusal.
  */
 export function validateRoot(input: unknown): RootCheck {
   if (typeof input !== "string" || input.length === 0) {
-    return { ok: false, reason: "o parâmetro project_root é obrigatório e deve ser um caminho absoluto" };
+    return { ok: false, reason: "the project_root parameter is required and must be an absolute path" };
   }
 
-  // Recusar em vez de resolver: resolver um caminho relativo exigiria uma base,
-  // e a única disponível ao processo é o diretório de trabalho — justamente a
-  // dependência que esta fatia elimina.
+  // Refuse instead of resolving: resolving a relative path would need a
+  // base, and the only one available to the process is the working
+  // directory — exactly the dependency this fatia removes.
   if (!isAbsolute(input)) {
-    return { ok: false, reason: `o caminho ${input} é relativo; informe um caminho absoluto` };
+    return { ok: false, reason: `path ${input} is relative; provide an absolute path` };
   }
 
   if (!existsSync(input)) {
-    return { ok: false, reason: `caminho não encontrado: ${input}` };
+    return { ok: false, reason: `path not found: ${input}` };
   }
 
   if (!statSync(input).isDirectory()) {
-    return { ok: false, reason: `o caminho ${input} existe mas não é um diretório` };
+    return { ok: false, reason: `path ${input} exists but isn't a directory` };
   }
 
-  const encontrado = PROJECT_MARKERS.some((m) => existsSync(join(input, m)));
-  if (!encontrado) {
+  const found = PROJECT_MARKERS.some((m) => existsSync(join(input, m)));
+  if (!found) {
     return {
       ok: false,
-      reason: `o caminho ${input} não aparenta ser um projeto: nenhum de ${PROJECT_MARKERS.join(", ")} foi encontrado`,
+      reason: `path ${input} doesn't look like a project: none of ${PROJECT_MARKERS.join(", ")} was found`,
     };
   }
 

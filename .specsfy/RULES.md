@@ -75,3 +75,7 @@ próximo `specsfy install`.
 ## Idioma padrão de código e artefatos
 
 - src/**/*.ts, tests/**/*.ts, comentários, identificadores e artefatos empacotados pelo common-rules (skills locais, textos de CLI) são em inglês. Exceção técnica confirmada: specs/**/*.md permanecem em português, porque os scripts validadores do framework Specsfy (ferramenta externa, .agents/skills/specsfy-*/scripts/*.mjs) têm hardcoded títulos de seção e frases em português (ex.: validate_spec.mjs, verify_acceptance.mjs) — traduzir as specs quebraria a esteira de validação inteira. .specsfy/Spec.md também não é traduzido: é publicado pela própria ferramenta Specsfy, não por este projeto.
+
+## Estrutura de pastas do projeto
+
+- src/ (código de produção), tests/ (testes, nomeados por cenário/AC, sem espelhar 1:1 a árvore de src/) e resources/ (artefatos-fonte que o setup entrega ao projeto-alvo) são irmãos na raiz do pacote, nunca aninhados um dentro do outro. Confirmado explicitamente após revisão de quatro opções: o aninhamento estilo Java Maven (src/main/{src,resources} + src/test/{src,resources}) não tem adoção real no ecossistema TypeScript/Node e não é usado aqui.

@@ -1,35 +1,35 @@
 import { describe, it, expect } from "vitest";
 import { inspectDependencies } from "../src/doctor";
-import { projeto, gravarRegistro, registroAntigo, ID_FIXO } from "./trace-fixtures";
-import { semBackends } from "./backends-fixtures";
+import { project, writeRecord, oldRecord, FIXED_ID } from "./trace-fixtures";
+import { noBackends } from "./backends-fixtures";
 
-const ambiente = { resolveNpm: () => "1.0.0", resolveLocalPython: () => "2.3.7", resolveOnPath: () => null };
-const semExtensoes = () => [];
+const env = { resolveNpm: () => "1.0.0", resolveLocalPython: () => "2.3.7", resolveOnPath: () => null };
+const noExtensions = () => [];
 
-function relatorio(raiz: string) {
-  return inspectDependencies(ambiente, raiz, semBackends, semExtensoes);
+function report(root: string) {
+  return inspectDependencies(env, root, noBackends, noExtensions);
 }
 
-describe("AC-046 — o identificador aparece no diagnóstico", () => {
-  const comTrace = () => {
-    const raiz = projeto();
-    gravarRegistro(raiz, { ...registroAntigo(), trace: ID_FIXO });
-    return raiz;
+describe("AC-046 — the identifier appears in the diagnosis", () => {
+  const withTrace = () => {
+    const root = project();
+    writeRecord(root, { ...oldRecord(), trace: FIXED_ID });
+    return root;
   };
 
   // SPECSFY: US-040 FR-044 AC-046
-  it("o relato nomeia o identificador registrado", () => {
-    expect(relatorio(comTrace()).trace?.kind).toBe("identified");
+  it("the report names the recorded identifier", () => {
+    expect(report(withTrace()).trace?.kind).toBe("identified");
   });
 
   // SPECSFY: US-040 FR-041 AC-046
-  it("o valor nomeado é o do registro", () => {
-    const t = relatorio(comTrace()).trace;
-    expect(t?.kind === "identified" ? t.trace : null).toBe(ID_FIXO);
+  it("the named value is the one from the record", () => {
+    const t = report(withTrace()).trace;
+    expect(t?.kind === "identified" ? t.trace : null).toBe(FIXED_ID);
   });
 
   // SPECSFY: US-040 FR-044 AC-046
-  it("o relato das dependências permanece", () => {
-    expect(relatorio(comTrace()).results.length).toBeGreaterThan(0);
+  it("the dependency report remains", () => {
+    expect(report(withTrace()).results.length).toBeGreaterThan(0);
   });
 });

@@ -3,30 +3,30 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projeto, origemFixa, ID_FIXO } from "./trace-fixtures";
+import { project, fixedSource, FIXED_ID } from "./trace-fixtures";
 
-function registroDe(raiz: string): Record<string, any> {
-  runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, trace: origemFixa() });
-  return JSON.parse(readFileSync(join(raiz, ".common-rules", "install.json"), "utf8"));
+function recordOf(root: string): Record<string, any> {
+  runSetup({ env: detectEnvironment(root), root, write: true, trace: fixedSource() });
+  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
 }
 
-describe("AC-040 — todas as entradas da mesma execução compartilham o identificador", () => {
+describe("AC-040 — every entry from the same run shares the identifier", () => {
   // SPECSFY: US-040 FR-040 AC-040
-  it("o registro traz um identificador de correlação", () => {
-    expect(registroDe(projeto())["trace"]).toBe(ID_FIXO);
+  it("the record carries a correlation identifier", () => {
+    expect(recordOf(project())["trace"]).toBe(FIXED_ID);
   });
 
   // SPECSFY: US-040 FR-040 AC-040
-  it("o identificador não é vazio nem ausente", () => {
-    const t = registroDe(projeto())["trace"];
+  it("the identifier isn't empty or absent", () => {
+    const t = recordOf(project())["trace"];
     expect(typeof t).toBe("string");
     expect(String(t).length).toBeGreaterThan(0);
   });
 
   // SPECSFY: US-040 FR-040 AC-040
-  it("as entradas de hooks pertencem a essa execução", () => {
-    const reg = registroDe(projeto());
-    expect(reg["hooks"].length).toBe(7);
-    for (const h of reg["hooks"]) expect(h.installedAt).toBe("2026-08-29T17:45:00.000Z");
+  it("the hook entries belong to that run", () => {
+    const rec = recordOf(project());
+    expect(rec["hooks"].length).toBe(7);
+    for (const h of rec["hooks"]) expect(h.installedAt).toBe("2026-08-29T17:45:00.000Z");
   });
 });

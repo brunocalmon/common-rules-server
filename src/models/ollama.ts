@@ -11,15 +11,15 @@ export interface OllamaSnapshot {
 }
 
 /**
- * Fonte de resolução, injetada no mesmo padrão de `BackendEnvironment`
- * (fatia 1d) — a suíte nunca depende do `ollama` de quem a executa.
+ * Resolution source, injected in the same pattern as `BackendEnvironment`
+ * (fatia 1d) — the suite never depends on the `ollama` of whoever runs it.
  */
 export interface OllamaEnvironment {
   present(): boolean;
   list(): string;
 }
 
-const UNIDADES: Record<string, number> = {
+const UNITS: Record<string, number> = {
   B: 1,
   KB: 1_000,
   MB: 1_000_000,
@@ -27,23 +27,23 @@ const UNIDADES: Record<string, number> = {
   TB: 1_000_000_000_000,
 };
 
-function tamanhoParaBytes(coluna: string): number {
-  const m = coluna.trim().match(/^([\d.]+)\s*([KMGT]?B)$/i);
+function sizeToBytes(column: string): number {
+  const m = column.trim().match(/^([\d.]+)\s*([KMGT]?B)$/i);
   if (!m || m[1] === undefined || m[2] === undefined) return 0;
-  const valor = parseFloat(m[1]);
-  return Math.round(valor * (UNIDADES[m[2].toUpperCase()] ?? 1));
+  const value = parseFloat(m[1]);
+  return Math.round(value * (UNITS[m[2].toUpperCase()] ?? 1));
 }
 
-/** `ollama list` imprime um cabeçalho seguido de uma linha por modelo, colunas separadas por 2+ espaços. */
-function parseOllamaList(saida: string): OllamaModel[] {
-  return saida
+/** `ollama list` prints a header followed by one line per model, columns separated by 2+ spaces. */
+function parseOllamaList(output: string): OllamaModel[] {
+  return output
     .split("\n")
     .slice(1)
-    .map((linha) => linha.trim())
-    .filter((linha) => linha.length > 0)
-    .map((linha) => {
-      const colunas = linha.split(/\s{2,}/);
-      return { name: colunas[0] ?? "", sizeBytes: tamanhoParaBytes(colunas[2] ?? "") };
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const columns = line.split(/\s{2,}/);
+      return { name: columns[0] ?? "", sizeBytes: sizeToBytes(columns[2] ?? "") };
     });
 }
 

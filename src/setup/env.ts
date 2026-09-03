@@ -3,11 +3,11 @@ import { resolve } from "node:path";
 import type { TargetEnvironment } from "../hooks/detect.js";
 
 /**
- * Observa o projeto para alimentar a detecção.
+ * Observes the project to feed detection.
  *
- * Isolado num módulo próprio porque é a única parte que toca o sistema de
- * arquivos: a decisão em si recebe o resultado por parâmetro, e é isso que
- * torna a detecção verificável sem depender da máquina.
+ * Isolated in its own module because it's the only part that touches the
+ * filesystem: the decision itself receives the result as a parameter, and
+ * that's what makes detection verifiable without depending on the machine.
  */
 export function detectEnvironment(root: string = process.cwd()): TargetEnvironment {
   const dir = resolve(root, ".claude");

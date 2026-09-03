@@ -17,23 +17,23 @@ export interface Recommendation {
   report: string;
 }
 
-/** Determinístico pela ordem declarada em `SUPPORTED_AGENT_BACKENDS` (FR-034). */
-function recomendarBackend(backends: BackendResult[]): string | null {
-  for (const nome of SUPPORTED_AGENT_BACKENDS) {
-    const entrada = backends.find((b) => b.name === nome);
-    if (entrada?.present && entrada.supported) return nome;
+/** Deterministic by the order declared in `SUPPORTED_AGENT_BACKENDS` (FR-034). */
+function recommendBackend(backends: BackendResult[]): string | null {
+  for (const name of SUPPORTED_AGENT_BACKENDS) {
+    const entry = backends.find((b) => b.name === name);
+    if (entry?.present && entry.supported) return name;
   }
   return null;
 }
 
-/** O maior modelo cujo tamanho cabe na memória livre, "cabe" é `<=` (FR-035). */
-function recomendarModeloLocal(ollama: OllamaSnapshot, capacity: Capacity): OllamaModel | null {
-  const cabem = ollama.models.filter((m) => m.sizeBytes <= capacity.freeBytes);
-  if (cabem.length === 0) return null;
-  return cabem.reduce((maior, atual) => (atual.sizeBytes > maior.sizeBytes ? atual : maior));
+/** The largest model whose size fits in free memory, "fits" is `<=` (FR-035). */
+function recommendLocalModel(ollama: OllamaSnapshot, capacity: Capacity): OllamaModel | null {
+  const fitting = ollama.models.filter((m) => m.sizeBytes <= capacity.freeBytes);
+  if (fitting.length === 0) return null;
+  return fitting.reduce((largest, current) => (current.sizeBytes > largest.sizeBytes ? current : largest));
 }
 
-function relatar(params: {
+function renderReport(params: {
   backend: string | null;
   backendOverridden: boolean;
   localModel: string | null;
@@ -41,32 +41,32 @@ function relatar(params: {
   ollamaPresent: boolean;
   freeBytes: number;
 }): string {
-  const linhas: string[] = [];
+  const lines: string[] = [];
   if (params.backend === null) {
-    linhas.push("Nenhum backend suportado presente.");
+    lines.push("No supported backend present.");
   } else {
-    linhas.push(`Backend recomendado: ${params.backend}${params.backendOverridden ? " (override)" : ""}`);
+    lines.push(`Recommended backend: ${params.backend}${params.backendOverridden ? " (override)" : ""}`);
   }
   if (params.localModel === null) {
-    linhas.push(
+    lines.push(
       params.ollamaPresent
-        ? "Nenhum modelo local coube na memória livre."
-        : "ollama não foi encontrado nesta máquina.",
+        ? "No local model fit in free memory."
+        : "ollama was not found on this machine.",
     );
   } else {
-    linhas.push(`Modelo local recomendado: ${params.localModel}${params.localModelOverridden ? " (override)" : ""}`);
+    lines.push(`Recommended local model: ${params.localModel}${params.localModelOverridden ? " (override)" : ""}`);
   }
-  linhas.push(`Memória livre considerada: ${params.freeBytes} bytes. Custo e uso de plano não entram neste cálculo.`);
-  return linhas.join("\n");
+  lines.push(`Free memory considered: ${params.freeBytes} bytes. Cost and plan usage are not part of this calculation.`);
+  return lines.join("\n");
 }
 
 /**
- * Função pura, sem I/O — quem chama já resolveu `detectBackends`,
- * `listOllamaModels` e `readCapacity` antes (`DEC-041`).
+ * Pure function, no I/O — the caller already resolved `detectBackends`,
+ * `listOllamaModels` and `readCapacity` beforehand (`DEC-041`).
  *
- * Override nunca é revalidado contra presença ou capacidade (`DEC-039`,
- * `FR-036`): a escolha humana substitui o cálculo correspondente sem
- * checagem adicional.
+ * An override is never revalidated against presence or capacity
+ * (`DEC-039`, `FR-036`): the human choice replaces the corresponding
+ * calculation without further checking.
  */
 export function recommend(
   backends: BackendResult[],
@@ -74,15 +74,15 @@ export function recommend(
   capacity: Capacity,
   override: RecommendOverride = {},
 ): Recommendation {
-  const backendCalculado = recomendarBackend(backends);
+  const calculatedBackend = recommendBackend(backends);
   const backendOverridden = override.backend !== undefined;
-  const backend = backendOverridden ? (override.backend as string) : backendCalculado;
+  const backend = backendOverridden ? (override.backend as string) : calculatedBackend;
 
-  const modeloCalculado = recomendarModeloLocal(ollama, capacity);
+  const calculatedModel = recommendLocalModel(ollama, capacity);
   const localModelOverridden = override.localModel !== undefined;
-  const localModel = localModelOverridden ? (override.localModel as string) : (modeloCalculado?.name ?? null);
+  const localModel = localModelOverridden ? (override.localModel as string) : (calculatedModel?.name ?? null);
 
-  const report = relatar({
+  const report = renderReport({
     backend,
     backendOverridden,
     localModel,

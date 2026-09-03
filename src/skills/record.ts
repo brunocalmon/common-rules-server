@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { inspectSkills } from "./inventory.js";
 
-/** Lockfile que o próprio instalador grava, na raiz do projeto. */
+/** Lockfile the installer itself writes, at the project root. */
 export const LOCK_PATH = "skills-lock.json";
 
 export interface LockEntry {
@@ -30,30 +30,31 @@ export interface SkillReport {
 }
 
 /**
- * Declaração do alcance real da garantia.
+ * States the real scope of the guarantee.
  *
- * O lockfile registra o que se obteve, e não o que se deve obter: não há
- * referência de commit nem versão do conjunto. Dizer isso no relato evita que
- * a ferramenta prometa mais do que entrega.
+ * The lockfile records what was obtained, not what should be obtained:
+ * there's no commit reference or set version. Saying this in the report
+ * keeps the tool from promising more than it delivers.
  */
 export const GUARANTEE_NOTE =
-  "A origem registrada não fixa a referência obtida: o instalador busca a ponta a cada execução, " +
-  "e este relato existe para tornar a deriva visível.";
+  "The recorded source doesn't pin the obtained reference: the installer fetches the tip on every run, " +
+  "and this report exists to make that drift visible.";
 
-/** Lê o lockfile do instalador. Devolve nulo quando ele não existe. */
+/** Reads the installer's lockfile. Returns null when it doesn't exist. */
 export function readLock(root: string): Record<string, LockEntry> | null {
-  const caminho = join(root, LOCK_PATH);
-  if (!existsSync(caminho)) return null;
-  const bruto = JSON.parse(readFileSync(caminho, "utf8")) as { skills?: Record<string, LockEntry> };
-  const skills = bruto.skills ?? {};
+  const path = join(root, LOCK_PATH);
+  if (!existsSync(path)) return null;
+  const raw = JSON.parse(readFileSync(path, "utf8")) as { skills?: Record<string, LockEntry> };
+  const skills = raw.skills ?? {};
   return Object.keys(skills).length > 0 ? skills : null;
 }
 
 /**
- * Converte o lockfile em entradas do registro do projeto.
+ * Converts the lockfile into project record entries.
  *
- * A procedência é lida, nunca recalculada: o instalador já computa um hash por
- * skill, e recalcular criaria duas verdades sobre o mesmo conteúdo.
+ * Provenance is read, never recomputed: the installer already computes a
+ * hash per skill, and recomputing would create two truths about the same
+ * content.
  */
 export function toRecordEntries(lock: Record<string, LockEntry> | null): SkillRecordEntry[] {
   if (!lock) return [];
@@ -61,17 +62,19 @@ export function toRecordEntries(lock: Record<string, LockEntry> | null): SkillRe
 }
 
 /**
- * Compara o registrado com o presente, sem alterar coisa alguma.
+ * Compares what's recorded against what's present, without changing
+ * anything.
  *
- * É a função que o `doctor` consome, e por isso não escreve: diagnosticar e
- * reparar são comandos distintos, e reparo destrutivo está fora de escopo.
+ * This is the function `doctor` consumes, and that's why it never writes:
+ * diagnosing and repairing are distinct commands, and destructive repair
+ * is out of scope.
  */
 export function reportSkills(root: string): SkillReport {
-  const entradas = toRecordEntries(readLock(root));
-  const presentes = new Set(inspectSkills(root).dirs);
-  const results = entradas.map((e) => {
-    const present = presentes.has(e.name);
-    return { name: e.name, origin: e.source, present, diverged: !present };
+  const entries = toRecordEntries(readLock(root));
+  const present = new Set(inspectSkills(root).dirs);
+  const results = entries.map((e) => {
+    const isPresent = present.has(e.name);
+    return { name: e.name, origin: e.source, present: isPresent, diverged: !isPresent };
   });
   return {
     results,

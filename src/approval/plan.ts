@@ -11,8 +11,8 @@ export interface DependencyCommandItem {
 }
 
 /**
- * O que `src/setup/run.ts` já sabe sobre um comando de dependência: se está
- * pendente, e o `bin`/`args` reais, resolvidos sem executar nada.
+ * What `src/setup/run.ts` already knows about a dependency command: whether
+ * it's pending, and the real `bin`/`args`, resolved without running anything.
  */
 export interface CommandCandidate {
   kind: DependencyCommandKind;
@@ -21,7 +21,7 @@ export interface CommandCandidate {
   pending: boolean;
 }
 
-/** Só candidatos pendentes com comando resolvido entram no plano (`AC-117`). */
+/** Only pending candidates with a resolved command enter the plan (`AC-117`). */
 export function assembleDependencyCommands(candidates: readonly CommandCandidate[]): DependencyCommandItem[] {
   return candidates
     .filter((c): c is CommandCandidate & { command: { bin: string; args: string[] } } => c.pending && c.command !== null)
@@ -38,7 +38,7 @@ export function partitionByApproval(
   return { approved, pending };
 }
 
-/** Função pura: devolve um novo registro com os itens acrescentados, sem duplicar. */
+/** Pure function: returns a new registry with the items appended, without duplicating. */
 export function recordApproval(registry: ApprovalRegistry, items: readonly DependencyCommandItem[]): ApprovalRegistry {
   const commands = [...registry.commands];
   for (const item of items) {

@@ -1,27 +1,27 @@
 import { describe, it, expect } from "vitest";
 import { assembleDependencyCommands } from "../src/approval/plan";
 
-describe("AC-117 — a ponte Python não executa quando já presente", () => {
+describe("AC-117 — the Python bridge doesn't run when already present", () => {
   // SPECSFY: US-072 FR-074 NFR-072 AC-117
-  it("candidato da ponte com pending=false não aparece na lista de comandos", () => {
-    const candidatos = [
+  it("a bridge candidate with pending=false doesn't appear in the command list", () => {
+    const candidates = [
       {
         kind: "bridge" as const,
-        label: "instalar code-review-graph via uv",
+        label: "install code-review-graph via uv",
         command: { bin: "uv", args: ["pip", "install", "--python", ".venv-crg", "code-review-graph==2.3.7"] },
         pending: false,
       },
     ];
-    const itens = assembleDependencyCommands(candidatos);
-    expect(itens).toEqual([]);
+    const items = assembleDependencyCommands(candidates);
+    expect(items).toEqual([]);
   });
 
   // SPECSFY: FR-074 AC-117
-  it("candidato sem comando resolvido (bin ausente) não aparece mesmo pendente", () => {
-    const candidatos = [
-      { kind: "bridge" as const, label: "instalar code-review-graph via uv", command: null, pending: true },
+  it("a candidate with no resolved command (missing bin) doesn't appear even if pending", () => {
+    const candidates = [
+      { kind: "bridge" as const, label: "install code-review-graph via uv", command: null, pending: true },
     ];
-    const itens = assembleDependencyCommands(candidatos);
-    expect(itens).toEqual([]);
+    const items = assembleDependencyCommands(candidates);
+    expect(items).toEqual([]);
   });
 });

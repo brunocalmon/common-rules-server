@@ -1,30 +1,30 @@
 import { describe, it, expect } from "vitest";
 import { bridgePythonSubsystem } from "../src/setup/bridge";
 
-const ausente = { localVenv: null as string | null, onPath: null as string | null, hasUv: true };
-const presente = { localVenv: "2.3.7", onPath: null as string | null, hasUv: true };
+const absent = { localVenv: null as string | null, onPath: null as string | null, hasUv: true };
+const present = { localVenv: "2.3.7", onPath: null as string | null, hasUv: true };
 
-describe("AC-008 — a ponte cria a cópia local quando falta", () => {
+describe("AC-008 — the bridge creates the local copy when it's missing", () => {
   // SPECSFY: US-001 FR-008 AC-008
-  it("cria a cópia dentro do projeto, na versão fixada", () => {
-    const r = bridgePythonSubsystem({ env: ausente, execute: false });
+  it("creates the copy inside the project, at the pinned version", () => {
+    const r = bridgePythonSubsystem({ env: absent, execute: false });
     expect(r.wouldInstall).toBe("code-review-graph==2.3.7");
     expect(r.targetDir.startsWith("/")).toBe(false);
   });
 
   // SPECSFY: US-001 FR-008 NFR-001 AC-008
-  it("não escreve no ambiente global", () => {
-    expect(bridgePythonSubsystem({ env: ausente, execute: false }).touchesGlobal).toBe(false);
+  it("doesn't write to the global environment", () => {
+    expect(bridgePythonSubsystem({ env: absent, execute: false }).touchesGlobal).toBe(false);
   });
 
   // SPECSFY: US-001 FR-008 AC-008
-  it("não age quando a cópia local já existe", () => {
-    expect(bridgePythonSubsystem({ env: presente, execute: false }).wouldInstall).toBeNull();
+  it("doesn't act when the local copy already exists", () => {
+    expect(bridgePythonSubsystem({ env: present, execute: false }).wouldInstall).toBeNull();
   });
 
   // SPECSFY: US-001 FR-008 AC-008
-  it("recusa nomeando a ferramenta quando uv falta", () => {
-    const r = bridgePythonSubsystem({ env: { ...ausente, hasUv: false }, execute: false });
+  it("refuses, naming the tool, when uv is missing", () => {
+    const r = bridgePythonSubsystem({ env: { ...absent, hasUv: false }, execute: false });
     expect(r.refused).toMatch(/uv/i);
   });
 });

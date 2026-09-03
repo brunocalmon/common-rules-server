@@ -3,61 +3,62 @@ import type { ApprovalChannel } from "./context.js";
 import { renderPlan, type PlannedItem } from "./render.js";
 import type { DependencyCommandItem } from "./plan.js";
 
-/** Fonte de decisão, síncrona por desenho — ver `TraceSource` para o mesmo padrão. */
+/** Decision source, synchronous by design — see `TraceSource` for the same pattern. */
 export interface DecisionSource {
   ask(hooks: PlannedItem[], commands: DependencyCommandItem[]): boolean;
 }
 
-/** Baixo nível: obtém os bytes de onde a decisão viria. Substituível sem trocar `DecisionSource` inteira. */
+/** Low level: gets the bytes the decision would come from. Replaceable without swapping the whole `DecisionSource`. */
 export interface StdinReader {
   read(): string;
 }
 
-/** Leitor real, síncrono. `readFileSync(0, ...)` bloqueia até EOF. */
+/** Real, synchronous reader. `readFileSync(0, ...)` blocks until EOF. */
 export const defaultStdinReader: StdinReader = { read: () => readFileSync(0, "utf8") };
 
 /**
- * Canal de documento: lê um JSON da entrada padrão e aceita apenas `approved: true`.
+ * Document channel: reads JSON from standard input and accepts only `approved: true`.
  *
- * Vazio, texto que não é JSON e JSON sem a forma esperada convergem para
- * negativa, nunca para exceção — quem chama não precisa diferenciar os três.
+ * Empty input, non-JSON text, and JSON in an unexpected shape all converge
+ * to a refusal, never to an exception — the caller doesn't need to tell
+ * the three apart.
  */
 function documentSource(stdin: StdinReader): DecisionSource {
   return {
     ask: () => {
-      const bruto = stdin.read().trim();
-      if (bruto.length === 0) return false;
-      let valor: unknown;
+      const raw = stdin.read().trim();
+      if (raw.length === 0) return false;
+      let value: unknown;
       try {
-        valor = JSON.parse(bruto);
+        value = JSON.parse(raw);
       } catch {
         return false;
       }
-      if (typeof valor !== "object" || valor === null) return false;
-      return (valor as { approved?: unknown }).approved === true;
+      if (typeof value !== "object" || value === null) return false;
+      return (value as { approved?: unknown }).approved === true;
     },
   };
 }
 
 /**
- * Canal interativo: apresenta o plano e lê a resposta da entrada padrão.
+ * Interactive channel: presents the plan and reads the answer from standard input.
  *
- * Usa o mesmo `StdinReader` do canal de documento; a leitura de uma resposta
- * curta via `readFileSync(0)` é uma simplificação deliberada desta fatia, sem
- * dependência nova para leitura linha a linha.
+ * Uses the same `StdinReader` as the document channel; reading a short
+ * answer via `readFileSync(0)` is a deliberate simplification of this
+ * fatia, with no new dependency for line-by-line reading.
  */
 function interactiveSource(stdin: StdinReader): DecisionSource {
   return {
     ask: (hooks, commands) => {
       process.stdout.write(renderPlan(hooks, commands).text);
-      process.stdout.write("\nAprovar? [s/N] ");
-      const resposta = stdin.read().trim().toLowerCase();
-      return resposta === "s" || resposta === "sim" || resposta === "y" || resposta === "yes";
+      process.stdout.write("\nApprove? [y/N] ");
+      const answer = stdin.read().trim().toLowerCase();
+      return answer === "y" || answer === "yes";
     },
   };
 }
 
-/** Constrói a fonte real para o canal escolhido. */
+/** Builds the real source for the chosen channel. */
 export function realSource(channel: ApprovalChannel, stdin: StdinReader = defaultStdinReader): DecisionSource {
   return channel === "interactive" ? interactiveSource(stdin) : documentSource(stdin);
 }
@@ -68,15 +69,15 @@ export interface ApprovalResult {
 }
 
 /**
- * Interpreta o resultado de uma fonte, tratando exceção como negativa.
+ * Interprets a source's result, treating an exception as a refusal.
  *
- * Ausência de resposta é negativa, nunca consentimento: uma fonte que lança
- * não pode, por acidente de implementação, liberar a escrita.
+ * No answer means refusal, never consent: a source that throws can't, by
+ * an implementation accident, unlock the write.
  */
 export function interpret(source: DecisionSource, hooks: PlannedItem[], commands: DependencyCommandItem[]): ApprovalResult {
   try {
-    return source.ask(hooks, commands) ? { approved: true } : { approved: false, reason: "recusado" };
+    return source.ask(hooks, commands) ? { approved: true } : { approved: false, reason: "refused" };
   } catch {
-    return { approved: false, reason: "a fonte de decisão falhou" };
+    return { approved: false, reason: "the decision source failed" };
   }
 }

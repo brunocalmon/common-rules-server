@@ -1,43 +1,43 @@
 import { describe, it, expect } from "vitest";
 import { installSkills } from "../src/skills/install";
-import { executorDualOrigem, CONJUNTO_MATTPOCOCK, CONJUNTO_SPECSFY } from "./skills-fixtures";
+import { dualSourceExecutor, MATTPOCOCK_SET, SPECSFY_SET } from "./skills-fixtures";
 import { mkdtempSync, writeFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-/** Raiz descartável limpa, sem nenhuma origem pré-instalada. */
-function raizLimpa(): string {
-  const raiz = mkdtempSync(join(tmpdir(), "crs-sk2-"));
-  writeFileSync(join(raiz, "package.json"), '{"name":"descartavel"}\n');
-  return raiz;
+/** Clean disposable root, with no source preinstalled. */
+function cleanRoot(): string {
+  const root = mkdtempSync(join(tmpdir(), "crs-sk2-"));
+  writeFileSync(join(root, "package.json"), '{"name":"disposable"}\n');
+  return root;
 }
 
-const skillsDe = (raiz: string) => readdirSync(join(raiz, ".claude", "skills")).sort();
+const skillsOf = (root: string) => readdirSync(join(root, ".claude", "skills")).sort();
 
-describe("AC-020 — as duas origens convivem", () => {
+describe("AC-020 — the two sources coexist", () => {
   // SPECSFY: US-020 FR-027 AC-020
-  it("mattpocock/skills e promovaweb/specsfy convivem em .claude/skills/", async () => {
-    const raiz = raizLimpa();
-    const ex = executorDualOrigem();
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: ex.fn });
-    await installSkills({ root: raiz, source: "promovaweb/specsfy", execute: ex.fn });
-    const presentes = skillsDe(raiz);
-    for (const n of CONJUNTO_MATTPOCOCK) expect(presentes).toContain(n);
-    for (const n of CONJUNTO_SPECSFY) expect(presentes).toContain(n);
+  it("mattpocock/skills and promovaweb/specsfy coexist in .claude/skills/", async () => {
+    const root = cleanRoot();
+    const ex = dualSourceExecutor();
+    await installSkills({ root, source: "mattpocock/skills", execute: ex.fn });
+    await installSkills({ root, source: "promovaweb/specsfy", execute: ex.fn });
+    const present = skillsOf(root);
+    for (const n of MATTPOCOCK_SET) expect(present).toContain(n);
+    for (const n of SPECSFY_SET) expect(present).toContain(n);
   });
 });
 
-describe("AC-037 — uma origem falhar não contamina a outra", () => {
+describe("AC-037 — one source failing doesn't contaminate the other", () => {
   // SPECSFY: US-020 FR-020 FR-027 NFR-021 AC-037
-  it("mattpocock falha, promovaweb/specsfy segue instalada", async () => {
-    const raiz = raizLimpa();
-    const ex = executorDualOrigem("mattpocock/skills");
-    const falhou = await installSkills({ root: raiz, source: "mattpocock/skills", execute: ex.fn });
-    const sucedeu = await installSkills({ root: raiz, source: "promovaweb/specsfy", execute: ex.fn });
-    expect(falhou.isError).toBe(true);
-    expect(sucedeu.isError).toBe(false);
-    const presentes = skillsDe(raiz);
-    for (const n of CONJUNTO_SPECSFY) expect(presentes).toContain(n);
-    for (const n of CONJUNTO_MATTPOCOCK) expect(presentes).not.toContain(n);
+  it("mattpocock fails, promovaweb/specsfy stays installed", async () => {
+    const root = cleanRoot();
+    const ex = dualSourceExecutor("mattpocock/skills");
+    const failed = await installSkills({ root, source: "mattpocock/skills", execute: ex.fn });
+    const succeeded = await installSkills({ root, source: "promovaweb/specsfy", execute: ex.fn });
+    expect(failed.isError).toBe(true);
+    expect(succeeded.isError).toBe(false);
+    const present = skillsOf(root);
+    for (const n of SPECSFY_SET) expect(present).toContain(n);
+    for (const n of MATTPOCOCK_SET) expect(present).not.toContain(n);
   });
 });

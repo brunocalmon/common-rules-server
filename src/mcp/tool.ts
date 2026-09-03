@@ -8,42 +8,43 @@ import { validateRoot } from "./root.js";
 export const TOOL_NAME = "setup";
 
 export const TOOL_DESCRIPTION =
-  "Configura um projeto: instala os hooks que ligam os subsistemas ao ciclo do agente " +
-  "e grava o registro da instalação. Exige a raiz do projeto como caminho absoluto.";
+  "Configures a project: installs the hooks that connect the subsystems to the agent's cycle " +
+  "and records the installation. Requires the project root as an absolute path.";
 
 /**
- * Esquema de entrada declarado ao cliente.
+ * Input schema declared to the client.
  *
- * `project_root` é obrigatório porque o processo servidor não sabe em que
- * projeto está: a observação de `R-001` encontrou três servidores em execução,
- * nenhum com a raiz correta como diretório de trabalho.
+ * `project_root` is required because the server process doesn't know
+ * which project it's in: the `R-001` observation found three running
+ * servers, none with the correct root as working directory.
  */
 export const inputShape = {
   project_root: z
     .string()
-    .describe("Caminho absoluto da raiz do projeto a configurar. Caminho relativo é recusado."),
+    .describe("Absolute path of the project root to configure. A relative path is refused."),
 };
 
 /**
- * Forma da resposta, declarada ao cliente.
+ * Response shape, declared to the client.
  *
- * O SDK valida `structuredContent` contra este esquema apenas no caminho de
- * sucesso; a recusa é explicitamente isenta, de modo que declarar a saída não
- * impede a tool de reportar erro.
+ * The SDK validates `structuredContent` against this schema only on the
+ * success path; refusal is explicitly exempt, so declaring the output
+ * doesn't stop the tool from reporting an error.
  */
 export const outputShape = {
-  root: z.string().describe("Raiz do projeto que recebeu a configuração."),
-  target: z.string().describe("Caminho, relativo à raiz, do arquivo de configuração do alvo."),
-  changed: z.boolean().describe("Falso quando o projeto já estava configurado e nada foi escrito."),
+  root: z.string().describe("Project root that received the configuration."),
+  target: z.string().describe("Path, relative to the root, of the target's configuration file."),
+  changed: z.boolean().describe("False when the project was already configured and nothing was written."),
   hooks: z
     .array(z.object({ name: z.string(), event: z.string() }))
-    .describe("Hooks instalados, com o evento em que cada um foi registrado."),
+    .describe("Installed hooks, with the event each one was registered under."),
 };
 
 export interface SetupToolResult {
-  // O SDK tipa o retorno da tool com assinatura de índice, para acomodar campos
-  // do protocolo como `_meta`. Sem ela a compilação recusa o handler.
-  [campo: string]: unknown;
+  // The SDK types the tool's return with an index signature, to
+  // accommodate protocol fields like `_meta`. Without it, compilation
+  // rejects the handler.
+  [field: string]: unknown;
   content: { type: "text"; text: string }[];
   isError?: boolean;
   structuredContent?: {
@@ -54,47 +55,47 @@ export interface SetupToolResult {
   };
 }
 
-const texto = (t: string): { type: "text"; text: string }[] => [{ type: "text", text: t }];
+const text = (t: string): { type: "text"; text: string }[] => [{ type: "text", text: t }];
 
-const recusar = (motivo: string): SetupToolResult => ({ isError: true, content: texto(motivo) });
+const refuse = (reason: string): SetupToolResult => ({ isError: true, content: text(reason) });
 
 /**
- * Executa a configuração sobre a raiz informada.
+ * Runs the configuration over the given root.
  *
- * Toda decisão de onde ler e escrever vem do argumento. Este módulo não
- * consulta diretório de trabalho nem variável de ambiente, e repassa a raiz
- * explicitamente a cada chamada, para que o comportamento não dependa de onde
- * o processo foi iniciado.
+ * Every decision about where to read and write comes from the argument.
+ * This module never consults the working directory or an environment
+ * variable, and passes the root explicitly on every call, so behavior
+ * doesn't depend on where the process started.
  */
 export async function executeSetup(args: { project_root?: unknown }): Promise<SetupToolResult> {
-  const raiz = validateRoot(args.project_root);
-  if (!raiz.ok) return recusar(raiz.reason);
+  const root = validateRoot(args.project_root);
+  if (!root.ok) return refuse(root.reason);
 
   try {
-    // Ler o registro anterior é o que torna a reexecução idempotente. Na fatia
-    // 1b a lógica existia mas não funcionava pela linha de comando, porque
-    // ninguém repassava este valor.
-    const anterior = readRecordFile(raiz.root, RECORD_PATH);
-    const resultado = runSetup({
-      env: detectEnvironment(raiz.root),
-      root: raiz.root,
+    // Reading the previous record is what makes rerunning idempotent. In
+    // fatia 1b the logic existed but didn't work from the command line,
+    // because nobody passed this value along.
+    const previous = readRecordFile(root.root, RECORD_PATH);
+    const result = runSetup({
+      env: detectEnvironment(root.root),
+      root: root.root,
       write: true,
-      previous: anterior,
+      previous,
     });
 
     return {
-      content: texto(resultado.report),
+      content: text(result.report),
       structuredContent: {
-        root: raiz.root,
+        root: root.root,
         target: TARGET_SETTINGS,
-        changed: resultado.written.length > 0,
-        hooks: resultado.installed.map((h) => ({ name: h.name, event: h.event })),
+        changed: result.written.length > 0,
+        hooks: result.installed.map((h) => ({ name: h.name, event: h.event })),
       },
     };
-  } catch (erro) {
-    // Falha jamais vira sucesso parcial: quem chamou precisa saber que a
-    // configuração não ocorreu, e por quê.
-    const causa = erro instanceof Error ? erro.message : String(erro);
-    return recusar(`a configuração falhou em ${raiz.root}: ${causa}`);
+  } catch (error) {
+    // Failure never becomes partial success: the caller needs to know the
+    // configuration didn't happen, and why.
+    const cause = error instanceof Error ? error.message : String(error);
+    return refuse(`configuration failed at ${root.root}: ${cause}`);
   }
 }

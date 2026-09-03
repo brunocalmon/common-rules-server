@@ -34,35 +34,35 @@ function realTargetEnv(dir: string): TargetFileEnvironment {
   };
 }
 
-describe("AC-134 — reparo move o divergente para quarentena e restaura o original", () => {
+describe("AC-134 — repair moves the divergent one to quarantine and restores the original", () => {
   // SPECSFY: US-081 FR-083 FR-084 FR-085 NFR-081 NFR-082 AC-134
-  it("de verdade num diretório temporário: criar, divergir, reparar", () => {
-    const raiz = mkdtempSync(join(tmpdir(), "crs-ext-"));
-    const registryEnv = realRegistryEnv(join(raiz, ".common-rules"));
-    const targetEnv = realTargetEnv(raiz);
+  it("for real in a temp directory: create, diverge, repair", () => {
+    const root = mkdtempSync(join(tmpdir(), "crs-ext-"));
+    const registryEnv = realRegistryEnv(join(root, ".common-rules"));
+    const targetEnv = realTargetEnv(root);
 
-    const criado = createExtension({
+    const created = createExtension({
       category: "extension",
-      name: "minha-extensao",
-      target: "meu-hook",
-      content: "# conteúdo original",
+      name: "my-extension",
+      target: "my-hook",
+      content: "# original content",
       registryEnv,
       targetEnv,
       managedHooks: [],
     });
-    expect(criado.ok).toBe(true);
+    expect(created.ok).toBe(true);
 
-    const alvoReal = ".common-rules/extensions/meu-hook.md";
-    const conteudoDivergente = targetEnv.read(alvoReal).replace("# conteúdo original", "# alguém editou à mão");
-    targetEnv.write(alvoReal, conteudoDivergente);
+    const realTarget = ".common-rules/extensions/my-hook.md";
+    const divergentContent = targetEnv.read(realTarget).replace("# original content", "# someone edited this by hand");
+    targetEnv.write(realTarget, divergentContent);
 
-    const registro = readExtensionRegistry(registryEnv);
-    const divergentes = diagnoseExtensions(registro, targetEnv, []);
-    expect(divergentes).toHaveLength(1);
+    const registry = readExtensionRegistry(registryEnv);
+    const divergent = diagnoseExtensions(registry, targetEnv, []);
+    expect(divergent).toHaveLength(1);
 
-    const quarantineDir = join(raiz, ".common-rules", "quarantine");
-    const resultado = repairExtension(divergentes[0], {
-      registry: registro,
+    const quarantineDir = join(root, ".common-rules", "quarantine");
+    const result = repairExtension(divergent[0], {
+      registry,
       targetEnv,
       quarantineEnv: {
         write: (name: string, content: string) => {
@@ -72,12 +72,12 @@ describe("AC-134 — reparo move o divergente para quarentena e restaura o origi
       },
     });
 
-    expect(resultado.ok).toBe(true);
+    expect(result.ok).toBe(true);
     expect(existsSync(quarantineDir)).toBe(true);
     expect(readdirSync(quarantineDir).length).toBeGreaterThan(0);
-    expect(targetEnv.read(alvoReal)).toContain("# conteúdo original");
+    expect(targetEnv.read(realTarget)).toContain("# original content");
 
-    const registroFinal = readExtensionRegistry(registryEnv);
-    expect(diagnoseExtensions(registroFinal, targetEnv, [])).toHaveLength(0);
+    const finalRegistry = readExtensionRegistry(registryEnv);
+    expect(diagnoseExtensions(finalRegistry, targetEnv, [])).toHaveLength(0);
   });
 });

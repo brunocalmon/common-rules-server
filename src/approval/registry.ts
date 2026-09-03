@@ -11,8 +11,8 @@ export interface ApprovalRegistry {
 }
 
 /**
- * Fonte de leitura/escrita, injetada no mesmo padrão de `BackendEnvironment`
- * (fatia 1d) — a suíte nunca depende do disco de quem a executa.
+ * Read/write source, injected in the same pattern as `BackendEnvironment`
+ * (fatia 1d) — the suite never depends on the disk of whoever runs it.
  */
 export interface RegistryEnvironment {
   read(): string;
@@ -22,26 +22,26 @@ export interface RegistryEnvironment {
 export const REGISTRY_PATH = ".common-rules/approved-commands.json";
 
 export function realRegistryEnvironment(root: string): RegistryEnvironment {
-  const caminho = join(root, REGISTRY_PATH);
+  const path = join(root, REGISTRY_PATH);
   return {
-    read: () => (existsSync(caminho) ? readFileSync(caminho, "utf8") : ""),
+    read: () => (existsSync(path) ? readFileSync(path, "utf8") : ""),
     write: (contents: string) => {
-      mkdirSync(dirname(caminho), { recursive: true });
-      writeFileSync(caminho, contents);
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, contents);
     },
   };
 }
 
-/** JSON ausente, vazio ou inválido resolve para registro vazio — nunca lança (`AC-119`). */
+/** Missing, empty, or invalid JSON resolves to an empty registry — never throws (`AC-119`). */
 export function readApprovalRegistry(env: RegistryEnvironment): ApprovalRegistry {
-  const bruto = env.read().trim();
-  if (bruto.length === 0) return { commands: [] };
+  const raw = env.read().trim();
+  if (raw.length === 0) return { commands: [] };
   try {
-    const valor = JSON.parse(bruto) as unknown;
-    if (typeof valor !== "object" || valor === null || !Array.isArray((valor as ApprovalRegistry).commands)) {
+    const value = JSON.parse(raw) as unknown;
+    if (typeof value !== "object" || value === null || !Array.isArray((value as ApprovalRegistry).commands)) {
       return { commands: [] };
     }
-    return { commands: (valor as ApprovalRegistry).commands };
+    return { commands: (value as ApprovalRegistry).commands };
   } catch {
     return { commands: [] };
   }
@@ -51,7 +51,7 @@ export function writeApprovalRegistry(registry: ApprovalRegistry, env: RegistryE
   env.write(JSON.stringify(registry, null, 2));
 }
 
-/** Identidade exata — binário e argv, mesmo comprimento, sem normalização (`PR-070`). */
+/** Exact identity — binary and argv, same length, no normalization (`PR-070`). */
 export function isApproved(registry: ApprovalRegistry, item: { bin: string; args: string[] }): boolean {
   return registry.commands.some(
     (c) => c.bin === item.bin && c.args.length === item.args.length && c.args.every((a, i) => a === item.args[i]),

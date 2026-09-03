@@ -5,30 +5,30 @@ import { resolve } from "node:path";
 const manifest = () => JSON.parse(readFileSync(resolve(__dirname, "../package.json"), "utf8"));
 const NPM_SUBSYSTEMS = ["@promovaweb/specsfy", "context-mode"];
 
-describe("AC-001 — instalação limpa conclui", () => {
+describe("AC-001 — a clean install completes", () => {
   // SPECSFY: US-001 FR-001 AC-001
-  it("declara o nome do pacote de produto", () => {
+  it("declares the product package's name", () => {
     expect(manifest().name).toBe("@brunocalmon/common-rules");
   });
 
   // SPECSFY: US-001 FR-004 AC-001
-  it("declara as duas dependências de subsistema npm em versão exata", () => {
+  it("declares the two npm subsystem dependencies at an exact version", () => {
     const deps = manifest().dependencies ?? {};
-    // FR-004 exige que os dois subsistemas estejam declarados e fixados, não que
-    // sejam as únicas dependências. Comparar por igualdade de conjunto fixava um
-    // retrato da entrega e proibia qualquer biblioteca futura — foi o que
-    // aconteceu quando o SDK do protocolo entrou na fatia 1f.
-    for (const nome of NPM_SUBSYSTEMS) {
-      expect(Object.keys(deps)).toContain(nome);
-      expect(String(deps[nome])).toMatch(/^\d+\.\d+\.\d+$/);
+    // FR-004 requires the two subsystems to be declared and pinned, not
+    // that they're the only dependencies. Comparing by set equality
+    // pinned a snapshot of the delivery and forbade any future library —
+    // which is exactly what happened when the protocol SDK entered fatia 1f.
+    for (const name of NPM_SUBSYSTEMS) {
+      expect(Object.keys(deps)).toContain(name);
+      expect(String(deps[name])).toMatch(/^\d+\.\d+\.\d+$/);
     }
   });
 
   // SPECSFY: US-001 FR-004 NFR-002 AC-001
-  it("não declara nenhuma dependência com faixa de versão", () => {
+  it("declares no dependency with a version range", () => {
     const prod = manifest().dependencies ?? {};
-    // Sem esta guarda a asserção seguinte seria trivialmente verdadeira sobre um
-    // conjunto vazio, e passaria antes de existir o que ela deveria proteger.
+    // Without this guard the next assertion would be trivially true over
+    // an empty set, and would pass before what it's meant to protect existed.
     expect(Object.keys(prod).length).toBeGreaterThan(0);
     const all = { ...prod, ...(manifest().devDependencies ?? {}) };
     const ranged = Object.entries(all).filter(([, v]) => /^[\^~><*]|\s-\s|\|\|/.test(String(v)));
@@ -36,7 +36,7 @@ describe("AC-001 — instalação limpa conclui", () => {
   });
 
   // SPECSFY: US-001 FR-003 AC-001
-  it("traz o runner de testes instalável pela instalação limpa", () => {
+  it("brings the test runner installable via a clean install", () => {
     expect(manifest().devDependencies?.vitest).toBeDefined();
   });
 });

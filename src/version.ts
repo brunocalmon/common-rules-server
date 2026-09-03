@@ -2,25 +2,27 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// O módulo compilado vive em dist/, e o manifesto fica um nível acima — tanto no
-// repositório quanto no pacote publicado, porque `files` inclui apenas `dist`.
+// The compiled module lives in dist/, and the manifest sits one level up —
+// both in the repository and in the published package, since `files` only
+// includes `dist`.
 const defaultManifestPath = (): string =>
   resolve(dirname(fileURLToPath(import.meta.url)), "..", "package.json");
 
 /**
- * Devolve a versão declarada no manifesto, sem imprimir.
+ * Returns the version declared in the manifest, without printing it.
  *
- * Separar leitura de apresentação é o que permite verificar o valor sem
- * capturar saída de terminal; quem imprime é o despacho da linha de comando.
+ * Separating reading from presentation is what lets the value be verified
+ * without capturing terminal output; the command-line dispatcher is what
+ * prints it.
  *
- * O caminho é injetável para que o teste não dependa da posição real do
- * manifesto na máquina em que roda.
+ * The path is injectable so the test doesn't depend on where the manifest
+ * really sits on the machine that runs it.
  */
 export function readVersion(manifestPath: string = defaultManifestPath()): string {
   const raw = readFileSync(manifestPath, "utf8");
   const version: unknown = (JSON.parse(raw) as Record<string, unknown>)["version"];
   if (typeof version !== "string" || version.length === 0) {
-    throw new Error(`o manifesto em ${manifestPath} não declara uma versão utilizável`);
+    throw new Error(`the manifest at ${manifestPath} doesn't declare a usable version`);
   }
   return version;
 }

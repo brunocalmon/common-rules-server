@@ -1,28 +1,28 @@
 import { describe, it, expect } from "vitest";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { arvore, projeto, decisaoFixa } from "./aprovacao-fixtures";
+import { fileTree, project, fixedDecision } from "./aprovacao-fixtures";
 
-describe("AC-061 — a negativa impede a escrita", () => {
+describe("AC-061 — a refusal prevents the write", () => {
   // SPECSFY: US-060 FR-060 NFR-060 AC-061
-  it("nenhum arquivo é criado ou alterado", () => {
-    const raiz = projeto();
-    const antes = arvore(raiz);
-    runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, approval: { source: decisaoFixa(false) } });
-    expect(arvore(raiz)).toEqual(antes);
+  it("no file is created or changed", () => {
+    const root = project();
+    const before = fileTree(root);
+    runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: fixedDecision(false) } });
+    expect(fileTree(root)).toEqual(before);
   });
 
   // SPECSFY: US-060 FR-060 NFR-060 AC-061
-  it("o relato informa que nada foi escrito por falta de aprovação", () => {
-    const raiz = projeto();
-    const r = runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, approval: { source: decisaoFixa(false) } });
-    expect(r.report).toMatch(/recusad|aprova/i);
+  it("the report states that nothing was written for lack of approval", () => {
+    const root = project();
+    const r = runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: fixedDecision(false) } });
+    expect(r.report).toMatch(/refused/i);
   });
 
   // SPECSFY: US-060 NFR-060 AC-061
-  it("o exit code reflete a ausência de execução", () => {
-    const raiz = projeto();
-    const r = runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, approval: { source: decisaoFixa(false) } });
+  it("the exit code reflects the absence of a run", () => {
+    const root = project();
+    const r = runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: fixedDecision(false) } });
     expect(r.exitCode).not.toBe(0);
   });
 });

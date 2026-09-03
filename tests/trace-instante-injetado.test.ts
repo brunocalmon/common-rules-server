@@ -3,28 +3,28 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projeto, origemFixa, INSTANTE_FIXO, EPOCA } from "./trace-fixtures";
+import { project, fixedSource, FIXED_INSTANT, EPOCH } from "./trace-fixtures";
 
-const reg = () => {
-  const raiz = projeto();
-  runSetup({ env: detectEnvironment(raiz), root: raiz, write: true, trace: origemFixa() });
-  return JSON.parse(readFileSync(join(raiz, ".common-rules", "install.json"), "utf8"));
+const rec = () => {
+  const root = project();
+  runSetup({ env: detectEnvironment(root), root, write: true, trace: fixedSource() });
+  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
 };
 
-describe("AC-042 — o carimbo corresponde ao momento da execução", () => {
+describe("AC-042 — the stamp matches the moment of the run", () => {
   // SPECSFY: US-041 FR-042 AC-042
-  it("o instante gravado é o do relógio injetado", () => {
-    for (const h of reg()["hooks"]) expect(h.installedAt).toBe(INSTANTE_FIXO);
+  it("the recorded instant is the injected clock's", () => {
+    for (const h of rec()["hooks"]) expect(h.installedAt).toBe(FIXED_INSTANT);
   });
 
   // SPECSFY: US-041 FR-042 AC-042
-  it("o instante gravado não é a época", () => {
-    for (const h of reg()["hooks"]) expect(h.installedAt).not.toBe(EPOCA);
+  it("the recorded instant isn't the epoch", () => {
+    for (const h of rec()["hooks"]) expect(h.installedAt).not.toBe(EPOCH);
   });
 
   // SPECSFY: US-041 FR-042 AC-042
-  it("todas as entradas trazem o mesmo instante", () => {
-    const instantes = new Set(reg()["hooks"].map((h: { installedAt: string }) => h.installedAt));
-    expect(instantes.size).toBe(1);
+  it("all entries carry the same instant", () => {
+    const instants = new Set(rec()["hooks"].map((h: { installedAt: string }) => h.installedAt));
+    expect(instants.size).toBe(1);
   });
 });

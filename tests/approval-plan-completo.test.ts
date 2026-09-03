@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import { renderPlan } from "../src/approval/render";
 import { itemFake } from "./approval-command-fixtures";
 
-describe("AC-110 — o plano completo lista cada comando de dependência", () => {
+describe("AC-110 — the full plan lists every dependency command", () => {
   // SPECSFY: US-071 FR-071 AC-110
-  it("hooks, skills, Specsfy e ponte, todos pendentes, aparecem no texto e no documento", () => {
+  it("hooks, skills, Specsfy and the bridge, all pending, appear in the text and the document", () => {
     const hooks = [{ name: "guard-destructive", target: ".claude/settings.json", event: "PreToolUse" }];
     const commands = [
-      itemFake("skills", "instalar skills de mattpocock", "node", ["cli.mjs", "add", "mattpocock/skills"]),
-      itemFake("specsfy", "instalar framework Specsfy", "node", ["specsfy.cjs", "install", "--project", "/tmp/proj", "--json"]),
-      itemFake("bridge", "instalar code-review-graph via uv", "uv", [
+      itemFake("skills", "install skills from mattpocock", "node", ["cli.mjs", "add", "mattpocock/skills"]),
+      itemFake("specsfy", "install Specsfy framework", "node", ["specsfy.cjs", "install", "--project", "/tmp/proj", "--json"]),
+      itemFake("bridge", "install code-review-graph via uv", "uv", [
         "pip",
         "install",
         "--python",

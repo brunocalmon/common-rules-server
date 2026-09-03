@@ -4,30 +4,29 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(__dirname, "..");
-const manifest = () => JSON.parse(readFileSync(resolve(ROOT, "package.json"), "utf8"));
 const scriptPath = resolve(ROOT, "scripts", "cycle.mjs");
 const gitDir = () =>
   execFileSync("git", ["rev-parse", "--absolute-git-dir"], { encoding: "utf8" }).trim();
 
-describe("AC-012 — o ciclo registra as três etapas", () => {
+describe("AC-012 — the cycle records the three steps", () => {
   // SPECSFY: US-001 FR-007 NFR-001 AC-012
-  it("mede instalação, compilação e suíte em separado", () => {
-    const fonte = readFileSync(scriptPath, "utf8");
-    for (const etapa of ["install", "build", "test"]) expect(fonte).toContain(etapa);
+  it("measures install, build and the suite separately", () => {
+    const source = readFileSync(scriptPath, "utf8");
+    for (const step of ["install", "build", "test"]) expect(source).toContain(step);
   });
 
   // SPECSFY: US-001 FR-007 NFR-001 AC-012
-  it("grava os tempos fora da árvore versionada", () => {
-    const fonte = readFileSync(scriptPath, "utf8");
-    expect(fonte).toMatch(/absolute-git-dir|phase1a-timings/);
+  it("writes the timings outside the versioned tree", () => {
+    const source = readFileSync(scriptPath, "utf8");
+    expect(source).toMatch(/absolute-git-dir|phase1a-timings/);
     expect(existsSync(resolve(ROOT, "phase1a-timings.json"))).toBe(false);
   });
 
   // SPECSFY: US-001 FR-007 NFR-001 AC-012
-  it("registra as três medições quando o ciclo já rodou", () => {
-    const registro = resolve(gitDir(), "phase1a-timings.json");
-    expect(existsSync(registro)).toBe(true);
-    expect(Object.keys(JSON.parse(readFileSync(registro, "utf8"))).sort()).toEqual([
+  it("records the three measurements once the cycle has run", () => {
+    const record = resolve(gitDir(), "phase1a-timings.json");
+    expect(existsSync(record)).toBe(true);
+    expect(Object.keys(JSON.parse(readFileSync(record, "utf8"))).sort()).toEqual([
       "build",
       "install",
       "test",

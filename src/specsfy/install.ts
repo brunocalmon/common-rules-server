@@ -1,9 +1,9 @@
-/** Devolve `null` quando o executável não existe. */
+/** Returns `null` when the executable doesn't exist. */
 export type Executor = (root: string) => { status: number; changed?: number; paths?: string[] } | null;
 
 /**
- * Argv real, extraída para ser reaproveitada por quem precisa conhecer o
- * comando sem executá-lo — o plano de aprovação da fatia 1i (`PR-062`).
+ * Real argv, extracted so it can be reused by whoever needs to know the
+ * command without running it — the approval plan from fatia 1i (`PR-062`).
  */
 export function buildSpecsfyInstallArgs(root: string): string[] {
   return ["install", "--project", root, "--json"];
@@ -21,29 +21,30 @@ export interface InstallResult {
   isError: boolean;
 }
 
-const erro = (report: string): InstallResult => ({ changed: 0, paths: [], report, isError: true });
+const failure = (report: string): InstallResult => ({ changed: 0, paths: [], report, isError: true });
 
 /**
- * Executa o instalador de projeto do framework Specsfy, pelo caminho oficial.
+ * Runs the Specsfy framework's project installer, via the official path.
  *
- * Não persiste registro próprio: `specsfy install` já mantém seu próprio
- * estado em `.specsfy/`, e duplicar isso criaria duas verdades sobre o mesmo
- * framework (`DEC-030`). O `setup` só relata o que o instalador devolveu.
+ * Doesn't persist its own record: `specsfy install` already keeps its
+ * own state in `.specsfy/`, and duplicating that would create two truths
+ * about the same framework (`DEC-030`). `setup` only reports what the
+ * installer returned.
  */
 export function installSpecsfy(opts: InstallOptions): InstallResult {
-  const resultado = opts.execute(opts.root);
-  if (resultado === null) {
-    return erro("o instalador do framework Specsfy não está disponível: nada foi instalado");
+  const result = opts.execute(opts.root);
+  if (result === null) {
+    return failure("the Specsfy framework installer isn't available: nothing was installed");
   }
-  if (resultado.status !== 0) {
-    return erro(`o instalador do framework Specsfy terminou com código ${resultado.status}: nada foi instalado`);
+  if (result.status !== 0) {
+    return failure(`the Specsfy framework installer exited with code ${result.status}: nothing was installed`);
   }
-  const changed = resultado.changed ?? 0;
-  const paths = resultado.paths ?? [];
+  const changed = result.changed ?? 0;
+  const paths = result.paths ?? [];
   return {
     changed,
     paths,
-    report: changed === 0 ? "specsfy já estava atualizado" : `specsfy atualizado: ${changed} arquivo(s)`,
+    report: changed === 0 ? "specsfy was already up to date" : `specsfy updated: ${changed} file(s)`,
     isError: false,
   };
 }

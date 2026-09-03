@@ -1,41 +1,41 @@
 import { describe, it, expect } from "vitest";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projeto } from "./aprovacao-fixtures";
+import { project } from "./aprovacao-fixtures";
 
-describe("AC-115 — recusar não grava nada nem executa nada", () => {
+describe("AC-115 — refusing writes nothing and runs nothing", () => {
   // SPECSFY: US-071 FR-071 FR-073 AC-115
-  it("comando recusado continua pendente na execução seguinte, nunca fica silenciosamente aprovado", () => {
-    const raiz = projeto();
-    const executorQueLanca = (): never => {
-      throw new Error("não deveria executar");
+  it("a refused command stays pending on the next run, never silently ends up approved", () => {
+    const root = project();
+    const throwingExecutor = (): never => {
+      throw new Error("shouldn't run");
     };
 
-    const primeira = runSetup({
-      env: detectEnvironment(raiz),
-      root: raiz,
+    const first = runSetup({
+      env: detectEnvironment(root),
+      root,
       write: true,
-      skills: { execute: executorQueLanca },
+      skills: { execute: throwingExecutor },
       approval: { source: { ask: () => false } },
     });
-    expect(primeira.exitCode).not.toBe(0);
+    expect(first.exitCode).not.toBe(0);
 
-    let comandosVistos: { bin: string; args: string[] }[] = [];
+    let seenCommands: { bin: string; args: string[] }[] = [];
     runSetup({
-      env: detectEnvironment(raiz),
-      root: raiz,
+      env: detectEnvironment(root),
+      root,
       write: true,
-      skills: { execute: executorQueLanca },
+      skills: { execute: throwingExecutor },
       approval: {
         source: {
           ask: (_hooks: unknown, commands: { bin: string; args: string[] }[]) => {
-            comandosVistos = commands ?? [];
+            seenCommands = commands ?? [];
             return false;
           },
         },
       },
     });
 
-    expect(comandosVistos.length).toBeGreaterThan(0);
+    expect(seenCommands.length).toBeGreaterThan(0);
   });
 });

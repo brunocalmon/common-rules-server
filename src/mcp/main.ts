@@ -2,6 +2,6 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createServer } from "./server.js";
 
-// A entrada apenas liga o servidor ao transporte. Nenhuma lógica vive aqui,
-// para que nada do que a suíte cobre fique fora dela.
+// The entry point only connects the server to the transport. No logic
+// lives here, so nothing the suite covers stays outside of it.
 await createServer().connect(new StdioServerTransport());

@@ -2,31 +2,31 @@ import { mkdtempSync, mkdirSync, writeFileSync, readdirSync, existsSync } from "
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-/** Cria uma raiz descartável que passa por projeto e tem evidência do alvo. */
-export function projetoDescartavel(prefixo = "crs-"): string {
-  const raiz = mkdtempSync(join(tmpdir(), prefixo));
-  mkdirSync(join(raiz, ".claude"), { recursive: true });
-  writeFileSync(join(raiz, ".claude", "settings.json"), "{}\n");
-  writeFileSync(join(raiz, "package.json"), '{"name":"descartavel"}\n');
-  return raiz;
+/** Creates a disposable root that passes for a project and has target evidence. */
+export function disposableProject(prefix = "crs-"): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  mkdirSync(join(root, ".claude"), { recursive: true });
+  writeFileSync(join(root, ".claude", "settings.json"), "{}\n");
+  writeFileSync(join(root, "package.json"), '{"name":"disposable"}\n');
+  return root;
 }
 
-/** Cria um diretório sem qualquer marcador de projeto. */
-export function diretorioVazio(): string {
-  return mkdtempSync(join(tmpdir(), "crs-vazio-"));
+/** Creates a directory with no project marker at all. */
+export function emptyDirectory(): string {
+  return mkdtempSync(join(tmpdir(), "crs-empty-"));
 }
 
-/** Lista recursivamente os caminhos relativos existentes sob uma raiz. */
-export function arvore(raiz: string): string[] {
-  if (!existsSync(raiz)) return [];
-  const saida: string[] = [];
-  const andar = (dir: string, prefixo: string): void => {
-    for (const entrada of readdirSync(dir, { withFileTypes: true })) {
-      const rel = prefixo ? `${prefixo}/${entrada.name}` : entrada.name;
-      saida.push(rel);
-      if (entrada.isDirectory()) andar(join(dir, entrada.name), rel);
+/** Recursively lists the relative paths existing under a root. */
+export function fileTree(root: string): string[] {
+  if (!existsSync(root)) return [];
+  const output: string[] = [];
+  const walk = (dir: string, prefix: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+      output.push(rel);
+      if (entry.isDirectory()) walk(join(dir, entry.name), rel);
     }
   };
-  andar(raiz, "");
-  return saida.sort();
+  walk(root, "");
+  return output.sort();
 }

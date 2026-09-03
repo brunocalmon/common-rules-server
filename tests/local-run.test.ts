@@ -10,15 +10,15 @@ const target = () => {
   return typeof bin === "string" ? bin : bin?.["common-rules"];
 };
 
-describe("AC-008 — o pacote não exige instalação global", () => {
+describe("AC-008 — the package doesn't require a global install", () => {
   // SPECSFY: US-001 US-002 FR-001 AC-008
-  it("resolve o binário por caminho relativo ao projeto", () => {
+  it("resolves the binary via a project-relative path", () => {
     expect(target()).toBeDefined();
     expect(existsSync(resolve(ROOT, String(target())))).toBe(true);
   });
 
   // SPECSFY: US-001 FR-002 FR-005 NFR-003 AC-008
-  it("responde ao ser executado pelo caminho local, sem instalação global", () => {
+  it("responds when run via the local path, with no global install", () => {
     const out = execFileSync("node", [resolve(ROOT, String(target())), "--version"], {
       encoding: "utf8",
     });
@@ -26,7 +26,7 @@ describe("AC-008 — o pacote não exige instalação global", () => {
   });
 
   // SPECSFY: US-002 NFR-003 AC-008
-  it("resolve os subsistemas npm de node_modules, e não do PATH global", () => {
+  it("resolves the npm subsystems from node_modules, not the global PATH", () => {
     for (const dep of ["@promovaweb/specsfy", "context-mode"]) {
       expect(existsSync(resolve(ROOT, "node_modules", dep))).toBe(true);
     }

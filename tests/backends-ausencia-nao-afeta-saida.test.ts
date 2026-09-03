@@ -1,27 +1,27 @@
 import { describe, it, expect } from "vitest";
 import { inspectDependencies } from "../src/doctor";
-import { fonteFake } from "./backends-fixtures";
+import { sourceFake } from "./backends-fixtures";
 
-const envCompleto = {
+const fullEnv = {
   resolveNpm: () => "1.0.0",
   resolveLocalPython: () => "1.0.0",
   resolveOnPath: () => "1.0.0",
 };
 
-describe("AC-081 — backend suportado ausente não afeta o código de saída", () => {
+describe("AC-081 — an absent supported backend doesn't affect the exit code", () => {
   // SPECSFY: US-030 FR-030 PR-032 NFR-031 AC-081
-  it("nenhum backend de agente presente ainda sai com código zero, quando npm/python estão completos", () => {
-    const { env: backendEnv } = fonteFake({});
-    const r = inspectDependencies(envCompleto, undefined, backendEnv);
+  it("no agent backend present still exits with code zero, when npm/python are complete", () => {
+    const { env: backendEnv } = sourceFake({});
+    const r = inspectDependencies(fullEnv, undefined, backendEnv);
     expect(r.exitCode).toBe(0);
   });
 
   // SPECSFY: US-030 FR-030 PR-032 NFR-031 AC-081
-  it("os cinco suportados aparecem nomeados como ausentes", () => {
-    const { env: backendEnv } = fonteFake({});
-    const r = inspectDependencies(envCompleto, undefined, backendEnv);
-    const agentes = r.results.filter((d) => d.layer === "agent");
-    expect(agentes.length).toBeGreaterThan(0);
-    expect(agentes.every((d) => !d.present)).toBe(true);
+  it("the five supported ones appear named as absent", () => {
+    const { env: backendEnv } = sourceFake({});
+    const r = inspectDependencies(fullEnv, undefined, backendEnv);
+    const agents = r.results.filter((d) => d.layer === "agent");
+    expect(agents.length).toBeGreaterThan(0);
+    expect(agents.every((d) => !d.present)).toBe(true);
   });
 });

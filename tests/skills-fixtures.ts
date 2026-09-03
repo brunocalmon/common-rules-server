@@ -2,132 +2,134 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, exist
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 
-export const CONJUNTO_SPECSFY = ["specsfy-01-inbox", "specsfy-04-validate", "specsfy-setup"];
-export const CONJUNTO_MATTPOCOCK = ["ask-matt", "code-review", "writing-shape"];
+export const SPECSFY_SET = ["specsfy-01-inbox", "specsfy-04-validate", "specsfy-setup"];
+export const MATTPOCOCK_SET = ["ask-matt", "code-review", "writing-shape"];
 
-/** Raiz descartável com o que o `specsfy` já ocupa em `.claude/skills/`. */
-export function projetoComSkills(prefixo = "crs-sk-"): string {
-  const raiz = mkdtempSync(join(tmpdir(), prefixo));
-  writeFileSync(join(raiz, "package.json"), '{"name":"descartavel"}\n');
-  for (const n of CONJUNTO_SPECSFY) {
-    mkdirSync(join(raiz, ".claude", "skills", n), { recursive: true });
-    writeFileSync(join(raiz, ".claude", "skills", n, "SKILL.md"), `---\nname: ${n}\n---\ncorpo\n`);
+/** Disposable root with what `specsfy` already occupies in `.claude/skills/`. */
+export function projectWithSkills(prefix = "crs-sk-"): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  writeFileSync(join(root, "package.json"), '{"name":"disposable"}\n');
+  for (const n of SPECSFY_SET) {
+    mkdirSync(join(root, ".claude", "skills", n), { recursive: true });
+    writeFileSync(join(root, ".claude", "skills", n, "SKILL.md"), `---\nname: ${n}\n---\nbody\n`);
   }
-  return raiz;
+  return root;
 }
 
-/** Lista recursivamente os caminhos relativos existentes sob uma raiz. */
-export function arvore(raiz: string): string[] {
-  if (!existsSync(raiz)) return [];
-  const saida: string[] = [];
-  const andar = (dir: string, prefixo: string): void => {
+/** Recursively lists the relative paths existing under a root. */
+export function fileTree(root: string): string[] {
+  if (!existsSync(root)) return [];
+  const output: string[] = [];
+  const walk = (dir: string, prefix: string): void => {
     for (const e of readdirSync(dir, { withFileTypes: true })) {
-      const rel = prefixo ? `${prefixo}/${e.name}` : e.name;
-      saida.push(rel);
-      if (e.isDirectory() && !e.isSymbolicLink()) andar(join(dir, e.name), rel);
+      const rel = prefix ? `${prefix}/${e.name}` : e.name;
+      output.push(rel);
+      if (e.isDirectory() && !e.isSymbolicLink()) walk(join(dir, e.name), rel);
     }
   };
-  andar(raiz, "");
-  return saida.sort();
+  walk(root, "");
+  return output.sort();
 }
 
-/** Substitui um diretório de skill por um link para fora do projeto. */
-export function trocarPorLink(raiz: string, nome: string): void {
-  const alvo = mkdtempSync(join(tmpdir(), "crs-alheio-"));
-  symlinkSync(alvo, join(raiz, ".claude", "skills", nome + "-ligado"), "dir");
+/** Replaces a skill directory with a link pointing outside the project. */
+export function replaceWithSymlink(root: string, name: string): void {
+  const target = mkdtempSync(join(tmpdir(), "crs-foreign-"));
+  symlinkSync(target, join(root, ".claude", "skills", name + "-linked"), "dir");
 }
 
-export type Resultado = { status: number; skills?: string[] } | null;
+export type Result = { status: number; skills?: string[] } | null;
 
 /**
- * Executor injetado no lugar do binário real.
+ * Executor injected in place of the real binary.
  *
- * `modo` decide o caminho exercitado: `sucesso` escreve os diretórios e o
- * lockfile como o instalador faria, `ausente` devolve nulo como se o binário
- * não existisse, e `erro` termina com código diferente de zero sem completar.
+ * `mode` decides which path gets exercised: `success` writes the
+ * directories and lockfile like the installer would, `absent` returns
+ * null as if the binary didn't exist, and `error` ends with a non-zero
+ * code without completing.
  */
-export function executorFalso(modo: "sucesso" | "ausente" | "erro", raiz: string) {
-  const chamadas: string[][] = [];
-  const fn = (args: string[]): Resultado => {
-    chamadas.push(args);
-    if (modo === "ausente") return null;
-    // A CLI real oferece `--list`, que enumera sem instalar. A detecção de
-    // conflito depende disso: sem saber os nomes antes, só restaria descobrir
-    // o conflito depois de já ter sobrescrito.
-    if (args.includes("--list")) return { status: 0, skills: [...CONJUNTO_MATTPOCOCK] };
-    if (modo === "erro") {
-      // Deixa metade escrita, para que o caso prove que parcial não vira completo.
-      mkdirSync(join(raiz, ".claude", "skills", CONJUNTO_MATTPOCOCK[0]!), { recursive: true });
+export function fakeExecutor(mode: "success" | "absent" | "error", root: string) {
+  const calls: string[][] = [];
+  const fn = (args: string[]): Result => {
+    calls.push(args);
+    if (mode === "absent") return null;
+    // The real CLI offers `--list`, which enumerates without installing.
+    // Conflict detection depends on this: without knowing the names
+    // beforehand, the only option would be discovering the conflict after
+    // already overwriting.
+    if (args.includes("--list")) return { status: 0, skills: [...MATTPOCOCK_SET] };
+    if (mode === "error") {
+      // Leaves half written, so the case proves partial never becomes complete.
+      mkdirSync(join(root, ".claude", "skills", MATTPOCOCK_SET[0]!), { recursive: true });
       return { status: 1 };
     }
-    for (const n of CONJUNTO_MATTPOCOCK) {
-      mkdirSync(join(raiz, ".claude", "skills", n), { recursive: true });
-      writeFileSync(join(raiz, ".claude", "skills", n, "SKILL.md"), `---\nname: ${n}\n---\ncorpo\n`);
+    for (const n of MATTPOCOCK_SET) {
+      mkdirSync(join(root, ".claude", "skills", n), { recursive: true });
+      writeFileSync(join(root, ".claude", "skills", n, "SKILL.md"), `---\nname: ${n}\n---\nbody\n`);
     }
-    escreverLock(raiz, CONJUNTO_MATTPOCOCK);
+    writeLock(root, MATTPOCOCK_SET);
     return { status: 0 };
   };
-  return { fn, chamadas };
+  return { fn, calls };
 }
 
-/** Grava o lockfile na forma observada na pesquisa, acumulando com o que já existir. */
-export function escreverLock(raiz: string, nomes: string[], origem = "mattpocock/skills"): void {
-  const caminho = join(raiz, "skills-lock.json");
-  const skills: Record<string, unknown> = existsSync(caminho)
-    ? (JSON.parse(readFileSync(caminho, "utf8")) as { skills?: Record<string, unknown> }).skills ?? {}
+/** Writes the lockfile in the shape observed by research, accumulating onto whatever already exists. */
+export function writeLock(root: string, names: string[], source = "mattpocock/skills"): void {
+  const path = join(root, "skills-lock.json");
+  const skills: Record<string, unknown> = existsSync(path)
+    ? (JSON.parse(readFileSync(path, "utf8")) as { skills?: Record<string, unknown> }).skills ?? {}
     : {};
-  for (const n of nomes) {
+  for (const n of names) {
     skills[n] = {
-      source: origem,
+      source,
       sourceType: "github",
       skillPath: `skills/engineering/${n}/SKILL.md`,
       computedHash: `hash-${n}`,
     };
   }
-  writeFileSync(caminho, JSON.stringify({ version: 1, skills }, null, 2));
+  writeFileSync(path, JSON.stringify({ version: 1, skills }, null, 2));
 }
 
 /**
- * Executor fake que responde por origem — `mattpocock/skills` ou `promovaweb/specsfy`.
+ * Fake executor that responds per source — `mattpocock/skills` or `promovaweb/specsfy`.
  *
- * `falhaPara`, quando informado, faz essa origem específica devolver `null`
- * (binário ausente), enquanto a outra segue instalando normalmente — é o que
- * prova que uma origem falhando não contamina o relato da outra.
+ * `failFor`, when given, makes that specific source return `null` (binary
+ * absent), while the other keeps installing normally — this is what
+ * proves one source failing doesn't contaminate the other's report.
  */
-export function executorDualOrigem(falhaPara?: string) {
-  const chamadas: string[][] = [];
-  const fn = (args: string[], cwd: string): Resultado => {
-    chamadas.push(args);
-    const origem = args.includes("mattpocock/skills")
+export function dualSourceExecutor(failFor?: string) {
+  const calls: string[][] = [];
+  const fn = (args: string[], cwd: string): Result => {
+    calls.push(args);
+    const source = args.includes("mattpocock/skills")
       ? "mattpocock/skills"
       : args.includes("promovaweb/specsfy")
         ? "promovaweb/specsfy"
         : null;
-    if (origem === null) return null;
-    if (origem === falhaPara) return null;
-    const conjunto = origem === "mattpocock/skills" ? CONJUNTO_MATTPOCOCK : CONJUNTO_SPECSFY;
-    if (args.includes("--list")) return { status: 0, skills: [...conjunto] };
-    for (const n of conjunto) {
+    if (source === null) return null;
+    if (source === failFor) return null;
+    const set = source === "mattpocock/skills" ? MATTPOCOCK_SET : SPECSFY_SET;
+    if (args.includes("--list")) return { status: 0, skills: [...set] };
+    for (const n of set) {
       mkdirSync(join(cwd, ".claude", "skills", n), { recursive: true });
-      writeFileSync(join(cwd, ".claude", "skills", n, "SKILL.md"), `---\nname: ${n}\n---\ncorpo\n`);
+      writeFileSync(join(cwd, ".claude", "skills", n, "SKILL.md"), `---\nname: ${n}\n---\nbody\n`);
     }
-    escreverLock(cwd, conjunto, origem);
+    writeLock(cwd, set, source);
     return { status: 0 };
   };
-  return { fn, chamadas };
+  return { fn, calls };
 }
 
 /**
- * Oráculo de confinamento para fora do projeto.
+ * Oracle for confinement outside the project.
  *
- * Percorrer `$HOME` inteiro é caro e instável: outros processos escrevem lá
- * durante a execução. Este observa o primeiro nível e, sobretudo, o caminho
- * exato onde a forma global do instalador escreveria — que é onde a violação
- * apareceria de fato.
+ * Walking all of `$HOME` is expensive and unstable: other processes write
+ * there during the run. This one observes the first level and, above all,
+ * the exact path where the installer's global form would write — which is
+ * where the violation would actually show up.
  */
-export function foraDoProjeto(): { topo: number; global: string[] } {
-  const topo = existsSync(homedir()) ? readdirSync(homedir()).length : 0;
-  const dirGlobal = join(homedir(), ".claude", "skills");
-  const global = existsSync(dirGlobal) ? readdirSync(dirGlobal).sort() : [];
-  return { topo, global };
+export function outsideProject(): { topLevel: number; global: string[] } {
+  const topLevel = existsSync(homedir()) ? readdirSync(homedir()).length : 0;
+  const globalDir = join(homedir(), ".claude", "skills");
+  const global = existsSync(globalDir) ? readdirSync(globalDir).sort() : [];
+  return { topLevel, global };
 }

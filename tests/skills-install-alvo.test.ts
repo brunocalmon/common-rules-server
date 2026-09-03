@@ -1,43 +1,43 @@
 import { describe, it, expect } from "vitest";
 import { installSkills } from "../src/skills/install";
-import { projetoComSkills, executorFalso, CONJUNTO_SPECSFY, CONJUNTO_MATTPOCOCK } from "./skills-fixtures";
+import { projectWithSkills, fakeExecutor, SPECSFY_SET, MATTPOCOCK_SET } from "./skills-fixtures";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
-const skillsDe = (raiz: string) => readdirSync(join(raiz, ".claude", "skills")).sort();
+const skillsOf = (root: string) => readdirSync(join(root, ".claude", "skills")).sort();
 
-describe("AC-020 — um único setup deixa os dois instalados", () => {
+describe("AC-020 — a single setup leaves both installed", () => {
   // SPECSFY: US-020 FR-020 AC-020
-  it("as skills de mattpocock chegam a .claude/skills/", async () => {
-    const raiz = projetoComSkills();
-    const ex = executorFalso("sucesso", raiz);
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: ex.fn });
-    for (const n of CONJUNTO_MATTPOCOCK) expect(skillsDe(raiz)).toContain(n);
+  it("mattpocock's skills reach .claude/skills/", async () => {
+    const root = projectWithSkills();
+    const ex = fakeExecutor("success", root);
+    await installSkills({ root, source: "mattpocock/skills", execute: ex.fn });
+    for (const n of MATTPOCOCK_SET) expect(skillsOf(root)).toContain(n);
   });
 
   // SPECSFY: US-020 FR-026 AC-020
-  it("nenhum diretório preexistente foi removido ou renomeado", async () => {
-    const raiz = projetoComSkills();
-    const antes = skillsDe(raiz);
-    const ex = executorFalso("sucesso", raiz);
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: ex.fn });
-    const depois = skillsDe(raiz);
-    for (const n of antes) expect(depois).toContain(n);
-    // Presença não prova ausência de remoção: a contagem tem de crescer, nunca encolher.
-    expect(depois.length).toBeGreaterThan(antes.length);
+  it("no preexisting directory was removed or renamed", async () => {
+    const root = projectWithSkills();
+    const before = skillsOf(root);
+    const ex = fakeExecutor("success", root);
+    await installSkills({ root, source: "mattpocock/skills", execute: ex.fn });
+    const after = skillsOf(root);
+    for (const n of before) expect(after).toContain(n);
+    // Presence doesn't prove absence of removal: the count has to grow, never shrink.
+    expect(after.length).toBeGreaterThan(before.length);
   });
 
   // SPECSFY: US-020 FR-020 FR-026 AC-020
-  it("a invocação restringe o alvo e pede cópia, sem interação", async () => {
-    const raiz = projetoComSkills();
-    const ex = executorFalso("sucesso", raiz);
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: ex.fn });
-    const args = ex.chamadas.at(0) ?? [];
+  it("the invocation scopes the target and requests copy, without interaction", async () => {
+    const root = projectWithSkills();
+    const ex = fakeExecutor("success", root);
+    await installSkills({ root, source: "mattpocock/skills", execute: ex.fn });
+    const args = ex.calls.at(0) ?? [];
     expect(args).toContain("mattpocock/skills");
     expect(args).toContain("--copy");
     expect(args.join(" ")).toMatch(/claude-code/);
     expect(args).not.toContain("--global");
     expect(args).not.toContain("-g");
-    expect(CONJUNTO_SPECSFY.length).toBe(3);
+    expect(SPECSFY_SET.length).toBe(3);
   });
 });

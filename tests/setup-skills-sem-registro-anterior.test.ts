@@ -1,39 +1,39 @@
 import { describe, it, expect } from "vitest";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projeto, decisaoFixa } from "./aprovacao-fixtures";
+import { project, fixedDecision } from "./aprovacao-fixtures";
 
 /**
- * Bug real, achado rodando `common-rules setup` de verdade neste próprio
- * repositório: hooks gravados numa execução anterior sem `skills`
- * configurada deixavam `skillsPrevias` vazio, e o antigo
- * `skillsJaFeito = ... || skillsPrevias.length === 0 || ...` tratava
- * "nenhum registro anterior" como "já feito" — uma execução seguinte com
- * `skills` configurada nunca chegava a instalar nada.
+ * Real bug, found by running `common-rules setup` for real in this very
+ * repository: hooks recorded in a previous run with no `skills`
+ * configured left `previousSkills` empty, and the old
+ * `skillsAlreadyDone = ... || previousSkills.length === 0 || ...` treated
+ * "no previous record" as "already done" — a following run with `skills`
+ * configured would never actually install anything.
  */
-describe("Registro de hooks sem skills anteriores não finge que skills já foram instaladas", () => {
-  it("primeira execução sem skills, segunda com skills configurada: o executor é chamado de verdade", () => {
-    const raiz = projeto();
-    const env = detectEnvironment(raiz);
+describe("A hooks record without previous skills doesn't pretend skills were already installed", () => {
+  it("first run without skills, second with skills configured: the executor is actually called", () => {
+    const root = project();
+    const env = detectEnvironment(root);
 
-    const primeira = runSetup({ env, root: raiz, write: true, approval: { source: decisaoFixa(true) } });
-    expect(primeira.record?.skills).toBeUndefined();
+    const first = runSetup({ env, root, write: true, approval: { source: fixedDecision(true) } });
+    expect(first.record?.skills).toBeUndefined();
 
-    let chamado = false;
+    let called = false;
     runSetup({
       env,
-      root: raiz,
+      root,
       write: true,
-      previous: primeira.record,
+      previous: first.record,
       skills: {
         execute: (args, cwd) => {
-          chamado = true;
-          return { status: 0, skills: ["exemplo"] };
+          called = true;
+          return { status: 0, skills: ["example"] };
         },
       },
-      approval: { source: decisaoFixa(true) },
+      approval: { source: fixedDecision(true) },
     });
 
-    expect(chamado).toBe(true);
+    expect(called).toBe(true);
   });
 });

@@ -6,8 +6,9 @@ export interface Capacity {
 }
 
 /**
- * Fonte de resolução, injetada no mesmo padrão de `BackendEnvironment`
- * (fatia 1d) — a suíte nunca depende da memória livre da máquina onde roda.
+ * Resolution source, injected in the same pattern as `BackendEnvironment`
+ * (fatia 1d) — the suite never depends on the free memory of the machine
+ * it runs on.
  */
 export interface CapacityEnvironment {
   totalBytes(): number;

@@ -3,67 +3,67 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
-import { projetoComSkills, executorDualOrigem } from "./skills-fixtures";
-import { decisaoQueLancaSeChamada } from "./aprovacao-fixtures";
+import { projectWithSkills, dualSourceExecutor } from "./skills-fixtures";
+import { decisionThatThrowsIfCalled } from "./aprovacao-fixtures";
 import type { Executor as SpecsfyExecutor } from "../src/specsfy/install";
 
-function executorSpecsfyFake(raiz: string) {
-  let chamadas = 0;
+function fakeSpecsfyExecutor(root: string) {
+  let calls = 0;
   const fn: SpecsfyExecutor = (root) => {
-    chamadas += 1;
+    calls += 1;
     mkdirSync(join(root, ".specsfy"), { recursive: true });
     return { status: 0, changed: 1, paths: [join(root, ".specsfy")] };
   };
-  return { fn, contador: () => chamadas };
+  return { fn, count: () => calls };
 }
 
-function executorSpecsfyQueLancaSeChamado(): SpecsfyExecutor {
+function specsfyExecutorThatThrowsIfCalled(): SpecsfyExecutor {
   return () => {
-    throw new Error("não deveria ser chamado: nada mudou desde o registro anterior");
+    throw new Error("shouldn't be called: nothing changed since the previous record");
   };
 }
 
-describe("AC-079 — nada ausente preserva o curto-circuito original", () => {
-  const configurado = () => {
-    const raiz = projetoComSkills();
-    const env = detectEnvironment(raiz);
-    const skillsEx = executorDualOrigem();
-    const specsfyEx = executorSpecsfyFake(raiz);
-    const primeira = runSetup({
-      env, root: raiz, write: true,
+describe("AC-079 — nothing absent preserves the original short-circuit", () => {
+  const configured = () => {
+    const root = projectWithSkills();
+    const env = detectEnvironment(root);
+    const skillsEx = dualSourceExecutor();
+    const specsfyEx = fakeSpecsfyExecutor(root);
+    const first = runSetup({
+      env, root, write: true,
       skills: { execute: skillsEx.fn },
       specsfy: { execute: specsfyEx.fn },
     });
-    return { raiz, env, previous: primeira.record, specsfyChamadasNaPrimeira: specsfyEx.contador() };
+    return { root, env, previous: first.record, specsfyCallsOnFirst: specsfyEx.count() };
   };
 
   // SPECSFY: US-020 US-023 FR-030 AC-079
-  it("controle: a primeira execução de fato chama os executores, provando que o mecanismo existe", () => {
-    const { specsfyChamadasNaPrimeira } = configurado();
-    expect(specsfyChamadasNaPrimeira).toBeGreaterThan(0);
+  it("control: the first run actually calls the executors, proving the mechanism exists", () => {
+    const { specsfyCallsOnFirst } = configured();
+    expect(specsfyCallsOnFirst).toBeGreaterThan(0);
   });
 
   // SPECSFY: US-020 US-023 FR-030 AC-079
-  it("hooks, skills e framework intactos: nenhum executor é invocado na segunda execução", () => {
-    const { raiz, env, previous } = configurado();
+  it("hooks, skills and framework intact: no executor is invoked on the second run", () => {
+    const { root, env, previous } = configured();
     expect(() => runSetup({
-      env, root: raiz, write: true, previous,
-      skills: { execute: () => { throw new Error("não deveria ser chamado: skills intactas"); } },
-      specsfy: { execute: executorSpecsfyQueLancaSeChamado() },
-      approval: { source: decisaoQueLancaSeChamada() },
+      env, root, write: true, previous,
+      skills: { execute: () => { throw new Error("shouldn't be called: skills intact"); } },
+      specsfy: { execute: specsfyExecutorThatThrowsIfCalled() },
+      approval: { source: decisionThatThrowsIfCalled() },
     })).not.toThrow();
   });
 
   // SPECSFY: US-020 US-023 FR-030 AC-079
-  it("o relato informa que já estava configurado", () => {
-    const { raiz, env, previous } = configurado();
-    const segunda = runSetup({
-      env, root: raiz, write: true, previous,
-      skills: { execute: () => { throw new Error("não deveria ser chamado: skills intactas"); } },
-      specsfy: { execute: executorSpecsfyQueLancaSeChamado() },
-      approval: { source: decisaoQueLancaSeChamada() },
+  it("the report states it was already configured", () => {
+    const { root, env, previous } = configured();
+    const second = runSetup({
+      env, root, write: true, previous,
+      skills: { execute: () => { throw new Error("shouldn't be called: skills intact"); } },
+      specsfy: { execute: specsfyExecutorThatThrowsIfCalled() },
+      approval: { source: decisionThatThrowsIfCalled() },
     });
-    expect(segunda.report).toMatch(/já estava configurado/i);
-    expect(segunda.exitCode).toBe(0);
+    expect(second.report).toMatch(/already configured/i);
+    expect(second.exitCode).toBe(0);
   });
 });

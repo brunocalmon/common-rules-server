@@ -1,31 +1,31 @@
 import { describe, it, expect } from "vitest";
 import { installSkills } from "../src/skills/install";
-import { arvore, projetoComSkills, executorFalso, foraDoProjeto } from "./skills-fixtures";
+import { fileTree, projectWithSkills, fakeExecutor, outsideProject } from "./skills-fixtures";
 
-describe("AC-022 — nada é escrito fora da raiz", () => {
+describe("AC-022 — nothing is written outside the root", () => {
   // SPECSFY: US-020 FR-022 AC-022
-  it("o diretório do usuário permanece igual, inclusive onde a forma global escreveria", async () => {
-    const raiz = projetoComSkills();
-    const antes = foraDoProjeto();
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("sucesso", raiz).fn });
-    expect(foraDoProjeto()).toEqual(antes);
+  it("the user's directory stays the same, including where the global form would write", async () => {
+    const root = projectWithSkills();
+    const before = outsideProject();
+    await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("success", root).fn });
+    expect(outsideProject()).toEqual(before);
   });
 
   // SPECSFY: US-020 NFR-022 AC-022
-  it("os arquivos aparecem apenas dentro do projeto", async () => {
-    const raiz = projetoComSkills();
-    const vizinho = projetoComSkills("crs-vizinho-");
-    const antesVizinho = arvore(vizinho);
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: executorFalso("sucesso", raiz).fn });
-    expect(arvore(vizinho)).toEqual(antesVizinho);
+  it("files only appear inside the project", async () => {
+    const root = projectWithSkills();
+    const neighbor = projectWithSkills("crs-neighbor-");
+    const beforeNeighbor = fileTree(neighbor);
+    await installSkills({ root, source: "mattpocock/skills", execute: fakeExecutor("success", root).fn });
+    expect(fileTree(neighbor)).toEqual(beforeNeighbor);
   });
 
   // SPECSFY: US-020 FR-022 NFR-022 AC-022
-  it("a invocação nunca constrói a forma global", async () => {
-    const raiz = projetoComSkills();
-    const ex = executorFalso("sucesso", raiz);
-    await installSkills({ root: raiz, source: "mattpocock/skills", execute: ex.fn });
-    for (const args of ex.chamadas) {
+  it("the invocation never builds the global form", async () => {
+    const root = projectWithSkills();
+    const ex = fakeExecutor("success", root);
+    await installSkills({ root, source: "mattpocock/skills", execute: ex.fn });
+    for (const args of ex.calls) {
       expect(args).not.toContain("-g");
       expect(args).not.toContain("--global");
     }

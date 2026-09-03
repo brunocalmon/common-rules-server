@@ -1,4 +1,4 @@
-/** Evento canônico que um hook declara, antes de qualquer tradução. */
+/** Canonical event a hook declares, before any translation. */
 export type CanonicalEvent = "before-shell" | "after-file-edit" | "stop";
 
 export interface Hook {
@@ -11,7 +11,7 @@ export interface Hook {
 
 const EVENTS: readonly CanonicalEvent[] = ["before-shell", "after-file-edit", "stop"];
 
-/** Extrai o valor escalar de uma chave do frontmatter, ignorando bloco YAML. */
+/** Extracts a frontmatter key's scalar value, ignoring the YAML block. */
 function scalar(frontmatter: string, key: string): string | null {
   for (const line of frontmatter.split("\n")) {
     const m = /^([A-Za-z_]+):\s*(.*)$/.exec(line);
@@ -21,11 +21,11 @@ function scalar(frontmatter: string, key: string): string | null {
 }
 
 /**
- * Extrai o script do corpo do hook.
+ * Extracts the script from the hook's body.
  *
- * O corpo é prosa em Markdown com um bloco de código contendo o script. Só o
- * conteúdo do bloco é o hook; a prosa explica por que ele existe e não deve
- * chegar ao arquivo de configuração.
+ * The body is Markdown prose with a code block containing the script.
+ * Only the block's content is the hook; the prose explains why it exists
+ * and shouldn't reach the configuration file.
  */
 function scriptFrom(body: string): string {
   const m = /```(?:bash|sh|shell)?\n([\s\S]*?)```/.exec(body);
@@ -33,29 +33,30 @@ function scriptFrom(body: string): string {
 }
 
 /**
- * Lê um hook no formato canônico e devolve estrutura tipada.
+ * Reads a hook in the canonical format and returns a typed structure.
  *
- * Não escreve nada e não traduz: separar leitura de tradução é o que permite
- * verificar a fidelidade do script sem tocar o sistema de arquivos.
+ * Writes nothing and translates nothing: separating reading from
+ * translation is what lets the script's fidelity be verified without
+ * touching the filesystem.
  */
 export function readHook(raw: string): Hook {
   const m = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(raw);
-  if (!m) throw new Error("hook sem frontmatter delimitado por ---");
+  if (!m) throw new Error("hook missing --- delimited frontmatter");
   const [, frontmatter = "", body = ""] = m;
 
   const name = scalar(frontmatter, "name");
   const event = scalar(frontmatter, "event");
-  if (!name) throw new Error("hook sem nome");
+  if (!name) throw new Error("hook missing a name");
   if (!event || !EVENTS.includes(event as CanonicalEvent)) {
-    throw new Error(`hook ${name} declara evento desconhecido: ${event ?? "nenhum"}`);
+    throw new Error(`hook ${name} declares an unknown event: ${event ?? "none"}`);
   }
 
-  // Bloco de código tem prioridade sobre `raw_command` quando os dois existem
-  // no mesmo hook, para que um hook complexo futuro não tenha ambiguidade
-  // sobre qual dos dois vale. Um hook de despacho simples — só um comando —
-  // declara `raw_command` no frontmatter em vez de um corpo com bloco.
-  const doCorpo = scriptFrom(body);
-  const script = doCorpo.length > 0 ? doCorpo : (scalar(frontmatter, "raw_command") ?? "");
+  // The code block takes priority over `raw_command` when both exist on the
+  // same hook, so a future complex hook has no ambiguity about which one
+  // wins. A simple dispatch hook — just one command — declares
+  // `raw_command` in the frontmatter instead of a body with a block.
+  const fromBody = scriptFrom(body);
+  const script = fromBody.length > 0 ? fromBody : (scalar(frontmatter, "raw_command") ?? "");
 
   return {
     name,

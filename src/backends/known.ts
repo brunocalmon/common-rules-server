@@ -1,19 +1,19 @@
 /**
- * Backends de agente com capacidade de invocação sem interação demonstrada por
- * execução real — ver `research/backends/invocacao-sem-interacao.md`, SPEC-0008.
+ * Agent backends with hands-off invocation capability demonstrated by real
+ * execution — see `research/backends/hands-off-invocation.md`, SPEC-0008.
  *
- * A lista é fixa no código, e não descoberta por sondagem de `--help` em
- * produção: a fatia 1d corrigiu uma conclusão anterior do backlog, que havia
- * checado só o `--help` de topo de cada CLI e perdido `codex exec` e
- * `goose run`, ambos subcomandos dedicados à mesma capacidade.
+ * The list is fixed in code, not discovered by probing `--help` in
+ * production: fatia 1d corrected an earlier backlog conclusion, which had
+ * only checked each CLI's top-level `--help` and missed `codex exec` and
+ * `goose run`, both dedicated subcommands for the same capability.
  */
 export const SUPPORTED_AGENT_BACKENDS = ["pi", "agy", "claude", "codex", "goose"] as const;
 
 /**
- * Candidatos conhecidos, suportados e não suportados.
+ * Known candidates, supported and unsupported.
  *
- * `dsh` e `cursor-agent` entram aqui para que o `doctor` os distinga de
- * backends realmente ausentes (`FR-032`, `FR-033`) — presentes na máquina,
- * mas sem capacidade demonstrada de invocação sem interação.
+ * `dsh` and `cursor-agent` are listed here so `doctor` can tell them apart
+ * from backends that are genuinely absent (`FR-032`, `FR-033`) — present on
+ * the machine, but without demonstrated hands-off invocation capability.
  */
 export const KNOWN_AGENT_BACKENDS = [...SUPPORTED_AGENT_BACKENDS, "dsh", "cursor-agent"] as const;

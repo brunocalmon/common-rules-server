@@ -1,29 +1,29 @@
 import type { BackendEnvironment } from "../src/backends/detect";
 
-export type Chamada = { name: string; tipo: "presence" | "version" };
+export type Call = { name: string; kind: "presence" | "version" };
 
 /**
- * Nenhum backend de agente presente — para testes de `doctor` anteriores à
- * fatia 1d que não têm por objetivo exercitar a camada `agent`, e que sem
- * isso cairiam silenciosamente no ambiente real (NFR-032, SPEC-0008).
+ * No agent backend present — for `doctor` tests that predate fatia 1d and
+ * aren't meant to exercise the `agent` layer, and which would otherwise
+ * silently fall through to the real environment (NFR-032, SPEC-0008).
  */
-export const semBackends: BackendEnvironment = {
+export const noBackends: BackendEnvironment = {
   resolvePresence: () => false,
   resolveVersion: () => null,
 };
 
-/** Fonte fake: `presentes` mapeia nome para versão; ausência da chave é ausência do backend. */
-export function fonteFake(presentes: Record<string, string>): { env: BackendEnvironment; chamadas: Chamada[] } {
-  const chamadas: Chamada[] = [];
+/** Fake source: `present` maps name to version; a missing key means the backend is absent. */
+export function sourceFake(present: Record<string, string>): { env: BackendEnvironment; calls: Call[] } {
+  const calls: Call[] = [];
   const env: BackendEnvironment = {
     resolvePresence: (name) => {
-      chamadas.push({ name, tipo: "presence" });
-      return name in presentes;
+      calls.push({ name, kind: "presence" });
+      return name in present;
     },
     resolveVersion: (name) => {
-      chamadas.push({ name, tipo: "version" });
-      return presentes[name] ?? null;
+      calls.push({ name, kind: "version" });
+      return present[name] ?? null;
     },
   };
-  return { env, chamadas };
+  return { env, calls };
 }

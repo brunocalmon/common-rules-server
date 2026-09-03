@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { recommend } from "../src/models/recommend";
-import { backendsFake, modeloFake, capacidadeFake, ollamaPresente } from "./models-fixtures";
+import { backendsFake, modelFake, capacityFake, ollamaPresent } from "./models-fixtures";
 
-describe("AC-093 — nenhum modelo local cabe é comunicado, não escolhido às cegas", () => {
+describe("AC-093 — no local model fitting is reported, not blindly chosen", () => {
   // SPECSFY: US-033 FR-035 AC-093
-  it("com modelo de 9GB e 2GB livres, o modelo local recomendado é nulo", () => {
-    const modelos = [modeloFake("cogito:14b", 9)];
-    const r = recommend(backendsFake([]), ollamaPresente(modelos), capacidadeFake(2));
+  it("with a 9GB model and 2GB free, the recommended local model is null", () => {
+    const models = [modelFake("cogito:14b", 9)];
+    const r = recommend(backendsFake([]), ollamaPresent(models), capacityFake(2));
     expect(r.localModel).toBeNull();
-    expect(r.report).toMatch(/nenhum modelo local coube/i);
+    expect(r.report).toMatch(/no local model fit/i);
   });
 });

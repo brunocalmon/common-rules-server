@@ -1,29 +1,29 @@
 import { existsSync, lstatSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
-/** Onde os conjuntos de skills convivem, relativo à raiz do projeto. */
+/** Where skill sets live, relative to the project root. */
 export const SKILLS_DIR = ".claude/skills";
 
 export interface SkillsInspection {
-  /** Nomes dos conjuntos presentes, relativos a `SKILLS_DIR`. */
+  /** Names of present sets, relative to `SKILLS_DIR`. */
   dirs: string[];
-  /** Caminhos que são link simbólico, em qualquer nível. */
+  /** Paths that are a symlink, at any depth. */
   symlinks: string[];
   ok: boolean;
   reason?: string;
 }
 
 /**
- * Enumera o que está instalado e recusa conteúdo que viva por link.
+ * Enumerates what's installed and refuses content that lives via symlink.
  *
- * O instalador oficial cria link simbólico por padrão, e `--copy` é opcional.
- * Conteúdo por link mora fora do projeto: o hash deixa de descrever o que o
- * agente lê, duas máquinas divergem sem registro, e o ferramental do Specsfy
- * recusa caminho por link. Por isso a detecção percorre a árvore inteira, e não
- * apenas o primeiro nível.
+ * The official installer creates a symlink by default, and `--copy` is
+ * optional. Symlinked content lives outside the project: the hash stops
+ * describing what the agent reads, two machines diverge without a record,
+ * and Specsfy's tooling refuses a symlinked path. That's why detection
+ * walks the whole tree, not just the first level.
  *
- * Recebe a raiz por parâmetro e não consulta diretório de trabalho nem
- * variável de ambiente.
+ * Takes the root as a parameter and never consults the working directory
+ * or an environment variable.
  */
 export function inspectSkills(root: string): SkillsInspection {
   const base = join(root, SKILLS_DIR);
@@ -32,26 +32,26 @@ export function inspectSkills(root: string): SkillsInspection {
   const dirs: string[] = [];
   const symlinks: string[] = [];
 
-  const andar = (dir: string, prefixo: string): void => {
-    for (const entrada of readdirSync(dir, { withFileTypes: true })) {
-      const rel = prefixo ? `${prefixo}/${entrada.name}` : entrada.name;
-      const caminho = join(dir, entrada.name);
-      if (lstatSync(caminho).isSymbolicLink()) {
+  const walk = (dir: string, prefix: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+      const path = join(dir, entry.name);
+      if (lstatSync(path).isSymbolicLink()) {
         symlinks.push(rel);
         continue;
       }
-      if (entrada.isDirectory()) {
-        if (!prefixo) dirs.push(rel);
-        andar(caminho, rel);
+      if (entry.isDirectory()) {
+        if (!prefix) dirs.push(rel);
+        walk(path, rel);
       }
     }
   };
-  andar(base, "");
+  walk(base, "");
 
   if (symlinks.length > 0) {
     return {
       dirs, symlinks, ok: false,
-      reason: `conteúdo por link simbólico em ${symlinks.join(", ")}: as skills precisam viver dentro do projeto, em arquivo real`,
+      reason: `symlinked content at ${symlinks.join(", ")}: skills need to live inside the project, as real files`,
     };
   }
   return { dirs, symlinks, ok: true };

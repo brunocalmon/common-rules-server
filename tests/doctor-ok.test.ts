@@ -1,26 +1,26 @@
 import { describe, it, expect } from "vitest";
 import { inspectDependencies } from "../src/doctor";
-import { semBackends } from "./backends-fixtures";
+import { noBackends } from "./backends-fixtures";
 
-// Ambiente injetado: o resultado precisa depender do que se passa, não da máquina.
-const completo = {
+// Injected environment: the result must depend on what's passed in, not on the machine.
+const full = {
   resolveNpm: (name: string) =>
     ({ "@promovaweb/specsfy": "0.10.2", "context-mode": "1.0.169" })[name] ?? null,
   resolveLocalPython: () => "2.3.7",
   resolveOnPath: () => "2.3.7",
 };
 
-describe("AC-005 — doctor aprova um ambiente completo", () => {
+describe("AC-005 — doctor approves a complete environment", () => {
   // SPECSFY: US-002 FR-006 AC-005
-  it("lista as três dependências do projeto", () => {
-    const dependencias = inspectDependencies(completo, undefined, semBackends).results.filter((r) => r.layer !== "agent");
-    expect(dependencias).toHaveLength(3);
+  it("lists the project's three dependencies", () => {
+    const dependencies = inspectDependencies(full, undefined, noBackends).results.filter((r) => r.layer !== "agent");
+    expect(dependencies).toHaveLength(3);
   });
 
   // SPECSFY: US-002 FR-006 NFR-002 AC-005
-  it("reporta camada, origem resolvida e versão de cada uma", () => {
-    const dependencias = inspectDependencies(completo, undefined, semBackends).results.filter((r) => r.layer !== "agent");
-    for (const r of dependencias) {
+  it("reports layer, resolved origin and version for each one", () => {
+    const dependencies = inspectDependencies(full, undefined, noBackends).results.filter((r) => r.layer !== "agent");
+    for (const r of dependencies) {
       expect(r.layer).toBeDefined();
       expect(r.origin).toMatch(/^(local|global)$/);
       expect(r.version).toBeTruthy();
@@ -28,13 +28,13 @@ describe("AC-005 — doctor aprova um ambiente completo", () => {
   });
 
   // SPECSFY: US-002 FR-006 NFR-003 AC-005
-  it("prefere a origem local quando ela existe", () => {
-    const crg = inspectDependencies(completo, undefined, semBackends).results.find((r) => r.name === "code-review-graph");
+  it("prefers the local origin when it exists", () => {
+    const crg = inspectDependencies(full, undefined, noBackends).results.find((r) => r.name === "code-review-graph");
     expect(crg?.origin).toBe("local");
   });
 
   // SPECSFY: US-002 FR-006 AC-005
-  it("aprova o ambiente, com código de saída zero", () => {
-    expect(inspectDependencies(completo, undefined, semBackends).exitCode).toBe(0);
+  it("approves the environment, with a zero exit code", () => {
+    expect(inspectDependencies(full, undefined, noBackends).exitCode).toBe(0);
   });
 });

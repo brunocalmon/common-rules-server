@@ -2,16 +2,16 @@ import { resolveSource } from "./source.js";
 import { inspectSkills } from "./inventory.js";
 import type { SkillRecordEntry } from "./record.js";
 
-/** Alvo único desta fatia; a fatia 1d é que abre os demais. */
+/** This fatia's only target; fatia 1d opens the others. */
 export const TARGET_AGENT = "claude-code";
 
-/** Devolve `null` quando o executável não existe. */
+/** Returns `null` when the executable doesn't exist. */
 export type Executor = (args: string[], cwd: string) => { status: number; skills?: string[] } | null;
 
 /**
- * Argv real de `add`, extraída para ser reaproveitada por quem precisa
- * conhecer o comando sem executá-lo — o plano de aprovação da fatia 1i
- * (`PR-062`: o que é mostrado é o que roda, nunca uma descrição paralela).
+ * `add`'s real argv, extracted so it can be reused by whoever needs to
+ * know the command without running it — the approval plan from fatia 1i
+ * (`PR-062`: what's shown is what runs, never a parallel description).
  */
 export function buildSkillsAddArgs(source: string): string[] {
   return ["add", source, "-a", TARGET_AGENT, "--skill", "*", "--copy", "-y"];
@@ -31,55 +31,56 @@ export interface InstallResult {
   changed: boolean;
 }
 
-const erro = (report: string): InstallResult => ({ installed: [], report, isError: true, changed: false });
+const failure = (report: string): InstallResult => ({ installed: [], report, isError: true, changed: false });
 
 /**
- * Instala o conjunto na raiz informada, pelo caminho oficial.
+ * Installs the set at the given root, via the official path.
  *
- * A forma global do instalador não é construída em lugar algum desta função,
- * de modo que a regra de não instalar fora do projeto não dependa da
- * disciplina de quem chama.
+ * The installer's global form is never built anywhere in this function,
+ * so the rule against installing outside the project doesn't depend on
+ * the caller's discipline.
  */
 export function installSkills(opts: InstallOptions): InstallResult {
-  const origem = resolveSource(opts.source);
-  if (!origem.ok) return erro(origem.reason);
+  const source = resolveSource(opts.source);
+  if (!source.ok) return failure(source.reason);
 
-  const base = buildSkillsAddArgs(origem.source).slice(1);
+  const base = buildSkillsAddArgs(source.source).slice(1);
 
-  // Enumerar antes de escrever é o que permite recusar conflito sem já ter
-  // sobrescrito. Descobrir depois seria descobrir tarde demais.
-  const listagem = opts.execute(["add", ...base, "--list"], opts.root);
-  if (listagem === null) {
-    return erro(`o instalador oficial não está disponível: nenhum conjunto foi instalado a partir de ${origem.source}`);
+  // Enumerating before writing is what allows refusing a conflict without
+  // having already overwritten it. Finding out afterward would be finding
+  // out too late.
+  const listing = opts.execute(["add", ...base, "--list"], opts.root);
+  if (listing === null) {
+    return failure(`the official installer isn't available: no set was installed from ${source.source}`);
   }
-  if (listagem.status !== 0) {
-    return erro(`o instalador terminou com código ${listagem.status} ao enumerar: nenhum conjunto foi instalado`);
-  }
-
-  const candidatos = listagem.skills ?? [];
-  const presentes = new Set(inspectSkills(opts.root).dirs);
-  const anteriores = new Set((opts.previous ?? []).map((e) => e.name));
-  const conflitos = candidatos.filter((n) => presentes.has(n) && !anteriores.has(n));
-  if (conflitos.length > 0) {
-    return erro(`conflito de nome com conteúdo já presente: ${conflitos.join(", ")}. Nada foi escrito`);
+  if (listing.status !== 0) {
+    return failure(`the installer exited with code ${listing.status} while enumerating: no set was installed`);
   }
 
-  const jaFeito = candidatos.length > 0 && candidatos.every((n) => anteriores.has(n));
-
-  const execucao = opts.execute(["add", ...base], opts.root);
-  if (execucao === null) {
-    return erro(`o instalador oficial não está disponível: nenhum conjunto foi instalado a partir de ${origem.source}`);
+  const candidates = listing.skills ?? [];
+  const present = new Set(inspectSkills(opts.root).dirs);
+  const previous = new Set((opts.previous ?? []).map((e) => e.name));
+  const conflicts = candidates.filter((n) => present.has(n) && !previous.has(n));
+  if (conflicts.length > 0) {
+    return failure(`name conflict with content already present: ${conflicts.join(", ")}. Nothing was written`);
   }
-  if (execucao.status !== 0) {
-    return erro(`o instalador terminou com código ${execucao.status}: o conjunto não ficou instalado`);
+
+  const alreadyDone = candidates.length > 0 && candidates.every((n) => previous.has(n));
+
+  const execution = opts.execute(["add", ...base], opts.root);
+  if (execution === null) {
+    return failure(`the official installer isn't available: no set was installed from ${source.source}`);
+  }
+  if (execution.status !== 0) {
+    return failure(`the installer exited with code ${execution.status}: the set wasn't installed`);
   }
 
   return {
-    installed: candidatos,
-    report: jaFeito
-      ? `já estava configurado: ${candidatos.length} skills inalteradas a partir de ${origem.source}`
-      : `${candidatos.length} skills copiadas a partir de ${origem.source}`,
+    installed: candidates,
+    report: alreadyDone
+      ? `already configured: ${candidates.length} skills unchanged from ${source.source}`
+      : `${candidates.length} skills copied from ${source.source}`,
     isError: false,
-    changed: !jaFeito,
+    changed: !alreadyDone,
   };
 }
