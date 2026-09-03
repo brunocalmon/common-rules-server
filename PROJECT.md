@@ -13,7 +13,7 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 | --- | --- |
 | `common-rules --version` | Imprime a versão declarada no manifesto |
 | `common-rules doctor` | Relata as três dependências do projeto e os backends de agente detectados, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, cada extensão local divergente do que a CLI gravou, e o identificador da última execução |
-| `common-rules setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, escreve o roteador do `common-rules` em `CLAUDE.md`/`AGENTS.md`, e registra o que escreveu, identificando a execução e o momento |
+| `common-rules setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, escreve o roteador do `common-rules` em `CLAUDE.md`/`AGENTS.md`, cria e mantém `.common-rules/config.yaml` sempre completo, e registra o que escreveu, identificando a execução e o momento |
 | `common-rules recommend` | Recomenda um backend de agente presente e, quando o `ollama` está disponível, o maior modelo local que cabe na memória livre, com override humano opcional |
 | `common-rules extension create` | Cria um artefato de extensão local (`override`/`extension`, nunca `new` para um dos sete hooks gerenciados) — hook, regra ou o próprio roteador — que sobrevive a uma reinstalação |
 | `common-rules extension repair` | Move o conteúdo de uma extensão divergente para `.common-rules/quarantine/` e restaura o original, sem apagar nada |
@@ -32,7 +32,19 @@ ok      context-mode — camada npm, origem local, versão 1.0.169
 ok      code-review-graph — camada python, origem global, versão 2.3.7
 ```
 
-Quarenta e um módulos em `src/`, 145 arquivos de teste, 370 casos.
+Quarenta e cinco módulos em `src/`, 150 arquivos de teste, 388 casos.
+
+**Regra de idioma e `config.yaml` sempre presente.** Acima de qualquer
+dependência (Specsfy, mattpocock ou nenhuma), `setup` cria e mantém
+`.common-rules/config.yaml` sempre completo — toda chave do schema (`language`,
+`project`, `system`, `git`) presente, com default real quando existe evidência
+e vazio quando não, nunca omitida. `CLAUDE.md`/`AGENTS.md` recebem uma
+instrução própria (distinta do roteador de extensões) orientando o agente a
+responder no idioma da conversa e gerar documento em `language.default`,
+exceto os caminhos listados em `language.exceptions`. Quando o Specsfy está
+ativo, os campos de `project` sobrepostos a `.specsfy/STACK.md` se sincronizam
+automaticamente a partir dele — `STACK.md` continua sendo a fonte de verdade,
+`config.yaml` nunca diverge silenciosamente.
 
 O `setup` liga os subsistemas ao ciclo do agente e protege o repositório. Sete
 hooks: quatro conectam `context-mode` e `code-review-graph`, dois barram comando

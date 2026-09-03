@@ -25,6 +25,7 @@ Conteúdo humano, fora do bloco reconstruído. Cada linha cita uma fonte execut�
 | Biblioteca | `skills` 1.5.23 | Instalador oficial de conjuntos de skills, da vercel-labs. Já chegava por via transitiva como dependência de `@promovaweb/specsfy` em faixa `^1.5.22`; declarado direto e exato para entrar na regra de fixação | `package.json` (`dependencies`) |
 | Subsistema npm | `@promovaweb/specsfy` 0.10.2 | Motor de skills e regras do processo | `package.json` (`dependencies`) |
 | Subsistema npm | `context-mode` 1.0.169 | Gestão de janela de contexto entre sessões | `package.json` (`dependencies`) |
+| Biblioteca | `yaml` 2.9.0 | Parsing e serialização de `.common-rules/config.yaml` com preservação de comentários — a mutação incremental (`Document.setIn`/`hasIn`) é o que permite ao backfill (`FR-008`) e à sincronização com `STACK.md` (`FR-007`) adicionar ou atualizar campos sem apagar edição humana nem comentários (SPEC-0012, DEC-001). Já chegava transitivamente via `skills` e `vite`; declarada direta e fixa para entrar na regra de fixação. | `package.json` (`dependencies`) |
 | Subsistema Python | `code-review-graph` 2.3.7 | Análise de relações de código e call graphs | Exigido do ambiente; instalado por `uv`, ausente do npm |
 | Backend de agente | `pi`, `claude`, `cursor-agent`, `codex`, `agy`, `goose`, `dsh`, Ollama | Execução delegada pelo Orchestrator, em fatia futura | **Nada os detecta hoje**: `src/doctor.ts` cobre apenas as três dependências do projeto. A detecção pertence à fatia 1d, e nenhum deles é dependência declarada |
 

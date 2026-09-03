@@ -9,6 +9,7 @@
 | Terceiro | produção | @promovaweb/specsfy | 0.10.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy | https://github.com/promovaweb/specsfy |
 | Terceiro | produção | context-mode | 1.0.169 | MCP plugin that saves 98% of your context window. Works with Claude Code, Gemini CLI, VS Code Copilot, OpenCode, and Codex CLI. Sandboxed code execution, FTS5 knowledge base, and intent-driven search. | https://github.com/mksglu/context-mode | https://github.com/mksglu/context-mode |
 | Terceiro | produção | skills | 1.5.23 | The open agent skills ecosystem | https://github.com/vercel-labs/skills | https://github.com/vercel-labs/skills |
+| Terceiro | produção | yaml | 2.9.0 | JavaScript parser and stringifier for YAML | github:eemeli/yaml | — |
 | Terceiro | produção | zod | 3.25.76 | TypeScript-first schema declaration and validation library with static type inference | https://github.com/colinhacks/zod | https://github.com/colinhacks/zod |
 | Terceiro | desenvolvimento | @types/node | 26.3.0 | TypeScript definitions for node | https://github.com/DefinitelyTyped/DefinitelyTyped | https://github.com/DefinitelyTyped/DefinitelyTyped |
 | Terceiro | desenvolvimento | typescript | 7.0.2 | TypeScript is a language for application scale JavaScript development | https://github.com/microsoft/TypeScript | https://github.com/microsoft/TypeScript |

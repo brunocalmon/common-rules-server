@@ -18,3 +18,27 @@ export function buildRouterBlock(): string {
 export function buildAgentsPointer(): string {
   return "For the `common-rules` router, read the `common-rules` section in `CLAUDE.md`.";
 }
+
+/**
+ * Language/config.yaml instruction — a separate anchored block from
+ * `buildRouterBlock`, never grown into it: `createExtension` refuses to
+ * update a name already registered, so folding this into `"router"` would
+ * make it unreachable in any project that already ran `setup` once (DEC-002,
+ * SPEC-0012).
+ */
+export function buildConfigLanguageBlock(): string {
+  return [
+    "## common-rules: language",
+    "",
+    "Read `.common-rules/config.yaml` before generating a document or deciding",
+    "what language to answer in. Reply in the conversation's language. Write a",
+    "generated document in `language.default`, unless its path matches one of",
+    "`language.exceptions`. Notice when the conversation reveals a value that",
+    "`config.yaml` is missing or has out of date, and offer to update it.",
+  ].join("\n");
+}
+
+/** Minimal pointer, without duplicating the block's text — points at CLAUDE.md. */
+export function buildConfigLanguagePointer(): string {
+  return "For the `common-rules` language rule, read the `common-rules: language` section in `CLAUDE.md`.";
+}

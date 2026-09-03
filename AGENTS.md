@@ -44,3 +44,6 @@ arquivo contém o fluxo, os caminhos canônicos e os gates do framework.
 <!-- common-rules:extension:agents-pointer:start -->
 Para o roteador do `common-rules`, leia a seção `common-rules` em `CLAUDE.md`.
 <!-- common-rules:extension:agents-pointer:end -->
+<!-- common-rules:extension:config-language-pointer:start -->
+For the `common-rules` language rule, read the `common-rules: language` section in `CLAUDE.md`.
+<!-- common-rules:extension:config-language-pointer:end -->

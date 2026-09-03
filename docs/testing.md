@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 153.
+- Arquivos de teste: 159.
 - Runner: Vitest.
 - Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -52,6 +52,11 @@
 | tests/cli-setup-drift-real.test.ts |
 | tests/cli-setup-real.test.ts |
 | tests/cli-symlink.test.ts |
+| tests/config-backfill.test.ts |
+| tests/config-router-block.test.ts |
+| tests/config-schema.test.ts |
+| tests/config-sync.test.ts |
+| tests/config-write.test.ts |
 | tests/cycle-command.test.ts |
 | tests/cycle-failure.test.ts |
 | tests/cycle-timings.test.ts |
@@ -108,6 +113,7 @@
 | tests/scripts.test.ts |
 | tests/setup-bridge.test.ts |
 | tests/setup-delivers-bundled-skill.test.ts |
+| tests/setup-delivers-config-yaml.test.ts |
 | tests/setup-detect.test.ts |
 | tests/setup-dryrun.test.ts |
 | tests/setup-idempotent.test.ts |

@@ -27,8 +27,10 @@ import { readApprovalRegistry, writeApprovalRegistry, realRegistryEnvironment, t
 import { writeRecordFile, writeSettings } from "./write.js";
 import { realChecksumEnvironment } from "../extensions/registry.js";
 import { createExtension, realTargetFileEnvironment } from "../extensions/create.js";
-import { buildRouterBlock, buildAgentsPointer } from "../extensions/router.js";
+import { buildRouterBlock, buildAgentsPointer, buildConfigLanguageBlock, buildConfigLanguagePointer } from "../extensions/router.js";
 import { readBundledSkill, deliverBundledSkill, realSkillWriteEnvironment } from "../skills/deliver.js";
+import { ensureConfigFile, backfillConfigFile } from "../config/write.js";
+import { syncProjectFromStack } from "../config/sync.js";
 
 /** Where the target's file is written, relative to the project. */
 export const TARGET_SETTINGS = ".claude/settings.json";
@@ -113,6 +115,46 @@ function ensureRouterCandidates(root: string): void {
     registryEnv,
     targetEnv,
   });
+}
+
+/**
+ * Delivers the language/config.yaml instruction as its own anchored block —
+ * distinct from `ensureRouterCandidates` (SPEC-0012, DEC-002): reusing the
+ * `"router"`/`"agents-pointer"` names would make this instruction
+ * unreachable in any project that already ran `setup` once, since
+ * `createExtension` refuses a name already registered.
+ */
+function ensureConfigLanguageRouterCandidate(root: string): void {
+  const registryEnv = realChecksumEnvironment(root);
+  const targetEnv = realTargetFileEnvironment(root);
+  createExtension({
+    category: "extension",
+    name: "config-language-rule",
+    target: "CLAUDE.md",
+    content: buildConfigLanguageBlock(),
+    registryEnv,
+    targetEnv,
+  });
+  createExtension({
+    category: "extension",
+    name: "config-language-pointer",
+    target: "AGENTS.md",
+    content: buildConfigLanguagePointer(),
+    registryEnv,
+    targetEnv,
+  });
+}
+
+/**
+ * Ensures `.common-rules/config.yaml` is present and complete (FR-001,
+ * FR-008), then syncs `project.*` from `.specsfy/STACK.md` when Specsfy is
+ * active (FR-007) — never overwrites a value the person already set
+ * (FR-005).
+ */
+function ensureConfigYaml(root: string): void {
+  ensureConfigFile(root);
+  backfillConfigFile(root);
+  syncProjectFromStack(root);
 }
 
 /** Locally-authored skills bundled with this package, delivered by `setup` itself — never fetched from a third-party source. */
@@ -210,6 +252,8 @@ export function runSetup(opts: SetupOptions): SetupResult {
     if (opts.write) {
       ensureRouterCandidates(root);
       deliverLocalSkills(root);
+      ensureConfigLanguageRouterCandidate(root);
+      ensureConfigYaml(root);
     }
     return {
       ...empty, installed: translated, settings,
@@ -342,6 +386,8 @@ export function runSetup(opts: SetupOptions): SetupResult {
     // (SPEC-0010), because it isn't an external command (T018).
     ensureRouterCandidates(root);
     deliverLocalSkills(root);
+    ensureConfigLanguageRouterCandidate(root);
+    ensureConfigYaml(root);
   }
 
   // Approved (or with no `approval` required), the bridge actually runs

@@ -17,13 +17,17 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
 | Outras fontes | src/cli.ts | CommandOutcome, renderReport, formatReport, formatSetup, parseRecommendOverride, formatRecommend, parseFlags, USAGE_EXTENSION_CREATE |
+| Outras fontes | src/config/schema.ts | LanguageException, LanguageSection, ProjectSection, SystemSection, GitGroup, GitSection, ConfigDocument, SCHEMA_KEYS |
+| Outras fontes | src/config/sync.ts | STACK_PATH, BLOCK, ROW, readMappedFields, syncProjectFromStack |
+| Outras fontes | src/config/write.ts | CONFIG_PATH, ensureConfigFile, backfillConfigFile |
+| Outras fontes | src/config/yaml.ts | SECTION_COMMENTS, serialize, parse, resolveDefault, mergeMissingKeys |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
 | Outras fontes | src/extensions/anchor.ts | anchorMarkers, insertAnchor, readAnchor, readAnchorRange, computeChecksum |
 | Outras fontes | src/extensions/create.ts | TargetFileEnvironment, ROUTER_FILES, resolveTargetPath, EXTENSIONS_DIR, realTargetFileEnvironment, listPresentExtensionNames, CreateOptions, CreateResult |
 | Outras fontes | src/extensions/diagnose.ts | DivergentArtifact, diagnoseExtensions |
 | Outras fontes | src/extensions/registry.ts | ExtensionArtifact, ExtensionRegistry, ChecksumEnvironment, REGISTRY_PATH, realChecksumEnvironment, readExtensionRegistry, writeExtensionRegistry |
 | Outras fontes | src/extensions/repair.ts | QuarantineEnvironment, QUARANTINE_DIR, realQuarantineEnvironment, RepairResult, repairExtension |
-| Outras fontes | src/extensions/router.ts | buildRouterBlock, buildAgentsPointer |
+| Outras fontes | src/extensions/router.ts | buildRouterBlock, buildAgentsPointer, buildConfigLanguageBlock, buildConfigLanguagePointer |
 | Outras fontes | src/hooks/claude-code.ts | TranslatedHook, EVENT_MAP, translateForClaudeCode, wrap, unwrap, FRAGMENT_START, FRAGMENT_END, PREAMBLE |
 | Outras fontes | src/hooks/detect.ts | TargetEnvironment, Detection, TARGET, EVIDENCE, detectTarget |
 | Outras fontes | src/hooks/source.ts | Hook, EVENTS, scalar, scriptFrom, readHook |
@@ -37,7 +41,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem, realBridgeEnvironment |
 | Outras fontes | src/setup/env.ts | detectEnvironment |
 | Outras fontes | src/setup/record.ts | RecordEntry, SkillsRecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
-| Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, ensureRouterCandidates, BUNDLED_SKILLS, SKILL_TARGET_DIRS, deliverLocalSkills, loadHooks |
+| Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, ensureRouterCandidates, ensureConfigLanguageRouterCandidate, ensureConfigYaml, BUNDLED_SKILLS, SKILL_TARGET_DIRS |
 | Outras fontes | src/setup/write.ts | writeSettings, writeRecordFile, readRecordFile |
 | Outras fontes | src/skills/deliver.ts | BundledSkillFile, readBundledSkill, SkillWriteEnvironment, realSkillWriteEnvironment, deliverBundledSkill |
 | Outras fontes | src/skills/executor.ts | resolveSkillsBin, parseSkillNames, realSkillsExecutor, describeSkillsCommand |
@@ -93,6 +97,11 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/cli-setup-drift-real.test.ts | projectWithTarget, run |
 | Testes | tests/cli-setup-real.test.ts | — |
 | Testes | tests/cli-symlink.test.ts | viaLink |
+| Testes | tests/config-backfill.test.ts | mktemp, writeExisting, COMPLETE_YAML |
+| Testes | tests/config-router-block.test.ts | mktemp |
+| Testes | tests/config-schema.test.ts | FORBIDDEN_KEY_TERMS |
+| Testes | tests/config-sync.test.ts | mktemp, COMPLETE_YAML, writeConfig, writeStack |
+| Testes | tests/config-write.test.ts | mktemp |
 | Testes | tests/cycle-command.test.ts | ROOT |
 | Testes | tests/cycle-failure.test.ts | ROOT |
 | Testes | tests/cycle-timings.test.ts | ROOT |
@@ -149,6 +158,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/scripts.test.ts | — |
 | Testes | tests/setup-bridge.test.ts | — |
 | Testes | tests/setup-delivers-bundled-skill.test.ts | — |
+| Testes | tests/setup-delivers-config-yaml.test.ts | — |
 | Testes | tests/setup-detect.test.ts | — |
 | Testes | tests/setup-dryrun.test.ts | — |
 | Testes | tests/setup-idempotent.test.ts | — |

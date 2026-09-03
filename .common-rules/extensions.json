@@ -15,6 +15,22 @@
       "content": "Para o roteador do `common-rules`, leia a seção `common-rules` em `CLAUDE.md`.",
       "checksum": "fb3a5af95bd45a5b279ffb5d4d95eff9c56052739584e7403b8de1e0aa86e585",
       "createdAt": "2026-09-03T11:52:36.208Z"
+    },
+    {
+      "category": "extension",
+      "name": "config-language-rule",
+      "target": "CLAUDE.md",
+      "content": "## common-rules: language\n\nRead `.common-rules/config.yaml` before generating a document or deciding\nwhat language to answer in. Reply in the conversation's language. Write a\ngenerated document in `language.default`, unless its path matches one of\n`language.exceptions`. Notice when the conversation reveals a value that\n`config.yaml` is missing or has out of date, and offer to update it.",
+      "checksum": "74f72f18e6344ca6f3eaba1e18ac00eb39bab2d9776656e2c40b02a7d6f6b866",
+      "createdAt": "2026-09-03T19:08:56.279Z"
+    },
+    {
+      "category": "extension",
+      "name": "config-language-pointer",
+      "target": "AGENTS.md",
+      "content": "For the `common-rules` language rule, read the `common-rules: language` section in `CLAUDE.md`.",
+      "checksum": "cbe68e0cd40c61dd86cce2512d3bb58ecfeb86f0b339584324d2a800332928d9",
+      "createdAt": "2026-09-03T19:08:56.280Z"
     }
   ]
 }
