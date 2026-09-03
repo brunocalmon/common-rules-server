@@ -672,6 +672,7 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
   - [x] **VISUAL**: Não aplicável — funcionalidade sem superfície visual.
   - [x] **EVIDENCE**: GREEN confirmado; arquivo criado: `src/config/schema.ts`.
   - [x] **IMPROVE**: `monitor_context.mjs` exigiu revisão de `PROJECT.md`; avaliado sem impacto observável ainda (schema.ts não está conectado a nenhum comando até T018) e reconhecido via `--acknowledge-project-no-change`; PROJECT.md será revisado de fato após T018, quando a capacidade se tornar observável.
+  - **Correção pós-`Complete` (`DEC-006`)**: os oito valores de dado `reason`/`description` em `buildDefaultConfig` estavam em português, contradizendo `FR-002` (o próprio arquivo declara `en_US`) — traduzidos para inglês, preservando os dois `reason` que descrevem a exceção `specs/*.md`/`docs/**/*.md` (esses continuam corretos, é o conteúdo da própria exceção). Os títulos `describe()` dos treze casos TDD (T001–T013, nos cinco arquivos `tests/config-*.test.ts`) também estavam em português e foram traduzidos na mesma correção, pela mesma causa raiz. `npx vitest run` → 151/151 arquivos GREEN após a correção; `npx tsc --noEmit` limpo.
   <!-- specsfy:evidence {"task":"T014","refs":["US-001","FR-001","FR-002","FR-003","FR-004","NFR-001","NFR-003","AC-001","AC-002","AC-003"],"files":["src/config/schema.ts"],"commands":[{"run":"npm run test:tdd -- config-schema","exit":0}]} -->
 
 - [x] T015 [CODE] [US-001] Implementar serialização/merge e escrita idempotente em src/config/yaml.ts e src/config/write.ts — Refs: US-001, FR-001, FR-005, FR-008, NFR-001, NFR-002, AC-001, AC-004, AC-005, AC-006, AC-013 — Depends: T014, T004, T005, T006, T013
@@ -726,6 +727,7 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
   - [x] **VISUAL**: Não aplicável — funcionalidade sem superfície visual.
   - [x] **EVIDENCE**: GREEN confirmado; arquivo alterado: `src/setup/run.ts`.
   - [x] **IMPROVE**: Simplificação deliberada em relação ao plano original: `ensureConfigYaml(root)` já chama `ensureConfigFile`, `backfillConfigFile` e `syncProjectFromStack` internamente — não foi criada uma terceira função `syncConfigFromStackIfPresent` separada, já que as três operações são idempotentes e formam um único passo coeso "garantir config.yaml completo e sincronizado"; menor mudança de produção sem perder nenhum comportamento coberto por AC.
+  - **Correção pós-`Complete` (`DEC-006`)**: o parágrafo e a célula de tabela que acrescentei a `PROJECT.md` estavam em português — traduzidos para inglês, preservando o restante do arquivo (template pré-existente do Specsfy). `.common-rules/config.yaml` real deste projeto foi apagado e regenerado a partir do `schema.ts` corrigido.
   <!-- specsfy:evidence {"task":"T018","refs":["US-001","US-002","US-003","FR-001","FR-005","FR-006","FR-007","FR-008","AC-001","AC-007","AC-010"],"files":["src/setup/run.ts","PROJECT.md",".specsfy/RULES.md"],"commands":[{"run":"npx vitest run && npx tsc --noEmit && npm run build","exit":0}]} -->
 
 - [x] T019 [TEST] Confirmar entrega ponta a ponta em tests/setup-delivers-config-yaml.test.ts — Refs: US-001, US-002, US-003, FR-001, FR-006, FR-007, AC-001, AC-007, AC-010 — Depends: T018
@@ -743,6 +745,7 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
   - [x] **VISUAL**: Não aplicável — documentação, não interface.
   - [x] **EVIDENCE**: Comando `node .agents/skills/specsfy-aux-stack/scripts/update_stack.mjs --project .` + edição manual da linha `yaml` com evidência `package.json (dependencies)`.
   - [x] **IMPROVE**: Nenhuma melhoria adicional necessária — adiantada durante T015 porque o monitor de contexto já exigia a atualização naquele ponto.
+  - **Correção pós-`Complete` (`DEC-006`)**: o texto que escrevi para a linha `yaml` estava em português — traduzido para inglês, preservando o restante da tabela (conteúdo pré-existente).
 
 - [x] T021 [DOC] Ampliar .specsfy/RULES.md com a exceção de idioma para docs/**/*.md — Refs: FR-002 — Depends: none
   - [x] **PREP**: Reler a regra English-by-default já confirmada em `RULES.md` (linha 77).
@@ -751,6 +754,7 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
   - [x] **VISUAL**: Não aplicável — documentação, não interface.
   - [x] **EVIDENCE**: Edição direta da linha existente em `.specsfy/RULES.md` (preservando ordem e regras anteriores).
   - [x] **IMPROVE**: Nenhuma melhoria adicional necessária — adiantada durante T018 porque o monitor de contexto já exigia a atualização naquele ponto.
+  - **Correção pós-`Complete` (`DEC-006`)**: a frase que acrescentei estava em português — traduzida para inglês, preservando o restante da regra (conteúdo pré-existente).
 
 - [x] T022 [TEST] Executar regressão e rastreabilidade completas via scripts/cycle.mjs — Refs: US-001, US-002, US-003, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, NFR-001, NFR-002, NFR-003, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013 — Depends: T019, T020, T021
   - [x] **PREP**: Suíte completa, `tsc --noEmit` e `npm run build` identificados.
@@ -792,6 +796,7 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 - **DEC-003**: Sincronização `STACK.md` → `project.*` usa um mapeamento fixo e explícito de rótulo de `Camada` (português) para chave de `project`, lendo somente o bloco machine-readable `<!-- specsfy:stack:start -->...end -->` — nunca interpreta a prosa humana do restante do arquivo, para não inventar valor sem evidência estrutural.
 - **DEC-004**: A seção `system` permanece no mesmo arquivo único `config.yaml`, sem arquivo separado (`config.local.yaml`) — decisão explícita do usuário durante o refinamento do backlog, adiada até a forma final do schema justificar a divisão.
 - **DEC-005**: A exceção de idioma amplia `.specsfy/RULES.md` para cobrir também o bloco gerenciado de `docs/**/*.md`, não só `specs/*.md` — motivo: `build_documentation.mjs` gera prosa em português fixa no próprio script (`R-001`), a mesma classe de dependência rígida já registrada para `specs/*.md`.
+- **DEC-006**: Correção pós-`Complete`, sem mudança de requisito — `src/config/schema.ts` gerava os campos `reason` e `description` do próprio `config.yaml` em português, e os títulos `describe()` dos cinco arquivos de teste desta fatia, além do texto acrescentado a `.specsfy/STACK.md`/`.specsfy/RULES.md`/`PROJECT.md`, também estavam em português — contradizendo diretamente `FR-002` (o próprio arquivo declara `language.default: en_US`) e a regra pré-existente de `.specsfy/RULES.md` ("src/**/*.ts, tests/**/*.ts... são em inglês"). Corrigido traduzindo cada trecho de conteúdo autoral desta fatia para inglês, preservando intactos os dois `reason` que **descrevem** a exceção de `specs/*.md`/`docs/**/*.md` (esses continuam corretos como estão — são o próprio conteúdo da exceção, não uma violação dela) e preservando o restante de `STACK.md`/`RULES.md`/`PROJECT.md` (template/conteúdo pré-existente do Specsfy em português, fora do escopo desta correção). `.common-rules/config.yaml` real deste projeto foi apagado e regenerado a partir do `schema.ts` corrigido. Nenhum `FR`/`AC`/`NFR` mudou de comportamento contratado — nenhum cenário verifica o idioma específico do texto gerado, apenas presença estrutural de chave — por isso os gates não foram reabertos, só as evidências das tarefas afetadas foram ampliadas.
 
 ### 18. Definition of Done
 

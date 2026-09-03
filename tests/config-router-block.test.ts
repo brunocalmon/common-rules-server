@@ -10,7 +10,7 @@ function mktemp(): string {
   return mkdtempSync(join(tmpdir(), "common-rules-config-router-"));
 }
 
-describe("AC-007 — roteador recebe a instrução de idioma/config.yaml", () => {
+describe("AC-007 — the router receives the language/config.yaml instruction", () => {
   // SPECSFY: US-002 FR-006 AC-007
   it("delivers the anchored block into CLAUDE.md", () => {
     const root = mktemp();
@@ -31,7 +31,7 @@ describe("AC-007 — roteador recebe a instrução de idioma/config.yaml", () =>
   });
 });
 
-describe("AC-008 — AGENTS.md recebe o ponteiro correspondente", () => {
+describe("AC-008 — AGENTS.md receives the matching pointer", () => {
   // SPECSFY: US-002 FR-006 AC-008
   it("delivers a pointer into AGENTS.md", () => {
     const root = mktemp();
@@ -51,7 +51,7 @@ describe("AC-008 — AGENTS.md recebe o ponteiro correspondente", () => {
   });
 });
 
-describe("AC-009 — instrução do roteador é idempotente", () => {
+describe("AC-009 — the router instruction is idempotent", () => {
   // SPECSFY: US-002 FR-006 NFR-002 AC-009
   it("does not duplicate the block on a second run", () => {
     const root = mktemp();

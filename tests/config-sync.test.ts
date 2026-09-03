@@ -59,7 +59,7 @@ function writeStack(root: string, tableRow: string): string {
   return path;
 }
 
-describe("AC-010 — sincronização popula project a partir de STACK.md", () => {
+describe("AC-010 — sync populates project from STACK.md", () => {
   // SPECSFY: US-003 FR-005 FR-007 AC-010
   it("syncs prog_lang from the Linguagem row and touches nothing else", () => {
     const root = mktemp();
@@ -75,7 +75,7 @@ describe("AC-010 — sincronização popula project a partir de STACK.md", () =>
   });
 });
 
-describe("AC-011 — sincronização é pulada sem STACK.md", () => {
+describe("AC-011 — sync is skipped without STACK.md", () => {
   // SPECSFY: US-003 FR-007 AC-011
   it("does not touch config.yaml when STACK.md is absent", () => {
     const root = mktemp();
@@ -88,7 +88,7 @@ describe("AC-011 — sincronização é pulada sem STACK.md", () => {
   });
 });
 
-describe("AC-012 — sincronização é idempotente", () => {
+describe("AC-012 — sync is idempotent", () => {
   // SPECSFY: US-003 FR-005 FR-007 NFR-002 AC-012
   it("produces byte-identical content on a second run with unchanged STACK.md", () => {
     const root = mktemp();

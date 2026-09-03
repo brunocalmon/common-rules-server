@@ -63,7 +63,7 @@ git:
       ignored: true
 `;
 
-describe("AC-004 — setup não sobrescreve valor já editado pela pessoa", () => {
+describe("AC-004 — setup doesn't overwrite a value the person already edited", () => {
   // SPECSFY: US-001 FR-005 FR-008 NFR-001 AC-004
   it("keeps a manually edited value after running again", () => {
     const root = mktemp();
@@ -75,7 +75,7 @@ describe("AC-004 — setup não sobrescreve valor já editado pela pessoa", () =
   });
 });
 
-describe("AC-005 — chave nova do schema é adicionada sem tocar nas existentes", () => {
+describe("AC-005 — a new schema key is added without touching existing ones", () => {
   // SPECSFY: US-001 FR-008 NFR-001 AC-005
   it("backfills a missing schema key while preserving existing ones", () => {
     const root = mktemp();
@@ -91,7 +91,7 @@ describe("AC-005 — chave nova do schema é adicionada sem tocar nas existentes
   });
 });
 
-describe("AC-006 — backfill é idempotente sobre um arquivo já completo", () => {
+describe("AC-006 — backfill is idempotent over an already-complete file", () => {
   // SPECSFY: US-001 FR-008 NFR-001 NFR-002 AC-006
   it("produces byte-identical content on a second run", () => {
     const root = mktemp();

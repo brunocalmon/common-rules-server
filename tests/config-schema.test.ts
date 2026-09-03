@@ -3,7 +3,7 @@ import { buildDefaultConfig, SCHEMA_KEYS } from "../src/config/schema";
 
 const FORBIDDEN_KEY_TERMS = ["token", "secret", "password", "credential"];
 
-describe("AC-001 — setup cria config.yaml completo num projeto novo", () => {
+describe("AC-001 — setup creates a complete config.yaml for a new project", () => {
   // SPECSFY: US-001 FR-001 FR-002 FR-003 FR-004 NFR-001 NFR-003 AC-001
   it("has every top-level section present", () => {
     const doc = buildDefaultConfig({ platform: () => "linux" });
@@ -43,7 +43,7 @@ describe("AC-001 — setup cria config.yaml completo num projeto novo", () => {
   });
 });
 
-describe("AC-002 — defaults reais de idioma e de git-tracking já vêm povoados", () => {
+describe("AC-002 — real language and git-tracking defaults are already populated", () => {
   // SPECSFY: US-001 FR-002 FR-003 NFR-001 NFR-003 AC-002
   it("pre-populates the two known language exceptions with a reason", () => {
     const doc = buildDefaultConfig({ platform: () => "linux" });
@@ -66,7 +66,7 @@ describe("AC-002 — defaults reais de idioma e de git-tracking já vêm povoado
   });
 });
 
-describe("AC-003 — campo sem evidência disponível fica vazio, nunca ausente", () => {
+describe("AC-003 — a field with no available evidence stays empty, never absent", () => {
   // SPECSFY: US-001 FR-001 FR-003 FR-004 NFR-001 NFR-003 AC-003
   it("leaves code-review-graph and context-mode groups with empty paths", () => {
     const doc = buildDefaultConfig({ platform: () => "linux" });
