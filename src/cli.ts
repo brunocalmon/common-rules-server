@@ -5,6 +5,7 @@ import { realpathSync, readFileSync } from "node:fs";
 import { defaultEnvironment, inspectDependencies, type Report } from "./doctor.js";
 import { runSetup, TARGET_SETTINGS, loadHooks } from "./setup/run.js";
 import { detectEnvironment } from "./setup/env.js";
+import { KNOWN_TARGETS } from "./hooks/detect.js";
 import { readRecordFile } from "./setup/write.js";
 import { RECORD_PATH } from "./setup/record.js";
 import { realSkillsExecutor } from "./skills/executor.js";
@@ -51,8 +52,26 @@ function formatReport(): CommandOutcome {
   return { output: renderReport(report), exitCode: report.exitCode };
 }
 
-/** Formats the setup result, without deciding anything about it. */
-function formatSetup(): CommandOutcome {
+const USAGE_SETUP = "usage: common-rules setup [--target claude-code]";
+
+/**
+ * Formats the setup result, without deciding anything about it.
+ *
+ * `--target`, given, forces detection to that value instead of reading
+ * filesystem evidence — the only way to configure a brand-new project,
+ * since evidence-based detection can never find `.claude/` before `setup`
+ * has run once to create it (a bug found running this exact command
+ * against a fresh project: `target claude-code ignored: no evidence...`
+ * even though the caller was Claude Code itself). The MCP facade is
+ * expected to pass this explicitly, from its own client handshake, rather
+ * than a person needing to type it by hand every time.
+ */
+function formatSetup(args: readonly string[] = []): CommandOutcome {
+  const { target } = parseFlags(args);
+  if (target !== undefined && !KNOWN_TARGETS.includes(target)) {
+    return { output: `${USAGE_SETUP}\nknown targets: ${KNOWN_TARGETS.join(", ")}`, exitCode: 2 };
+  }
+
   // Reading the previous record is what makes idempotency hold in
   // practice: without it the command reinstalls and reports an
   // installation on every run, even though the result on disk is the same.
@@ -63,6 +82,7 @@ function formatSetup(): CommandOutcome {
     root,
     write: true,
     previous,
+    target,
     skills: { execute: realSkillsExecutor() },
     specsfy: { execute: realSpecsfyExecutor() },
     bridgeEnv: realBridgeEnvironment(),

@@ -35,3 +35,34 @@ describe("AC-006 — with no target evidence, nothing is written", () => {
     expect(detectTarget(withEvidence).found).toBe(true);
   });
 });
+
+describe("AC-013 — an explicit target skips evidence entirely", () => {
+  // A brand-new project can never satisfy AC-006's evidence requirement:
+  // .claude/ is what setup would create, so it can't already exist there.
+  // The explicit target is the only path that works on that project.
+  // SPECSFY: US-001 FR-001 AC-013
+  it("recognizes the target with no filesystem evidence at all", () => {
+    const d = detectTarget(noEvidence, "claude-code");
+    expect(d.found).toBe(true);
+    expect(d.target).toBe("claude-code");
+  });
+
+  // SPECSFY: US-001 FR-001 AC-013
+  it("names the flag as the reason, not evidence", () => {
+    expect(detectTarget(noEvidence, "claude-code").reason).toMatch(/--target/);
+  });
+
+  // SPECSFY: US-001 FR-001 AC-013
+  it("refuses an unknown target instead of guessing", () => {
+    const d = detectTarget(noEvidence, "some-editor-nobody-made");
+    expect(d.found).toBe(false);
+    expect(d.reason).toMatch(/unknown target/);
+  });
+
+  // SPECSFY: US-001 FR-001 AC-013
+  it("writes when the explicit target is passed to runSetup, evidence or not", () => {
+    const r = runSetup({ env: noEvidence, write: false, target: "claude-code" });
+    expect(r.exitCode).toBe(0);
+    expect(r.planned.length).toBeGreaterThan(0);
+  });
+});

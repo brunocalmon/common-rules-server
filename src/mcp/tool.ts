@@ -4,6 +4,7 @@ import { readRecordFile } from "../setup/write.js";
 import { RECORD_PATH } from "../setup/record.js";
 import { detectEnvironment } from "../setup/env.js";
 import { validateRoot } from "./root.js";
+import { KNOWN_TARGETS } from "../hooks/detect.js";
 
 export const TOOL_NAME = "setup";
 
@@ -22,6 +23,23 @@ export const inputShape = {
   project_root: z
     .string()
     .describe("Absolute path of the project root to configure. A relative path is refused."),
+  /**
+   * Optional and explicit on purpose: the calling agent already knows which
+   * editor it's running as (its own MCP client identity, its own process),
+   * which is better information than anything this server can read off the
+   * project's filesystem. Absent, detection falls back to filesystem
+   * evidence — the only path that can never succeed on a brand-new project,
+   * since the target's own files don't exist there yet.
+   */
+  target: z
+    .string()
+    .optional()
+    .describe(
+      `Editor to configure explicitly, bypassing filesystem-evidence detection. ` +
+        `One of: ${KNOWN_TARGETS.join(", ")}. Pass this whenever the caller knows its own ` +
+        `identity — which is the normal case for an agent — rather than leaving a brand-new ` +
+        `project, which has none of the target's files yet, undetectable.`,
+    ),
 };
 
 /**
@@ -67,9 +85,19 @@ const refuse = (reason: string): SetupToolResult => ({ isError: true, content: t
  * variable, and passes the root explicitly on every call, so behavior
  * doesn't depend on where the process started.
  */
-export async function executeSetup(args: { project_root?: unknown }): Promise<SetupToolResult> {
+export async function executeSetup(args: {
+  project_root?: unknown;
+  target?: unknown;
+}): Promise<SetupToolResult> {
   const root = validateRoot(args.project_root);
   if (!root.ok) return refuse(root.reason);
+
+  if (args.target !== undefined && typeof args.target !== "string") {
+    return refuse(`target must be a string; known targets: ${KNOWN_TARGETS.join(", ")}`);
+  }
+  if (typeof args.target === "string" && !KNOWN_TARGETS.includes(args.target)) {
+    return refuse(`unknown target "${args.target}"; known targets: ${KNOWN_TARGETS.join(", ")}`);
+  }
 
   try {
     // Reading the previous record is what makes rerunning idempotent. In
@@ -81,6 +109,7 @@ export async function executeSetup(args: { project_root?: unknown }): Promise<Se
       root: root.root,
       write: true,
       previous,
+      target: args.target,
     });
 
     return {

@@ -42,6 +42,13 @@ export interface SetupOptions {
   /** False only to inspect; nothing is written either way when `dryRun`. */
   write: boolean;
   dryRun?: boolean;
+  /**
+   * Forces detection to this target instead of reading filesystem evidence.
+   * Absent, detection falls back to `env` — the only path that works on a
+   * project where the target's own files don't exist yet, since that's
+   * exactly what a first `setup` is for.
+   */
+  target?: string;
   previous?: InstallRecord | null;
   bridgeEnv?: BridgeEnvironment;
   /** Where the Python bridge creates `.venv-crg/`, when it runs. Absent, uses the `common-rules` package's root (`bridgePythonSubsystem`'s own default) — exists so the suite doesn't pollute the repository itself. */
@@ -195,7 +202,7 @@ export function loadHooks(dir: string = hooksDir()): ReturnType<typeof readHook>
  */
 export function runSetup(opts: SetupOptions): SetupResult {
   const version = readVersion();
-  const detection = detectTarget(opts.env);
+  const detection = detectTarget(opts.env, opts.target);
   const empty: SetupResult = {
     installed: [], planned: [], written: [], settings: null, record: null,
     recordPath: RECORD_PATH, report: "", bridged: false, exitCode: 0,

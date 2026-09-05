@@ -16,6 +16,19 @@ export function emptyDirectory(): string {
   return mkdtempSync(join(tmpdir(), "crs-empty-"));
 }
 
+/**
+ * A real project (passes `validateRoot`) that has never been configured
+ * for Claude Code: no `.claude/`, so it has none of `detectTarget`'s
+ * evidence either. This is the actual first-run scenario — a project that
+ * exists, just not one `setup` has touched yet — as opposed to
+ * `emptyDirectory()`, which fails a different, earlier check.
+ */
+export function projectWithoutClaudeCode(): string {
+  const root = mkdtempSync(join(tmpdir(), "crs-no-claude-"));
+  writeFileSync(join(root, "package.json"), '{"name":"disposable"}\n');
+  return root;
+}
+
 /** Recursively lists the relative paths existing under a root. */
 export function fileTree(root: string): string[] {
   if (!existsSync(root)) return [];
