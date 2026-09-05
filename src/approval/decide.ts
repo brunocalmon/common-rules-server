@@ -1,7 +1,8 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readSync } from "node:fs";
 import type { ApprovalChannel } from "./context.js";
 import { renderPlan, type PlannedItem } from "./render.js";
 import type { DependencyCommandItem } from "./plan.js";
+import { readTtyLine, realSyncReader } from "./tty-read.js";
 
 /** Decision source, synchronous by design — see `TraceSource` for the same pattern. */
 export interface DecisionSource {
@@ -13,8 +14,23 @@ export interface StdinReader {
   read(): string;
 }
 
-/** Real, synchronous reader. `readFileSync(0, ...)` blocks until EOF. */
-export const defaultStdinReader: StdinReader = { read: () => readFileSync(0, "utf8") };
+/**
+ * Real, synchronous reader.
+ *
+ * A document arrives piped or redirected, where `readFileSync(0, ...)`
+ * blocks until EOF exactly as intended. A real terminal is different:
+ * `process.stdin.isTTY` is `true` there, and a synchronous read against a
+ * TTY's usually-non-blocking descriptor throws `EAGAIN` instead of
+ * blocking — confirmed by reproducing it under a real pseudo-terminal, not
+ * just reasoned about. `readTtyLine` is the one that actually works on a
+ * terminal — see its own comment for why.
+ */
+export const defaultStdinReader: StdinReader = {
+  read: () =>
+    process.stdin.isTTY
+      ? readTtyLine(realSyncReader((fd, buffer) => readSync(fd, buffer, 0, buffer.length, null)))
+      : readFileSync(0, "utf8"),
+};
 
 /**
  * Document channel: reads JSON from standard input and accepts only `approved: true`.

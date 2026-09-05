@@ -27,6 +27,72 @@ export interface CommandOutcome {
 }
 
 /**
+ * `--help`/`-h`, checked first by every command.
+ *
+ * Found missing entirely: nothing in this CLI documented its own flags,
+ * and worse, an unrecognized flag like a stray `--help` wasn't refused —
+ * `setup`'s own flag parsing silently drops anything it doesn't
+ * recognize and falls through to running the real command anyway. That's
+ * not just a discoverability gap, it's how a typo turns into an
+ * unintended write; every command checks this before doing anything else,
+ * and `setup` additionally refuses flags it doesn't recognize instead of
+ * ignoring them (see `formatSetup`).
+ */
+const HELP_FLAGS = new Set(["--help", "-h"]);
+const hasHelp = (args: readonly string[]): boolean => args.some((a) => HELP_FLAGS.has(a));
+
+const USAGE_VERSION = "usage: common-rules version\n\nPrints the installed version.";
+const USAGE_DOCTOR =
+  "usage: common-rules doctor\n\n" +
+  "Reports every dependency this project's layers need, whether each is present,\n" +
+  "and its version. Exits non-zero when something required is missing.";
+const USAGE_SETUP =
+  "usage: common-rules setup [--target claude-code]\n\n" +
+  "Installs the hooks that connect this project's subsystems to the agent's\n" +
+  "cycle, plus the skills and the Specsfy framework, then records the\n" +
+  "installation so a later run is a no-op when nothing changed.\n\n" +
+  "  --target <name>   Configure this editor explicitly, skipping filesystem-\n" +
+  "                     evidence detection. Known targets: " +
+  KNOWN_TARGETS.join(", ") +
+  ".\n" +
+  "                     Required on a project that has never been configured\n" +
+  "                     for it yet — evidence-based detection can never find\n" +
+  "                     .claude/ before this command has run once to create it.\n\n" +
+  "Without --target, detection falls back to filesystem evidence and does\n" +
+  "nothing when none is found — that's a normal exit, not a failure.\n\n" +
+  "Prompts for approval on a real terminal; reads a JSON document\n" +
+  '({"approved": true}) from standard input otherwise.';
+const USAGE_RECOMMEND =
+  "usage: common-rules recommend [--backend <name>] [--local-model <name>]\n\n" +
+  "Recommends which agent backend and local model to use, based on what's\n" +
+  "installed and the machine's capacity. Both flags override detection by hand\n" +
+  "and are never revalidated against what's actually present.";
+const USAGE_EXTENSION_CREATE =
+  "usage: common-rules extension create --category <override|extension|new> --target <target> --name <name> --file <file-with-the-content>\n\n" +
+  "Writes one extension artifact. The sole write path for this — never edit\n" +
+  "target files by hand, since that's exactly what lets an install detect drift.";
+const USAGE_EXTENSION_REPAIR =
+  "usage: common-rules extension repair --name <name>\n\n" +
+  "Quarantines a divergent extension's content and restores the original.\n" +
+  "Never deletes: the divergent content moves aside, it doesn't disappear.";
+const USAGE_EXTENSION =
+  "usage: common-rules extension <create|repair> ...\n\n" +
+  "  create   " +
+  USAGE_EXTENSION_CREATE.split("\n")[0]!.replace("usage: common-rules extension create ", "") +
+  "\n  repair   " +
+  USAGE_EXTENSION_REPAIR.split("\n")[0]!.replace("usage: common-rules extension repair ", "") +
+  "\n\nRun `common-rules extension <create|repair> --help` for either one's full usage.";
+const USAGE_TOP =
+  "usage: common-rules <command> [options]\n\n" +
+  "Commands:\n" +
+  "  version               Print the installed version.\n" +
+  "  doctor                Report every dependency this project's layers need.\n" +
+  "  setup [--target ...]  Configure this project: hooks, skills, Specsfy.\n" +
+  "  recommend [options]   Recommend an agent backend and local model.\n" +
+  "  extension <create|repair> ...   Manage one extension artifact.\n\n" +
+  "Run `common-rules <command> --help` for a command's full usage.";
+
+/**
  * Formats one line per dependency, with layer, origin and version.
  *
  * Extracted from `formatReport()` to be exercisable with an injected
@@ -47,12 +113,14 @@ export function renderReport(report: Report): string {
   return [...lines, ...divergent].join("\n");
 }
 
-function formatReport(): CommandOutcome {
+function formatReport(args: readonly string[] = []): CommandOutcome {
+  if (hasHelp(args)) return { output: USAGE_DOCTOR, exitCode: 0 };
   const report = inspectDependencies(defaultEnvironment(), process.cwd());
   return { output: renderReport(report), exitCode: report.exitCode };
 }
 
-const USAGE_SETUP = "usage: common-rules setup [--target claude-code]";
+/** Flags `setup` recognizes; anything else is refused, not silently dropped (see `HELP_FLAGS`'s comment for why). */
+const SETUP_FLAGS = new Set(["target"]);
 
 /**
  * Formats the setup result, without deciding anything about it.
@@ -67,9 +135,24 @@ const USAGE_SETUP = "usage: common-rules setup [--target claude-code]";
  * than a person needing to type it by hand every time.
  */
 function formatSetup(args: readonly string[] = []): CommandOutcome {
-  const { target } = parseFlags(args);
+  if (hasHelp(args)) return { output: USAGE_SETUP, exitCode: 0 };
+
+  const flags = parseFlags(args);
+  const unknown = Object.keys(flags).filter((f) => !SETUP_FLAGS.has(f));
+  if (unknown.length > 0) {
+    // The incident this guards: --help alone, with nothing recognizable
+    // after it, used to fall through parseFlags unnoticed and run the real
+    // command — an unrecognized flag is a mistake to report, never a
+    // reason to proceed as if nothing was asked for.
+    return {
+      output: `${USAGE_SETUP}\n\nunrecognized: --${unknown.join(", --")}`,
+      exitCode: 2,
+    };
+  }
+
+  const { target } = flags;
   if (target !== undefined && !KNOWN_TARGETS.includes(target)) {
-    return { output: `${USAGE_SETUP}\nknown targets: ${KNOWN_TARGETS.join(", ")}`, exitCode: 2 };
+    return { output: `${USAGE_SETUP}\n\nknown targets: ${KNOWN_TARGETS.join(", ")}`, exitCode: 2 };
   }
 
   // Reading the previous record is what makes idempotency hold in
@@ -112,6 +195,7 @@ function parseRecommendOverride(args: readonly string[]): RecommendOverride {
 
 /** Resolves the three real sources and prints `recommendation.report` (FR-037). */
 function formatRecommend(args: readonly string[]): CommandOutcome {
+  if (hasHelp(args)) return { output: USAGE_RECOMMEND, exitCode: 0 };
   const r = recommend(
     detectBackends(realBackendEnvironment()),
     listOllamaModels(),
@@ -135,11 +219,10 @@ function parseFlags(args: readonly string[]): Record<string, string> {
   return flags;
 }
 
-const USAGE_EXTENSION_CREATE =
-  "usage: common-rules extension create --category <override|extension|new> --target <target> --name <name> --file <file-with-the-content>";
-
 /** `common-rules extension create` — sole write path for an extension artifact (FR-080, NFR-083). */
 function formatExtensionCreate(args: readonly string[]): CommandOutcome {
+  if (hasHelp(args)) return { output: USAGE_EXTENSION_CREATE, exitCode: 0 };
+
   const { category, target, name, file } = parseFlags(args);
   if (category !== "override" && category !== "extension" && category !== "new") {
     return { output: USAGE_EXTENSION_CREATE, exitCode: 2 };
@@ -165,8 +248,10 @@ function formatExtensionCreate(args: readonly string[]): CommandOutcome {
 
 /** `common-rules extension repair` — quarantines the divergent one and restores the original, never deletes (FR-084, FR-085). */
 function formatExtensionRepair(args: readonly string[]): CommandOutcome {
+  if (hasHelp(args)) return { output: USAGE_EXTENSION_REPAIR, exitCode: 0 };
+
   const { name } = parseFlags(args);
-  if (!name) return { output: "usage: common-rules extension repair --name <name>", exitCode: 2 };
+  if (!name) return { output: USAGE_EXTENSION_REPAIR, exitCode: 2 };
 
   const root = process.cwd();
   const registryEnv = realChecksumEnvironment(root);
@@ -189,11 +274,11 @@ function formatExtension(args: readonly string[]): CommandOutcome {
   const sub = args[0];
   if (sub === "create") return formatExtensionCreate(args.slice(1));
   if (sub === "repair") return formatExtensionRepair(args.slice(1));
-  return { output: "usage: common-rules extension <create|repair> ...", exitCode: 2 };
+  return { output: USAGE_EXTENSION, exitCode: hasHelp(args) ? 0 : 2 };
 }
 
 export const COMMANDS: Record<string, (args: readonly string[]) => CommandOutcome> = {
-  version: () => ({ output: readVersion(), exitCode: 0 }),
+  version: (args) => (hasHelp(args) ? { output: USAGE_VERSION, exitCode: 0 } : { output: readVersion(), exitCode: 0 }),
   doctor: formatReport,
   setup: formatSetup,
   recommend: formatRecommend,
@@ -218,10 +303,18 @@ export function resolveCommand(args: readonly string[]): string | null {
 }
 
 export function run(args: readonly string[]): CommandOutcome {
+  // Checked before command resolution, not added as a "help" entry to
+  // COMMANDS: a no-args invocation and a top-level --help both want the
+  // same full listing, and neither is a command with a return value of its
+  // own to fold in there.
+  if (args.length === 0 || HELP_FLAGS.has(args[0]!)) {
+    return { output: USAGE_TOP, exitCode: args.length === 0 ? 2 : 0 };
+  }
+
   const name = resolveCommand(args);
   if (name === null) {
     const known = Object.keys(COMMANDS).join(", ");
-    return { output: `unrecognized command. Available: ${known}`, exitCode: 2 };
+    return { output: `unrecognized command "${args[0]}". Available: ${known}.\n\n${USAGE_TOP}`, exitCode: 2 };
   }
   const command = COMMANDS[name];
   if (command === undefined) return { output: `command ${name} has no implementation`, exitCode: 2 };
