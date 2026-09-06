@@ -12,14 +12,22 @@
 | npm | produção | yaml | 2.9.0 | JavaScript parser and stringifier for YAML | github:eemeli/yaml |
 | npm | produção | zod | 3.25.76 | TypeScript-first schema declaration and validation library with static type inference | https://github.com/colinhacks/zod |
 | npm | desenvolvimento | @types/node | 26.3.0 | TypeScript definitions for node | https://github.com/DefinitelyTyped/DefinitelyTyped |
+| npm | desenvolvimento | @vitest/coverage-v8 | 4.1.11 | V8 coverage provider for Vitest | https://github.com/vitest-dev/vitest |
 | npm | desenvolvimento | typescript | 7.0.2 | TypeScript is a language for application scale JavaScript development | https://github.com/microsoft/TypeScript |
 | npm | desenvolvimento | vitest | 4.1.11 | Next generation testing framework powered by Vite | https://github.com/vitest-dev/vitest |
+| npm | transitiva | @babel/helper-string-parser | 7.29.7 | A utility package to parse strings | https://github.com/babel/babel |
+| npm | transitiva | @babel/helper-validator-identifier | 7.29.7 | Validate identifier/keywords name | https://github.com/babel/babel |
+| npm | transitiva | @babel/parser | 7.29.8 | A JavaScript parser | https://github.com/babel/babel |
+| npm | transitiva | @babel/types | 7.29.8 | Babel Types is a Lodash-esque utility library for AST nodes | https://github.com/babel/babel |
+| npm | transitiva | @bcoe/v8-coverage | 1.0.2 | Helper functions for V8 coverage files. | git://github.com/bcoe/v8-coverage |
 | npm | transitiva | @clack/core | 1.4.3 | Finalidade não descrita nos metadados locais. | https://github.com/bombshell-dev/clack |
 | npm | transitiva | @clack/prompts | 1.7.0 | Finalidade não descrita nos metadados locais. | https://github.com/bombshell-dev/clack |
 | npm | transitiva | @colors/colors | 1.5.0 | get colors in your node.js console | http://github.com/DABH/colors.js |
 | npm | transitiva | @hono/node-server | 2.1.1 | Node.js Adapter for Hono | https://github.com/honojs/node-server |
 | npm | transitiva | @isaacs/fs-minipass | 4.0.1 | fs read and write streams based on minipass | https://github.com/npm/fs-minipass |
+| npm | transitiva | @jridgewell/resolve-uri | 3.1.2 | Resolve a URI relative to an optional base URI | https://github.com/jridgewell/resolve-uri |
 | npm | transitiva | @jridgewell/sourcemap-codec | 1.5.5 | Encode/decode sourcemap mappings | https://github.com/jridgewell/sourcemaps |
+| npm | transitiva | @jridgewell/trace-mapping | 0.3.31 | Trace the original position through a source map | https://github.com/jridgewell/sourcemaps |
 | npm | transitiva | @mixmark-io/domino | 2.2.0 | Server-side DOM implementation based on Mozilla's dom.js | https://github.com/mixmark-io/domino |
 | npm | transitiva | @modelcontextprotocol/sdk | 1.30.0 | Model Context Protocol implementation for TypeScript | https://github.com/modelcontextprotocol/typescript-sdk |
 | npm | transitiva | @oxc-project/types | 0.146.0 | Types for Oxc AST nodes | https://github.com/oxc-project/oxc |
@@ -66,6 +74,7 @@
 | npm | transitiva | @typescript/typescript-sunos-x64 | 7.0.2 | Finalidade não descrita nos metadados locais. |  |
 | npm | transitiva | @typescript/typescript-win32-arm64 | 7.0.2 | Finalidade não descrita nos metadados locais. |  |
 | npm | transitiva | @typescript/typescript-win32-x64 | 7.0.2 | Finalidade não descrita nos metadados locais. |  |
+| npm | transitiva | @vitest/coverage-v8 | 4.1.11 | V8 coverage provider for Vitest | https://github.com/vitest-dev/vitest |
 | npm | transitiva | @vitest/expect | 4.1.11 | Jest's expect matchers as a Chai plugin | https://github.com/vitest-dev/vitest |
 | npm | transitiva | @vitest/mocker | 4.1.11 | Vitest module mocker implementation | https://github.com/vitest-dev/vitest |
 | npm | transitiva | @vitest/pretty-format | 4.1.11 | Fork of pretty-format with support for ESM | https://github.com/vitest-dev/vitest |
@@ -81,6 +90,7 @@
 | npm | transitiva | ansi-styles | 4.3.0 | ANSI escape codes for styling strings in the terminal | chalk/ansi-styles |
 | npm | transitiva | any-promise | 1.3.0 | Resolve any installed ES6 compatible promise | https://github.com/kevinbeaty/any-promise |
 | npm | transitiva | assertion-error | 2.0.1 | Error constructor for test and validation frameworks that implements standardized AssertionError specification. | git@github.com:chaijs/assertion-error |
+| npm | transitiva | ast-v8-to-istanbul | 1.0.5 | AST-aware v8-to-istanbul | https://github.com/AriPerkkio/ast-v8-to-istanbul |
 | npm | transitiva | base64-js | 1.5.1 | Base64 encoding/decoding in pure JS | git://github.com/beatgammit/base64-js |
 | npm | transitiva | better-sqlite3 | 12.11.1 | The fastest and simplest library for SQLite in Node.js. | git://github.com/WiseLibs/better-sqlite3 |
 | npm | transitiva | bindings | 1.5.0 | Helper module for loading your native module's .node file | git://github.com/TooTallNate/node-bindings |
@@ -159,6 +169,7 @@
 | npm | transitiva | hasown | 2.0.4 | A robust, ES3 compatible, "has own property" predicate. | https://github.com/inspect-js/hasOwn |
 | npm | transitiva | highlight.js | 10.7.3 | Syntax highlighting with language autodetection. | git://github.com/highlightjs/highlight.js |
 | npm | transitiva | hono | 4.13.4 | Web framework built on Web Standards | https://github.com/honojs/hono |
+| npm | transitiva | html-escaper | 2.0.2 | fast and safe way to escape and unescape &<>'" chars | https://github.com/WebReflection/html-escaper |
 | npm | transitiva | http-errors | 2.0.1 | Create HTTP error objects | jshttp/http-errors |
 | npm | transitiva | iconv-lite | 0.7.3 | Convert character encodings in pure javascript. | https://github.com/pillarjs/iconv-lite |
 | npm | transitiva | ieee754 | 1.2.1 | Read/write IEEE754 floating point numbers from/to a Buffer or array-like object | git://github.com/feross/ieee754 |
@@ -169,7 +180,11 @@
 | npm | transitiva | is-fullwidth-code-point | 3.0.0 | Check if the character represented by a given Unicode code point is fullwidth | sindresorhus/is-fullwidth-code-point |
 | npm | transitiva | is-promise | 4.0.0 | Test whether an object looks like a promises-a+ promise | https://github.com/then/is-promise |
 | npm | transitiva | isexe | 2.0.0 | Minimal module to check if a file is executable. | https://github.com/isaacs/isexe |
+| npm | transitiva | istanbul-lib-coverage | 3.2.2 | Data library for istanbul coverage objects | ssh://git@github.com/istanbuljs/istanbuljs |
+| npm | transitiva | istanbul-lib-report | 3.0.1 | Base reporting library for istanbul | ssh://git@github.com/istanbuljs/istanbuljs |
+| npm | transitiva | istanbul-reports | 3.2.0 | istanbul reports | ssh://git@github.com/istanbuljs/istanbuljs |
 | npm | transitiva | jose | 6.2.10 | JWA, JWS, JWE, JWT, JWK, JWKS for Node.js, Browser, Cloudflare Workers, Deno, Bun, and other Web-interoperable runtimes | panva/jose |
+| npm | transitiva | js-tokens | 10.0.0 | Tiny JavaScript tokenizer. | lydell/js-tokens |
 | npm | transitiva | json-schema-traverse | 1.0.0 | Traverse JSON Schema passing each schema object to callback | https://github.com/epoberezkin/json-schema-traverse |
 | npm | transitiva | json-schema-typed | 8.0.2 | JSON Schema TypeScript definitions with complete inline documentation. | https://github.com/RemyRylan/json-schema-typed |
 | npm | transitiva | lightningcss | 1.33.0 | A CSS parser, transformer, and minifier written in Rust | https://github.com/parcel-bundler/lightningcss |
@@ -185,6 +200,8 @@
 | npm | transitiva | lightningcss-win32-arm64-msvc | 1.33.0 | Finalidade não descrita nos metadados locais. |  |
 | npm | transitiva | lightningcss-win32-x64-msvc | 1.33.0 | Finalidade não descrita nos metadados locais. |  |
 | npm | transitiva | magic-string | 0.30.21 | Modify strings, generate sourcemaps | https://github.com/Rich-Harris/magic-string |
+| npm | transitiva | magicast | 0.5.4 | Modify a JS/TS file and write back magically just like JSON! | unjs/magicast |
+| npm | transitiva | make-dir | 4.0.0 | Make a directory and its parents if needed - Think `mkdir -p` | sindresorhus/make-dir |
 | npm | transitiva | marked | 15.0.12 | A markdown parser built for speed | git://github.com/markedjs/marked |
 | npm | transitiva | marked-terminal | 7.3.0 | A custom render for marked to output to the Terminal | https://github.com/mikaelbr/marked-terminal |
 | npm | transitiva | math-intrinsics | 1.1.0 | ES Math-related intrinsics and helpers, robustly cached. | https://github.com/es-shims/math-intrinsics |

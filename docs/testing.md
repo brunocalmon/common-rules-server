@@ -3,9 +3,9 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 159.
+- Arquivos de teste: 166.
 - Runner: Vitest.
-- Scripts: build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
+- Scripts: prepare: node scripts/install-git-hooks.mjs; prebuild: node scripts/check-version-checksum.mjs; build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
 | Arquivo |
 | --- |
@@ -17,6 +17,7 @@
 | tests/approval-plan-completo.test.ts |
 | tests/approval-recusa-nao-grava.test.ts |
 | tests/approval-registro-corrompido.test.ts |
+| tests/approval-tty-read.test.ts |
 | tests/aprovacao-contexto-canalizado.test.ts |
 | tests/aprovacao-contexto-terminal.test.ts |
 | tests/aprovacao-documento-aprova.test.ts |
@@ -49,6 +50,7 @@
 | tests/budget.test.ts |
 | tests/build.test.ts |
 | tests/cli-approval-real.test.ts |
+| tests/cli-help.test.ts |
 | tests/cli-setup-drift-real.test.ts |
 | tests/cli-setup-real.test.ts |
 | tests/cli-symlink.test.ts |
@@ -82,6 +84,7 @@
 | tests/hooks-escape.test.ts |
 | tests/hooks-permissive.test.ts |
 | tests/hooks-raw-command.test.ts |
+| tests/hooks-resolve.test.ts |
 | tests/hooks-translate.test.ts |
 | tests/local-run.test.ts |
 | tests/manifest.test.ts |
@@ -93,9 +96,11 @@
 | tests/mcp-parity.test.ts |
 | tests/mcp-root.test.ts |
 | tests/mcp-surface.test.ts |
+| tests/mcp-tool-full-parity.test.ts |
 | tests/mcp-tool-install.test.ts |
 | tests/mcp-tool-invalid-root.test.ts |
 | tests/mcp-tool-missing-root.test.ts |
+| tests/mcp-tool-target.test.ts |
 | tests/models-backend-ausente.test.ts |
 | tests/models-backend-recomendado.test.ts |
 | tests/models-fixtures.ts |
@@ -108,12 +113,14 @@
 | tests/models-override-parcial.test.ts |
 | tests/models-paridade-real.test.ts |
 | tests/models-recommend-real.test.ts |
+| tests/models-recommend.test.ts |
 | tests/models-sem-credencial.test.ts |
 | tests/pinning.test.ts |
 | tests/scripts.test.ts |
 | tests/setup-bridge.test.ts |
 | tests/setup-delivers-bundled-skill.test.ts |
 | tests/setup-delivers-config-yaml.test.ts |
+| tests/setup-dependency-resolution.test.ts |
 | tests/setup-detect.test.ts |
 | tests/setup-dryrun.test.ts |
 | tests/setup-idempotent.test.ts |

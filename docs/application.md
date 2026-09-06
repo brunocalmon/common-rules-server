@@ -14,9 +14,10 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/approval/plan.ts | DependencyCommandItem, CommandCandidate, assembleDependencyCommands, partitionByApproval, recordApproval |
 | Outras fontes | src/approval/registry.ts | ApprovedCommand, ApprovalRegistry, RegistryEnvironment, REGISTRY_PATH, realRegistryEnvironment, readApprovalRegistry, writeApprovalRegistry, isApproved |
 | Outras fontes | src/approval/render.ts | PlannedItem, RenderedPlan, renderPlan |
+| Outras fontes | src/approval/tty-read.ts | SyncReader, atomicsSleep, realSyncReader, NEWLINE, RETRY_DELAY_MS, readTtyLine |
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
-| Outras fontes | src/cli.ts | CommandOutcome, renderReport, formatReport, formatSetup, parseRecommendOverride, formatRecommend, parseFlags, USAGE_EXTENSION_CREATE |
+| Outras fontes | src/cli.ts | CommandOutcome, HELP_FLAGS, USAGE_VERSION, USAGE_DOCTOR, USAGE_SETUP, USAGE_RECOMMEND, USAGE_EXTENSION_CREATE, USAGE_EXTENSION_REPAIR |
 | Outras fontes | src/config/schema.ts | LanguageException, LanguageSection, ProjectSection, SystemSection, GitGroup, GitSection, ConfigDocument, SCHEMA_KEYS |
 | Outras fontes | src/config/sync.ts | STACK_PATH, BLOCK, ROW, readMappedFields, syncProjectFromStack |
 | Outras fontes | src/config/write.ts | CONFIG_PATH, ensureConfigFile, backfillConfigFile |
@@ -29,7 +30,8 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/extensions/repair.ts | QuarantineEnvironment, QUARANTINE_DIR, realQuarantineEnvironment, RepairResult, repairExtension |
 | Outras fontes | src/extensions/router.ts | buildRouterBlock, buildAgentsPointer, buildConfigLanguageBlock, buildConfigLanguagePointer |
 | Outras fontes | src/hooks/claude-code.ts | TranslatedHook, EVENT_MAP, translateForClaudeCode, wrap, unwrap, FRAGMENT_START, FRAGMENT_END, PREAMBLE |
-| Outras fontes | src/hooks/detect.ts | TargetEnvironment, Detection, TARGET, EVIDENCE, detectTarget |
+| Outras fontes | src/hooks/detect.ts | TargetEnvironment, Detection, TARGET, KNOWN_TARGETS, EVIDENCE, detectTarget |
+| Outras fontes | src/hooks/resolve.ts | shellQuote, resolveHookCommand |
 | Outras fontes | src/hooks/source.ts | Hook, EVENTS, scalar, scriptFrom, readHook |
 | Outras fontes | src/mcp/main.ts | — |
 | Outras fontes | src/mcp/root.ts | PROJECT_MARKERS, never, validateRoot |
@@ -39,6 +41,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/models/ollama.ts | OllamaModel, OllamaSnapshot, OllamaEnvironment, UNITS, sizeToBytes, parseOllamaList, realOllamaEnvironment, listOllamaModels |
 | Outras fontes | src/models/recommend.ts | RecommendOverride, Recommendation, recommendBackend, recommendLocalModel, renderReport, recommend |
 | Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem, realBridgeEnvironment |
+| Outras fontes | src/setup/dependency-resolution.ts | CONTEXT_MODE, only, buildDependencyResolution, codeReviewGraphWillBeLocal |
 | Outras fontes | src/setup/env.ts | detectEnvironment |
 | Outras fontes | src/setup/record.ts | RecordEntry, SkillsRecordEntry, InstallRecord, RECORD_PATH, readRecord, writeRecord, entriesToRemove, matches |
 | Outras fontes | src/setup/run.ts | TARGET_SETTINGS, SetupOptions, SetupResult, ensureRouterCandidates, ensureConfigLanguageRouterCandidate, ensureConfigYaml, BUNDLED_SKILLS, SKILL_TARGET_DIRS |
@@ -62,6 +65,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/approval-plan-completo.test.ts | — |
 | Testes | tests/approval-recusa-nao-grava.test.ts | — |
 | Testes | tests/approval-registro-corrompido.test.ts | — |
+| Testes | tests/approval-tty-read.test.ts | fakeTty |
 | Testes | tests/aprovacao-contexto-canalizado.test.ts | — |
 | Testes | tests/aprovacao-contexto-terminal.test.ts | — |
 | Testes | tests/aprovacao-documento-aprova.test.ts | — |
@@ -94,6 +98,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
 | Testes | tests/cli-approval-real.test.ts | projectWithTarget |
+| Testes | tests/cli-help.test.ts | — |
 | Testes | tests/cli-setup-drift-real.test.ts | projectWithTarget, run |
 | Testes | tests/cli-setup-real.test.ts | — |
 | Testes | tests/cli-symlink.test.ts | viaLink |
@@ -127,20 +132,23 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/hooks-escape.test.ts | HOSTILE |
 | Testes | tests/hooks-permissive.test.ts | CORPUS, runGuard |
 | Testes | tests/hooks-raw-command.test.ts | HOOKS_WITHOUT_BLOCK, declaredCommand |
+| Testes | tests/hooks-resolve.test.ts | — |
 | Testes | tests/hooks-translate.test.ts | CORPUS |
 | Testes | tests/local-run.test.ts | ROOT |
 | Testes | tests/manifest.test.ts | NPM_SUBSYSTEMS |
 | Testes | tests/mcp-confinement.test.ts | — |
 | Testes | tests/mcp-environment.test.ts | — |
 | Testes | tests/mcp-failure.test.ts | rootWithoutPermission |
-| Testes | tests/mcp-fixtures.ts | disposableProject, emptyDirectory, fileTree |
+| Testes | tests/mcp-fixtures.ts | disposableProject, emptyDirectory, projectWithoutClaudeCode, fileTree |
 | Testes | tests/mcp-idempotent.test.ts | — |
 | Testes | tests/mcp-parity.test.ts | viaCommandLine |
 | Testes | tests/mcp-root.test.ts | — |
 | Testes | tests/mcp-surface.test.ts | connect |
+| Testes | tests/mcp-tool-full-parity.test.ts | — |
 | Testes | tests/mcp-tool-install.test.ts | — |
 | Testes | tests/mcp-tool-invalid-root.test.ts | — |
 | Testes | tests/mcp-tool-missing-root.test.ts | — |
+| Testes | tests/mcp-tool-target.test.ts | — |
 | Testes | tests/models-backend-ausente.test.ts | — |
 | Testes | tests/models-backend-recomendado.test.ts | — |
 | Testes | tests/models-fixtures.ts | backendsFake, modelFake, ollamaPresent, capacityFake |
@@ -153,19 +161,21 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/models-override-parcial.test.ts | — |
 | Testes | tests/models-paridade-real.test.ts | realOllamaList |
 | Testes | tests/models-recommend-real.test.ts | — |
+| Testes | tests/models-recommend.test.ts | — |
 | Testes | tests/models-sem-credencial.test.ts | CREDENTIAL_VARIABLES |
 | Testes | tests/pinning.test.ts | PINNED |
 | Testes | tests/scripts.test.ts | — |
 | Testes | tests/setup-bridge.test.ts | — |
 | Testes | tests/setup-delivers-bundled-skill.test.ts | — |
 | Testes | tests/setup-delivers-config-yaml.test.ts | — |
+| Testes | tests/setup-dependency-resolution.test.ts | commandsIn |
 | Testes | tests/setup-detect.test.ts | — |
-| Testes | tests/setup-dryrun.test.ts | — |
-| Testes | tests/setup-idempotent.test.ts | — |
-| Testes | tests/setup-install.test.ts | — |
+| Testes | tests/setup-dryrun.test.ts | project |
+| Testes | tests/setup-idempotent.test.ts | project |
+| Testes | tests/setup-install.test.ts | project |
 | Testes | tests/setup-jafeito-skills-specsfy.test.ts | fakeSpecsfyExecutor, specsfyExecutorThatThrowsIfCalled |
-| Testes | tests/setup-record.test.ts | — |
-| Testes | tests/setup-revert.test.ts | — |
+| Testes | tests/setup-record.test.ts | project |
+| Testes | tests/setup-revert.test.ts | project |
 | Testes | tests/setup-skills-sem-registro-anterior.test.ts | — |
 | Testes | tests/setup-surface.test.ts | FORBIDDEN |
 | Testes | tests/setup-writes.test.ts | project |
@@ -193,7 +203,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/specsfy-install-alvo.test.ts | — |
 | Testes | tests/specsfy-install-falha.test.ts | — |
 | Testes | tests/specsfy-install-idempotente.test.ts | — |
-| Testes | tests/specsfy-install-real.test.ts | gitRoot |
+| Testes | tests/specsfy-install-real.test.ts | gitRoot, of |
 | Testes | tests/surface.test.ts | FORBIDDEN |
 | Testes | tests/trace-doctor-relata.test.ts | report |
 | Testes | tests/trace-doctor-sem-registro.test.ts | — |
