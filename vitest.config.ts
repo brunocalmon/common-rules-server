@@ -1,3 +1,4 @@
+import { availableParallelism } from "node:os";
 import { defineConfig } from "vitest/config";
 
 // O escopo é restrito a tests/ por necessidade, não por estilo.
@@ -28,7 +29,19 @@ export default defineConfig({
     // foi removido no Vitest 4 (achado real, 2026-09-02, rodando a suíte:
     // aviso de depreciação "poolOptions was removed... now top-level
     // options") — a opção de fato aplicada hoje é `maxWorkers`.
+    //
+    // O "4" fixo original foi calibrado para a máquina de 16 núcleos do
+    // achado acima — mas o mesmo sintoma (spawnSync falhando por exaustão
+    // de fork(), não por timeout) reapareceu de verdade rodando esta suíte
+    // no runner padrão do GitHub Actions (2 vCPUs): tests/specsfy-install-
+    // real.test.ts falhava de forma consistente dentro da suíte completa
+    // (3/3 tentativas, incluindo retries) enquanto a mesma chamada
+    // spawnSync, isolada, sempre teve sucesso no mesmo runner — a
+    // assinatura exata do problema já documentado aqui, só que num
+    // ambiente com menos núcleos ainda. `4` fixo presume núcleos que um
+    // runner de CI pequeno não tem; limitar ao paralelismo real disponível
+    // evita subscrever o SO em qualquer máquina, não só nesta.
     testTimeout: 30_000,
-    maxWorkers: 4,
+    maxWorkers: Math.max(1, Math.min(4, availableParallelism())),
   },
 });
