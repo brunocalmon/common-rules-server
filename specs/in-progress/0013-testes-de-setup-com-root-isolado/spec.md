@@ -428,7 +428,7 @@ src/setup/run.ts             (lido, não modificado — fallback preservado)
 
 | IDs | BDD de referência | Teste TDD informado pelo BDD | RED observado | GREEN observado | Refactor/regressão |
 | --- | --- | --- | --- | --- | --- |
-| US-001, FR-001, FR-002, NFR-001, AC-001 | AC-001 na seção 6 | Verificação manual: `git status --porcelain` antes/depois de `npx vitest run` completo (sem unidade isolada possível, ver "Verificação manual" acima); marcador `SPECSFY:` registrado no changelog da tarefa T006 | Pending | Pending | Pending |
+| US-001, FR-001, FR-002, NFR-001, AC-001 | AC-001 na seção 6 | Verificação manual: `git status --porcelain` antes/depois de `npx vitest run` completo (sem unidade isolada possível, ver "Verificação manual" acima); marcador `SPECSFY:` registrado no changelog da tarefa T006 | **RED** (histórico da sessão): a suíte completa sujava o repositório em toda rodada, exigindo reversão manual repetida | **GREEN (T006)**: duas rodadas completas seguidas, 425/425 testes, `git status --porcelain` vazio nas duas | **Passed** |
 | US-001, FR-001, NFR-001, AC-002 | AC-002 na seção 6 | Por arquivo (T001–T005): RED = rodar `npx vitest run <arquivo>` no estado atual e `git status --porcelain` fica sujo; edição para criar `root` via `mkdtempSync` e passá-lo a `runSetup`, marcador `SPECSFY:` no comentário do helper; GREEN = mesmo comando, `git status --porcelain` vazio | **RED, T001–T004**: cada arquivo, rodado no estado original, passa (4/4) mas suja `.claude/settings.json` e `.common-rules/install.json`. **T005 (dryrun) é exceção**: já rodava limpo — `dryRun: true` retorna antes de qualquer escrita, independente de `root` | **GREEN, T001–T005**: todos os cinco, com `root` via `project()`, mantêm as mesmas asserções e `git status --porcelain` limpo | **Passed — T001–T005 completos** |
 | US-001, FR-002, NFR-001, AC-003 | AC-003 na seção 6 | As 16 asserções já existentes nesses cinco arquivos, executadas sem alteração de expectativa | Pending | Pending | Pending |
 | US-001, FR-001, FR-002, AC-004 | AC-004 na seção 6 | Cada um dos cinco arquivos rodado individualmente (`npx vitest run tests/<arquivo>.test.ts`), fora da suíte completa | Ver T001–T005 acima | Ver T001–T005 acima | **Passed** — os cinco rodam isoladamente sem depender da suíte completa |
@@ -439,7 +439,7 @@ src/setup/run.ts             (lido, não modificado — fallback preservado)
 | --- | --- | --- | --- | --- |
 | FR-001 | AC-002 | Unidade (edição) | tests/setup-idempotent.test.ts, tests/setup-revert.test.ts, tests/setup-record.test.ts, tests/setup-install.test.ts, tests/setup-dryrun.test.ts | Passed — todos os cinco (T001–T005) |
 | FR-002 | AC-003 | Regressão | `npx vitest run tests/setup-idempotent.test.ts tests/setup-revert.test.ts tests/setup-record.test.ts tests/setup-install.test.ts tests/setup-dryrun.test.ts` | Passed — 19/19 asserções, mesmo resultado de antes das edições (ver T006 para a regressão da suíte completa) |
-| NFR-001 | AC-001 | Verificação manual | `git status --porcelain` antes/depois de `npx vitest run` completo | Pending (T006) |
+| NFR-001 | AC-001 | Verificação manual | `git status --porcelain` antes/depois de `npx vitest run` completo | Passed — duas rodadas completas seguidas (T006), 425/425, repositório limpo nas duas |
 | FR-001, FR-002 | AC-004 | Unidade (por arquivo) | `npx vitest run tests/setup-idempotent.test.ts` (e o mesmo comando para cada um dos outros quatro) | Passed — os cinco rodados individualmente, ver T001–T005 |
 
 ### 13. Validações
@@ -537,13 +537,13 @@ sem nenhuma asserção mudando de resultado.
 
 #### Fase final — Qualidade
 
-- [ ] T006 [TEST] [TDD] Regressão completa e verificação de isolamento real, medida em .common-rules/install.json — Refs: US-001, FR-001, FR-002, NFR-001, AC-001, AC-002, AC-003, AC-004 — Depends: T001, T002, T003, T004, T005
-  - [ ] **PREP**: Confirmar repositório limpo (`git status --porcelain` vazio) antes de iniciar.
-  - [ ] **EXECUTE**: Rodar `npx vitest run` (suíte completa) duas vezes seguidas.
-  - [ ] **VERIFY**: Confirmar `git status --porcelain` vazio depois de cada uma das duas rodadas, e que todos os 412+ testes da suíte continuam passando.
-  - [ ] **VISUAL**: Não aplicável — nenhuma superfície visual envolvida.
-  - [ ] **EVIDENCE**: Registrar contagem de testes, saída de `git status --porcelain` (vazia) e comandos executados.
-  - [ ] **IMPROVE**: Registrar retrospectiva — por exemplo, se vale a pena extrair um helper de fixture compartilhado (ver DEC-001) numa iteração futura.
+- [x] T006 [TEST] [TDD] Regressão completa e verificação de isolamento real, medida em .common-rules/install.json — Refs: US-001, FR-001, FR-002, NFR-001, AC-001, AC-002, AC-003, AC-004 — Depends: T001, T002, T003, T004, T005
+  - [x] **PREP**: Confirmar repositório limpo (`git status --porcelain` vazio) antes de iniciar. Confirmado vazio.
+  - [x] **EXECUTE**: Rodar `npx vitest run` (suíte completa) duas vezes seguidas. Executado.
+  - [x] **VERIFY**: `git status --porcelain` vazio depois de cada uma das duas rodadas, e que todos os testes continuam passando. **Rodada 1**: 158 arquivos, 425/425 testes, `git status --porcelain` vazio. **Rodada 2**: idêntico, 158/425, vazio de novo. É a primeira vez nesta sessão inteira que a suíte completa roda sem sujar o repositório — antes exigia reverter manualmente (`git checkout -- .claude/settings.json .common-rules/install.json`) toda vez.
+  - [x] **VISUAL**: Não aplicável — nenhuma superfície visual envolvida.
+  - [x] **EVIDENCE**: Registrado acima e nas seções 11–12.
+  - [x] **IMPROVE**: Nenhuma melhoria adicional necessária agora — a extração de um helper de fixture compartilhado (DEC-001) permanece uma melhoria futura opcional, deliberadamente fora de escopo desta entrega.
   <!-- specsfy:evidence {"task":"T006","refs":["US-001","FR-001","FR-002","NFR-001","AC-001","AC-002","AC-003","AC-004"],"files":[],"commands":[{"run":"npx vitest run","exit":0},{"run":"git status --porcelain","exit":0}]} -->
 
 ### 15. Ordem de execução
