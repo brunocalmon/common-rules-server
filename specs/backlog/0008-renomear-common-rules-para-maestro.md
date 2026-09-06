@@ -11,7 +11,7 @@
 | Prioridade | Sem gatilho — pronta para especificar quando priorizada (decisão do usuário, rodada 7) |
 | Milestones | |
 | Criado em | 2026-09-06 |
-| Spec promovida | specs/draft/0014-renomear-common-rules-para-maestro/spec.md |
+| Spec promovida | specs/completed/0014-renomear-common-rules-para-maestro/spec.md (Complete, 2026-09-06) |
 
 ## Ideia original
 

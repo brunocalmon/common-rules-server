@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0014 |
 | Slug | 0014-renomear-common-rules-para-maestro |
-| Status | Implementing |
+| Status | Complete |
 | Effort | 3 |
 | Effort updated at | 2026-09-06 |
 | Effort rationale | Sem lógica de negócio nova — é substituição de identificador em superfícies conhecidas (pacote, binários, ~10 módulos com path local, Dockerfile, CI, docs). Comparável ao topo de `light`/início de `standard`: mecânico, mas espalhado por superfícies internas e externas (GitHub, Docker Hub) que exigem sequenciamento correto para não quebrar CI no meio da troca. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | In Progress |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — mudança de identidade em pacote, binários, diretório local, repositório e imagem publicada; nenhuma tela envolvida. |
 | Atualizada em | 2026-09-06 |
@@ -556,9 +556,17 @@ tests/
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: In Progress (2026-09-06) — 18 de 21 tarefas concluídas
-- **Comando**: `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/in-progress/0014-renomear-common-rules-para-maestro/spec.md --allow-draft` — `READY` (`complete=18 checklist_complete=113 covered_spec_ids=19/19`).
-- **Achados**: A renomeação está entregue e verificada em estado real: 437/437 testes (baseline era 426/437, os 11 vermelhos eram os REDs desta entrega), `tsc` limpo, `grep` sem nenhuma ocorrência do nome antigo em `src/`, `resources/`, `package.json`, `Dockerfile` e `.github/`, `specs/completed/` byte a byte intocado, CI real verde nos três jobs (run `34058478092`), imagem `brunocalmon/maestro:2.0.0` publicada e repositório Docker Hub antigo sem tag nova. **Um bloqueio impede o gate**: T018 (renomear o repositório GitHub) falha com `HTTP 403: Resource not accessible by personal access token` — o token fine-grained configurado não concede `Administration: write`, e a via de navegador com a sessão logada não estava disponível nesta sessão. Enquanto T018 não fechar, T020 fica parcial (a metade externa de AC-009) e T021 fica formalmente aberta, ainda que sua execução já tenha rodado por completo.
+- **Resultado**: READY (2026-09-06) — 21/21 tarefas, 126/126 itens de checklist
+- **Comando**: `node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/in-progress/0014-renomear-common-rules-para-maestro/spec.md .` — `Rastreabilidade: 19/19 IDs cobertos em 171 arquivos de teste`.
+- **Achados**: Nenhum bloqueio. Entrega verificada em estado real, não só em fixture: **437/437 testes** em 163 arquivos (baseline 426/437 — os 11 vermelhos eram exatamente os REDs desta entrega), `npx tsc --noEmit` limpo, `grep -r "common-rules" src/ resources/ package.json Dockerfile .github/` sem nenhuma ocorrência (`NFR-001`), `specs/completed/` byte a byte intocado (`AC-010`), CI real verde nos três jobs (run `34058478092`), imagem `brunocalmon/maestro:2.0.0` publicada no Docker Hub (`AC-007`), repositório Docker Hub antigo parado em `1.0.4` sem tag nova (`AC-008`), repositório GitHub renomeado e confirmado por `gh api repos/brunocalmon/maestro` (`AC-009`). `verify_acceptance.mjs`: `QA: PASSED`. `build_documentation.mjs --check`: limpo. `monitor_context.mjs --check`: `CURRENT`.
+- A ferramenta também reporta "marcadores órfãos" (centenas de IDs de outras specs) junto de `RESULTADO: GAPS`. Condição pré-existente e estrutural do projeto, não introduzida aqui: o mesmo comando contra `specs/completed/0013-.../spec.md` (já `Complete`) devolve `8/8 IDs cobertos` e o mesmo `GAPS`, porque este projeto numera IDs de forma local por spec e a ferramenta compara contra o universo inteiro de marcadores do repositório.
+- **Bloqueio encontrado e resolvido durante a execução**: T018 (renomear o repositório GitHub) falhou com `HTTP 403: Resource not accessible by personal access token` — o token fine-grained configurado não concede `Administration: write`, e a via de navegador com sessão logada não estava disponível. A pessoa responsável executou o rename na interface do GitHub, e a verificação foi retomada e concluída.
+
+#### Aceite final (`$specsfy-04-validate`)
+
+- **Resultado**: READY (2026-09-06)
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0014-renomear-common-rules-para-maestro/spec.md` — `RESULTADO: READY`.
+- **Achados**: Nenhum `BLOCKER`. Os três gates permanecem `Passed` com evidência verificável, e a Definition of Done está integralmente comprovada — inclusive nas superfícies externas, que foram inspecionadas em estado real (Docker Hub, GitHub, CI), não presumidas. As oito decisões da entrevista de backlog (`BACKLOG-0008`) e o esclarecimento sobre coexistência de diretórios foram todas implementadas e verificadas. Duas correções de rumo aconteceram durante a execução e ficaram registradas em vez de silenciadas: a dependência declarada T019→T018 não existia de fato, e T018 esteve bloqueada por permissão de token até a pessoa responsável executar o rename. `Status: Complete`.
 
 ### 14. Tarefas
 
@@ -682,7 +690,7 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 - [x] T013 [CODE] [US-001] Renomear pacote e binários em package.json; revisar referências textuais residuais em src/setup/run.ts, src/setup/bridge.ts, src/doctor.ts, src/cli.ts, src/mcp/server.ts, src/hooks/resolve.ts, src/skills/executor.ts, src/specsfy/executor.ts, src/approval/tty-read.ts, src/extensions/diagnose.ts, src/setup/dependency-resolution.ts — Refs: US-001, FR-001, NFR-001, AC-001, AC-002, AC-003 — Depends: T001, T002, T003
   - [x] **PREP**: RED de T001/T002/T003 confirmado; inventário levantado por `grep -rn "common-rules" src/` (12 arquivos com referência textual).
   - [x] **EXECUTE**: `package.json` (`name`, `bin`), `SERVER_NAME` do servidor MCP, as usage strings da CLI e os comentários dos 11 arquivos listados. **Achado**: a skill empacotada `common-rules-extension-creator` também carrega o nome — diretório renomeado para `resources/skills/maestro-extension-creator/` e `BUNDLED_SKILLS` atualizado. **Achado**: 13 arquivos de teste de specs anteriores fixavam o nome antigo em asserções; atualizados junto, senão a suíte quebraria por vocabulário, não por comportamento.
-  - [x] **VERIFY**: `npx vitest run tests/rename-package-identity.test.ts` — AC-001 e AC-002 **GREEN**; AC-003 (grep de todo o repositório) permanece vermelho aqui por desenho, porque cobre também os caminhos de T014 e o Dockerfile de T015. `npx tsc --noEmit` limpo.
+  - [x] **VERIFY**: `npx vitest run tests/rename-package-identity.test.ts` — AC-001 e AC-002 **GREEN**; AC-003 (grep sobre o repositório inteiro) permanece vermelho aqui por desenho, porque cobre também os caminhos de T014 e o Dockerfile de T015. `npx tsc --noEmit` limpo.
   - [x] **VISUAL**: Não aplicável — sem superfície visual.
   - [x] **EVIDENCE**: Registrado nas seções 11–13.
   - [x] **IMPROVE**: Melhoria aplicada: substituição ordenada (nome composto antes do simples) para não gerar identificador pela metade, e a mesma ordem foi reusada em T014/T015/T017.
@@ -728,13 +736,13 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 
 #### Fase 3 — Ações de conta externa (GitHub e Docker Hub)
 
-- [ ] T018 [OPS] [US-001] Renomear o repositório GitHub para maestro e confirmar o remoto em .git/config (ou nome equivalente disponível, decidido pela pessoa responsável no momento da execução) — Refs: US-001, FR-003, AC-009 — Depends: T015
+- [x] T018 [OPS] [US-001] Renomear o repositório GitHub para maestro e confirmar o remoto em .git/config (ou nome equivalente disponível, decidido pela pessoa responsável no momento da execução) — Refs: US-001, FR-003, AC-009 — Depends: T015
   - [x] **PREP**: Nome confirmado livre (`gh repo view brunocalmon/maestro` → `Could not resolve to a Repository`); T015 já commitado e enviado.
-  - [ ] **EXECUTE**: **BLOQUEADA POR ACESSO**, não por decisão. `gh repo rename maestro --yes` e `gh api -X PATCH repos/brunocalmon/common-rules-server -f name=maestro` retornam ambos `HTTP 403: Resource not accessible by personal access token` — o token configurado é fine-grained (`github_pat_11ACC…`) e não concede `Administration: write` sobre o repositório. A via alternativa de conta (navegador com a sessão logada) também não estava disponível: a extensão Claude in Chrome não está conectada nesta sessão, e autenticar em nome da pessoa não é caminho aceitável. Desbloqueio: conceder `Administration: write` ao token e repetir `gh repo rename maestro --yes`, ou renomear em Settings → General → Repository name.
-  - [ ] **VERIFY**: Pendente do EXECUTE.
+  - [x] **EXECUTE**: Renomeado pela pessoa responsável na interface do GitHub, depois de a via automatizada ficar bloqueada: `gh repo rename maestro --yes` e `gh api -X PATCH repos/brunocalmon/common-rules-server -f name=maestro` retornavam ambos `HTTP 403: Resource not accessible by personal access token` — o token configurado é fine-grained (`github_pat_11ACC…`) e não concede `Administration: write` sobre o repositório.
+  - [x] **VERIFY**: `gh api repos/brunocalmon/maestro` devolve `brunocalmon/maestro | https://github.com/brunocalmon/maestro`. O remoto local seguia na URL antiga e resolvia por redirecionamento do GitHub (`git fetch` exit 0); atualizado para a URL canônica com `git remote set-url origin git@github.com:brunocalmon/maestro.git`, e `git fetch` confirmado depois da troca.
   - [x] **VISUAL**: Não aplicável — ação de conta, sem superfície visual própria deste projeto.
-  - [ ] **EVIDENCE**: Pendente do EXECUTE.
-  - [ ] **IMPROVE**: Pendente do EXECUTE.
+  - [x] **EVIDENCE**: Registrado nas seções 11–13.
+  - [x] **IMPROVE**: Melhoria aplicada: o remoto local foi apontado para a URL nova em vez de deixado dependendo do redirecionamento do GitHub, que é uma conveniência da plataforma e não uma garantia permanente.
 
 - [x] T019 [OPS] [US-001] Criar/usar o repositório Docker Hub maestro sob a mesma conta e confirmar publicação real do CI — Refs: US-001, FR-003, AC-007, AC-008 — Depends: T015
   - [x] **PREP**: Credenciais do CI já configuradas e válidas; confirmado que o Docker Hub cria o repositório na primeira publicação, dispensando criação manual. **Achado**: a dependência declarada de T019 sobre T018 não existe na prática — o destino da imagem vem de `vars.DOCKER_USERNAME` no workflow, não do nome do repositório GitHub; por isso T019 pôde concluir com T018 bloqueada.
@@ -746,21 +754,21 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 
 #### Fase final — Qualidade
 
-- [ ] T020 [TEST] [US-001] Verificação manual de aceite para AC-007/AC-008/AC-009 em estado real (complementa o predecessor TDD estático de T015 com a confirmação de que a publicação de fato aconteceu) — Refs: US-001, FR-003, NFR-002, AC-007, AC-008, AC-009 — Depends: T019
+- [x] T020 [TEST] [US-001] Verificação manual de aceite para AC-007/AC-008/AC-009 em estado real (complementa o predecessor TDD estático de T015 com a confirmação de que a publicação de fato aconteceu) — Refs: US-001, FR-003, NFR-002, AC-007, AC-008, AC-009 — Depends: T019
   - [x] **PREP**: T019 concluída — CI real publicou na run `34058478092`.
   - [x] **EXECUTE**: Inspeção real da API pública do Docker Hub e do remoto git. **AC-007**: `GET hub.docker.com/v2/repositories/brunocalmon/maestro/tags/2.0.0/` devolve a imagem publicada (`digest sha256:f420e28c616f1224c95b37d9ba1984263e63bef974549d8aa9c1a055c55b0e1c`, 90,9 MB, linux/amd64). **AC-008**: `GET .../common-rules-server/tags/` devolve `[1.0.4, 1.0.3, 0.2.8, 0.2.5, 0.2.0, 0.1.0]` — nenhuma `2.0.0`, o repositório antigo parou de receber tags. **AC-009**: a metade verificável em arquivo (`repository.url`) está GREEN em `tests/rename-ci-workflow.test.ts`; a metade externa (nome real do repositório GitHub) depende de T018, bloqueada por acesso.
-  - [ ] **VERIFY**: AC-007 e AC-008 confirmados em estado real; AC-009 confirmado apenas na metade em arquivo — a confirmação externa fica pendente de T018.
+  - [x] **VERIFY**: Os três confirmados em estado real. AC-007: imagem `brunocalmon/maestro:2.0.0` presente no Docker Hub. AC-008: repositório antigo parado em `[1.0.4, 1.0.3, 0.2.8, 0.2.5, 0.2.0, 0.1.0]`, sem `2.0.0`. AC-009: `gh api repos/brunocalmon/maestro` responde com o nome novo, e `package.json` declara `repository.url` correspondente.
   - [x] **VISUAL**: Não aplicável.
-  - [ ] **EVIDENCE**: Parcial — registrada para AC-007 e AC-008; a de AC-009 aguarda T018.
-  - [ ] **IMPROVE**: Pendente do fechamento.
+  - [x] **EVIDENCE**: Registrado nas seções 11–13.
+  - [x] **IMPROVE**: Aprendizado registrado: dividir AC-009 em metade verificável em arquivo (teste automatizado) e metade externa (inspeção real) permitiu que a entrega avançasse com a parte externa bloqueada, sem fingir cobertura que não existia.
 
-- [ ] T021 [TEST] Regressão completa e grep de verificação NFR-001 em src/, resources/, package.json, Dockerfile, .github/ — Refs: US-001, FR-001, FR-002, FR-003, FR-004, NFR-001, NFR-002, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012 — Depends: T013, T014, T015, T016, T017, T020
-  - [ ] **PREP**: Suites, checks e gates identificados.
-  - [ ] **EXECUTE**: `npx vitest run`, `npx tsc --noEmit`, `grep -r "common-rules" src/ resources/ package.json Dockerfile .github/` e `git diff --stat HEAD~2 HEAD -- specs/completed/`.
-  - [ ] **VERIFY**: (executado, aguardando apenas o fechamento formal de T020) **437/437 testes em 163 arquivos**, contra 426/437 no baseline (os 11 vermelhos eram exatamente os REDs desta entrega); `tsc` limpo; `grep` sem nenhuma ocorrência; `git diff` de `specs/completed/` vazio.
-  - [ ] **VISUAL**: Não aplicável — repasse final sem superfície visual própria.
-  - [ ] **EVIDENCE**: Registrado nas seções 11–13.
-  - [ ] **IMPROVE**: Retrospectiva: a única regressão real da entrega veio de `dist/` desatualizado (um teste que roda o binário construído falhou até o rebuild), não do rename em si — reconstruir antes de rodar a suíte inteira teria economizado um ciclo. O `prebuild` de checksum forçou o bump para `2.0.0`, que é a leitura correta: troca de nome de binário e de diretório gerenciado quebra instalação existente.
+- [x] T021 [TEST] Regressão completa e grep de verificação NFR-001 em src/, resources/, package.json, Dockerfile, .github/ — Refs: US-001, FR-001, FR-002, FR-003, FR-004, NFR-001, NFR-002, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012 — Depends: T013, T014, T015, T016, T017, T020
+  - [x] **PREP**: Suites, checks e gates identificados.
+  - [x] **EXECUTE**: `npx vitest run`, `npx tsc --noEmit`, `grep -r "common-rules" src/ resources/ package.json Dockerfile .github/` e `git diff --stat HEAD~2 HEAD -- specs/completed/`.
+  - [x] **VERIFY**: **437/437 testes em 163 arquivos**, contra 426/437 no baseline (os 11 vermelhos eram exatamente os REDs desta entrega); `tsc` limpo; `grep` sem nenhuma ocorrência; `git diff` de `specs/completed/` vazio.
+  - [x] **VISUAL**: Não aplicável — repasse final sem superfície visual própria.
+  - [x] **EVIDENCE**: Registrado nas seções 11–13.
+  - [x] **IMPROVE**: Retrospectiva: a única regressão real da entrega veio de `dist/` desatualizado (um teste que roda o binário construído falhou até o rebuild), não do rename em si — reconstruir antes de rodar a suíte inteira teria economizado um ciclo. O `prebuild` de checksum forçou o bump para `2.0.0`, que é a leitura correta: troca de nome de binário e de diretório gerenciado quebra instalação existente.
 
 ### 15. Ordem de execução
 
@@ -800,13 +808,13 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
-- [ ] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
-- [ ] Todos os cenários `AC-001` a `AC-012` passam.
-- [ ] `FR-001` a `FR-004` e `NFR-001`/`NFR-002` têm evidência de verificação nas seções 11–12.
-- [ ] Todas as tarefas da seção 14 (a definir por `$specsfy-05-tasks`) estão concluídas.
-- [ ] `grep -r "common-rules" src/ resources/ package.json Dockerfile .github/` não retorna ocorrência.
-- [ ] CI real publicou a imagem `maestro` no Docker Hub e nenhuma tag nova apareceu no repositório antigo.
-- [ ] Repositório GitHub renomeado e confirmado via inspeção da URL.
-- [ ] `specs/completed/` permanece byte a byte idêntico ao estado anterior à entrega.
+- [x] `Definition Gate` está `Passed`.
+- [x] `Plan Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
+- [x] Todos os cenários `AC-001` a `AC-012` passam.
+- [x] `FR-001` a `FR-004` e `NFR-001`/`NFR-002` têm evidência de verificação nas seções 11–12.
+- [x] Todas as tarefas da seção 14 estão concluídas — 21/21, 126/126 itens.
+- [x] `grep -r "common-rules" src/ resources/ package.json Dockerfile .github/` não retorna ocorrência.
+- [x] CI real publicou a imagem `maestro` no Docker Hub e nenhuma tag nova apareceu no repositório antigo.
+- [x] Repositório GitHub renomeado e confirmado via inspeção da URL (`gh api repos/brunocalmon/maestro`).
+- [x] `specs/completed/` permanece byte a byte idêntico ao estado anterior à entrega.
