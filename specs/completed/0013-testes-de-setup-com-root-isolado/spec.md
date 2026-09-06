@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0013 |
 | Slug | 0013-testes-de-setup-com-root-isolado |
-| Status | Reviewing |
+| Status | Complete |
 | Effort | 1 |
 | Effort updated at | 2026-09-05 |
 | Effort rationale | Estimativa inicial; revisar durante a descoberta. |
@@ -16,7 +16,7 @@
 | Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não |
-| Atualizada em | 2026-09-05 |
+| Atualizada em | 2026-09-06 |
 
 ## Ato I — Definir
 
@@ -465,6 +465,12 @@ src/setup/run.ts             (lido, não modificado — fallback preservado)
 - **Resultado**: READY (2026-09-06)
 - **Comando**: `node .agents/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/in-progress/0013-testes-de-setup-com-root-isolado/spec.md .` — `Rastreabilidade: 8/8 IDs cobertos em 166 arquivos de teste`.
 - **Achados**: Nenhum bloqueio real. A ferramenta também reporta uma lista de "marcadores órfãos" (centenas de IDs de outras specs) — confirmado como condição pré-existente e estrutural do projeto, não algo introduzido por esta spec: rodei o mesmo comando contra `specs/completed/0012-.../spec.md` (já `completed`, Delivery Gate Passed há tempos) e o mesmo padrão aparece, porque este projeto numera IDs de forma local por spec (não global), e a ferramenta compara contra o universo inteiro de marcadores do repositório. `verify_acceptance.mjs`: `QA: PASSED`. `build_documentation.mjs --check`: limpo após reconstrução (commit `b69d9fe`, drift acumulado da sessão inteira, não específico desta spec). 6/6 tarefas concluídas, 36/36 itens de checklist, 425/425 testes em duas rodadas completas consecutivas sem sujar o repositório (T006) — a prova final do AC-001.
+
+#### Aceite final (`$specsfy-04-validate`)
+
+- **Resultado**: READY (2026-09-06)
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0013-testes-de-setup-com-root-isolado/spec.md` — `RESULTADO: READY`.
+- **Achados**: Nenhum `BLOCKER`. Os três Gates dos Atos I, II e III permanecem `Passed` com evidência real e verificável (comandos, saídas e IDs citados acima). Definition of Done (seção 18) integralmente comprovada: `npx tsc --noEmit` limpo, `npx vitest run` 425/425 em duas rodadas consecutivas sem sujar o repositório, `verify_acceptance.mjs` `QA: PASSED`, 6/6 tarefas e 36/36 itens de checklist concluídos. Nenhuma decisão de produto, arquitetura ou segurança pendente — mudança restrita a arquivos de teste. `Status: Complete`.
 
 ### 14. Tarefas
 
