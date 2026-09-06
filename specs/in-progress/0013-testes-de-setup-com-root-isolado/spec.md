@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0013 |
 | Slug | 0013-testes-de-setup-com-root-isolado |
-| Status | Planned |
+| Status | Implementing |
 | Effort | 1 |
 | Effort updated at | 2026-09-05 |
 | Effort rationale | Estimativa inicial; revisar durante a descoberta. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | Pending |
+| Delivery Gate | In Progress |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não |
 | Atualizada em | 2026-09-05 |
