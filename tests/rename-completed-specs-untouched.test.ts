@@ -14,9 +14,21 @@ function walk(dir: string, acc: string[] = []): string[] {
   return acc.sort();
 }
 
+/**
+ * Só as specs que já estavam concluídas quando a renomeação começou
+ * (`0001` a `0013`). Incluir a árvore inteira faria o guard-rail disparar a
+ * cada spec nova que completasse — inclusive a própria SPEC-0014 —, o que é
+ * movimento legítimo do framework, não a reescrita de histórico que o AC-010
+ * proíbe.
+ */
+function predatesRename(file: string): boolean {
+  const match = /specs\/completed\/(\d{4})-/.exec(file);
+  return match !== null && Number(match[1]) <= 13;
+}
+
 function hashTree(dir: string): string {
   const hash = createHash("sha256");
-  for (const file of walk(dir)) {
+  for (const file of walk(dir).filter(predatesRename)) {
     hash.update(file.slice(dir.length));
     hash.update(readFileSync(file));
   }
