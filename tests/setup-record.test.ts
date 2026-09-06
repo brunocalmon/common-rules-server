@@ -8,7 +8,7 @@ describe("AC-004 — the record names what was written", () => {
   // SPECSFY: US-003 FR-004 FR-005 AC-004
   it("records the seven installed hooks", () => {
     const r = readRecord(runSetup({ env, write: true }).record);
-    expect(r.hooks).toHaveLength(7);
+    expect(r.hooks).toHaveLength(8);
   });
 
   // SPECSFY: US-003 FR-004 AC-004

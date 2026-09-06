@@ -29,7 +29,7 @@ describe("Edge case — generator that returns an empty value", () => {
   // SPECSFY: US-040 FR-040 AC-040
   it("the rest of the record remains", () => {
     const { rec } = record();
-    expect((rec["hooks"] as unknown[]).length).toBe(7);
+    expect((rec["hooks"] as unknown[]).length).toBe(8);
     for (const h of rec["hooks"] as { installedAt: string }[]) expect(h.installedAt).toBe(FIXED_INSTANT);
   });
 });

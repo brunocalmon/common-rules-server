@@ -1,7 +1,7 @@
 import type { CanonicalEvent, Hook } from "./source.js";
 
 /** Event name in the format the target uses. */
-export type TargetEvent = "PreToolUse" | "PostToolUse" | "Stop";
+export type TargetEvent = "PreToolUse" | "PostToolUse" | "Stop" | "SessionStart";
 
 export interface TranslatedHook {
   name: string;
@@ -14,6 +14,7 @@ const EVENT_MAP: Record<CanonicalEvent, TargetEvent> = {
   "before-shell": "PreToolUse",
   "after-file-edit": "PostToolUse",
   stop: "Stop",
+  "session-start": "SessionStart",
 };
 
 /**
@@ -118,7 +119,7 @@ export function renderSettings(hooks: readonly TranslatedHook[]): Settings {
 
 /** Recovers the scripts in the order they were inserted, to check the round trip. */
 export function extractScripts(settings: Settings): string[] {
-  const order: TargetEvent[] = ["PreToolUse", "PostToolUse", "Stop"];
+  const order: TargetEvent[] = ["PreToolUse", "PostToolUse", "Stop", "SessionStart"];
   const out: string[] = [];
   for (const event of order) {
     for (const entry of settings.hooks[event] ?? []) {

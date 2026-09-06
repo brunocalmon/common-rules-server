@@ -19,7 +19,7 @@ describe("AC-007 — the second call recognizes the state", () => {
     await executeSetup({ project_root: root });
     await executeSetup({ project_root: root });
     const rec = JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
-    expect(rec.hooks).toHaveLength(7);
+    expect(rec.hooks).toHaveLength(8);
   });
 
   // SPECSFY: US-003 FR-004 AC-007

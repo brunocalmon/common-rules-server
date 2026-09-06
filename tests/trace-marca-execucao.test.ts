@@ -26,7 +26,7 @@ describe("AC-040 — every entry from the same run shares the identifier", () =>
   // SPECSFY: US-040 FR-040 AC-040
   it("the hook entries belong to that run", () => {
     const rec = recordOf(project());
-    expect(rec["hooks"].length).toBe(7);
+    expect(rec["hooks"].length).toBe(8);
     for (const h of rec["hooks"]) expect(h.installedAt).toBe("2026-08-29T17:45:00.000Z");
   });
 });

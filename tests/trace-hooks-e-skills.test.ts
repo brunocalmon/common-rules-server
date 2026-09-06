@@ -35,7 +35,7 @@ describe("AC-051 — the record's two lists point to the same run", () => {
   // SPECSFY: US-040 FR-040 AC-051
   it("both lists exist in the same record", () => {
     const rec = fullRecord();
-    expect(rec["hooks"].length).toBe(7);
+    expect(rec["hooks"].length).toBe(8);
     expect(rec["skills"].length).toBeGreaterThan(0);
   });
 });

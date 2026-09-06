@@ -19,7 +19,8 @@ export const VENV_DIR = ".venv-crg";
  * lives, or `doctor` would keep reporting absence after a real,
  * successful installation.
  */
-const packageRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+/** The `common-rules` package's own installation root — shared with `hooks/resolve.ts`, which needs the same location to embed absolute paths into generated hooks. */
+export const packageRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const probe = (command: string, args: string[]): string | null => {
   try {

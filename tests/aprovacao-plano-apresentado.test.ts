@@ -17,7 +17,7 @@ describe("AC-060 — the plan reaches the decision-maker before any write", () =
     const root = project();
     const received: { name: string; target: string; event: string }[][] = [];
     runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: fixedDecision(true, received) } });
-    expect(received[0]?.length).toBe(7);
+    expect(received[0]?.length).toBe(8);
     for (const item of received[0] ?? []) {
       expect(typeof item.name).toBe("string");
       expect(typeof item.target).toBe("string");

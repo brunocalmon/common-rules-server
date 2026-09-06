@@ -1,5 +1,5 @@
 /** Canonical event a hook declares, before any translation. */
-export type CanonicalEvent = "before-shell" | "after-file-edit" | "stop";
+export type CanonicalEvent = "before-shell" | "after-file-edit" | "stop" | "session-start";
 
 export interface Hook {
   name: string;
@@ -9,7 +9,7 @@ export interface Hook {
   script: string;
 }
 
-const EVENTS: readonly CanonicalEvent[] = ["before-shell", "after-file-edit", "stop"];
+const EVENTS: readonly CanonicalEvent[] = ["before-shell", "after-file-edit", "stop", "session-start"];
 
 /** Extracts a frontmatter key's scalar value, ignoring the YAML block. */
 function scalar(frontmatter: string, key: string): string | null {

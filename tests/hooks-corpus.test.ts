@@ -11,7 +11,7 @@ const names = () =>
 describe("AC-013 — the seven real hooks survive the round trip", () => {
   // SPECSFY: US-002 FR-005 AC-013
   it("finds exactly the seven ported hooks", () => {
-    expect(names()).toHaveLength(7);
+    expect(names()).toHaveLength(8);
   });
 
   // SPECSFY: US-002 FR-002 NFR-003 AC-013

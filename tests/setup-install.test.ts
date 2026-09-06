@@ -15,7 +15,7 @@ describe("AC-001 — the four integration hooks end up installed", () => {
 
   // SPECSFY: US-001 FR-002 AC-001
   it("places each one under the event the hook declares", () => {
-    for (const h of run().installed) expect(h.event).toMatch(/^(PreToolUse|PostToolUse|Stop)$/);
+    for (const h of run().installed) expect(h.event).toMatch(/^(PreToolUse|PostToolUse|Stop|SessionStart)$/);
   });
 
   // SPECSFY: US-001 FR-004 AC-001

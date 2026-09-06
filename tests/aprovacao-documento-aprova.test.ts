@@ -39,6 +39,6 @@ describe("AC-065 — the document authorizes the run", () => {
   // SPECSFY: US-061 FR-062 AC-065
   it("the number of installed hooks is as expected", () => {
     const root = project();
-    expect(run(root).installed.length).toBe(7);
+    expect(run(root).installed.length).toBe(8);
   });
 });

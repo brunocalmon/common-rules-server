@@ -38,7 +38,7 @@ describe("AC-001 — installation actually writes to disk", () => {
       hooks: Record<string, { matcher: string }[]>;
     };
     const names = Object.values(written.hooks).flat().map((e) => e.matcher);
-    expect(names).toHaveLength(7);
+    expect(names).toHaveLength(8);
   });
 
   // SPECSFY: US-001 FR-002 NFR-002 AC-001

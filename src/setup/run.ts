@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { detectTarget, TARGET, type TargetEnvironment } from "../hooks/detect.js";
 import { readHook } from "../hooks/source.js";
 import { renderSettings, translateForClaudeCode, type Settings, type TranslatedHook } from "../hooks/claude-code.js";
+import { resolveHookCommand } from "../hooks/resolve.js";
 import { realSource, type TraceSource } from "../telemetry/trace.js";
 import { installSkills, type Executor as SkillsExecutor, type InstallResult as SkillsInstallResult } from "../skills/install.js";
 import { OFFICIAL_SOURCES } from "../skills/source.js";
@@ -13,6 +14,7 @@ import { installSpecsfy, type Executor as SpecsfyExecutor } from "../specsfy/ins
 import { describeSpecsfyCommand } from "../specsfy/executor.js";
 import { describeSkillsCommand } from "../skills/executor.js";
 import { bridgePythonSubsystem, VENV_DIR, type BridgeEnvironment } from "./bridge.js";
+import { buildDependencyResolution, codeReviewGraphWillBeLocal } from "./dependency-resolution.js";
 import { matches, readRecord, RECORD_PATH, type InstallRecord, type SkillsRecordEntry, type RecordEntry } from "./record.js";
 import { readVersion } from "../version.js";
 import { resolveChannel, type TerminalContext } from "../approval/context.js";
@@ -212,7 +214,17 @@ export function runSetup(opts: SetupOptions): SetupResult {
     return { ...empty, report: `target ${detection.target} ignored: ${detection.reason}` };
   }
 
-  const hooks = loadHooks();
+  // Computed before translation, not after: a hook's embedded command needs
+  // to know whether a local code-review-graph copy exists — or is about to,
+  // this same run — before it's written, not after. Read-only, no
+  // subprocess, so doing it this early costs nothing extra.
+  const bridgePreview = opts.bridgeEnv ? bridgePythonSubsystem({ env: opts.bridgeEnv, execute: false }) : { wouldInstall: null };
+  const bridgePending = bridgePreview.wouldInstall !== null;
+  const dependencyResolution = buildDependencyResolution({
+    codeReviewGraphLocal: codeReviewGraphWillBeLocal(opts.bridgeEnv, bridgePending),
+  });
+
+  const hooks = loadHooks().map((h) => ({ ...h, script: resolveHookCommand(h.script, dependencyResolution) }));
   const translated = hooks.map(translateForClaudeCode);
   const planned = translated.map((h) => ({ name: h.name, target: TARGET_SETTINGS, event: h.event }));
   const settings = renderSettings(translated);
@@ -244,11 +256,6 @@ export function runSetup(opts: SetupOptions): SetupResult {
   const skillsAlreadyDone =
     !opts.skills || (previousSkills.length > 0 && previousSkills.every((s) => inspectSkills(root).dirs.includes(s.name)));
   const specsfyAlreadyDone = !opts.specsfy || existsSync(join(root, ".specsfy"));
-
-  // Only a presence read (no subprocess) decides whether the bridge is
-  // pending — the same saving the two checks above already make.
-  const bridgePreview = opts.bridgeEnv ? bridgePythonSubsystem({ env: opts.bridgeEnv, execute: false }) : { wouldInstall: null };
-  const bridgePending = bridgePreview.wouldInstall !== null;
 
   const alreadyDone = hooksAlreadyDone && skillsAlreadyDone && specsfyAlreadyDone && !bridgePending;
   if (alreadyDone) {

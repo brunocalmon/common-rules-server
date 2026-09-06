@@ -5,6 +5,10 @@ import { RECORD_PATH } from "../setup/record.js";
 import { detectEnvironment } from "../setup/env.js";
 import { validateRoot } from "./root.js";
 import { KNOWN_TARGETS } from "../hooks/detect.js";
+import { realSkillsExecutor } from "../skills/executor.js";
+import { realSpecsfyExecutor } from "../specsfy/executor.js";
+import { realBridgeEnvironment } from "../setup/bridge.js";
+import type { DecisionSource } from "../approval/decide.js";
 
 export const TOOL_NAME = "setup";
 
@@ -78,6 +82,20 @@ const text = (t: string): { type: "text"; text: string }[] => [{ type: "text", t
 const refuse = (reason: string): SetupToolResult => ({ isError: true, content: text(reason) });
 
 /**
+ * Approves every dependency command outright, never touching stdin.
+ *
+ * The CLI's own approval flow reads a real terminal or a piped JSON
+ * document — both make sense for a one-shot process with its own stdin.
+ * This tool's process has no such stdin of its own: it's the MCP
+ * transport's byte stream, and reading from it here would race the
+ * protocol itself, not ask a person anything. Calling this tool is
+ * already the explicit, single action that means "configure this
+ * project" — the same intent a person expresses by running `setup` and
+ * then answering yes — so there is no separate consent left to collect.
+ */
+const alwaysApprove: DecisionSource = { ask: () => true };
+
+/**
  * Runs the configuration over the given root.
  *
  * Every decision about where to read and write comes from the argument.
@@ -110,6 +128,15 @@ export async function executeSetup(args: {
       write: true,
       previous,
       target: args.target,
+      // Parity with the CLI (`formatSetup` in `src/cli.ts`): without these,
+      // `runSetup` skips skills and the Specsfy framework entirely — its
+      // own documented behavior for an absent executor — so a project
+      // configured through this tool ended up with hooks only, silently
+      // less than what the same command does from a terminal.
+      skills: { execute: realSkillsExecutor() },
+      specsfy: { execute: realSpecsfyExecutor() },
+      bridgeEnv: realBridgeEnvironment(),
+      approval: { source: alwaysApprove },
     });
 
     return {

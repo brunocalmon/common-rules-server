@@ -21,7 +21,7 @@ describe("AC-005 — rerunning doesn't duplicate", () => {
   it("doesn't add a duplicate entry to the record", () => {
     const one = runSetup({ env, write: true });
     const two = runSetup({ env, write: true, previous: one.record });
-    expect(two.record.hooks).toHaveLength(7);
+    expect(two.record.hooks).toHaveLength(8);
   });
 
   // SPECSFY: US-003 FR-008 AC-005

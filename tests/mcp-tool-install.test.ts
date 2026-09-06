@@ -9,8 +9,8 @@ describe("AC-004 — with a valid root the tool installs and reports", () => {
   it("lists the seven hooks with their events", async () => {
     const r = await executeSetup({ project_root: disposableProject() });
     expect(r.isError ?? false).toBe(false);
-    expect(r.structuredContent?.hooks).toHaveLength(7);
-    for (const h of r.structuredContent!.hooks) expect(h.event).toMatch(/^(PreToolUse|PostToolUse|Stop)$/);
+    expect(r.structuredContent?.hooks).toHaveLength(8);
+    for (const h of r.structuredContent!.hooks) expect(h.event).toMatch(/^(PreToolUse|PostToolUse|Stop|SessionStart)$/);
   });
 
   // SPECSFY: US-001 FR-004 AC-004

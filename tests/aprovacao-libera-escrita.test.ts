@@ -18,7 +18,7 @@ describe("AC-062 — what gets written is what was presented", () => {
   it("the written hooks match the presented plan's", () => {
     const root = project();
     const r = runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: fixedDecision(true) } });
-    expect(r.installed.length).toBe(7);
+    expect(r.installed.length).toBe(8);
   });
 
   // SPECSFY: US-060 NFR-062 AC-062

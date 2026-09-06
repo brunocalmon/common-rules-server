@@ -38,6 +38,6 @@ describe("AC-023 — the project record keeps the sets' provenance", () => {
   // SPECSFY: US-021 FR-023 AC-023
   it("the hooks list stays as it was", () => {
     const rec = writtenRecord();
-    expect((rec["hooks"] as unknown[]).length).toBe(7);
+    expect((rec["hooks"] as unknown[]).length).toBe(8);
   });
 });
