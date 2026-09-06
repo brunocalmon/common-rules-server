@@ -491,7 +491,7 @@ temporário e a passar `root` explicitamente, seguindo a convenção de
 (`npx vitest run tests/setup-idempotent.test.ts`, etc.) e confirmar que as
 mesmas asserções de hoje continuam passando.
 
-- [ ] T001 [TEST] [US-001] Isolar root em tests/setup-idempotent.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
+- [ ] T001 [P] [TEST] [TDD] [US-001] Isolar root em tests/setup-idempotent.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
   - [ ] **PREP**: Ler o arquivo e confirmar as 4 chamadas a `runSetup({ env, write: true, ... })` que hoje não passam `root`. RED: rodar `npx vitest run tests/setup-idempotent.test.ts` no estado atual (antes da edição) e confirmar que `git status --porcelain` fica sujo em `.common-rules/install.json` — a evidência concreta do problema, por arquivo.
   - [ ] **EXECUTE**: Criar `root` com `mkdtempSync(join(tmpdir(), "setup-"))` (populando `.claude/` quando `env.hasClaudeCode` exigir), passar `root` a cada chamada; marcador `SPECSFY:` no comentário do helper.
   - [ ] **VERIFY**: `npx vitest run tests/setup-idempotent.test.ts` — as 4 asserções continuam passando (GREEN: repita `git status --porcelain` — vazio, ao contrário do RED do PREP).
@@ -499,7 +499,7 @@ mesmas asserções de hoje continuam passando.
   - [ ] **EVIDENCE**: Registrar comando e resultado nas seções 11–12.
   - [ ] **IMPROVE**: Registrar aprendizado ou ausência.
 
-- [ ] T002 [TEST] [US-001] Isolar root em tests/setup-revert.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
+- [ ] T002 [P] [TEST] [TDD] [US-001] Isolar root em tests/setup-revert.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
   - [ ] **PREP**: Ler o arquivo e confirmar as 4 chamadas a `runSetup` sem `root`. RED: rodar `npx vitest run tests/setup-install.test.ts` no estado atual e confirmar que `git status --porcelain` fica sujo em `.common-rules/install.json`. RED: rodar `npx vitest run tests/setup-record.test.ts` no estado atual e confirmar que `git status --porcelain` fica sujo em `.common-rules/install.json`. RED: rodar `npx vitest run tests/setup-revert.test.ts` no estado atual e confirmar que `git status --porcelain` fica sujo em `.common-rules/install.json`.
   - [ ] **EXECUTE**: Mesmo padrão de T001, aplicado a este arquivo.
   - [ ] **VERIFY**: `npx vitest run tests/setup-revert.test.ts` — as 4 asserções continuam passando (GREEN: repita `git status --porcelain` — vazio, ao contrário do RED do PREP).
@@ -507,7 +507,7 @@ mesmas asserções de hoje continuam passando.
   - [ ] **EVIDENCE**: Registrar comando e resultado nas seções 11–12.
   - [ ] **IMPROVE**: Registrar aprendizado ou ausência.
 
-- [ ] T003 [TEST] [US-001] Isolar root em tests/setup-record.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
+- [ ] T003 [P] [TEST] [TDD] [US-001] Isolar root em tests/setup-record.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
   - [ ] **PREP**: Ler o arquivo e confirmar as 4 chamadas a `runSetup` sem `root`.
   - [ ] **EXECUTE**: Mesmo padrão de T001, aplicado a este arquivo.
   - [ ] **VERIFY**: `npx vitest run tests/setup-record.test.ts` — as 4 asserções continuam passando (GREEN: repita `git status --porcelain` — vazio, ao contrário do RED do PREP).
@@ -515,7 +515,7 @@ mesmas asserções de hoje continuam passando.
   - [ ] **EVIDENCE**: Registrar comando e resultado nas seções 11–12.
   - [ ] **IMPROVE**: Registrar aprendizado ou ausência.
 
-- [ ] T004 [TEST] [US-001] Isolar root em tests/setup-install.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
+- [ ] T004 [P] [TEST] [TDD] [US-001] Isolar root em tests/setup-install.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
   - [ ] **PREP**: Ler o arquivo e confirmar as 4 chamadas a `runSetup` sem `root`.
   - [ ] **EXECUTE**: Mesmo padrão de T001, aplicado a este arquivo.
   - [ ] **VERIFY**: `npx vitest run tests/setup-install.test.ts` — as 4 asserções continuam passando (GREEN: repita `git status --porcelain` — vazio, ao contrário do RED do PREP).
@@ -523,7 +523,7 @@ mesmas asserções de hoje continuam passando.
   - [ ] **EVIDENCE**: Registrar comando e resultado nas seções 11–12.
   - [ ] **IMPROVE**: Registrar aprendizado ou ausência.
 
-- [ ] T005 [TEST] [US-001] Isolar root em tests/setup-dryrun.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
+- [ ] T005 [P] [TEST] [TDD] [US-001] Isolar root em tests/setup-dryrun.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
   - [ ] **PREP**: Ler o arquivo e confirmar as 3 chamadas a `runSetup` sem `root`. RED: rodar `npx vitest run tests/setup-dryrun.test.ts` no estado atual e confirmar que `git status --porcelain` fica sujo em `.common-rules/install.json`.
   - [ ] **EXECUTE**: Mesmo padrão de T001, aplicado a este arquivo.
   - [ ] **VERIFY**: `npx vitest run tests/setup-dryrun.test.ts` — as 3 asserções continuam passando (GREEN: repita `git status --porcelain` — vazio, ao contrário do RED do PREP).
@@ -537,7 +537,7 @@ sem nenhuma asserção mudando de resultado.
 
 #### Fase final — Qualidade
 
-- [ ] T006 [TEST] Regressão completa e verificação de isolamento real — Refs: US-001, FR-001, FR-002, NFR-001, AC-001, AC-002, AC-003, AC-004 — Depends: T001, T002, T003, T004, T005
+- [ ] T006 [TEST] [TDD] Regressão completa e verificação de isolamento real, medida em .common-rules/install.json — Refs: US-001, FR-001, FR-002, NFR-001, AC-001, AC-002, AC-003, AC-004 — Depends: T001, T002, T003, T004, T005
   - [ ] **PREP**: Confirmar repositório limpo (`git status --porcelain` vazio) antes de iniciar.
   - [ ] **EXECUTE**: Rodar `npx vitest run` (suíte completa) duas vezes seguidas.
   - [ ] **VERIFY**: Confirmar `git status --porcelain` vazio depois de cada uma das duas rodadas, e que todos os 412+ testes da suíte continuam passando.
