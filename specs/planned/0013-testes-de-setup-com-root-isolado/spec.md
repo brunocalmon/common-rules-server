@@ -5,14 +5,14 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0013 |
 | Slug | 0013-testes-de-setup-com-root-isolado |
-| Status | Defined |
+| Status | Planned |
 | Effort | 1 |
 | Effort updated at | 2026-09-05 |
 | Effort rationale | Estimativa inicial; revisar durante a descoberta. |
 | ClickUp Task | |
 | Milestones | |
 | Definition Gate | Passed |
-| Plan Gate | Pending |
+| Plan Gate | Passed |
 | Delivery Gate | Pending |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não |
@@ -456,9 +456,9 @@ src/setup/run.ts             (lido, não modificado — fallback preservado)
 
 #### Gate do Ato II — Plano
 
-- **Resultado**: Pending
-- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/draft/0013-testes-de-setup-com-root-isolado/spec.md`
-- **Achados**: [Pending.]
+- **Resultado**: READY (2026-09-06)
+- **Comando**: `node .agents/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/defined/0013-testes-de-setup-com-root-isolado/spec.md` — `VALID DRAFT`.
+- **Achados**: Nenhum bloqueio. Seção 14 preenchida: 6 tarefas `[TEST][TDD]`, sem `[CODE]` (a correção inteira vive em arquivos de teste, então não há predecessor TDD de tarefa CODE a exigir — a checagem estrita de "Plan Gate exige predecessor concluído" não se aplica aqui). T001-T005 marcadas `[P]` (arquivos independentes, sem dependência). Cobertura completa dos 8 IDs da spec confirmada pelo validador (`covered_spec_ids=8 required_spec_ids=8`). RED da primeira tarefa (T001) já observado e registrado na seção 11 antes desta promoção — ver `checklist_complete=1`.
 
 #### Gate do Ato III — Entrega
 
