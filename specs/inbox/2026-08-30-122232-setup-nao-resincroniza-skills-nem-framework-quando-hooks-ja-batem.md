@@ -2,7 +2,7 @@
 
 | Metadado | Valor |
 | --- | --- |
-| Status | Capturada |
+| Status | Tratada — corrigido diretamente em src/setup/run.ts |
 | Capturada em | 2026-08-30T10:22:32Z |
 | Slug | setup-nao-resincroniza-skills-nem-framework-quando-hooks-ja-batem |
 | Origem | Input do usuário |
@@ -67,4 +67,11 @@ src/setup/run.ts (jaFeito/matches), src/setup/record.ts (matches()), reproduçã
 
 ## Próximo passo
 
-Manter em `specs/inbox/` ou refinar com `$specsfy-02-backlog`.
+Nenhum — resolvido. Confirmado em `src/setup/run.ts`: `alreadyDone` agora exige
+`hooksAlreadyDone && skillsAlreadyDone && specsfyAlreadyDone && !bridgePending`,
+não apenas os hooks — exatamente a direção hipotetizada na captura
+("Redefinir 'já estava configurado' para exigir também que os conjuntos de
+skills e o framework Specsfy previamente instalados ainda estejam presentes
+no disco"). A pergunta em "Pontos a revisar no futuro" também está
+respondida no código: a presença do Specsfy é `existsSync(join(root,
+".specsfy"))`.

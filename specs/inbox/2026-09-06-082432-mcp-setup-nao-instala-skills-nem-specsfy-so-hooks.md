@@ -2,7 +2,7 @@
 
 | Metadado | Valor |
 | --- | --- |
-| Status | Capturada |
+| Status | Tratada — corrigido diretamente em src/mcp/tool.ts |
 | Capturada em | 2026-09-06T06:24:32Z |
 | Slug | mcp-setup-nao-instala-skills-nem-specsfy-so-hooks |
 | Origem | Input do usuário |
@@ -67,4 +67,11 @@ Nenhuma fonte contextual consultada.
 
 ## Próximo passo
 
-Manter em `specs/inbox/` ou refinar com `$specsfy-02-backlog`.
+Nenhum — resolvido, opção A das direções propostas na captura ("fazer
+executeSetup passar os mesmos realSkillsExecutor()/realSpecsfyExecutor() da
+CLI"). Confirmado em `src/mcp/tool.ts`: `executeSetup` agora passa `skills`,
+`specsfy` e `bridgeEnv` para `runSetup`, mesma forma que `formatSetup` em
+`src/cli.ts`. Aprovação também resolvida com um `DecisionSource` fixo
+(`alwaysApprove`) em vez de tentar ler stdin do processo MCP. Verificado de
+verdade contra `/home/bcalmon/Projects/SDE-Interview-and-Prep-Roadmap/`, o
+projeto onde a lacuna foi originalmente notada.
