@@ -429,7 +429,7 @@ src/setup/run.ts             (lido, não modificado — fallback preservado)
 | IDs | BDD de referência | Teste TDD informado pelo BDD | RED observado | GREEN observado | Refactor/regressão |
 | --- | --- | --- | --- | --- | --- |
 | US-001, FR-001, FR-002, NFR-001, AC-001 | AC-001 na seção 6 | Verificação manual: `git status --porcelain` antes/depois de `npx vitest run` completo (sem unidade isolada possível, ver "Verificação manual" acima); marcador `SPECSFY:` registrado no changelog da tarefa T006 | Pending | Pending | Pending |
-| US-001, FR-001, NFR-001, AC-002 | AC-002 na seção 6 | Por arquivo (T001–T005): RED = rodar `npx vitest run <arquivo>` no estado atual e `git status --porcelain` fica sujo; edição para criar `root` via `mkdtempSync` e passá-lo a `runSetup`, marcador `SPECSFY:` no comentário do helper; GREEN = mesmo comando, `git status --porcelain` vazio | **Observado (T001)**: `npx vitest run tests/setup-idempotent.test.ts` — 4/4 asserções passam (comportamento preservado, confirma AC-003), mas `git status --porcelain` fica sujo em `.claude/settings.json` e `.common-rules/install.json` — o defeito exato que AC-002 exige corrigir | Pending | Pending |
+| US-001, FR-001, NFR-001, AC-002 | AC-002 na seção 6 | Por arquivo (T001–T005): RED = rodar `npx vitest run <arquivo>` no estado atual e `git status --porcelain` fica sujo; edição para criar `root` via `mkdtempSync` e passá-lo a `runSetup`, marcador `SPECSFY:` no comentário do helper; GREEN = mesmo comando, `git status --porcelain` vazio | **RED (T001)**: `npx vitest run tests/setup-idempotent.test.ts` — 4/4 passam mas `.claude/settings.json` e `.common-rules/install.json` ficam sujos — o defeito exato | **GREEN (T001)**: mesmo comando após adicionar `root` via `project()` — 4/4 passam, `git status --porcelain` limpo | T002–T005: Pending |
 | US-001, FR-002, NFR-001, AC-003 | AC-003 na seção 6 | As 16 asserções já existentes nesses cinco arquivos, executadas sem alteração de expectativa | Pending | Pending | Pending |
 | US-001, FR-001, FR-002, AC-004 | AC-004 na seção 6 | Cada um dos cinco arquivos rodado individualmente (`npx vitest run tests/<arquivo>.test.ts`), fora da suíte completa | Pending | Pending | Pending |
 
@@ -437,7 +437,7 @@ src/setup/run.ts             (lido, não modificado — fallback preservado)
 
 | Requisito | Cenário BDD | Nível | Arquivo/comando esperado | Evidência |
 | --- | --- | --- | --- | --- |
-| FR-001 | AC-002 | Unidade (edição) | tests/setup-idempotent.test.ts, tests/setup-revert.test.ts, tests/setup-record.test.ts, tests/setup-install.test.ts, tests/setup-dryrun.test.ts | Pending |
+| FR-001 | AC-002 | Unidade (edição) | tests/setup-idempotent.test.ts, tests/setup-revert.test.ts, tests/setup-record.test.ts, tests/setup-install.test.ts, tests/setup-dryrun.test.ts | tests/setup-idempotent.test.ts: Passed (T001). Demais: Pending |
 | FR-002 | AC-003 | Regressão | `npx vitest run tests/setup-idempotent.test.ts tests/setup-revert.test.ts tests/setup-record.test.ts tests/setup-install.test.ts tests/setup-dryrun.test.ts` | Pending |
 | NFR-001 | AC-001 | Verificação manual | `git status --porcelain` antes/depois de `npx vitest run` completo | Pending |
 | FR-001, FR-002 | AC-004 | Unidade (por arquivo) | `npx vitest run tests/setup-idempotent.test.ts` (e o mesmo comando para cada um dos outros quatro) | Pending |
@@ -491,13 +491,13 @@ temporário e a passar `root` explicitamente, seguindo a convenção de
 (`npx vitest run tests/setup-idempotent.test.ts`, etc.) e confirmar que as
 mesmas asserções de hoje continuam passando.
 
-- [ ] T001 [P] [TEST] [TDD] [US-001] Isolar root em tests/setup-idempotent.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
+- [x] T001 [P] [TEST] [TDD] [US-001] Isolar root em tests/setup-idempotent.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
   - [x] **PREP**: Ler o arquivo e confirmar as 4 chamadas a `runSetup({ env, write: true, ... })` que hoje não passam `root`. RED: rodar `npx vitest run tests/setup-idempotent.test.ts` no estado atual (antes da edição) e confirmar que `git status --porcelain` fica sujo em `.common-rules/install.json` — a evidência concreta do problema, por arquivo. **RED observado**: 4/4 asserções passam, mas `git status --porcelain` fica sujo em `.claude/settings.json` e `.common-rules/install.json`; revertido com `git checkout --`.
-  - [ ] **EXECUTE**: Criar `root` com `mkdtempSync(join(tmpdir(), "setup-"))` (populando `.claude/` quando `env.hasClaudeCode` exigir), passar `root` a cada chamada; marcador `SPECSFY:` no comentário do helper.
-  - [ ] **VERIFY**: `npx vitest run tests/setup-idempotent.test.ts` — as 4 asserções continuam passando (GREEN: repita `git status --porcelain` — vazio, ao contrário do RED do PREP).
-  - [ ] **VISUAL**: Não aplicável — arquivo de teste sem superfície visual.
-  - [ ] **EVIDENCE**: Registrar comando e resultado nas seções 11–12.
-  - [ ] **IMPROVE**: Registrar aprendizado ou ausência.
+  - [x] **EXECUTE**: Criar `root` com `mkdtempSync(join(tmpdir(), "setup-"))` (populando `.claude/` quando `env.hasClaudeCode` exigir), passar `root` a cada chamada; marcador `SPECSFY:` no comentário do helper. Helper `project()` adicionado seguindo o padrão de `tests/setup-writes.test.ts`; as 4 chamadas a `runSetup` agora recebem `root`.
+  - [x] **VERIFY**: `npx vitest run tests/setup-idempotent.test.ts` — as 4 asserções continuam passando (GREEN: repita `git status --porcelain` — vazio, ao contrário do RED do PREP). **GREEN observado**: 4/4 passam, `git status --porcelain` mostra só a edição do próprio arquivo de teste — nada em `.claude/` ou `.common-rules/`.
+  - [x] **VISUAL**: Não aplicável — arquivo de teste sem superfície visual.
+  - [x] **EVIDENCE**: Registrado nas seções 11–12.
+  - [x] **IMPROVE**: Nenhuma melhoria adicional necessária — o helper `project()` replica exatamente o padrão já em uso em `tests/setup-writes.test.ts`, sem introduzir uma segunda convenção.
 
 - [ ] T002 [P] [TEST] [TDD] [US-001] Isolar root em tests/setup-revert.test.ts — Refs: US-001, FR-001, FR-002, NFR-001, AC-002, AC-003, AC-004 — Depends: none
   - [ ] **PREP**: Ler o arquivo e confirmar as 4 chamadas a `runSetup` sem `root`. RED: rodar `npx vitest run tests/setup-install.test.ts` no estado atual e confirmar que `git status --porcelain` fica sujo em `.common-rules/install.json`. RED: rodar `npx vitest run tests/setup-record.test.ts` no estado atual e confirmar que `git status --porcelain` fica sujo em `.common-rules/install.json`. RED: rodar `npx vitest run tests/setup-revert.test.ts` no estado atual e confirmar que `git status --porcelain` fica sujo em `.common-rules/install.json`.
