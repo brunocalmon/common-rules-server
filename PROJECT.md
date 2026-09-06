@@ -107,6 +107,21 @@ suportados expõe essa informação sem exigir login, e calculá-la exigiria
 quebrar a garantia sem rede e sem autenticação que o projeto inteiro mantém;
 o relatório sempre declara essa ausência em vez de silenciá-la.
 
+**Perfis de agente configuráveis.** `.maestro/config.yaml` ganhou a seção
+`maestro:`, que descreve o agente mestre e sua lista de `subagents`. Cada
+agente é composto por cinco grupos — identidade, cognição, instrução,
+capacidade e execução — e **cada propriedade**, não o perfil inteiro, declara
+se é sugestão (o planejamento pode propor outra coisa, explicando o
+trade-off) ou obrigatória (vinculante). Um perfil pode trazer qualquer
+combinação: do nome sozinho ao conjunto completo. Nenhum comportamento padrão
+vive embutido no código — o `setup` semeia arquivos reais em
+`.maestro/subagents/<agente>/`, que a partir daí pertencem à pessoa e nunca
+são sobrescritos nem cobrados por checksum. O leitor recusa em voz alta
+diante de referência quebrada ou `mode` fora do domínio, nomeando perfil e
+propriedade, e o `doctor` relata exatamente as mesmas divergências sem tocar
+em disco. É a fundação do épico de orquestração multi-agente: sozinha, ela
+configura e valida, mas ainda não executa nada.
+
 **Servidor MCP**, com a tool `setup` única, sobre entrada e saída padrão pelo
 binário `maestro-mcp`. Expõe a mesma lógica que o comando de terminal, e
 exige a raiz do projeto como parâmetro: o processo servidor não sabe em que
@@ -118,7 +133,11 @@ Esta lista importa tanto quanto a anterior. Nada abaixo está implementado:
 
 - **Orquestração, subagentes e delegação.** Nenhum motor de Orchestrator
   existe ainda — `recommend` calcula uma recomendação isolada, sem consumi-la
-  em nenhum fluxo automático.
+  em nenhum fluxo automático, e os perfis de agente descritos acima são lidos
+  e validados, mas nada os executa. Planejamento com aprovação humana,
+  execução por subagent nativo ou por subprocesso de CLI externa e telemetria
+  multi-agente são as fatias MA-2 a MA-6 de `BACKLOG-0009`, ainda não
+  especificadas.
 - **Custo e uso de plano** na seleção de modelo — deliberadamente fora de
   escopo, não apenas ainda não construído (ver "Seleção de modelo" acima).
 - **Hidratação sob demanda de uma extensão de hook.** Uma extensão local

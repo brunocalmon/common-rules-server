@@ -39,15 +39,14 @@ git:
     common_rules_config:
       description: config.yaml itself — shared across the team by default
       paths:
-        - .common-rules/config.yaml
+        - .maestro/config.yaml
       ignored: false
     common_rules_state:
-      description: common-rules operational state (install.json, extensions.json,
-        quarantine/)
+      description: maestro operational state (install.json, extensions.json, quarantine/)
       paths:
-        - .common-rules/install.json
-        - .common-rules/extensions.json
-        - .common-rules/quarantine/
+        - .maestro/install.json
+        - .maestro/extensions.json
+        - .maestro/quarantine/
       ignored: true
     specsfy:
       description: Specsfy artifacts — already treated as versioned normative source
@@ -60,8 +59,8 @@ git:
         - DESIGNSYSTEM.MD
       ignored: false
     installed_skills:
-      description: Skills delivered by common-rules, mattpocock or Specsfy —
-        reinstallable, like dependencies
+      description: Skills delivered by maestro, mattpocock or Specsfy — reinstallable,
+        like dependencies
       paths:
         - .claude/skills/
         - .agents/skills/
@@ -76,3 +75,46 @@ git:
         in this project
       paths: []
       ignored: true
+maestro:
+  identity:
+    name:
+      value: maestro
+      mode: required
+    description:
+      value: .maestro/subagents/maestro/description.md
+      mode: suggested
+  cognition:
+    model:
+      value: ""
+      mode: suggested
+    context_budget:
+      value: 0.7
+      mode: suggested
+    reasoning_effort:
+      value: medium
+      mode: suggested
+  instruction:
+    behavior:
+      value: .maestro/subagents/maestro/behavior.md
+      mode: suggested
+    additional_behavior:
+      value: ""
+      mode: suggested
+  capability:
+    skills:
+      value: []
+      mode: suggested
+    tools:
+      value: []
+      mode: suggested
+    mcp_servers:
+      value: []
+      mode: suggested
+  execution:
+    runtime:
+      value: auto
+      mode: suggested
+    concurrency:
+      value: 1
+      mode: suggested
+  subagents: []

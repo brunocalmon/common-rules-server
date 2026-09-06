@@ -7,7 +7,7 @@ describe("AC-001 — setup creates a complete config.yaml for a new project", ()
   // SPECSFY: US-001 FR-001 FR-002 FR-003 FR-004 NFR-001 NFR-003 AC-001
   it("has every top-level section present", () => {
     const doc = buildDefaultConfig({ platform: () => "linux" });
-    expect(Object.keys(doc).sort()).toEqual(["git", "language", "project", "system"]);
+    expect(Object.keys(doc).sort()).toEqual(["git", "language", "maestro", "project", "system"]);
   });
 
   // SPECSFY: US-001 FR-001 FR-002 FR-003 FR-004 NFR-001 NFR-003 AC-001

@@ -1,0 +1,36 @@
+{
+  "artifacts": [
+    {
+      "category": "extension",
+      "name": "router",
+      "target": "CLAUDE.md",
+      "content": "## maestro\n\nTo create, adjust or repair a local extension (a hook, a rule, or this\nrouter itself), trigger the `maestro-extension-creator` skill\ninstead of reading `.maestro/extensions/` directly.",
+      "checksum": "e5e3fbdea7549924bd8a708a891f3fb9db00f07ce18a864d0ba11fd4a72f1c9c",
+      "createdAt": "2026-09-06T21:25:56.828Z"
+    },
+    {
+      "category": "extension",
+      "name": "agents-pointer",
+      "target": "AGENTS.md",
+      "content": "For the `maestro` router, read the `maestro` section in `CLAUDE.md`.",
+      "checksum": "46047f134f9eff54d43bd5e591c3aa483b3f8d46ebc7a7e2f744963e45316837",
+      "createdAt": "2026-09-06T21:25:56.829Z"
+    },
+    {
+      "category": "extension",
+      "name": "config-language-rule",
+      "target": "CLAUDE.md",
+      "content": "## maestro: language\n\nRead `.maestro/config.yaml` before generating a document or deciding\nwhat language to answer in. Reply in the conversation's language. Write a\ngenerated document in `language.default`, unless its path matches one of\n`language.exceptions`. Notice when the conversation reveals a value that\n`config.yaml` is missing or has out of date, and offer to update it.",
+      "checksum": "643c73b42acbff58c5b423a79d1b44bd9d7e6b1b6c42626097ce2a5709db5394",
+      "createdAt": "2026-09-06T21:25:56.830Z"
+    },
+    {
+      "category": "extension",
+      "name": "config-language-pointer",
+      "target": "AGENTS.md",
+      "content": "For the `maestro` language rule, read the `maestro: language` section in `CLAUDE.md`.",
+      "checksum": "d396503d86fcc5148f098aab92d4a9512d3fc5b6d2eb6e857796294d35de42c3",
+      "createdAt": "2026-09-06T21:25:56.832Z"
+    }
+  ]
+}

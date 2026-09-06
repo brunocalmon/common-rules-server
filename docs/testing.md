@@ -3,12 +3,16 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 171.
+- Arquivos de teste: 175.
 - Runner: Vitest.
 - Scripts: prepare: node scripts/install-git-hooks.mjs; prebuild: node scripts/check-version-checksum.mjs; build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
 | Arquivo |
 | --- |
+| tests/agents-config-schema.test.ts |
+| tests/agents-doctor.test.ts |
+| tests/agents-read.test.ts |
+| tests/agents-seed.test.ts |
 | tests/approval-comando-argv-alterado.test.ts |
 | tests/approval-comando-ja-aprovado.test.ts |
 | tests/approval-command-fixtures.ts |

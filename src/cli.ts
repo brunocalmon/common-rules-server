@@ -3,6 +3,7 @@ import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 import { realpathSync, readFileSync } from "node:fs";
 import { defaultEnvironment, inspectDependencies, type Report } from "./doctor.js";
+import { formatAgentProblems } from "./agents/diagnose.js";
 import { runSetup, TARGET_SETTINGS, loadHooks } from "./setup/run.js";
 import { detectEnvironment } from "./setup/env.js";
 import { KNOWN_TARGETS } from "./hooks/detect.js";
@@ -110,7 +111,11 @@ export function renderReport(report: Report): string {
   const divergent = (report.divergentExtensions ?? []).map(
     (d) => `divergent extension "${d.name}" — target ${d.target}, ${d.reason}`,
   );
-  return [...lines, ...divergent].join("\n");
+  // A divergência de perfil já entra no exitCode; sem esta linha o relatório
+  // sairia silencioso sobre o motivo, e "sair com 1 sem dizer por quê" é
+  // justamente a falha silenciosa que o projeto trata como cara (`AC-010`).
+  const agents = formatAgentProblems(report.divergentAgents ?? []);
+  return [...lines, ...divergent, ...agents].join("\n");
 }
 
 function formatReport(args: readonly string[] = []): CommandOutcome {

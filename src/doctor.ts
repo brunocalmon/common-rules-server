@@ -26,6 +26,7 @@ import { detectBackends, realBackendEnvironment, type BackendEnvironment } from 
 import { readExtensionRegistry, realChecksumEnvironment } from "./extensions/registry.js";
 import { realTargetFileEnvironment, listPresentExtensionNames } from "./extensions/create.js";
 import { diagnoseExtensions, type DivergentArtifact } from "./extensions/diagnose.js";
+import { diagnoseAgents, type ProfileProblem } from "./agents/diagnose.js";
 
 export interface Report {
   results: DependencyResult[];
@@ -38,6 +39,8 @@ export interface Report {
   trace?: TraceRead;
   /** Divergent extension artifact, when a root is given — never repairs, only reports (`PR-082`). */
   divergentExtensions?: DivergentArtifact[];
+  /** Agent profile divergence, when a root is given — same read-only contract (`SPEC-0015`, `FR-004`). */
+  divergentAgents?: ProfileProblem[];
 }
 
 /**
@@ -84,6 +87,7 @@ export function inspectDependencies(
   root?: string,
   backendEnv: BackendEnvironment = realBackendEnvironment(),
   diagnoseExtensionsFn: (root: string) => DivergentArtifact[] = realDiagnoseExtensions,
+  diagnoseAgentsFn: (root: string) => ProfileProblem[] = (r) => diagnoseAgents(r),
 ): Report {
   const results: DependencyResult[] = [];
 
@@ -129,13 +133,20 @@ export function inspectDependencies(
   // the `agent` layer (`DEC-084`).
   const divergent = diagnoseExtensionsFn(root);
 
+  // Same reasoning as the extensions above: an agent profile pointing at a
+  // file that isn't there is this project's own inconsistency, so it enters
+  // the exitCode directly (`SPEC-0015`, `FR-004`).
+  const divergentAgents = diagnoseAgentsFn(root);
+
   return {
     results,
     skills: sets.results,
     note: sets.note,
     trace: readTrace(root),
     divergentExtensions: divergent,
-    exitCode: dependenciesOk && sets.exitCode === 0 && divergent.length === 0 ? 0 : 1,
+    divergentAgents,
+    exitCode:
+      dependenciesOk && sets.exitCode === 0 && divergent.length === 0 && divergentAgents.length === 0 ? 0 : 1,
   };
 }
 

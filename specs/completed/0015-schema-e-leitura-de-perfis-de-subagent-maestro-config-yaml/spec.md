@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0015 |
 | Slug | 0015-schema-e-leitura-de-perfis-de-subagent-maestro-config-yaml |
-| Status | Planned |
+| Status | Complete |
 | Effort | 6 |
 | Effort updated at | 2026-09-06 |
 | Effort rationale | Mecanismo novo sem precedente direto no projeto (composição de agente em cinco grupos, wrapper `{value, mode}` uniforme, semeadura de arquivos físicos), somado a integração com três superfícies já existentes (`setup`, leitor de config da SPEC-0012, `doctor` da SPEC-0011). Sem I/O de rede, concorrência ou execução de agente — a execução em si pertence às fatias MA-4/MA-5. Faixa `standard` alta. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | Pending |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — arquivo de configuração YAML e comandos de terminal já existentes (`setup`, `doctor`), sem tela. |
 | Atualizada em | 2026-09-06 |
@@ -517,37 +517,37 @@ tests/
 
 | IDs | BDD de referência | Teste TDD informado pelo BDD | RED observado | GREEN observado | Refactor/regressão |
 | --- | --- | --- | --- | --- | --- |
-| US-001, FR-001, NFR-001, AC-001 | AC-001 na seção 6 | tests/agents-config-schema.test.ts (T001) | seção `maestro` ausente em `.maestro/config.yaml` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-001, NFR-001, AC-002 | AC-002 na seção 6 | tests/agents-config-schema.test.ts (T002) | nenhuma propriedade `{ value, mode }` para percorrer | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-001, NFR-002, AC-003 | AC-003 na seção 6 | tests/agents-config-schema.test.ts (T003) | `readConfig(root).maestro` é `undefined` na segunda execução | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-002, NFR-001, AC-004 | AC-004 na seção 6 | tests/agents-seed.test.ts (T004) | `.maestro/subagents/maestro/description.md` não existe | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-002, NFR-001, AC-005 | AC-005 na seção 6 | tests/agents-seed.test.ts (T005) | `resources/agents/maestro/behavior.md` não existe | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-002, NFR-002, AC-006 | AC-006 na seção 6 | tests/agents-seed.test.ts (T006) | `ENOENT` ao abrir `behavior.md` semeado | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-003, NFR-001, AC-007 | AC-007 na seção 6 | tests/agents-read.test.ts (T007) | `Cannot find module '../src/agents/read'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-003, NFR-002, AC-008 | AC-008 na seção 6 | tests/agents-read.test.ts (T008) | `Cannot find module '../src/agents/read'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-003, NFR-002, AC-009 | AC-009 na seção 6 | tests/agents-read.test.ts (T009) | `Cannot find module '../src/agents/read'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-004, NFR-002, AC-010 | AC-010 na seção 6 | tests/agents-doctor.test.ts (T010) | `Cannot find module '../src/agents/diagnose'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-004, NFR-002, AC-011 | AC-011 na seção 6 | tests/agents-doctor.test.ts (T011) | `Cannot find module '../src/agents/diagnose'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-004, NFR-001, AC-012 | AC-012 na seção 6 | tests/agents-doctor.test.ts (T012) | `Cannot find module '../src/agents/diagnose'` | Pending (aguarda a fase 2) | Pending |
+| US-001, FR-001, NFR-001, AC-001 | AC-001 na seção 6 | tests/agents-config-schema.test.ts (T001) | seção `maestro` ausente em `.maestro/config.yaml` | GREEN | 449/449 na suíte completa |
+| US-001, FR-001, NFR-001, AC-002 | AC-002 na seção 6 | tests/agents-config-schema.test.ts (T002) | nenhuma propriedade `{ value, mode }` para percorrer | GREEN | 449/449 na suíte completa |
+| US-001, FR-001, NFR-002, AC-003 | AC-003 na seção 6 | tests/agents-config-schema.test.ts (T003) | `readConfig(root).maestro` é `undefined` na segunda execução | GREEN | 449/449 na suíte completa |
+| US-001, FR-002, NFR-001, AC-004 | AC-004 na seção 6 | tests/agents-seed.test.ts (T004) | `.maestro/subagents/maestro/description.md` não existe | GREEN | 449/449 na suíte completa |
+| US-001, FR-002, NFR-001, AC-005 | AC-005 na seção 6 | tests/agents-seed.test.ts (T005) | `resources/agents/maestro/behavior.md` não existe | GREEN | 449/449 na suíte completa |
+| US-001, FR-002, NFR-002, AC-006 | AC-006 na seção 6 | tests/agents-seed.test.ts (T006) | `ENOENT` ao abrir `behavior.md` semeado | GREEN | 449/449 na suíte completa |
+| US-001, FR-003, NFR-001, AC-007 | AC-007 na seção 6 | tests/agents-read.test.ts (T007) | `Cannot find module '../src/agents/read'` | GREEN | 449/449 na suíte completa |
+| US-001, FR-003, NFR-002, AC-008 | AC-008 na seção 6 | tests/agents-read.test.ts (T008) | `Cannot find module '../src/agents/read'` | GREEN | 449/449 na suíte completa |
+| US-001, FR-003, NFR-002, AC-009 | AC-009 na seção 6 | tests/agents-read.test.ts (T009) | `Cannot find module '../src/agents/read'` | GREEN | 449/449 na suíte completa |
+| US-001, FR-004, NFR-002, AC-010 | AC-010 na seção 6 | tests/agents-doctor.test.ts (T010) | `Cannot find module '../src/agents/diagnose'` | GREEN | 449/449 na suíte completa |
+| US-001, FR-004, NFR-002, AC-011 | AC-011 na seção 6 | tests/agents-doctor.test.ts (T011) | `Cannot find module '../src/agents/diagnose'` | GREEN | 449/449 na suíte completa |
+| US-001, FR-004, NFR-001, AC-012 | AC-012 na seção 6 | tests/agents-doctor.test.ts (T012) | `Cannot find module '../src/agents/diagnose'` | GREEN | 449/449 na suíte completa |
 
 ### 12. Plano de testes e rastreabilidade
 
 | Requisito | Cenário BDD | Nível | Arquivo/comando esperado | Evidência |
 | --- | --- | --- | --- | --- |
-| FR-001 | AC-001 | Integração (root isolado) | `tests/agents-config-schema.test.ts` | Pending |
-| FR-001 | AC-002 | Unidade | `tests/agents-config-schema.test.ts` | Pending |
-| FR-001 | AC-003 | Integração (root isolado) | `tests/agents-config-schema.test.ts` | Pending |
-| FR-002 | AC-004 | Integração (root isolado) | `tests/agents-seed.test.ts` | Pending |
-| FR-002 | AC-005 | Unidade (inspeção de fonte) | `tests/agents-seed.test.ts` | Pending |
-| FR-002 | AC-006 | Integração (root isolado) | `tests/agents-seed.test.ts` | Pending |
-| FR-003 | AC-007 | Unidade | `tests/agents-read.test.ts` | Pending |
-| FR-003 | AC-008 | Unidade | `tests/agents-read.test.ts` | Pending |
-| FR-003 | AC-009 | Unidade | `tests/agents-read.test.ts` | Pending |
-| FR-004 | AC-010 | Unidade | `tests/agents-doctor.test.ts` | Pending |
-| FR-004 | AC-011 | Integração (root isolado) | `tests/agents-doctor.test.ts` | Pending |
-| FR-004 | AC-012 | Unidade | `tests/agents-doctor.test.ts` | Pending |
-| NFR-001 | AC-001, AC-002, AC-004, AC-005, AC-012 | Unidade + integração | ver linhas acima | Pending |
-| NFR-002 | AC-003, AC-006, AC-008, AC-009, AC-010, AC-011 | Unidade + integração | ver linhas acima | Pending |
+| FR-001 | AC-001 | Integração (root isolado) | `tests/agents-config-schema.test.ts` | Passed |
+| FR-001 | AC-002 | Unidade | `tests/agents-config-schema.test.ts` | Passed |
+| FR-001 | AC-003 | Integração (root isolado) | `tests/agents-config-schema.test.ts` | Passed |
+| FR-002 | AC-004 | Integração (root isolado) | `tests/agents-seed.test.ts` | Passed |
+| FR-002 | AC-005 | Unidade (inspeção de fonte) | `tests/agents-seed.test.ts` | Passed |
+| FR-002 | AC-006 | Integração (root isolado) | `tests/agents-seed.test.ts` | Passed |
+| FR-003 | AC-007 | Unidade | `tests/agents-read.test.ts` | Passed |
+| FR-003 | AC-008 | Unidade | `tests/agents-read.test.ts` | Passed |
+| FR-003 | AC-009 | Unidade | `tests/agents-read.test.ts` | Passed |
+| FR-004 | AC-010 | Unidade | `tests/agents-doctor.test.ts` | Passed |
+| FR-004 | AC-011 | Integração (root isolado) | `tests/agents-doctor.test.ts` | Passed |
+| FR-004 | AC-012 | Unidade | `tests/agents-doctor.test.ts` | Passed |
+| NFR-001 | AC-001, AC-002, AC-004, AC-005, AC-012 | Unidade + integração | ver linhas acima | Passed |
+| NFR-002 | AC-003, AC-006, AC-008, AC-009, AC-010, AC-011 | Unidade + integração | ver linhas acima | Passed |
 
 ### 13. Validações
 
@@ -565,9 +565,17 @@ tests/
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Pending
-- **Comando**: `node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/draft/0015-schema-e-leitura-de-perfis-de-subagent-maestro-config-yaml/spec.md .`
-- **Achados**: Pending.
+- **Resultado**: READY (2026-09-06) — 18/18 tarefas, 108/108 itens de checklist
+- **Comando**: `node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/planned/0015-schema-e-leitura-de-perfis-de-subagent-maestro-config-yaml/spec.md .` — `Rastreabilidade: 19/19 IDs cobertos em 175 arquivos de teste`; `verify_acceptance.mjs`: `QA: PASSED`.
+- **Achados**: Nenhum bloqueio. **449/449 testes** em 167 arquivos, `tsc` limpo, `build_documentation.mjs --check` limpo, `monitor_context.mjs --check` `CURRENT`. Verificado fora da suíte, com o binário instalado: `maestro setup` num projeto sem `.common-rules/` nem `.maestro/` criou `.maestro/config.yaml` com a seção `maestro:` completa e os dois arquivos semeados em `.maestro/subagents/maestro/`; `maestro doctor` saiu com 0 na config íntegra e, com o `behavior` apontando para um arquivo inexistente, imprimiu `agent profile: maestro: instruction.behavior — arquivo não encontrado: .maestro/subagents/maestro/apagado.md` e saiu com 1.
+- Três correções aconteceram durante a execução e ficaram registradas em vez de silenciadas: a validação exigia os cinco grupos e contradizia a decisão `D6` do épico; o relatório do `doctor` saía silencioso enquanto o `exitCode` já era 1 (defeito que a suíte não pegava porque o caso afirmava sobre a função, não sobre a saída real); e os dois recursos de fábrica saíram em português, violando `language.default: en_US`, além de escritos como meta-comentário em vez de instrução operacional.
+- Contexto ambiental que atrapalhou o diagnóstico: `/tmp` encheu (7,5 GB, 5.978 diretórios de fixture acumulados de execuções anteriores) e derrubou 14 testes com `ENOSPC`, o que por um momento pareceu regressão da renomeação. Limpo antes de concluir.
+
+#### Aceite final (`$specsfy-04-validate`)
+
+- **Resultado**: READY (2026-09-06)
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0015-schema-e-leitura-de-perfis-de-subagent-maestro-config-yaml/spec.md` — `RESULTADO: READY`.
+- **Achados**: Nenhum `BLOCKER`. Os três gates estão `Passed` com evidência verificável, e a Definition of Done está comprovada. A entrega foi confirmada com o binário instalado, não só pela suíte: `maestro setup` criou `.maestro/` do zero e `maestro doctor` nomeou a divergência e saiu com 1. Três correções de rumo ficaram registradas em vez de silenciadas (validação exigindo grupos que a `D6` permite omitir; relatório do `doctor` silencioso enquanto o `exitCode` já era 1; recursos de fábrica em português violando `language.default: en_US`). Uma lacuna de cobertura ficou explicitamente aberta na seção 16, sem teste heurístico para disfarçá-la: nada verifica idioma de recurso semeado. `Status: Complete`.
 
 ### 14. Tarefas
 
@@ -688,61 +696,61 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 **Objetivo**: a seção `maestro:` existe, é semeada com arquivos reais, é lida e validada, e o `doctor` relata divergência sem alterar nada.
 **Teste independente**: `npx vitest run tests/agents-config-schema.test.ts tests/agents-seed.test.ts tests/agents-read.test.ts tests/agents-doctor.test.ts` — os quatro arquivos verdes.
 
-- [ ] T013 [CODE] [US-001] Acrescentar MaestroSection, AgentProfile, ConfiguredProperty e PropertyMode em src/config/schema.ts, estendendo ConfigDocument e SCHEMA_KEYS — Refs: US-001, FR-001, NFR-001, NFR-002, AC-001, AC-002, AC-003 — Depends: T001, T002, T003
-  - [ ] **PREP**: Confirmar RED de T001/T002/T003 e o formato atual de `ConfigDocument`/`SCHEMA_KEYS`.
-  - [ ] **EXECUTE**: Declarar os tipos dos cinco grupos e o wrapper `{ value, mode }`; acrescentar as chaves novas a `SCHEMA_KEYS` e ao default semeado, preservando a regra de nunca sobrescrever valor existente. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/agents-config-schema.test.ts` verde; `npx tsc --noEmit` limpo; suíte de config sem regressão.
-  - [ ] **VISUAL**: Não aplicável — schema de configuração, sem superfície visual.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T013 [CODE] [US-001] Acrescentar MaestroSection, AgentProfile, ConfiguredProperty e PropertyMode em src/config/schema.ts, estendendo ConfigDocument e SCHEMA_KEYS — Refs: US-001, FR-001, NFR-001, NFR-002, AC-001, AC-002, AC-003 — Depends: T001, T002, T003
+  - [x] **PREP**: Confirmar RED de T001/T002/T003 e o formato atual de `ConfigDocument`/`SCHEMA_KEYS`.
+  - [x] **EXECUTE**: Declarar os tipos dos cinco grupos e o wrapper `{ value, mode }`; acrescentar as chaves novas a `SCHEMA_KEYS` e ao default semeado, preservando a regra de nunca sobrescrever valor existente. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/agents-config-schema.test.ts` — AC-001, AC-002 e AC-003 **GREEN**; `npx tsc --noEmit` limpo.
+  - [x] **VISUAL**: Não aplicável — schema de configuração, sem superfície visual.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13.
+  - [x] **IMPROVE**: Nenhuma melhoria adicional — o wrapper `{ value, mode }` saiu de dois helpers (`suggested`/`required`) em vez de repetir a forma em cada propriedade do default.
   <!-- specsfy:evidence {"task":"T013","refs":["US-001","FR-001","NFR-001","NFR-002","AC-001","AC-002","AC-003"],"files":["src/config/schema.ts"],"commands":[{"run":"npx vitest run tests/agents-config-schema.test.ts","exit":0}]} -->
 
-- [ ] T014 [CODE] [US-001] Criar resources/agents/maestro/description.md e behavior.md e a semeadura em src/agents/seed.ts, ligada ao setup em src/setup/run.ts — Refs: US-001, FR-002, NFR-001, NFR-002, AC-004, AC-005, AC-006 — Depends: T004, T005, T006
-  - [ ] **PREP**: Confirmar RED de T004/T005/T006 e o ponto de `src/setup/run.ts` onde a garantia de config já acontece.
-  - [ ] **EXECUTE**: Escrever os dois recursos versionados com o comportamento padrão real (nenhum texto embutido em `src/`), implementar `seedAgentDefaults` criando somente o ausente, e chamá-la no `setup`. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/agents-seed.test.ts` verde; suíte de `setup` sem regressão.
-  - [ ] **VISUAL**: Não aplicável — arquivos Markdown de recurso e código de semeadura, sem tela.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T014 [CODE] [US-001] Criar resources/agents/maestro/description.md e behavior.md e a semeadura em src/agents/seed.ts, ligada ao setup em src/setup/run.ts — Refs: US-001, FR-002, NFR-001, NFR-002, AC-004, AC-005, AC-006 — Depends: T004, T005, T006
+  - [x] **PREP**: Confirmar RED de T004/T005/T006 e o ponto de `src/setup/run.ts` onde a garantia de config já acontece.
+  - [x] **EXECUTE**: Escrever os dois recursos versionados com o comportamento padrão real (nenhum texto embutido em `src/`), implementar `seedAgentDefaults` criando somente o ausente, e chamá-la no `setup`. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/agents-seed.test.ts` — AC-004, AC-005 e AC-006 **GREEN**.
+  - [x] **VISUAL**: Não aplicável — arquivos Markdown de recurso e código de semeadura, sem tela.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
+  - [x] **IMPROVE**: Melhoria aplicada: a semeadura copia o diretório inteiro de `resources/agents/<agente>/` em vez de listar arquivo por arquivo, então acrescentar um recurso novo no futuro não exige tocar no código. **Defeito próprio, apontado pela pessoa responsável e corrigido**: a primeira versão dos dois recursos de fábrica saiu em português e como meta-comentário sobre o próprio arquivo, em vez de instrução operacional. Violava `language.default: en_US` do `config.yaml` — e justamente neste projeto, que é quem implementa essa regra (`SPEC-0012`); os caminhos `.maestro/subagents/**` não estão entre as exceções, que cobrem só `specs/**/spec.md` e `docs/**/*.md`. Reescritos em inglês e como instrução de operação real (planejar antes de agir, dimensionar o time, respeitar `required` vs `suggested`, vigiar a janela de contexto, reportar como uma voz só), e re-semeados no projeto para conferir o resultado.
   <!-- specsfy:evidence {"task":"T014","refs":["US-001","FR-002","NFR-001","NFR-002","AC-004","AC-005","AC-006"],"files":["resources/agents/maestro/behavior.md","resources/agents/maestro/description.md","src/agents/seed.ts","src/setup/run.ts"],"commands":[{"run":"npx vitest run tests/agents-seed.test.ts","exit":0}]} -->
 
-- [ ] T015 [CODE] [US-001] Implementar os tipos e a validação pura em src/agents/profile.ts e o leitor com recusa em voz alta em src/agents/read.ts — Refs: US-001, FR-003, NFR-001, NFR-002, AC-007, AC-008, AC-009 — Depends: T007, T008, T009
-  - [ ] **PREP**: Confirmar RED de T007/T008/T009 e o contrato de perfil declarado na seção 9.
-  - [ ] **EXECUTE**: `profile.ts` com validação estrutural pura (formato `{ value, mode }`, `mode` no domínio, nomes únicos) e `read.ts` resolvendo caminhos contra a raiz com ambiente injetado, recusando nomeando perfil, propriedade e caminho. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/agents-read.test.ts` verde; `npx tsc --noEmit` limpo.
-  - [ ] **VISUAL**: Não aplicável — módulos de leitura e validação, sem tela.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T015 [CODE] [US-001] Implementar os tipos e a validação pura em src/agents/profile.ts e o leitor com recusa em voz alta em src/agents/read.ts — Refs: US-001, FR-003, NFR-001, NFR-002, AC-007, AC-008, AC-009 — Depends: T007, T008, T009
+  - [x] **PREP**: Confirmar RED de T007/T008/T009 e o contrato de perfil declarado na seção 9.
+  - [x] **EXECUTE**: `profile.ts` com validação estrutural pura (formato `{ value, mode }`, `mode` no domínio, nomes únicos) e `read.ts` resolvendo caminhos contra a raiz com ambiente injetado, recusando nomeando perfil, propriedade e caminho. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/agents-read.test.ts` — AC-007, AC-008 e AC-009 **GREEN**.
+  - [x] **VISUAL**: Não aplicável — módulos de leitura e validação, sem tela.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
+  - [x] **IMPROVE**: **Correção de rumo**: a primeira versão exigia os cinco grupos presentes, o que contradiz a decisão `D6` do épico (perfil declara qualquer combinação). Os testes pegaram isso; a validação passou a checar só o que o perfil declara, e grupo ausente deixou de ser divergência.
   <!-- specsfy:evidence {"task":"T015","refs":["US-001","FR-003","NFR-001","NFR-002","AC-007","AC-008","AC-009"],"files":["src/agents/profile.ts","src/agents/read.ts"],"commands":[{"run":"npx vitest run tests/agents-read.test.ts","exit":0}]} -->
 
-- [ ] T016 [CODE] [US-001] Implementar o diagnóstico só-leitura em src/agents/diagnose.ts e compô-lo no relatório de src/doctor.ts — Refs: US-001, FR-004, NFR-001, NFR-002, AC-010, AC-011, AC-012 — Depends: T010, T011, T012
-  - [ ] **PREP**: Confirmar RED de T010/T011/T012 e o padrão só-leitura de `src/extensions/diagnose.ts`.
-  - [ ] **EXECUTE**: `diagnoseAgents` devolvendo as divergências sem escrever nada, e `doctor.ts` compondo-as no relatório com código de saída diferente de zero quando houver alguma. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/agents-doctor.test.ts` verde; suíte de `doctor` sem regressão.
-  - [ ] **VISUAL**: Não aplicável — relatório de terminal já existente, sem superfície visual nova.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T016 [CODE] [US-001] Implementar o diagnóstico só-leitura em src/agents/diagnose.ts e compô-lo no relatório de src/doctor.ts — Refs: US-001, FR-004, NFR-001, NFR-002, AC-010, AC-011, AC-012 — Depends: T010, T011, T012
+  - [x] **PREP**: Confirmar RED de T010/T011/T012 e o padrão só-leitura de `src/extensions/diagnose.ts`.
+  - [x] **EXECUTE**: `diagnoseAgents` devolvendo as divergências sem escrever nada, e `doctor.ts` compondo-as no relatório com código de saída diferente de zero quando houver alguma. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/agents-doctor.test.ts` — AC-010, AC-011 e AC-012 **GREEN**; verificado também no binário real: `maestro doctor` imprime `agent profile: maestro: instruction.behavior — arquivo não encontrado: ...` e sai com 1, e volta a 0 com a config restaurada.
+  - [x] **VISUAL**: Não aplicável — relatório de terminal já existente, sem superfície visual nova.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13.
+  - [x] **IMPROVE**: **Achado grave, corrigido**: o teste original afirmava sobre `diagnoseAgents()` e passava enquanto o relatório do CLI saía silencioso — o `exitCode` virava 1 sem dizer por quê. É o mesmo modo de falha que reabriu a `SPEC-0005` duas vezes (testar a forma, não o uso real). O caso foi reescrito para exercitar `renderReport`, e a linha do perfil foi ligada em `src/cli.ts`.
   <!-- specsfy:evidence {"task":"T016","refs":["US-001","FR-004","NFR-001","NFR-002","AC-010","AC-011","AC-012"],"files":["src/agents/diagnose.ts","src/doctor.ts"],"commands":[{"run":"npx vitest run tests/agents-doctor.test.ts","exit":0}]} -->
 
 **Checkpoint**: um `setup` num projeto novo produz `.maestro/config.yaml` com a seção `maestro:` e os arquivos referenciados em `.maestro/subagents/maestro/`; apagar um deles faz o `doctor` relatar e sair com código diferente de zero.
 
 #### Fase final — Documentação e qualidade
 
-- [ ] T017 [DOC] [US-001] Registrar a seção nova do schema de configuração em .specsfy/STACK.md e revisar PROJECT.md quanto à capacidade nova — Refs: US-001, FR-001, FR-002, AC-001, AC-004 — Depends: T013, T014, T015, T016
-  - [ ] **PREP**: Confirmar T013–T016 GREEN e o conteúdo atual de `.specsfy/STACK.md` e `PROJECT.md`.
-  - [ ] **EXECUTE**: Acrescentar a seção `maestro:` do schema em `.specsfy/STACK.md` e registrar em `PROJECT.md` a capacidade nova (perfis de agente configuráveis); se não houver impacto material em `PROJECT.md`, registrar a justificativa na evidência em vez de criar conteúdo artificial.
-  - [ ] **VERIFY**: `monitor_context.mjs --project . --check` sem pendência; `build_documentation.mjs --project . --check` limpo.
-  - [ ] **VISUAL**: Não aplicável — documentação em Markdown, sem tela.
-  - [ ] **EVIDENCE**: Registrar comandos e resultado nas seções 11–13.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T017 [DOC] [US-001] Registrar a seção nova do schema de configuração em .specsfy/STACK.md e revisar PROJECT.md quanto à capacidade nova — Refs: US-001, FR-001, FR-002, AC-001, AC-004 — Depends: T013, T014, T015, T016
+  - [x] **PREP**: Confirmar T013–T016 GREEN e o conteúdo atual de `.specsfy/STACK.md` e `PROJECT.md`.
+  - [x] **EXECUTE**: Acrescentar a seção `maestro:` do schema em `.specsfy/STACK.md` e registrar em `PROJECT.md` a capacidade nova (perfis de agente configuráveis); se não houver impacto material em `PROJECT.md`, registrar a justificativa na evidência em vez de criar conteúdo artificial.
+  - [x] **VERIFY**: `build_documentation.mjs --project . --check` limpo; `docs/` reconstruído. `monitor_context.mjs --check` fica `PENDING` em três itens, todos justificados aqui em vez de contornados: (1) `.specsfy/PACKAGES.md` — o monitor sinaliza porque `package.json`/`package-lock.json` mudaram, mas `git diff` mostra que a única mudança foi a versão do próprio pacote (`2.0.0` → `2.1.2`); nenhuma dependência entrou, saiu ou mudou de versão, então o inventário não tem o que registrar. (2) `PROJECT.md` — revisado de fato, com a capacidade nova descrita e a seção "O que ainda não existe" corrigida. (3) `.specsfy/RULES.md` — `AGENTS.md`/`CLAUDE.md` mudaram porque a execução real do `setup` regravou os blocos do roteador com as âncoras `maestro:`; é efeito mecânico da renomeação já entregue, não regra nova confirmada. `.specsfy/STACK.md` ganhou a seção "Perfis de agente configuráveis" e `PROJECT.md` registrou a capacidade nova, além de corrigir "O que ainda não existe" para dizer que os perfis são lidos e validados, mas nada os executa.
+  - [x] **VISUAL**: Não aplicável — documentação em Markdown, sem tela.
+  - [x] **EVIDENCE**: Registrar comandos e resultado nas seções 11–13.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T018 [TEST] Regressão completa e rastreabilidade final sobre tests/agents-*.test.ts e a suíte inteira — Refs: US-001, FR-001, FR-002, FR-003, FR-004, NFR-001, NFR-002, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012 — Depends: T013, T014, T015, T016, T017
-  - [ ] **PREP**: Identificar suites, checks e gates aplicáveis.
-  - [ ] **EXECUTE**: `npx vitest run` completo, `npx tsc --noEmit`, `check_traceability.mjs` e `verify_acceptance.mjs`.
-  - [ ] **VERIFY**: Suíte 100% verde, `tsc` limpo, rastreabilidade cobrindo os 19 IDs da spec e `QA: PASSED`.
-  - [ ] **VISUAL**: Não aplicável — repasse final sem superfície visual própria.
-  - [ ] **EVIDENCE**: Registrar contagens e comandos finais nas seções 11–13.
-  - [ ] **IMPROVE**: Registrar retrospectiva do processo.
+- [x] T018 [TEST] Regressão completa e rastreabilidade final sobre tests/agents-*.test.ts e a suíte inteira — Refs: US-001, FR-001, FR-002, FR-003, FR-004, NFR-001, NFR-002, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012 — Depends: T013, T014, T015, T016, T017
+  - [x] **PREP**: Identificar suites, checks e gates aplicáveis.
+  - [x] **EXECUTE**: `npx vitest run` completo, `npx tsc --noEmit`, `check_traceability.mjs` e `verify_acceptance.mjs`.
+  - [x] **VERIFY**: **449/449 testes** em 167 arquivos, `tsc` limpo, `Rastreabilidade: 19/19 IDs cobertos`, `QA: PASSED`. Verificado também fora da suíte: `maestro setup` real neste projeto criou `.maestro/` do zero (config com a seção `maestro:` e os dois arquivos semeados) partindo de um projeto sem `.common-rules/` nem `.maestro/`.
+  - [x] **VISUAL**: Não aplicável — repasse final sem superfície visual própria.
+  - [x] **EVIDENCE**: Registrar contagens e comandos finais nas seções 11–13.
+  - [x] **IMPROVE**: Retrospectiva: o único defeito real desta fatia (relatório silencioso do `doctor`) só apareceu ao rodar o binário de verdade, não na suíte — reforça que a verificação com o executável instalado precisa vir antes de declarar a tarefa pronta, não depois. Um segundo achado foi ambiental: `/tmp` encheu (7,5 GB, 5.978 diretórios de fixture acumulados) e derrubou 14 testes por `ENOSPC`, o que por um momento pareceu regressão do rename.
 
 ### 15. Ordem de execução
 
@@ -764,6 +772,7 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 
 - Schema muito rico entregue de uma vez pode revelar, nas fatias seguintes, que uma propriedade não serve como desenhada → mitigado por manter o formato `{ value, mode }` uniforme, que aceita acrescentar propriedade sem quebrar as existentes.
 - `capability.skills` apontando para `.agents/skills/*` cria acoplamento com a instalação do Specsfy → mitigado por tratar caminho inexistente como referência quebrada comum, sem lógica especial por origem da skill.
+- **Lacuna de cobertura encontrada durante a implementação, não fechada aqui**: nada verifica que um recurso de fábrica respeita `language.default`. O defeito real aconteceu (recursos semeados em português num projeto `en_US`) e passou pela suíte inteira, porque nenhum `AC` cobre idioma de recurso semeado. Não foi criado um teste heurístico de detecção de idioma: daria falsa confiança. Fica como candidato explícito a uma fatia futura, provavelmente junto de decidir o que um projeto consumidor com `language.default` diferente de `en_US` deveria receber — hoje o pacote distribui um idioma só.
 
 #### Suposições
 
@@ -781,11 +790,11 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
-- [ ] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
-- [ ] Os cenários `AC-001` a `AC-012` passam.
-- [ ] `FR-001` a `FR-004` e `NFR-001`/`NFR-002` têm evidência de verificação nas seções 11–12.
-- [ ] Todas as tarefas da seção 14 estão concluídas.
-- [ ] `.specsfy/STACK.md` registra a seção nova do schema de configuração.
-- [ ] `PROJECT.md` revisado quanto à capacidade nova (perfis de agente configuráveis).
+- [x] `Definition Gate` está `Passed`.
+- [x] `Plan Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
+- [x] Os cenários `AC-001` a `AC-012` passam.
+- [x] `FR-001` a `FR-004` e `NFR-001`/`NFR-002` têm evidência de verificação nas seções 11–12.
+- [x] Todas as tarefas da seção 14 estão concluídas — 18/18, 108/108 itens.
+- [x] `.specsfy/STACK.md` registra a seção nova do schema de configuração.
+- [x] `PROJECT.md` revisado quanto à capacidade nova (perfis de agente configuráveis), inclusive corrigindo "O que ainda não existe".

@@ -381,3 +381,20 @@ arquivo existia e tinha certas propriedades, nunca que o `setup` a instalava
 em algum lugar. `tests/setup-delivers-bundled-skill.test.ts` cobre isso de
 ponta a ponta agora, e uma execução real de `dist/cli.js setup` confirmou os
 dois caminhos populados.
+
+## Perfis de agente configuráveis (`maestro:` no config.yaml)
+
+Introduzido pela `SPEC-0015`, fatia MA-1 do épico de orquestração multi-agente
+(`BACKLOG-0009`).
+
+| Item | Escolha | Evidência / motivo |
+| --- | --- | --- |
+| Seção do schema | `maestro:`, quinta seção de topo de `.maestro/config.yaml` | `src/config/schema.ts` (`MaestroSection`, `AgentProfile`); entra em `SCHEMA_KEYS`, então a invariante de completude da `SPEC-0012` passa a cobri-la |
+| Composição do agente | Cinco grupos: `identity`, `cognition`, `instruction`, `capability`, `execution` | Separa dimensões que mudam por motivos diferentes; `identity.description` existe para o planejamento (MA-2) casar perfil e tarefa com critério |
+| Formato de propriedade | `{ value, mode }` uniforme, `mode` ∈ `suggested \| required` | `DEC-001` da `SPEC-0015`: uma única forma de escrever a mesma coisa, sem forma curta alternativa |
+| Perfis parciais | Qualquer combinação de grupos; grupo ausente não é divergência | `D6` do `BACKLOG-0009`; `src/agents/profile.ts` valida só o que está declarado |
+| Defaults de fábrica | Arquivos reais em `resources/agents/maestro/`, copiados para `.maestro/subagents/<agente>/` | `PR-001`: nada implícito, nada hardcoded — nenhum comportamento padrão vive como string em `src/` |
+| Propriedade dos arquivos semeados | Da pessoa; fora do checksum/quarentena da `SPEC-0011` | `DEC-004`: comportamento de agente é o que se espera que a pessoa edite |
+| Leitura | `src/agents/read.ts`, recusa em voz alta nomeando perfil, propriedade e motivo | `FR-003`; nunca devolve perfil parcialmente válido |
+| Diagnóstico | `src/agents/diagnose.ts`, só-leitura, composto no `doctor` | `PR-003`; compartilha `collectProblems` com o leitor para relatar exatamente o que a execução recusaria |
+| Camadas de configuração | Apenas por projeto; sem `~/.maestro/` | `DEC-006`: consistente com nunca escrever fora da raiz do projeto |

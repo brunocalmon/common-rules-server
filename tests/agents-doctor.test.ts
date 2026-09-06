@@ -38,11 +38,13 @@ function brokenProject(): string {
   const root = project();
   setup(root);
   const path = join(root, ".maestro", "config.yaml");
+  // O serializador escreve em bloco (`behavior:` / `value:` em linhas
+  // separadas), então a troca precisa alcançar a linha do `value`.
   writeFileSync(
     path,
     readFileSync(path, "utf8").replace(
-      /(behavior: \{ value: )[^,]+/,
-      "$1.maestro/subagents/maestro/apagado.md",
+      "value: .maestro/subagents/maestro/behavior.md",
+      "value: .maestro/subagents/maestro/apagado.md",
     ),
   );
   return root;
@@ -50,13 +52,22 @@ function brokenProject(): string {
 
 describe("AC-010 — o doctor relata referência quebrada", () => {
   // SPECSFY: US-001 FR-004 NFR-002 AC-010
-  it("nomeia o perfil e o caminho, com código de saída diferente de zero", async () => {
+  it("o relatório que a pessoa lê nomeia o perfil e o caminho, com saída diferente de zero", async () => {
     const { diagnoseAgents } = await import("../src/agents/diagnose");
-    const divergences = diagnoseAgents(brokenProject());
+    const { renderReport } = await import("../src/cli");
+    const { inspectDependencies, defaultEnvironment } = await import("../src/doctor");
+    const root = brokenProject();
 
-    expect(divergences).toHaveLength(1);
-    expect(JSON.stringify(divergences)).toMatch(/maestro/);
-    expect(JSON.stringify(divergences)).toMatch(/apagado\.md/);
+    // Afirmar sobre a função de diagnóstico sozinha deixaria passar um
+    // relatório silencioso: o `exitCode` viraria 1 sem dizer por quê. O caso
+    // exercita o texto que o comando de fato imprime.
+    const report = inspectDependencies(defaultEnvironment(), root);
+    const rendered = renderReport(report);
+
+    expect(diagnoseAgents(root)).toHaveLength(1);
+    expect(rendered).toMatch(/maestro/);
+    expect(rendered).toMatch(/apagado\.md/);
+    expect(report.exitCode).not.toBe(0);
   });
 });
 

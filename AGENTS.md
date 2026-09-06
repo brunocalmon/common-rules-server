@@ -47,3 +47,9 @@ Para o roteador do `common-rules`, leia a seção `common-rules` em `CLAUDE.md`.
 <!-- common-rules:extension:config-language-pointer:start -->
 For the `common-rules` language rule, read the `common-rules: language` section in `CLAUDE.md`.
 <!-- common-rules:extension:config-language-pointer:end -->
+<!-- maestro:extension:agents-pointer:start -->
+For the `maestro` router, read the `maestro` section in `CLAUDE.md`.
+<!-- maestro:extension:agents-pointer:end -->
+<!-- maestro:extension:config-language-pointer:start -->
+For the `maestro` language rule, read the `maestro: language` section in `CLAUDE.md`.
+<!-- maestro:extension:config-language-pointer:end -->

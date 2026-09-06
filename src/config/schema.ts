@@ -40,11 +40,80 @@ export interface GitSection {
   groups: Record<string, GitGroup>;
 }
 
+/**
+ * Como o maestro deve tratar uma propriedade durante o planejamento.
+ *
+ * `suggested` entra como ponto de partida: o planejamento pode propor algo
+ * diferente, desde que explique o trade-off ao humano. `required` é
+ * vinculante — se o maestro não puder respeitá-la, ele usa outro perfil ou
+ * cria um subagent ad-hoc, nunca ignora a restrição (FR-001).
+ */
+export type PropertyMode = "suggested" | "required";
+
+/**
+ * Formato uniforme de toda propriedade configurável (`DEC-001`).
+ *
+ * A forma é sempre a mesma, mesmo no caso simples: uma única maneira de
+ * escrever a mesma coisa elimina ambiguidade tanto para o parser quanto para
+ * quem lê o arquivo.
+ */
+export interface ConfiguredProperty<T> {
+  value: T;
+  mode: PropertyMode;
+}
+
+/** Quem o agente é — `description` é o que o planejamento lê para casar perfil e tarefa. */
+export interface AgentIdentity {
+  name: ConfiguredProperty<string>;
+  description: ConfiguredProperty<string>;
+}
+
+/** Como o agente pensa: modelo, quanto da janela de contexto usar antes de delegar, e esforço de raciocínio. */
+export interface AgentCognition {
+  model: ConfiguredProperty<string>;
+  context_budget: ConfiguredProperty<number>;
+  reasoning_effort: ConfiguredProperty<string>;
+}
+
+/** Como o agente se comporta — `behavior` substitui o padrão, `additional_behavior` soma a ele (`DEC-003`). */
+export interface AgentInstruction {
+  behavior: ConfiguredProperty<string>;
+  additional_behavior: ConfiguredProperty<string>;
+}
+
+/** O que o agente pode fazer. `skills` aceita caminho para `.agents/skills/*` já instalada, sem duplicar. */
+export interface AgentCapability {
+  skills: ConfiguredProperty<string[]>;
+  tools: ConfiguredProperty<string[]>;
+  mcp_servers: ConfiguredProperty<string[]>;
+}
+
+/** Como o agente roda: subagent nativo da IDE, subprocesso de CLI externa, ou decisão do planejamento. */
+export interface AgentExecution {
+  runtime: ConfiguredProperty<"auto" | "native" | "cli">;
+  concurrency: ConfiguredProperty<number>;
+}
+
+/** Um agente configurável — o próprio maestro ou um de seus subagents. */
+export interface AgentProfile {
+  identity: AgentIdentity;
+  cognition: AgentCognition;
+  instruction: AgentInstruction;
+  capability: AgentCapability;
+  execution: AgentExecution;
+}
+
+/** O maestro é um perfil como os outros, mais a lista de subagents que ele pode acionar. */
+export interface MaestroSection extends AgentProfile {
+  subagents: AgentProfile[];
+}
+
 export interface ConfigDocument {
   language: LanguageSection;
   project: ProjectSection;
   system: SystemSection;
   git: GitSection;
+  maestro: MaestroSection;
 }
 
 /** Every key the schema requires present — used to prove NFR-001 (never omitted). */
@@ -71,6 +140,19 @@ export const SCHEMA_KEYS: string[] = [
   "git.groups.installed_skills",
   "git.groups.code_review_graph",
   "git.groups.context_mode",
+  "maestro.identity.name",
+  "maestro.identity.description",
+  "maestro.cognition.model",
+  "maestro.cognition.context_budget",
+  "maestro.cognition.reasoning_effort",
+  "maestro.instruction.behavior",
+  "maestro.instruction.additional_behavior",
+  "maestro.capability.skills",
+  "maestro.capability.tools",
+  "maestro.capability.mcp_servers",
+  "maestro.execution.runtime",
+  "maestro.execution.concurrency",
+  "maestro.subagents",
 ];
 
 export interface PlatformEnvironment {
@@ -88,6 +170,56 @@ export const STACK_LABEL_TO_PROJECT_KEY: Record<string, keyof ProjectSection> = 
   Framework: "framework",
   "Gerenciador de pacotes": "package_manager",
 };
+
+/** Diretório, dentro do projeto, onde cada agente guarda seus arquivos (`DEC-002`). */
+export const AGENTS_DIR = ".maestro/subagents";
+
+/** Sugestão (`suggested`) — o planejamento pode propor algo diferente, explicando o trade-off. */
+function suggested<T>(value: T): ConfiguredProperty<T> {
+  return { value, mode: "suggested" };
+}
+
+/** Obrigatória (`required`) — vinculante, o maestro respeita ou usa outro perfil. */
+function required<T>(value: T): ConfiguredProperty<T> {
+  return { value, mode: "required" };
+}
+
+/**
+ * Perfil de fábrica do maestro.
+ *
+ * Os textos de identidade e comportamento não vivem aqui: são referências a
+ * arquivos reais que a semeadura escreve em `.maestro/subagents/maestro/`
+ * (`PR-001` — nada implícito, nada hardcoded). O default de execução é `auto`
+ * e o modelo fica vazio para o planejamento recomendar o mais econômico
+ * disponível no momento.
+ */
+function defaultMaestroProfile(): MaestroSection {
+  return {
+    identity: {
+      name: required("maestro"),
+      description: suggested(`${AGENTS_DIR}/maestro/description.md`),
+    },
+    cognition: {
+      model: suggested(""),
+      context_budget: suggested(0.7),
+      reasoning_effort: suggested("medium"),
+    },
+    instruction: {
+      behavior: suggested(`${AGENTS_DIR}/maestro/behavior.md`),
+      additional_behavior: suggested(""),
+    },
+    capability: {
+      skills: suggested([]),
+      tools: suggested([]),
+      mcp_servers: suggested([]),
+    },
+    execution: {
+      runtime: suggested("auto"),
+      concurrency: suggested(1),
+    },
+    subagents: [],
+  };
+}
 
 /** Pure default builder (FR-001–FR-004) — real evidence where known, empty otherwise, never omitted. */
 export function buildDefaultConfig(env: PlatformEnvironment): ConfigDocument {
@@ -163,5 +295,6 @@ export function buildDefaultConfig(env: PlatformEnvironment): ConfigDocument {
         },
       },
     },
+    maestro: defaultMaestroProfile(),
   };
 }

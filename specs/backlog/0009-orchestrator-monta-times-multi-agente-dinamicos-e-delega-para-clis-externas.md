@@ -11,7 +11,7 @@
 | Prioridade | Desbloqueada — Phase 1 e Phase 2 fechadas (`SPEC-0001` a `SPEC-0013`); sem prazo externo |
 | Milestones | |
 | Criado em | 2026-09-06 |
-| Spec promovida | MA-1 → specs/defined/0015-schema-e-leitura-de-perfis-de-subagent-maestro-config-yaml/spec.md (Defined); MA-2 a MA-6 pendentes |
+| Spec promovida | MA-1 → specs/completed/0015-schema-e-leitura-de-perfis-de-subagent-maestro-config-yaml/spec.md (Complete, 2026-09-06); MA-2 a MA-6 pendentes |
 
 ## Ideia original
 
@@ -192,7 +192,7 @@ subagent precisam existir enquanto conceito antes do planejamento poder
 referenciá-los; execução depende do planejamento já ter decidido o quê
 executar):
 
-1. **Fatia MA-1 — Schema e leitura de `.maestro/config.yaml`** — *promovida em `SPEC-0015`, `Defined` em 2026-09-06*: perfis de
+1. **Fatia MA-1 — Schema e leitura de `.maestro/config.yaml`** — *entregue em `SPEC-0015`, `Complete` em 2026-09-06*: perfis de
    subagent (nome, modelo, behavior via Markdown, tools, flag por
    propriedade), incluindo o próprio maestro como um perfil configurável.
    Fundação: nada mais funciona sem isso existir como conceito lido e

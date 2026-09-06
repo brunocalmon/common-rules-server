@@ -9,6 +9,10 @@ Relação: relaciona cada arquivo observado à sua superfície.
 
 | Categoria | Arquivo | Símbolos |
 | --- | --- | --- |
+| Outras fontes | src/agents/diagnose.ts | diagnoseAgents, formatAgentProblems |
+| Outras fontes | src/agents/profile.ts | PROPERTY_MODES, PROFILE_GROUPS, ProfileProblem, describeProblem, isConfiguredProperty, profileName, validateProfileShape, validateUniqueNames |
+| Outras fontes | src/agents/read.ts | PATH_PROPERTIES, AgentEnvironment, realAgentEnvironment, AgentConfig, collectProblems, readAgentConfig |
+| Outras fontes | src/agents/seed.ts | PACKAGE_ROOT, AGENT_RESOURCES_DIR, seedAgentDefaults |
 | Outras fontes | src/approval/context.ts | TerminalContext, realTerminalContext, resolveChannel |
 | Outras fontes | src/approval/decide.ts | DecisionSource, StdinReader, documentSource, interactiveSource, realSource, ApprovalResult, interpret |
 | Outras fontes | src/approval/plan.ts | DependencyCommandItem, CommandCandidate, assembleDependencyCommands, partitionByApproval, recordApproval |
@@ -18,7 +22,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
 | Outras fontes | src/cli.ts | CommandOutcome, HELP_FLAGS, USAGE_VERSION, USAGE_DOCTOR, USAGE_SETUP, USAGE_RECOMMEND, USAGE_EXTENSION_CREATE, USAGE_EXTENSION_REPAIR |
-| Outras fontes | src/config/schema.ts | LanguageException, LanguageSection, ProjectSection, SystemSection, GitGroup, GitSection, ConfigDocument, SCHEMA_KEYS |
+| Outras fontes | src/config/schema.ts | LanguageException, LanguageSection, ProjectSection, SystemSection, GitGroup, GitSection, ConfiguredProperty, AgentIdentity |
 | Outras fontes | src/config/sync.ts | STACK_PATH, BLOCK, ROW, readMappedFields, syncProjectFromStack |
 | Outras fontes | src/config/write.ts | CONFIG_PATH, ensureConfigFile, backfillConfigFile |
 | Outras fontes | src/config/yaml.ts | SECTION_COMMENTS, serialize, parse, resolveDefault, mergeMissingKeys |
@@ -57,6 +61,10 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/telemetry/read.ts | readTrace |
 | Outras fontes | src/telemetry/trace.ts | TRACE_ID_LENGTH, TraceSource, generateId, nowIso, realSource |
 | Outras fontes | src/version.ts | readVersion |
+| Testes | tests/agents-config-schema.test.ts | setup, readConfig, properties |
+| Testes | tests/agents-doctor.test.ts | setup, walk, hashTree, brokenProject |
+| Testes | tests/agents-read.test.ts | writeConfig, MAESTRO_BASE |
+| Testes | tests/agents-seed.test.ts | ROOT, setup, walk |
 | Testes | tests/approval-comando-argv-alterado.test.ts | — |
 | Testes | tests/approval-comando-ja-aprovado.test.ts | — |
 | Testes | tests/approval-command-fixtures.ts | itemFake, registryFake |
@@ -166,7 +174,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/pinning.test.ts | PINNED |
 | Testes | tests/rename-ci-workflow.test.ts | — |
 | Testes | tests/rename-commit-convention.test.ts | — |
-| Testes | tests/rename-completed-specs-untouched.test.ts | ROOT, walk, hashTree, EXPECTED_COMPLETED_SPECS_HASH |
+| Testes | tests/rename-completed-specs-untouched.test.ts | ROOT, walk, predatesRename, hashTree, EXPECTED_COMPLETED_SPECS_HASH |
 | Testes | tests/rename-package-identity.test.ts | — |
 | Testes | tests/rename-setup-directory.test.ts | project, LEGACY_RECORD |
 | Testes | tests/scripts.test.ts | — |

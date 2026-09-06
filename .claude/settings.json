@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"after-file-edit\"\n\n# >>> hook fragment\ncontext-mode hook claude-code posttooluse\n# <<< hook fragment\n\n# Emits the decision the fragment set. Without this, the fragment doesn't block.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"after-file-edit\"\n\n# >>> hook fragment\n'/home/bcalmon/Projects/common-rules-server/node_modules/.bin/context-mode' hook claude-code posttooluse\n# <<< hook fragment\n\n# Emits the decision the fragment set. Without this, the fragment doesn't block.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"before-shell\"\n\n# >>> hook fragment\ncontext-mode hook claude-code pretooluse\n# <<< hook fragment\n\n# Emits the decision the fragment set. Without this, the fragment doesn't block.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"before-shell\"\n\n# >>> hook fragment\n'/home/bcalmon/Projects/common-rules-server/node_modules/.bin/context-mode' hook claude-code pretooluse\n# <<< hook fragment\n\n# Emits the decision the fragment set. Without this, the fragment doesn't block.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
           }
         ]
       },
@@ -67,7 +67,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"stop\"\n\n# >>> hook fragment\ncontext-mode hook claude-code stop\n# <<< hook fragment\n\n# Emits the decision the fragment set. Without this, the fragment doesn't block.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"stop\"\n\n# >>> hook fragment\n'/home/bcalmon/Projects/common-rules-server/node_modules/.bin/context-mode' hook claude-code stop\n# <<< hook fragment\n\n# Emits the decision the fragment set. Without this, the fragment doesn't block.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "setup-check",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "#!/usr/bin/env bash\nHOOK_INPUT=$(cat)\ndecision=allow\nmessage=''\nPROJECT_DIR=\"${CLAUDE_PROJECT_DIR:-$PWD}\"\nHOOK_COMMAND=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"command\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\1/p')\nHOOK_FILE=$(printf '%s' \"$HOOK_INPUT\" | tr '\\n' ' ' \\\n  | sed -n 's/.*\"\\(file_path\\|path\\)\"[[:space:]]*:[[:space:]]*\"\\(\\([^\"\\\\]\\|\\\\.\\)*\\)\".*/\\2/p')\n\nHOOK_EVENT=\"session-start\"\n\n# >>> hook fragment\nif [ ! -f \"$PROJECT_DIR/.maestro/install.json\" ] || [ ! -d \"$PROJECT_DIR/.specsfy\" ]; then\n  cat <<'EOF'\nmaestro: this project hasn't completed setup yet (missing .maestro/install.json or .specsfy/). Run the `setup` tool (or `maestro setup` from a terminal) before relying on its hooks, skills or the Specsfy framework — some of what's configured so far may be partial.\nEOF\nfi\n\n# <<< hook fragment\n\n# Emits the decision the fragment set. Without this, the fragment doesn't block.\ncase \"$decision\" in\n  deny) printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  ask)  printf '%s\\n' \"$message\" >&2; exit 2 ;;\n  *)    exit 0 ;;\nesac"
           }
         ]
       }

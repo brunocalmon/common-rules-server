@@ -32,6 +32,7 @@ import { createExtension, realTargetFileEnvironment } from "../extensions/create
 import { buildRouterBlock, buildAgentsPointer, buildConfigLanguageBlock, buildConfigLanguagePointer } from "../extensions/router.js";
 import { readBundledSkill, deliverBundledSkill, realSkillWriteEnvironment } from "../skills/deliver.js";
 import { ensureConfigFile, backfillConfigFile } from "../config/write.js";
+import { seedAgentDefaults } from "../agents/seed.js";
 import { syncProjectFromStack } from "../config/sync.js";
 
 /** Where the target's file is written, relative to the project. */
@@ -159,10 +160,16 @@ function ensureConfigLanguageRouterCandidate(root: string): void {
  * FR-008), then syncs `project.*` from `.specsfy/STACK.md` when Specsfy is
  * active (FR-007) — never overwrites a value the person already set
  * (FR-005).
+ *
+ * Also seeds each agent's factory files (`SPEC-0015`, `FR-002`): the
+ * `maestro:` section the schema declares points at real files, so those files
+ * have to exist for the configuration to resolve. Seeding only writes what's
+ * absent, for the same reason the config itself does.
  */
 function ensureConfigYaml(root: string): void {
   ensureConfigFile(root);
   backfillConfigFile(root);
+  seedAgentDefaults(root);
   syncProjectFromStack(root);
 }
 
