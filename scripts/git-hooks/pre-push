@@ -1,0 +1,15 @@
+#!/bin/sh
+# common-rules-server: version-bump-before-push
+#
+# Blocks a push whenever src/ or resources/ changed since the version
+# currently in package.json was recorded. Comparing the version field
+# alone isn't enough — it's possible to edit source, forget to bump, and
+# push anyway (exactly what happened across three fix commits that all
+# landed as 1.0.0). scripts/check-version-checksum.mjs is the actual
+# check; this hook just makes running it non-optional before a push.
+#
+# To opt out of a single push (not recommended): git push --no-verify
+
+set -eu
+cd "$(git rev-parse --show-toplevel)"
+node scripts/check-version-checksum.mjs

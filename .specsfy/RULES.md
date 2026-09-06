@@ -79,3 +79,11 @@ próximo `specsfy install`.
 ## Estrutura de pastas do projeto
 
 - src/ (código de produção), tests/ (testes, nomeados por cenário/AC, sem espelhar 1:1 a árvore de src/) e resources/ (artefatos-fonte que o setup entrega ao projeto-alvo) são irmãos na raiz do pacote, nunca aninhados um dentro do outro. Confirmado explicitamente após revisão de quatro opções: o aninhamento estilo Java Maven (src/main/{src,resources} + src/test/{src,resources}) não tem adoção real no ecossistema TypeScript/Node e não é usado aqui.
+
+## Versão sobe junto com o código, nunca depois
+
+- Toda alteração em `src/` ou `resources/` exige subir a versão em `package.json` (no mínimo um patch) antes do push.
+
+**Por quê.** Comparar só o campo `version` não pega o esquecimento: já aconteceu de três commits de correção seguidos irem ao ar como `1.0.0`. A aplicação é por checksum, não por lembrança — `scripts/check-version-checksum.mjs` calcula um sha256 de todo `src/` e `resources/`, compara contra o valor gravado em `.version-checksum.json` para a versão atual do `package.json`, e falha se o conteúdo mudou sem a versão mudar junto.
+
+**Alcance.** Roda como `prebuild` (todo `npm run build`) e como `.git/hooks/pre-push`, instalado automaticamente pelo script `prepare` do `npm install` a partir da fonte versionada em `scripts/git-hooks/pre-push` — sobrevive a um clone novo, não é um hook manual de uma máquina só. Só `git push --no-verify` contorna, deliberadamente.
