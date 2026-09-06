@@ -1,8 +1,18 @@
 import { describe, it, expect } from "vitest";
+import { mkdirSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 import { runSetup } from "../src/setup/run";
 
+// SPECSFY: US-001 FR-001 AC-002 AC-004 — isolated disposable project (SPEC-0013).
+function project(): string {
+  const root = mkdtempSync(join(tmpdir(), "setup-"));
+  mkdirSync(resolve(root, ".claude"), { recursive: true });
+  return root;
+}
+
 const env = { hasClaudeCode: true, files: [".claude/settings.json"] };
-const run = () => runSetup({ env, write: true, dryRun: false });
+const run = () => runSetup({ env, root: project(), write: true, dryRun: false });
 
 describe("AC-001 — the four integration hooks end up installed", () => {
   // SPECSFY: US-001 FR-002 FR-005 AC-001
