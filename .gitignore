@@ -103,3 +103,6 @@ dist/
 # instalador `skills`, da vercel-labs. Se a fatia 1h passar a usá-lo como
 # registro de procedência, esta linha precisa ser revista.
 /skills-lock.json
+
+# Relatório de cobertura do Vitest (`vitest run --coverage`), regenerável.
+coverage/

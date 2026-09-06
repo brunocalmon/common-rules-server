@@ -1,0 +1,14 @@
+node_modules
+dist
+tests
+.git
+.github
+specs
+docs
+.claude
+.agents
+.specsfy
+.common-rules
+*.log
+.vitest
+.venv-crg
