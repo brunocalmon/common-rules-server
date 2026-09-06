@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0013 |
 | Slug | 0013-testes-de-setup-com-root-isolado |
-| Status | Implementing |
+| Status | Reviewing |
 | Effort | 1 |
 | Effort updated at | 2026-09-05 |
 | Effort rationale | Estimativa inicial; revisar durante a descoberta. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | In Progress |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não |
 | Atualizada em | 2026-09-05 |
@@ -462,9 +462,9 @@ src/setup/run.ts             (lido, não modificado — fallback preservado)
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Pending
-- **Comando**: `node .agents/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/draft/0013-testes-de-setup-com-root-isolado/spec.md .`
-- **Achados**: [Pending.]
+- **Resultado**: READY (2026-09-06)
+- **Comando**: `node .agents/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/in-progress/0013-testes-de-setup-com-root-isolado/spec.md .` — `Rastreabilidade: 8/8 IDs cobertos em 166 arquivos de teste`.
+- **Achados**: Nenhum bloqueio real. A ferramenta também reporta uma lista de "marcadores órfãos" (centenas de IDs de outras specs) — confirmado como condição pré-existente e estrutural do projeto, não algo introduzido por esta spec: rodei o mesmo comando contra `specs/completed/0012-.../spec.md` (já `completed`, Delivery Gate Passed há tempos) e o mesmo padrão aparece, porque este projeto numera IDs de forma local por spec (não global), e a ferramenta compara contra o universo inteiro de marcadores do repositório. `verify_acceptance.mjs`: `QA: PASSED`. `build_documentation.mjs --check`: limpo após reconstrução (commit `b69d9fe`, drift acumulado da sessão inteira, não específico desta spec). 6/6 tarefas concluídas, 36/36 itens de checklist, 425/425 testes em duas rodadas completas consecutivas sem sujar o repositório (T006) — a prova final do AC-001.
 
 ### 14. Tarefas
 
@@ -607,10 +607,10 @@ sem nenhuma asserção mudando de resultado.
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
-- [ ] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
-- [ ] Todos os cenários `AC` aplicáveis passam.
-- [ ] Todos os requisitos possuem evidência de verificação.
-- [ ] Todas as tarefas na seção 14 estão concluídas.
-- [ ] Testes e checks estáticos disponíveis passam.
+- [x] `Definition Gate` está `Passed`.
+- [x] `Plan Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
+- [x] Todos os cenários `AC` aplicáveis passam — AC-001 a AC-004, ver seções 11–12.
+- [x] Todos os requisitos possuem evidência de verificação — FR-001, FR-002, NFR-001, ver seções 11–12.
+- [x] Todas as tarefas na seção 14 estão concluídas — 6/6, `checklist_complete=36`.
+- [x] Testes e checks estáticos disponíveis passam — `npx tsc --noEmit` limpo, `npx vitest run` 425/425 (duas rodadas, T006), `verify_acceptance.mjs` `QA: PASSED`.
