@@ -23,8 +23,8 @@ export function project(prefix = "crs-tr-"): string {
 
 /** Writes a record by hand, to exercise reading without running setup. */
 export function writeRecord(root: string, content: Record<string, unknown>): void {
-  mkdirSync(join(root, ".common-rules"), { recursive: true });
-  writeFileSync(join(root, ".common-rules", "install.json"), JSON.stringify(content, null, 2));
+  mkdirSync(join(root, ".maestro"), { recursive: true });
+  writeFileSync(join(root, ".maestro", "install.json"), JSON.stringify(content, null, 2));
 }
 
 /** Record in the shape the version prior to this fatia used to write. */

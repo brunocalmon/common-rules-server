@@ -8,7 +8,7 @@ describe("AC-133/AC-135 — disk presence is resolved by target, not by name", (
   it("an intact artifact whose name differs from its target isn't falsely reported as an orphan", () => {
     const content = "# original content";
     const anchored = insertAnchor("", "extension", "my-extension", content);
-    const targetEnv = targetEnvFake({ ".common-rules/extensions/my-hook.md": anchored });
+    const targetEnv = targetEnvFake({ ".maestro/extensions/my-hook.md": anchored });
     const registry = registryFake([
       {
         category: "extension",

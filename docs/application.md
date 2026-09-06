@@ -164,6 +164,11 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/models-recommend.test.ts | — |
 | Testes | tests/models-sem-credencial.test.ts | CREDENTIAL_VARIABLES |
 | Testes | tests/pinning.test.ts | PINNED |
+| Testes | tests/rename-ci-workflow.test.ts | — |
+| Testes | tests/rename-commit-convention.test.ts | — |
+| Testes | tests/rename-completed-specs-untouched.test.ts | ROOT, walk, hashTree, EXPECTED_COMPLETED_SPECS_HASH |
+| Testes | tests/rename-package-identity.test.ts | — |
+| Testes | tests/rename-setup-directory.test.ts | project, LEGACY_RECORD |
 | Testes | tests/scripts.test.ts | — |
 | Testes | tests/setup-bridge.test.ts | — |
 | Testes | tests/setup-delivers-bundled-skill.test.ts | — |

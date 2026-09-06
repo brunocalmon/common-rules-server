@@ -32,7 +32,7 @@ export interface InstallRecord {
 }
 
 /** Record path, always inside the project. */
-export const RECORD_PATH = ".common-rules/install.json";
+export const RECORD_PATH = ".maestro/install.json";
 
 /**
  * Normalizes a record read from disk.

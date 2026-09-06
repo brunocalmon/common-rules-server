@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { run } from "../src/cli";
 
 describe("AC-091 — every command documents its own usage", () => {
-  // No entry point had any of this before: `common-rules --help` and a
-  // bare `common-rules` both fell through to "unrecognized command", and
+  // No entry point had any of this before: `maestro --help` and a
+  // bare `maestro` both fell through to "unrecognized command", and
   // per-command --help wasn't checked at all — it silently fell through
   // parseFlags and ran the real command instead (the incident this whole
   // fatia guards against, reproduced running `setup --help` for real: it
@@ -45,7 +45,7 @@ describe("AC-091 — every command documents its own usage", () => {
   it("doctor --help documents itself without running the real check", () => {
     const r = run(["doctor", "--help"]);
     expect(r.exitCode).toBe(0);
-    expect(r.output).toMatch(/usage: common-rules doctor/);
+    expect(r.output).toMatch(/usage: maestro doctor/);
   });
 
   // SPECSFY: US-060 FR-060 AC-091
@@ -79,6 +79,6 @@ describe("AC-091 — every command documents its own usage", () => {
   it("version --help doesn't just print the version number", () => {
     const r = run(["version", "--help"]);
     expect(r.exitCode).toBe(0);
-    expect(r.output).toMatch(/usage: common-rules version/);
+    expect(r.output).toMatch(/usage: maestro version/);
   });
 });

@@ -19,7 +19,7 @@ export interface RegistryEnvironment {
   write(contents: string): void;
 }
 
-export const REGISTRY_PATH = ".common-rules/approved-commands.json";
+export const REGISTRY_PATH = ".maestro/approved-commands.json";
 
 export function realRegistryEnvironment(root: string): RegistryEnvironment {
   const path = join(root, REGISTRY_PATH);

@@ -5,8 +5,8 @@ describe("AC-014 — a hook's command resolves to an absolute path when one is k
   // SPECSFY: US-001 FR-001 AC-014
   it("replaces the leading command when a resolution is given", () => {
     const script = "context-mode hook claude-code pretooluse";
-    const resolved = resolveHookCommand(script, { "context-mode": "/opt/common-rules/node_modules/.bin/context-mode" });
-    expect(resolved).toBe("'/opt/common-rules/node_modules/.bin/context-mode' hook claude-code pretooluse");
+    const resolved = resolveHookCommand(script, { "context-mode": "/opt/maestro/node_modules/.bin/context-mode" });
+    expect(resolved).toBe("'/opt/maestro/node_modules/.bin/context-mode' hook claude-code pretooluse");
   });
 
   // SPECSFY: US-001 FR-001 AC-014

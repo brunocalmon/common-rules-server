@@ -7,7 +7,7 @@ import { realChecksumEnvironment } from "../src/extensions/registry";
 import { buildConfigLanguageBlock, buildConfigLanguagePointer } from "../src/extensions/router";
 
 function mktemp(): string {
-  return mkdtempSync(join(tmpdir(), "common-rules-config-router-"));
+  return mkdtempSync(join(tmpdir(), "maestro-config-router-"));
 }
 
 describe("AC-007 — the router receives the language/config.yaml instruction", () => {

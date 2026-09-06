@@ -9,7 +9,7 @@ describe("AC-073 — an already configured project doesn't ask for approval", ()
   const alreadyConfigured = () => {
     const root = project();
     runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: fixedDecision(true) } });
-    const record = JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+    const record = JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
     return { root, record };
   };
 

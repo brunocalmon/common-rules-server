@@ -6,13 +6,13 @@ function writeEnvFake() {
   return { files, write: (path: string, content: string) => { files[path] = content; } };
 }
 
-describe("common-rules-extension-creator ships as a bundled skill", () => {
+describe("maestro-extension-creator ships as a bundled skill", () => {
   // SPECSFY: US-080 US-082 FR-088 AC-140
   it("reads the real SKILL.md from resources/skills/", () => {
-    const files = readBundledSkill("common-rules-extension-creator");
+    const files = readBundledSkill("maestro-extension-creator");
     expect(files).toHaveLength(1);
     expect(files[0].relativePath).toBe("SKILL.md");
-    expect(files[0].content).toMatch(/common-rules extension create/);
+    expect(files[0].content).toMatch(/maestro extension create/);
   });
 
   // SPECSFY: US-080 US-082 FR-088 AC-140

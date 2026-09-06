@@ -7,8 +7,8 @@
  * `code-review-graph update --brief` — was embedded verbatim, trusting
  * PATH at the moment Claude Code actually fires the hook inside the
  * consumer project. That's a different process, on a possibly different
- * machine, than the one running `common-rules setup`; nothing guaranteed
- * PATH would resolve either binary there. `common-rules` itself always
+ * machine, than the one running `maestro setup`; nothing guaranteed
+ * PATH would resolve either binary there. `maestro` itself always
  * has both reachable at a known, absolute location — `context-mode` as
  * its own hard npm dependency, `code-review-graph` via the local bridge
  * in `bridge.ts` — so baking that path in at setup time, once, is strictly

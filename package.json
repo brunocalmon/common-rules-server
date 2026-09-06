@@ -1,15 +1,19 @@
 {
-  "name": "@brunocalmon/common-rules",
-  "version": "1.0.4",
+  "name": "@brunocalmon/maestro",
+  "version": "2.0.0",
   "description": "Wrapper de linha de comando que orquestra subsistemas e agentes de codificação a partir de um contrato verificável de dependências.",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brunocalmon/maestro.git"
+  },
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "bin": {
-    "common-rules": "dist/cli.js",
-    "common-rules-mcp": "dist/mcp/main.js"
+    "maestro": "dist/cli.js",
+    "maestro-mcp": "dist/mcp/main.js"
   },
   "files": [
     "dist",

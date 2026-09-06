@@ -8,7 +8,7 @@ const NPM_SUBSYSTEMS = ["@promovaweb/specsfy", "context-mode"];
 describe("AC-001 — a clean install completes", () => {
   // SPECSFY: US-001 FR-001 AC-001
   it("declares the product package's name", () => {
-    expect(manifest().name).toBe("@brunocalmon/common-rules");
+    expect(manifest().name).toBe("@brunocalmon/maestro");
   });
 
   // SPECSFY: US-001 FR-004 AC-001

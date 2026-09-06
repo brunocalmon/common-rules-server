@@ -8,7 +8,7 @@ import { project, fixedSource } from "./trace-fixtures";
 function traceWith(id: string): string {
   const root = project();
   runSetup({ env: detectEnvironment(root), root, write: true, trace: fixedSource(id) });
-  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"))["trace"];
+  return JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"))["trace"];
 }
 
 describe("AC-044 — the identifier comes from the given generator", () => {

@@ -5,11 +5,11 @@ import { join } from "node:path";
 import { backfillConfigFile } from "../src/config/write";
 
 function mktemp(): string {
-  return mkdtempSync(join(tmpdir(), "common-rules-config-backfill-"));
+  return mkdtempSync(join(tmpdir(), "maestro-config-backfill-"));
 }
 
 function writeExisting(root: string, content: string): string {
-  const dir = join(root, ".common-rules");
+  const dir = join(root, ".maestro");
   mkdirSync(dir, { recursive: true });
   const path = join(dir, "config.yaml");
   writeFileSync(path, content);
@@ -39,7 +39,7 @@ git:
   groups:
     common_rules_config:
       description: ""
-      paths: [".common-rules/config.yaml"]
+      paths: [".maestro/config.yaml"]
       ignored: false
     common_rules_state:
       description: ""

@@ -11,7 +11,7 @@ export const PINNED_VERSION = "2.3.7";
 export const VENV_DIR = ".venv-crg";
 
 /**
- * The `common-rules` package's root, not the target project's — same
+ * The `maestro` package's root, not the target project's — same
  * distinction `packageRoot()` already makes in
  * `src/skills/executor.ts`/`src/specsfy/executor.ts`. `doctor.ts`'s
  * `defaultEnvironment()` already looks for `.venv-crg` here, not in the
@@ -19,7 +19,7 @@ export const VENV_DIR = ".venv-crg";
  * lives, or `doctor` would keep reporting absence after a real,
  * successful installation.
  */
-/** The `common-rules` package's own installation root — shared with `hooks/resolve.ts`, which needs the same location to embed absolute paths into generated hooks. */
+/** The `maestro` package's own installation root — shared with `hooks/resolve.ts`, which needs the same location to embed absolute paths into generated hooks. */
 export const packageRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const probe = (command: string, args: string[]): string | null => {
@@ -75,7 +75,7 @@ export interface BridgeResult {
 export function bridgePythonSubsystem(opts: {
   env: BridgeEnvironment;
   execute: boolean;
-  /** Where `.venv-crg/` gets created. Absent, uses the `common-rules` package's root — the same place `doctor.ts` already checks. */
+  /** Where `.venv-crg/` gets created. Absent, uses the `maestro` package's root — the same place `doctor.ts` already checks. */
   cwd?: string;
 }): BridgeResult {
   const base: BridgeResult = {

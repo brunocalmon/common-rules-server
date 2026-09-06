@@ -25,7 +25,7 @@ describe("AC-062 — what gets written is what was presented", () => {
   it("the installation record exists", () => {
     const root = project();
     runSetup({ env: detectEnvironment(root), root, write: true, approval: { source: fixedDecision(true) } });
-    expect(existsSync(join(root, ".common-rules", "install.json"))).toBe(true);
+    expect(existsSync(join(root, ".maestro", "install.json"))).toBe(true);
   });
 
   // SPECSFY: US-060 FR-060 AC-062

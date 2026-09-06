@@ -7,7 +7,7 @@ import { project, fixedSource, FIXED_INSTANT } from "./trace-fixtures";
 
 function instantOf(root: string): string {
   runSetup({ env: detectEnvironment(root), root, write: true, trace: fixedSource() });
-  const rec = JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+  const rec = JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
   return rec["hooks"][0].installedAt;
 }
 

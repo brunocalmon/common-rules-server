@@ -9,7 +9,7 @@ describe("AC-041 — whoever ran it can name the run", () => {
   const run = () => {
     const root = project();
     const r = runSetup({ env: detectEnvironment(root), root, write: true, trace: fixedSource() });
-    const rec = JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+    const rec = JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
     return { report: r.report, recorded: rec["trace"] as string };
   };
 

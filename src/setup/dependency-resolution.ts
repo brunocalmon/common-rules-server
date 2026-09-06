@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { packageRoot, VENV_DIR, PYTHON_SUBSYSTEM, type BridgeEnvironment } from "./bridge.js";
 import type { DependencyResolution } from "../hooks/resolve.js";
 
-/** Where `context-mode`'s own npm dependency ends up, once `common-rules` itself is installed. */
+/** Where `context-mode`'s own npm dependency ends up, once `maestro` itself is installed. */
 const CONTEXT_MODE = "context-mode";
 
 /**
@@ -11,8 +11,8 @@ const CONTEXT_MODE = "context-mode";
  * whenever one is knowable — never by guessing, only from what `setup`
  * itself already knows about its own installation.
  *
- * `context-mode` is a hard npm dependency of `common-rules`: whatever
- * installed `common-rules` already installed it, so its `node_modules/.bin`
+ * `context-mode` is a hard npm dependency of `maestro`: whatever
+ * installed `maestro` already installed it, so its `node_modules/.bin`
  * entry exists unconditionally, unlike `code-review-graph` which is
  * bridged lazily, on demand, only when neither a local nor a global copy
  * exists (`bridge.ts`).

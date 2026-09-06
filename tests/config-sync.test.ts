@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { syncProjectFromStack } from "../src/config/sync";
 
 function mktemp(): string {
-  return mkdtempSync(join(tmpdir(), "common-rules-config-sync-"));
+  return mkdtempSync(join(tmpdir(), "maestro-config-sync-"));
 }
 
 const COMPLETE_YAML = `language:
@@ -32,7 +32,7 @@ git:
 `;
 
 function writeConfig(root: string, content: string = COMPLETE_YAML): string {
-  const dir = join(root, ".common-rules");
+  const dir = join(root, ".maestro");
   mkdirSync(dir, { recursive: true });
   const path = join(dir, "config.yaml");
   writeFileSync(path, content);

@@ -7,7 +7,7 @@ const ROOT = resolve(__dirname, "..");
 const manifest = () => JSON.parse(readFileSync(resolve(ROOT, "package.json"), "utf8"));
 const target = () => {
   const bin = manifest().bin;
-  return typeof bin === "string" ? bin : bin?.["common-rules"];
+  return typeof bin === "string" ? bin : bin?.["maestro"];
 };
 
 describe("AC-008 — the package doesn't require a global install", () => {

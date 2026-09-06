@@ -5,7 +5,7 @@ import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
 import { project, fixedDecision } from "./aprovacao-fixtures";
 
-describe("setup delivers .common-rules/config.yaml and the language instruction", () => {
+describe("setup delivers .maestro/config.yaml and the language instruction", () => {
   // SPECSFY: US-001 US-002 US-003 FR-001 FR-006 FR-007 AC-001 AC-007 AC-010
   it("creates a complete config.yaml and the CLAUDE.md/AGENTS.md language blocks on first run", () => {
     const root = project();
@@ -16,7 +16,7 @@ describe("setup delivers .common-rules/config.yaml and the language instruction"
       approval: { source: fixedDecision(true) },
     });
 
-    const configPath = join(root, ".common-rules", "config.yaml");
+    const configPath = join(root, ".maestro", "config.yaml");
     expect(existsSync(configPath)).toBe(true);
     const config = readFileSync(configPath, "utf8");
     expect(config).toContain("language:");
@@ -26,10 +26,10 @@ describe("setup delivers .common-rules/config.yaml and the language instruction"
     expect(config).toContain("git:");
 
     const claudeMd = readFileSync(join(root, "CLAUDE.md"), "utf8");
-    expect(claudeMd).toMatch(/common-rules: language/);
+    expect(claudeMd).toMatch(/maestro: language/);
     expect(claudeMd).toMatch(/config\.yaml/);
 
     const agentsMd = readFileSync(join(root, "AGENTS.md"), "utf8");
-    expect(agentsMd).toMatch(/common-rules: language/);
+    expect(agentsMd).toMatch(/maestro: language/);
   });
 });

@@ -5,8 +5,8 @@
 
 | Tipo | Quantidade |
 | --- | --- |
-| Código | 215 |
-| Testes | 166 |
+| Código | 220 |
+| Testes | 171 |
 
 ## Diagramas
 

@@ -39,7 +39,7 @@ describe("AC-006 — both entry points describe the same result", () => {
     const rootMcp = disposableProject("crs-mcp-");
     viaCommandLine(rootCli);
     await executeSetup({ project_root: rootMcp });
-    const read = (r: string) => JSON.parse(readFileSync(join(r, ".common-rules", "install.json"), "utf8"));
+    const read = (r: string) => JSON.parse(readFileSync(join(r, ".maestro", "install.json"), "utf8"));
     const a = read(rootCli), b = read(rootMcp);
     expect(b.target).toBe(a.target);
     expect(b.hooks).toHaveLength(a.hooks.length);

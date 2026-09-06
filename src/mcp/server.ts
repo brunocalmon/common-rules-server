@@ -3,7 +3,7 @@ import { readVersion } from "../version.js";
 import { TOOL_NAME, TOOL_DESCRIPTION, inputShape, outputShape, executeSetup } from "./tool.js";
 
 /** Name the server identifies itself with in the handshake. */
-export const SERVER_NAME = "common-rules";
+export const SERVER_NAME = "maestro";
 
 /**
  * Assembles the server with this fatia's single tool.

@@ -5,7 +5,7 @@ import { runSetup } from "../src/setup/run";
 import { detectEnvironment } from "../src/setup/env";
 import { project, fixedDecision } from "./aprovacao-fixtures";
 
-describe("setup delivers the bundled common-rules-extension-creator skill", () => {
+describe("setup delivers the bundled maestro-extension-creator skill", () => {
   // SPECSFY: US-080 US-082 FR-088 AC-140
   it("copies SKILL.md into both .claude/skills/ and .agents/skills/ on first run", () => {
     const root = project();
@@ -17,9 +17,9 @@ describe("setup delivers the bundled common-rules-extension-creator skill", () =
     });
 
     for (const dir of [".claude/skills", ".agents/skills"]) {
-      const path = join(root, dir, "common-rules-extension-creator", "SKILL.md");
+      const path = join(root, dir, "maestro-extension-creator", "SKILL.md");
       expect(existsSync(path)).toBe(true);
-      expect(readFileSync(path, "utf8")).toMatch(/common-rules extension create/);
+      expect(readFileSync(path, "utf8")).toMatch(/maestro extension create/);
     }
   });
 });

@@ -13,7 +13,7 @@ function fullRecord(): Record<string, any> {
     trace: fixedSource(),
     skills: { execute: fakeExecutor("success", root).fn },
   });
-  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
 }
 
 describe("AC-051 — the record's two lists point to the same run", () => {

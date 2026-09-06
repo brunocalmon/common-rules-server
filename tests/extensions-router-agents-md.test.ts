@@ -19,7 +19,7 @@ describe("AC-137 — AGENTS.md gets a minimal pointer, without duplicating CLAUD
     const agentsPath = join(root, "AGENTS.md");
     expect(existsSync(agentsPath)).toBe(true);
     const agentsContent = readFileSync(agentsPath, "utf8");
-    expect(agentsContent).toContain("<!-- common-rules:extension:agents-pointer:start -->");
+    expect(agentsContent).toContain("<!-- maestro:extension:agents-pointer:start -->");
     expect(agentsContent.toLowerCase()).toContain("claude.md");
 
     const claudeContent = readFileSync(join(root, "CLAUDE.md"), "utf8");

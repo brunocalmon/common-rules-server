@@ -7,12 +7,12 @@ const ROOT = resolve(__dirname, "..");
 const manifest = () => JSON.parse(readFileSync(resolve(ROOT, "package.json"), "utf8"));
 const binTarget = () => {
   const bin = manifest().bin;
-  return typeof bin === "string" ? bin : bin?.["common-rules"];
+  return typeof bin === "string" ? bin : bin?.["maestro"];
 };
 
 describe("AC-002 — build produces an executable", () => {
   // SPECSFY: US-001 FR-001 AC-002
-  it("declares the common-rules binary in the manifest", () => {
+  it("declares the maestro binary in the manifest", () => {
     expect(binTarget()).toBeDefined();
   });
 

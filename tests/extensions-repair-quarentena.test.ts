@@ -38,7 +38,7 @@ describe("AC-134 — repair moves the divergent one to quarantine and restores t
   // SPECSFY: US-081 FR-083 FR-084 FR-085 NFR-081 NFR-082 AC-134
   it("for real in a temp directory: create, diverge, repair", () => {
     const root = mkdtempSync(join(tmpdir(), "crs-ext-"));
-    const registryEnv = realRegistryEnv(join(root, ".common-rules"));
+    const registryEnv = realRegistryEnv(join(root, ".maestro"));
     const targetEnv = realTargetEnv(root);
 
     const created = createExtension({
@@ -52,7 +52,7 @@ describe("AC-134 — repair moves the divergent one to quarantine and restores t
     });
     expect(created.ok).toBe(true);
 
-    const realTarget = ".common-rules/extensions/my-hook.md";
+    const realTarget = ".maestro/extensions/my-hook.md";
     const divergentContent = targetEnv.read(realTarget).replace("# original content", "# someone edited this by hand");
     targetEnv.write(realTarget, divergentContent);
 
@@ -60,7 +60,7 @@ describe("AC-134 — repair moves the divergent one to quarantine and restores t
     const divergent = diagnoseExtensions(registry, targetEnv, []);
     expect(divergent).toHaveLength(1);
 
-    const quarantineDir = join(root, ".common-rules", "quarantine");
+    const quarantineDir = join(root, ".maestro", "quarantine");
     const result = repairExtension(divergent[0], {
       registry,
       targetEnv,

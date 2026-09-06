@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 166.
+- Arquivos de teste: 171.
 - Runner: Vitest.
 - Scripts: prepare: node scripts/install-git-hooks.mjs; prebuild: node scripts/check-version-checksum.mjs; build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -116,6 +116,11 @@
 | tests/models-recommend.test.ts |
 | tests/models-sem-credencial.test.ts |
 | tests/pinning.test.ts |
+| tests/rename-ci-workflow.test.ts |
+| tests/rename-commit-convention.test.ts |
+| tests/rename-completed-specs-untouched.test.ts |
+| tests/rename-package-identity.test.ts |
+| tests/rename-setup-directory.test.ts |
 | tests/scripts.test.ts |
 | tests/setup-bridge.test.ts |
 | tests/setup-delivers-bundled-skill.test.ts |

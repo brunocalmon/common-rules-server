@@ -14,7 +14,7 @@ describe("AC-005 — the process's working directory points elsewhere", () => {
     const target = disposableProject("crs-target-");
     process.chdir(foreign);
     await executeSetup({ project_root: target });
-    expect(existsSync(join(target, ".common-rules", "install.json"))).toBe(true);
+    expect(existsSync(join(target, ".maestro", "install.json"))).toBe(true);
   });
 
   // SPECSFY: US-002 NFR-001 AC-005

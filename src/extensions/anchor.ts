@@ -6,8 +6,8 @@ import { createHash } from "node:crypto";
  */
 export function anchorMarkers(category: string, name: string): { start: string; end: string } {
   return {
-    start: `<!-- common-rules:${category}:${name}:start -->`,
-    end: `<!-- common-rules:${category}:${name}:end -->`,
+    start: `<!-- maestro:${category}:${name}:start -->`,
+    end: `<!-- maestro:${category}:${name}:end -->`,
   };
 }
 

@@ -3,9 +3,9 @@ import { dirname, join } from "node:path";
 import { buildDefaultConfig } from "./schema.js";
 import { mergeMissingKeys, parse, serialize } from "./yaml.js";
 
-export const CONFIG_PATH = ".common-rules/config.yaml";
+export const CONFIG_PATH = ".maestro/config.yaml";
 
-/** Creates `.common-rules/config.yaml` only when absent — never overwrites an existing file (FR-001, FR-005). */
+/** Creates `.maestro/config.yaml` only when absent — never overwrites an existing file (FR-001, FR-005). */
 export function ensureConfigFile(root: string): void {
   const full = join(root, CONFIG_PATH);
   if (existsSync(full)) return;

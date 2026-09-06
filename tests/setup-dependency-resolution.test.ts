@@ -20,7 +20,7 @@ function commandsIn(root: string): string[] {
     .flatMap((entry) => entry.hooks.map((h) => h.command));
 }
 
-describe("AC-014 — the installed hook doesn't depend on PATH for a dependency common-rules already knows the location of", () => {
+describe("AC-014 — the installed hook doesn't depend on PATH for a dependency maestro already knows the location of", () => {
   // SPECSFY: US-001 FR-001 AC-014
   it("embeds context-mode's absolute bin path, not the bare command", () => {
     const bin = resolve(packageRoot(), "node_modules", ".bin", "context-mode");

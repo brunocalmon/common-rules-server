@@ -11,8 +11,8 @@ export interface QuarantineEnvironment {
   write(name: string, content: string): void;
 }
 
-/** `.common-rules/quarantine/`, with no automatic expiration (`D7`, `NFR-081`). */
-export const QUARANTINE_DIR = ".common-rules/quarantine";
+/** `.maestro/quarantine/`, with no automatic expiration (`D7`, `NFR-081`). */
+export const QUARANTINE_DIR = ".maestro/quarantine";
 
 export function realQuarantineEnvironment(root: string): QuarantineEnvironment {
   const dir = join(root, QUARANTINE_DIR);

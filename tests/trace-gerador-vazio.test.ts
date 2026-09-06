@@ -12,7 +12,7 @@ const emptySource = { now: () => FIXED_INSTANT, id: () => "" };
 function record(): { root: string; rec: Record<string, unknown> } {
   const root = project();
   runSetup({ env: detectEnvironment(root), root, write: true, trace: emptySource });
-  return { root, rec: JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8")) };
+  return { root, rec: JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8")) };
 }
 
 describe("Edge case — generator that returns an empty value", () => {

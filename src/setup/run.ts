@@ -53,9 +53,9 @@ export interface SetupOptions {
   target?: string;
   previous?: InstallRecord | null;
   bridgeEnv?: BridgeEnvironment;
-  /** Where the Python bridge creates `.venv-crg/`, when it runs. Absent, uses the `common-rules` package's root (`bridgePythonSubsystem`'s own default) — exists so the suite doesn't pollute the repository itself. */
+  /** Where the Python bridge creates `.venv-crg/`, when it runs. Absent, uses the `maestro` package's root (`bridgePythonSubsystem`'s own default) — exists so the suite doesn't pollute the repository itself. */
   bridgeCwd?: string;
-  /** Source of the approved dependency-command registry. Absent, uses `.common-rules/approved-commands.json` at the project root. */
+  /** Source of the approved dependency-command registry. Absent, uses `.maestro/approved-commands.json` at the project root. */
   registryEnv?: RegistryEnvironment;
   /**
    * Executor for the skills installer. Absent, installation is skipped,
@@ -155,7 +155,7 @@ function ensureConfigLanguageRouterCandidate(root: string): void {
 }
 
 /**
- * Ensures `.common-rules/config.yaml` is present and complete (FR-001,
+ * Ensures `.maestro/config.yaml` is present and complete (FR-001,
  * FR-008), then syncs `project.*` from `.specsfy/STACK.md` when Specsfy is
  * active (FR-007) — never overwrites a value the person already set
  * (FR-005).
@@ -167,7 +167,7 @@ function ensureConfigYaml(root: string): void {
 }
 
 /** Locally-authored skills bundled with this package, delivered by `setup` itself — never fetched from a third-party source. */
-const BUNDLED_SKILLS = ["common-rules-extension-creator"];
+const BUNDLED_SKILLS = ["maestro-extension-creator"];
 
 /** Both directories the real installer observably populates for the one supported target (`claude-code`) today. */
 const SKILL_TARGET_DIRS = [".claude/skills", ".agents/skills"];
@@ -250,7 +250,7 @@ export function runSetup(opts: SetupOptions): SetupResult {
   // A missing previous record isn't "already done" — it's "never
   // attempted." A project whose hooks were recorded before `skills`
   // existed (or outside this mechanism) had `previousSkills.length === 0`
-  // treated as trivially done, and `common-rules setup` would never
+  // treated as trivially done, and `maestro setup` would never
   // install any skill, even with `opts.skills` configured — a real bug,
   // found by running it for real in this very repository.
   const skillsAlreadyDone =

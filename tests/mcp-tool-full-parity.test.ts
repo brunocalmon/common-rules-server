@@ -6,7 +6,7 @@ import { disposableProject } from "./mcp-fixtures";
 
 /**
  * The gap this closes: `executeSetup` used to install hooks only, silently
- * less than what `common-rules setup` does from a terminal — confirmed by
+ * less than what `maestro setup` does from a terminal — confirmed by
  * running the real CLI against a fresh project (skills, .specsfy/) and the
  * MCP tool against another (hooks only, no skills, no .specsfy/) in the
  * same session. `mcp-tool-install.test.ts` already proves the hooks side;

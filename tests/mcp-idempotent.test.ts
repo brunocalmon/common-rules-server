@@ -18,7 +18,7 @@ describe("AC-007 — the second call recognizes the state", () => {
     const root = disposableProject();
     await executeSetup({ project_root: root });
     await executeSetup({ project_root: root });
-    const rec = JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+    const rec = JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
     expect(rec.hooks).toHaveLength(8);
   });
 

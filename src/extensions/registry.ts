@@ -25,7 +25,7 @@ export interface ChecksumEnvironment {
   write(contents: string): void;
 }
 
-export const REGISTRY_PATH = ".common-rules/extensions.json";
+export const REGISTRY_PATH = ".maestro/extensions.json";
 
 export function realChecksumEnvironment(root: string): ChecksumEnvironment {
   const path = join(root, REGISTRY_PATH);

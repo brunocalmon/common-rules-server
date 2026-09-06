@@ -12,7 +12,7 @@ import { spawnSync } from "node:child_process";
 function viaLink(...args: string[]): { stdout: string; stderr: string; status: number | null } {
   const realCli = resolve(__dirname, "..", "dist", "cli.js");
   const dir = mkdtempSync(join(tmpdir(), "crs-link-"));
-  const link = join(dir, "common-rules");
+  const link = join(dir, "maestro");
   symlinkSync(realCli, link);
   const r = spawnSync("node", [link, ...args], { encoding: "utf8" });
   return { stdout: r.stdout, stderr: r.stderr, status: r.status };

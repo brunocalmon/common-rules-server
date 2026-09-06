@@ -41,13 +41,13 @@ export interface CommandOutcome {
 const HELP_FLAGS = new Set(["--help", "-h"]);
 const hasHelp = (args: readonly string[]): boolean => args.some((a) => HELP_FLAGS.has(a));
 
-const USAGE_VERSION = "usage: common-rules version\n\nPrints the installed version.";
+const USAGE_VERSION = "usage: maestro version\n\nPrints the installed version.";
 const USAGE_DOCTOR =
-  "usage: common-rules doctor\n\n" +
+  "usage: maestro doctor\n\n" +
   "Reports every dependency this project's layers need, whether each is present,\n" +
   "and its version. Exits non-zero when something required is missing.";
 const USAGE_SETUP =
-  "usage: common-rules setup [--target claude-code]\n\n" +
+  "usage: maestro setup [--target claude-code]\n\n" +
   "Installs the hooks that connect this project's subsystems to the agent's\n" +
   "cycle, plus the skills and the Specsfy framework, then records the\n" +
   "installation so a later run is a no-op when nothing changed.\n\n" +
@@ -63,34 +63,34 @@ const USAGE_SETUP =
   "Prompts for approval on a real terminal; reads a JSON document\n" +
   '({"approved": true}) from standard input otherwise.';
 const USAGE_RECOMMEND =
-  "usage: common-rules recommend [--backend <name>] [--local-model <name>]\n\n" +
+  "usage: maestro recommend [--backend <name>] [--local-model <name>]\n\n" +
   "Recommends which agent backend and local model to use, based on what's\n" +
   "installed and the machine's capacity. Both flags override detection by hand\n" +
   "and are never revalidated against what's actually present.";
 const USAGE_EXTENSION_CREATE =
-  "usage: common-rules extension create --category <override|extension|new> --target <target> --name <name> --file <file-with-the-content>\n\n" +
+  "usage: maestro extension create --category <override|extension|new> --target <target> --name <name> --file <file-with-the-content>\n\n" +
   "Writes one extension artifact. The sole write path for this — never edit\n" +
   "target files by hand, since that's exactly what lets an install detect drift.";
 const USAGE_EXTENSION_REPAIR =
-  "usage: common-rules extension repair --name <name>\n\n" +
+  "usage: maestro extension repair --name <name>\n\n" +
   "Quarantines a divergent extension's content and restores the original.\n" +
   "Never deletes: the divergent content moves aside, it doesn't disappear.";
 const USAGE_EXTENSION =
-  "usage: common-rules extension <create|repair> ...\n\n" +
+  "usage: maestro extension <create|repair> ...\n\n" +
   "  create   " +
-  USAGE_EXTENSION_CREATE.split("\n")[0]!.replace("usage: common-rules extension create ", "") +
+  USAGE_EXTENSION_CREATE.split("\n")[0]!.replace("usage: maestro extension create ", "") +
   "\n  repair   " +
-  USAGE_EXTENSION_REPAIR.split("\n")[0]!.replace("usage: common-rules extension repair ", "") +
-  "\n\nRun `common-rules extension <create|repair> --help` for either one's full usage.";
+  USAGE_EXTENSION_REPAIR.split("\n")[0]!.replace("usage: maestro extension repair ", "") +
+  "\n\nRun `maestro extension <create|repair> --help` for either one's full usage.";
 const USAGE_TOP =
-  "usage: common-rules <command> [options]\n\n" +
+  "usage: maestro <command> [options]\n\n" +
   "Commands:\n" +
   "  version               Print the installed version.\n" +
   "  doctor                Report every dependency this project's layers need.\n" +
   "  setup [--target ...]  Configure this project: hooks, skills, Specsfy.\n" +
   "  recommend [options]   Recommend an agent backend and local model.\n" +
   "  extension <create|repair> ...   Manage one extension artifact.\n\n" +
-  "Run `common-rules <command> --help` for a command's full usage.";
+  "Run `maestro <command> --help` for a command's full usage.";
 
 /**
  * Formats one line per dependency, with layer, origin and version.
@@ -219,7 +219,7 @@ function parseFlags(args: readonly string[]): Record<string, string> {
   return flags;
 }
 
-/** `common-rules extension create` — sole write path for an extension artifact (FR-080, NFR-083). */
+/** `maestro extension create` — sole write path for an extension artifact (FR-080, NFR-083). */
 function formatExtensionCreate(args: readonly string[]): CommandOutcome {
   if (hasHelp(args)) return { output: USAGE_EXTENSION_CREATE, exitCode: 0 };
 
@@ -246,7 +246,7 @@ function formatExtensionCreate(args: readonly string[]): CommandOutcome {
   return { output: `extension "${name}" created at ${resolveTargetPath(target)}`, exitCode: 0 };
 }
 
-/** `common-rules extension repair` — quarantines the divergent one and restores the original, never deletes (FR-084, FR-085). */
+/** `maestro extension repair` — quarantines the divergent one and restores the original, never deletes (FR-084, FR-085). */
 function formatExtensionRepair(args: readonly string[]): CommandOutcome {
   if (hasHelp(args)) return { output: USAGE_EXTENSION_REPAIR, exitCode: 0 };
 

@@ -14,7 +14,7 @@ function writtenRecord(): Record<string, unknown> {
     write: true,
     skills: { execute: fakeExecutor("success", root).fn },
   });
-  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
 }
 
 describe("AC-023 — the project record keeps the sets' provenance", () => {

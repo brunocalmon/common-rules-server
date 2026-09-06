@@ -20,7 +20,7 @@ describe("AC-048 — a record with the epoch stamp is accepted on read", () => {
   it("the entries stay as they were", () => {
     const root = withEpoch();
     readTrace(root);
-    const rec = JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+    const rec = JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
     expect(rec.hooks[0].installedAt).toBe(EPOCH);
   });
 

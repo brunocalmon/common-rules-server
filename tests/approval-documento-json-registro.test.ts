@@ -22,7 +22,7 @@ describe("AC-118 — a JSON document run uses the same registry", () => {
   it("with the skills command already registered, drift doesn't ask for approval again even with no document", () => {
     const root = projectWithTarget();
     run(root, approved);
-    expect(existsSync(join(root, ".common-rules", "approved-commands.json"))).toBe(true);
+    expect(existsSync(join(root, ".maestro", "approved-commands.json"))).toBe(true);
 
     rmSync(join(root, ".claude", "skills"), { recursive: true, force: true });
 

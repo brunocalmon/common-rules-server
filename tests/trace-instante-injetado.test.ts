@@ -8,7 +8,7 @@ import { project, fixedSource, FIXED_INSTANT, EPOCH } from "./trace-fixtures";
 const rec = () => {
   const root = project();
   runSetup({ env: detectEnvironment(root), root, write: true, trace: fixedSource() });
-  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
 };
 
 describe("AC-042 — the stamp matches the moment of the run", () => {

@@ -25,9 +25,9 @@ means everything is fine.
 ## Script
 
 ```sh
-if [ ! -f "$PROJECT_DIR/.common-rules/install.json" ] || [ ! -d "$PROJECT_DIR/.specsfy" ]; then
+if [ ! -f "$PROJECT_DIR/.maestro/install.json" ] || [ ! -d "$PROJECT_DIR/.specsfy" ]; then
   cat <<'EOF'
-common-rules: this project hasn't completed setup yet (missing .common-rules/install.json or .specsfy/). Run the `setup` tool (or `common-rules setup` from a terminal) before relying on its hooks, skills or the Specsfy framework — some of what's configured so far may be partial.
+maestro: this project hasn't completed setup yet (missing .maestro/install.json or .specsfy/). Run the `setup` tool (or `maestro setup` from a terminal) before relying on its hooks, skills or the Specsfy framework — some of what's configured so far may be partial.
 EOF
 fi
 ```

@@ -124,7 +124,7 @@ export function inspectDependencies(
   // repair remains out of scope.
   const sets = reportSkills(root);
 
-  // Extension divergence is common-rules' own responsibility, not a
+  // Extension divergence is maestro' own responsibility, not a
   // third-party dependency's — it enters the exitCode directly, unlike
   // the `agent` layer (`DEC-084`).
   const divergent = diagnoseExtensionsFn(root);

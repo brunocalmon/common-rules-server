@@ -9,7 +9,7 @@ import { project, EPOCH } from "./trace-fixtures";
 function withoutInjection(): Record<string, any> {
   const root = project();
   runSetup({ env: detectEnvironment(root), root, write: true });
-  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
 }
 
 describe("AC-050 — the absence of injection doesn't leave the value constant", () => {

@@ -4,7 +4,7 @@ import { detectEnvironment } from "../src/setup/env";
 import { project, fixedDecision } from "./aprovacao-fixtures";
 
 /**
- * Real bug, found by running `common-rules setup` for real in this very
+ * Real bug, found by running `maestro setup` for real in this very
  * repository: hooks recorded in a previous run with no `skills`
  * configured left `previousSkills` empty, and the old
  * `skillsAlreadyDone = ... || previousSkills.length === 0 || ...` treated

@@ -7,7 +7,7 @@ import { projectWithoutClaudeCode } from "./mcp-fixtures";
 describe("AC-013 — the MCP tool accepts an explicit target", () => {
   // A project that exists but was never configured for Claude Code has
   // none of detectTarget's evidence — this is the scenario found running
-  // `common-rules setup` for real against a fresh project, from inside
+  // `maestro setup` for real against a fresh project, from inside
   // Claude Code itself.
   // SPECSFY: US-001 FR-001 AC-013
   it("configures a project with no target evidence at all, given an explicit target", async () => {

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import type { Executor } from "./install.js";
 import { buildSpecsfyInstallArgs } from "./install.js";
 
-/** The `common-rules` package's root, not the target project's. */
+/** The `maestro` package's root, not the target project's. */
 const packageRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /** Returns the local `@promovaweb/specsfy` package binary, or null when absent. */
@@ -51,7 +51,7 @@ export function realSpecsfyExecutor(root: string = packageRoot()): Executor {
  * The command `realSpecsfyExecutor` would actually fire for `projectRoot`,
  * without running anything — for the approval plan (fatia 1i, `PR-062`).
  * `null` when the binary doesn't exist, same convention as `Executor`.
- * `pkgRoot` is the `common-rules` package's root (to resolve the binary),
+ * `pkgRoot` is the `maestro` package's root (to resolve the binary),
  * distinct from `projectRoot` (the target project, which goes into the
  * argv via `--project`) — the same distinction
  * `realSpecsfyExecutor(root)`/`(targetRoot) => ...` already made.

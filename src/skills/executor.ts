@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import type { Executor } from "./install.js";
 import { buildSkillsAddArgs } from "./install.js";
 
-/** The `common-rules` package's root, not the target project's. */
+/** The `maestro` package's root, not the target project's. */
 const packageRoot = (): string => resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 /** Returns the local `skills` package binary, or null when absent. */

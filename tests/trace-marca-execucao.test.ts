@@ -7,7 +7,7 @@ import { project, fixedSource, FIXED_ID } from "./trace-fixtures";
 
 function recordOf(root: string): Record<string, any> {
   runSetup({ env: detectEnvironment(root), root, write: true, trace: fixedSource() });
-  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"));
 }
 
 describe("AC-040 — every entry from the same run shares the identifier", () => {

@@ -13,7 +13,7 @@ export interface DivergentArtifact {
  * Pure read function — never writes anything (`PR-082`, `NFR-082`).
  * `presentNames` are extension names found on disk with no matching
  * registry entry (`checksum-missing`, `AC-135`); the real `doctor`
- * resolves that list by listing `.common-rules/extensions/`.
+ * resolves that list by listing `.maestro/extensions/`.
  */
 export function diagnoseExtensions(
   registry: ExtensionRegistry,

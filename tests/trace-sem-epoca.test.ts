@@ -8,7 +8,7 @@ import { project, EPOCH } from "./trace-fixtures";
 function entries(): { installedAt: string }[] {
   const root = project();
   runSetup({ env: detectEnvironment(root), root, write: true });
-  return JSON.parse(readFileSync(join(root, ".common-rules", "install.json"), "utf8"))["hooks"];
+  return JSON.parse(readFileSync(join(root, ".maestro", "install.json"), "utf8"))["hooks"];
 }
 
 describe("AC-052 — the epoch is no longer the recorded value", () => {

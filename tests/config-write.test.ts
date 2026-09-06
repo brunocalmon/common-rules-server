@@ -18,7 +18,7 @@ describe("AC-013 — creating config.yaml doesn't depend on other extensions alr
 
     ensureConfigFile(root);
 
-    const configPath = join(root, ".common-rules", "config.yaml");
+    const configPath = join(root, ".maestro", "config.yaml");
     expect(existsSync(configPath)).toBe(true);
     const content = readFileSync(configPath, "utf8");
     expect(content).toContain("default: en_US");
@@ -27,5 +27,5 @@ describe("AC-013 — creating config.yaml doesn't depend on other extensions alr
 });
 
 function mktemp(): string {
-  return mkdtempSync(join(tmpdir(), "common-rules-config-write-"));
+  return mkdtempSync(join(tmpdir(), "maestro-config-write-"));
 }

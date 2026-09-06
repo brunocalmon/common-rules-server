@@ -7,8 +7,8 @@ const ROOT = resolve(__dirname, "..");
 const manifest = () => JSON.parse(readFileSync(resolve(ROOT, "package.json"), "utf8"));
 const runBin = (args: string[]) => {
   const bin = manifest().bin;
-  const target = typeof bin === "string" ? bin : bin?.["common-rules"];
-  if (!target) throw new Error("the manifest doesn't declare the common-rules binary");
+  const target = typeof bin === "string" ? bin : bin?.["maestro"];
+  if (!target) throw new Error("the manifest doesn't declare the maestro binary");
   return execFileSync("node", [resolve(ROOT, String(target)), ...args], { encoding: "utf8" });
 };
 

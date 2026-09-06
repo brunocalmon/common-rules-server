@@ -15,7 +15,7 @@ import { spawnSync } from "node:child_process";
  * `formatSetup()` also wires in real `approval`, and without this the run
  * would be read as an empty document — refused, no write.
  */
-describe("AC-036 / AC-038 — common-rules setup, end to end, no fixture", () => {
+describe("AC-036 / AC-038 — maestro setup, end to end, no fixture", () => {
   it("installs both skill sources and the Specsfy framework for real", () => {
     const root = mkdtempSync(join(tmpdir(), "crs-e2e-"));
     mkdirSync(join(root, ".claude"), { recursive: true });

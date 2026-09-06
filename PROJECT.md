@@ -1,9 +1,9 @@
-# common-rules
+# maestro
 
 Um wrapper de linha de comando que orquestra subsistemas e agentes de
 codificação a partir de um contrato verificável de dependências.
 
-Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
+Pacote npm `@brunocalmon/maestro`, binário `maestro`.
 
 ## O que existe hoje
 
@@ -11,18 +11,18 @@ Pacote npm `@brunocalmon/common-rules`, binário `common-rules`.
 
 | Comando | O que faz |
 | --- | --- |
-| `common-rules --version` | Imprime a versão declarada no manifesto |
-| `common-rules doctor` | Relata as três dependências do projeto e os backends de agente detectados, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, cada extensão local divergente do que a CLI gravou, e o identificador da última execução |
-| `common-rules setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, escreve o roteador do `common-rules` em `CLAUDE.md`/`AGENTS.md`, e registra o que escreveu, identificando a execução e o momento. Also creates and keeps `.common-rules/config.yaml` always complete. |
-| `common-rules recommend` | Recomenda um backend de agente presente e, quando o `ollama` está disponível, o maior modelo local que cabe na memória livre, com override humano opcional |
-| `common-rules extension create` | Cria um artefato de extensão local (`override`/`extension`, nunca `new` para um dos sete hooks gerenciados) — hook, regra ou o próprio roteador — que sobrevive a uma reinstalação |
-| `common-rules extension repair` | Move o conteúdo de uma extensão divergente para `.common-rules/quarantine/` e restaura o original, sem apagar nada |
+| `maestro --version` | Imprime a versão declarada no manifesto |
+| `maestro doctor` | Relata as três dependências do projeto e os backends de agente detectados, com camada, origem resolvida e versão, os conjuntos de skills registrados, nomeando o que divergiu, cada extensão local divergente do que a CLI gravou, e o identificador da última execução |
+| `maestro setup` | Instala os sete hooks no editor detectado, instala os dois conjuntos de skills e o framework Specsfy, escreve o roteador do `maestro` em `CLAUDE.md`/`AGENTS.md`, e registra o que escreveu, identificando a execução e o momento. Also creates and keeps `.maestro/config.yaml` always complete. |
+| `maestro recommend` | Recomenda um backend de agente presente e, quando o `ollama` está disponível, o maior modelo local que cabe na memória livre, com override humano opcional |
+| `maestro extension create` | Cria um artefato de extensão local (`override`/`extension`, nunca `new` para um dos sete hooks gerenciados) — hook, regra ou o próprio roteador — que sobrevive a uma reinstalação |
+| `maestro extension repair` | Move o conteúdo de uma extensão divergente para `.maestro/quarantine/` e restaura o original, sem apagar nada |
 
-**Aprovação do plano, em lote.** `common-rules setup` apresenta o plano e aguarda aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita. O plano lista cada comando de dependência que a execução de fato dispararia — hooks, instalador de skills por origem, instalador do framework Specsfy e a ponte Python, quando aplicável — não só os hooks. Um comando já aprovado antes, com o mesmo binário e argv exatos, não pede aprovação de novo, mesmo quando a execução precisa reinstalar por drift; qualquer diferença no argv, como uma versão diferente, conta como comando novo. O registro fica em `.common-rules/approved-commands.json`, local ao projeto.
+**Aprovação do plano, em lote.** `maestro setup` apresenta o plano e aguarda aprovação antes de escrever — interativa quando há terminal, por documento JSON pela entrada padrão quando não há. Recusa, ausência e entrada malformada são negativa, sem escrita. O plano lista cada comando de dependência que a execução de fato dispararia — hooks, instalador de skills por origem, instalador do framework Specsfy e a ponte Python, quando aplicável — não só os hooks. Um comando já aprovado antes, com o mesmo binário e argv exatos, não pede aprovação de novo, mesmo quando a execução precisa reinstalar por drift; qualquer diferença no argv, como uma versão diferente, conta como comando novo. O registro fica em `.maestro/approved-commands.json`, local ao projeto.
 
 **Reconciliação de drift.** `setup` só relata "já estava configurado" quando hooks, skills e o framework Specsfy estão de fato presentes no disco — não só quando os hooks batem com o registro. Apagar `.claude/skills/` ou `.specsfy/` por fora e rodar `setup` de novo restaura o que faltar.
 
-**Backends de agente.** `doctor` relata, numa terceira camada informativa, cada backend de agente candidato conhecido — presença, versão e se tem capacidade demonstrada de invocação sem interação. Suportados hoje: `pi`, `agy`, `claude`, `codex` e `goose`. Nenhum backend ausente afeta o código de saída: `common-rules` detecta, nunca instala agente.
+**Backends de agente.** `doctor` relata, numa terceira camada informativa, cada backend de agente candidato conhecido — presença, versão e se tem capacidade demonstrada de invocação sem interação. Suportados hoje: `pi`, `agy`, `claude`, `codex` e `goose`. Nenhum backend ausente afeta o código de saída: `maestro` detecta, nunca instala agente.
 
 Exemplo real de `doctor`:
 
@@ -36,7 +36,7 @@ Quarenta e cinco módulos em `src/`, 150 arquivos de teste, 388 casos.
 
 **Language rule and an always-present `config.yaml`.** Above any dependency
 (Specsfy, mattpocock or none), `setup` creates and keeps
-`.common-rules/config.yaml` always complete — every schema key (`language`,
+`.maestro/config.yaml` always complete — every schema key (`language`,
 `project`, `system`, `git`) present, with a real default when evidence
 exists and empty otherwise, never omitted. `CLAUDE.md`/`AGENTS.md` receive
 their own instruction (distinct from the extensions router) telling the
@@ -80,23 +80,23 @@ idempotentes (não reescreve quando já presentes).
 
 **Extensões locais e reparo assistido.** Um hotfix local — customizar um dos
 sete hooks, adicionar uma regra nova, ou ajustar o próprio roteador — sobrevive
-a uma reinstalação sem esperar release. `common-rules extension create` grava
+a uma reinstalação sem esperar release. `maestro extension create` grava
 o conteúdo com uma âncora HTML no arquivo alvo (o próprio `CLAUDE.md`/
-`AGENTS.md`, ou `.common-rules/extensions/<nome>.md`) e o checksum em
-`.common-rules/extensions.json` — o único caminho de escrita; uma skill de
-fachada (`common-rules-extension-creator`) entrevista a pessoa e aciona esse
+`AGENTS.md`, ou `.maestro/extensions/<nome>.md`) e o checksum em
+`.maestro/extensions.json` — o único caminho de escrita; uma skill de
+fachada (`maestro-extension-creator`) entrevista a pessoa e aciona esse
 comando, nunca escreve arquivo por conta própria. Essa skill é empacotada
-com o próprio `common-rules` (`resources/skills/`, junto de `resources/hooks/`)
+com o próprio `maestro` (`resources/skills/`, junto de `resources/hooks/`)
 e o `setup` a entrega em `.claude/skills/`/`.agents/skills/` do projeto-alvo,
 sem checksum — é conteúdo do pacote, não algo que a pessoa customiza. `doctor` relata cada
 artefato cujo conteúdo real diverge do checksum registrado, sem nunca
-corrigir sozinho — detectabilidade, não prevenção. `common-rules extension
+corrigir sozinho — detectabilidade, não prevenção. `maestro extension
 repair --name <nome>` move o conteúdo divergente para
-`.common-rules/quarantine/` (sem expiração automática) e restaura o original;
+`.maestro/quarantine/` (sem expiração automática) e restaura o original;
 recusa o reparo inteiro se a quarentena não for gravável, em vez de reparar
 pela metade.
 
-**Seleção de modelo.** `common-rules recommend` recomenda, de forma
+**Seleção de modelo.** `maestro recommend` recomenda, de forma
 determinística e sem rede, um backend dentre os suportados presentes (na
 ordem de `pi`, `agy`, `claude`, `codex`, `goose`) e, quando o `ollama` está
 disponível, o maior modelo local cujo tamanho cabe na memória livre da
@@ -108,7 +108,7 @@ quebrar a garantia sem rede e sem autenticação que o projeto inteiro mantém;
 o relatório sempre declara essa ausência em vez de silenciá-la.
 
 **Servidor MCP**, com a tool `setup` única, sobre entrada e saída padrão pelo
-binário `common-rules-mcp`. Expõe a mesma lógica que o comando de terminal, e
+binário `maestro-mcp`. Expõe a mesma lógica que o comando de terminal, e
 exige a raiz do projeto como parâmetro: o processo servidor não sabe em que
 projeto está, e adivinhar escreveria na árvore errada relatando sucesso.
 
@@ -164,7 +164,7 @@ agente criaria uma cópia que nunca roda, já que o binário executado é o que 
 
 ## História
 
-O repositório abrigou, até agosto de 2026, o `common-rules-server`: um servidor
+O repositório abrigou, até agosto de 2026, o `maestro`: um servidor
 MCP em Python com seis ferramentas e 47 recursos embutidos. Aquele produto está
 congelado na branch `archived`, no commit `aac477a`, com 378 arquivos e a suíte
 de 1010 testes intacta. A branch é protegida contra escrita e deleção.

@@ -17,10 +17,10 @@ const ROUTER_FILES = new Set(["CLAUDE.md", "AGENTS.md"]);
 
 /** Which file `target` resolves to — the root for CLAUDE.md/AGENTS.md, its own artifact for everything else. */
 export function resolveTargetPath(target: string): string {
-  return ROUTER_FILES.has(target) ? target : `.common-rules/extensions/${target}.md`;
+  return ROUTER_FILES.has(target) ? target : `.maestro/extensions/${target}.md`;
 }
 
-export const EXTENSIONS_DIR = ".common-rules/extensions";
+export const EXTENSIONS_DIR = ".maestro/extensions";
 
 /** Real environment, used by the command line. Only reads/writes the resolved paths, never more. */
 export function realTargetFileEnvironment(root: string): TargetFileEnvironment {
@@ -37,7 +37,7 @@ export function realTargetFileEnvironment(root: string): TargetFileEnvironment {
   };
 }
 
-/** Names of the files present in `.common-rules/extensions/`, without the `.md` extension — used by `doctor` to find an artifact with no record (`AC-135`). */
+/** Names of the files present in `.maestro/extensions/`, without the `.md` extension — used by `doctor` to find an artifact with no record (`AC-135`). */
 export function listPresentExtensionNames(root: string): string[] {
   const dir = join(root, EXTENSIONS_DIR);
   if (!existsSync(dir)) return [];

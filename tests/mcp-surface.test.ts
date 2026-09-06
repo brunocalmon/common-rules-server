@@ -48,7 +48,7 @@ describe("AC-010 — no surface from the remaining fatias appears", () => {
 describe("AC-013 — the server identifies itself to the client", () => {
   // SPECSFY: US-001 FR-001 AC-013
   it("declares its name", async () => {
-    expect((await connect()).getServerVersion()?.name).toBe("common-rules");
+    expect((await connect()).getServerVersion()?.name).toBe("maestro");
   });
 
   // SPECSFY: US-001 NFR-002 AC-013

@@ -7,7 +7,7 @@
  * one platform or one container: a terminal typically opens its file
  * descriptor non-blocking, and a synchronous read against a non-blocking
  * descriptor with no data yet ready fails immediately rather than waiting —
- * every real interactive run of `common-rules setup` hit this, every time,
+ * every real interactive run of `maestro setup` hit this, every time,
  * confirmed by reproducing it under a real pseudo-terminal.
  *
  * The fix keeps the whole approval flow synchronous — `DecisionSource.ask()`

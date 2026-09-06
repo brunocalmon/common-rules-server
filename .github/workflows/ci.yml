@@ -78,7 +78,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          IMAGE_NAME="${{ vars.DOCKER_USERNAME && format('{0}/common-rules-server', vars.DOCKER_USERNAME) || 'common-rules-server' }}"
+          IMAGE_NAME="${{ vars.DOCKER_USERNAME && format('{0}/maestro', vars.DOCKER_USERNAME) || 'maestro' }}"
           TAG="${{ steps.extract_version.outputs.VERSION }}"
           docker build -t "$IMAGE_NAME:$TAG" .
           echo "Built Docker image: $IMAGE_NAME:$TAG"
@@ -86,7 +86,7 @@ jobs:
       - name: Check if Docker image tag exists
         id: check_tag_exists
         run: |
-          IMAGE_NAME="${{ vars.DOCKER_USERNAME && format('{0}/common-rules-server', vars.DOCKER_USERNAME) || 'common-rules-server' }}"
+          IMAGE_NAME="${{ vars.DOCKER_USERNAME && format('{0}/maestro', vars.DOCKER_USERNAME) || 'maestro' }}"
           TAG="${{ steps.extract_version.outputs.VERSION }}"
           response=$(curl --write-out "%{http_code}" --silent --output /dev/null \
             -u "${{ vars.DOCKER_USERNAME }}:${{ secrets.DOCKER_PASSWORD }}" \
@@ -106,7 +106,7 @@ jobs:
       - name: Push Docker image
         if: env.TAG_EXISTS == 'false'
         run: |
-          IMAGE_NAME="${{ vars.DOCKER_USERNAME && format('{0}/common-rules-server', vars.DOCKER_USERNAME) || 'common-rules-server' }}"
+          IMAGE_NAME="${{ vars.DOCKER_USERNAME && format('{0}/maestro', vars.DOCKER_USERNAME) || 'maestro' }}"
           TAG="${{ steps.extract_version.outputs.VERSION }}"
           docker push "$IMAGE_NAME:$TAG"
 

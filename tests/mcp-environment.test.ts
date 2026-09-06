@@ -17,7 +17,7 @@ describe("AC-008 — project environment variables don't influence the write", (
     const target = disposableProject("crs-target-");
     process.env["CLAUDE_PROJECT_DIR"] = fromEnv;
     await executeSetup({ project_root: target });
-    expect(existsSync(join(target, ".common-rules", "install.json"))).toBe(true);
+    expect(existsSync(join(target, ".maestro", "install.json"))).toBe(true);
   });
 
   // SPECSFY: US-002 NFR-001 AC-008

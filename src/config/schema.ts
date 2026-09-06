@@ -133,12 +133,12 @@ export function buildDefaultConfig(env: PlatformEnvironment): ConfigDocument {
       groups: {
         common_rules_config: {
           description: "config.yaml itself — shared across the team by default",
-          paths: [".common-rules/config.yaml"],
+          paths: [".maestro/config.yaml"],
           ignored: false,
         },
         common_rules_state: {
-          description: "common-rules operational state (install.json, extensions.json, quarantine/)",
-          paths: [".common-rules/install.json", ".common-rules/extensions.json", ".common-rules/quarantine/"],
+          description: "maestro operational state (install.json, extensions.json, quarantine/)",
+          paths: [".maestro/install.json", ".maestro/extensions.json", ".maestro/quarantine/"],
           ignored: true,
         },
         specsfy: {
@@ -147,7 +147,7 @@ export function buildDefaultConfig(env: PlatformEnvironment): ConfigDocument {
           ignored: false,
         },
         installed_skills: {
-          description: "Skills delivered by common-rules, mattpocock or Specsfy — reinstallable, like dependencies",
+          description: "Skills delivered by maestro, mattpocock or Specsfy — reinstallable, like dependencies",
           paths: [".claude/skills/", ".agents/skills/"],
           ignored: true,
         },

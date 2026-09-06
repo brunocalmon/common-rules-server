@@ -33,7 +33,7 @@ describe("AC-065 — the document authorizes the run", () => {
     const root = project();
     run(root);
     expect(existsSync(join(root, ".claude", "settings.json"))).toBe(true);
-    expect(existsSync(join(root, ".common-rules", "install.json"))).toBe(true);
+    expect(existsSync(join(root, ".maestro", "install.json"))).toBe(true);
   });
 
   // SPECSFY: US-061 FR-062 AC-065

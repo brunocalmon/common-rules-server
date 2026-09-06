@@ -1,4 +1,4 @@
-# Builds the MCP server (common-rules-mcp) — stdio transport, connected by
+# Builds the MCP server (maestro-mcp) — stdio transport, connected by
 # whatever launches the container (`docker run -i ...`).
 
 FROM node:22-slim AS build

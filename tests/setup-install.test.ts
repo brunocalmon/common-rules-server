@@ -30,7 +30,7 @@ describe("AC-001 — the four integration hooks end up installed", () => {
 
   // SPECSFY: US-001 FR-004 AC-001
   it("creates the installation record inside the project", () => {
-    expect(run().recordPath).toMatch(/^\.common-rules\//);
+    expect(run().recordPath).toMatch(/^\.maestro\//);
   });
 
   // SPECSFY: US-001 FR-001 NFR-001 AC-001

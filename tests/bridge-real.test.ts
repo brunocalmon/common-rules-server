@@ -26,7 +26,7 @@ describe("AC-116 — the Python bridge actually runs when approved", () => {
       write: true,
       bridgeEnv: { localVenv: null, onPath: null, hasUv: true },
       // Disposable: without this, the real bridge would create .venv-crg
-      // at the common-rules package's own root (where `doctor.ts` actually
+      // at the maestro package's own root (where `doctor.ts` actually
       // looks for it), polluting this repository as a side effect of
       // running the suite.
       bridgeCwd: root,

@@ -24,6 +24,6 @@ describe("AC-004 — with a valid root the tool installs and reports", () => {
   it("creates the installation record inside the given root", async () => {
     const root = disposableProject();
     await executeSetup({ project_root: root });
-    expect(existsSync(join(root, ".common-rules", "install.json"))).toBe(true);
+    expect(existsSync(join(root, ".maestro", "install.json"))).toBe(true);
   });
 });

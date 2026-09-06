@@ -6,17 +6,17 @@
  */
 export function buildRouterBlock(): string {
   return [
-    "## common-rules",
+    "## maestro",
     "",
     "To create, adjust or repair a local extension (a hook, a rule, or this",
-    "router itself), trigger the `common-rules-extension-creator` skill",
-    "instead of reading `.common-rules/extensions/` directly.",
+    "router itself), trigger the `maestro-extension-creator` skill",
+    "instead of reading `.maestro/extensions/` directly.",
   ].join("\n");
 }
 
 /** Minimal pointer, without duplicating the router's text — points at CLAUDE.md. */
 export function buildAgentsPointer(): string {
-  return "For the `common-rules` router, read the `common-rules` section in `CLAUDE.md`.";
+  return "For the `maestro` router, read the `maestro` section in `CLAUDE.md`.";
 }
 
 /**
@@ -28,9 +28,9 @@ export function buildAgentsPointer(): string {
  */
 export function buildConfigLanguageBlock(): string {
   return [
-    "## common-rules: language",
+    "## maestro: language",
     "",
-    "Read `.common-rules/config.yaml` before generating a document or deciding",
+    "Read `.maestro/config.yaml` before generating a document or deciding",
     "what language to answer in. Reply in the conversation's language. Write a",
     "generated document in `language.default`, unless its path matches one of",
     "`language.exceptions`. Notice when the conversation reveals a value that",
@@ -40,5 +40,5 @@ export function buildConfigLanguageBlock(): string {
 
 /** Minimal pointer, without duplicating the block's text — points at CLAUDE.md. */
 export function buildConfigLanguagePointer(): string {
-  return "For the `common-rules` language rule, read the `common-rules: language` section in `CLAUDE.md`.";
+  return "For the `maestro` language rule, read the `maestro: language` section in `CLAUDE.md`.";
 }
