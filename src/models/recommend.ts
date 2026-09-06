@@ -51,7 +51,7 @@ function renderReport(params: {
     lines.push(
       params.ollamaPresent
         ? "No local model fit in free memory."
-        : "ollama was not found on this machine.",
+        : "No local model available: ollama was not found on this machine.",
     );
   } else {
     lines.push(`Recommended local model: ${params.localModel}${params.localModelOverridden ? " (override)" : ""}`);

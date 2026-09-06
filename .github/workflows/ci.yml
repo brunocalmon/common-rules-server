@@ -12,6 +12,13 @@ jobs:
     permissions:
       pull-requests: write
       contents: read
+    env:
+      # Some real-command tests fetch skill sources from GitHub
+      # (specsfy/skills installers). Unauthenticated, a shared Actions
+      # runner IP routinely hits GitHub's anonymous rate limit — both
+      # installers already check GH_TOKEN/GITHUB_TOKEN for exactly this;
+      # the repo-scoped token Actions provides automatically is enough.
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -20,18 +27,24 @@ jobs:
           node-version: "22"
           cache: "npm"
 
-      - name: Install dependencies
-        run: npm ci
-
-      # Runs the prebuild checksum gate (scripts/check-version-checksum.mjs)
-      # before tsc: fails here, on every commit — main or PR — whenever
-      # src/ or resources/ changed without package.json's version moving
-      # with it. This is the enforcement itself, not a separate CI step.
-      - name: Build (checksum-gated)
-        run: npm run build
+      # Runs install, the checksum-gated build (scripts/check-version-
+      # checksum.mjs runs as `prebuild`, before tsc) and the full suite, in
+      # that order, recording each step's time — the same three steps a
+      # person runs by hand, and the timings tests/budget.test.ts and
+      # tests/cycle-timings.test.ts assert on. Fails here, on every commit —
+      # main or PR — whenever src/ or resources/ changed without
+      # package.json's version moving with it.
+      - name: Verify (install, build, test)
+        run: npm run verify
 
       - name: Test with coverage
-        run: npx vitest run --coverage | tee coverage.txt
+        # set -o pipefail: without it, `tee`'s own exit code (0) hides a
+        # failing `vitest run` and the step reports success regardless —
+        # confirmed for real, this masked test failures on the first run
+        # of this workflow.
+        run: |
+          set -o pipefail
+          npx vitest run --coverage | tee coverage.txt
 
       - name: Post coverage as PR comment
         if: github.event_name == 'pull_request'
