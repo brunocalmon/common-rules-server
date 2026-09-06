@@ -34,6 +34,16 @@ jobs:
       # tests/cycle-timings.test.ts assert on. Fails here, on every commit —
       # main or PR — whenever src/ or resources/ changed without
       # package.json's version moving with it.
+      - name: Install dependencies (for the debug step below)
+        run: npm ci --ignore-scripts
+
+      - name: TEMP DEBUG - specsfy install raw output
+        run: |
+          mkdir -p /tmp/dbg && cd /tmp/dbg && git init -q .
+          node "$GITHUB_WORKSPACE/node_modules/@promovaweb/specsfy/bin/specsfy.cjs" install --project /tmp/dbg --json
+          echo "exit code: $?"
+        continue-on-error: true
+
       - name: Verify (install, build, test)
         run: npm run verify
 
