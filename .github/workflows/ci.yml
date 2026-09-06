@@ -41,7 +41,29 @@ jobs:
         run: |
           mkdir -p /tmp/dbg && cd /tmp/dbg && git init -q .
           node "$GITHUB_WORKSPACE/node_modules/@promovaweb/specsfy/bin/specsfy.cjs" install --project /tmp/dbg --json
-          echo "exit code: $?"
+          echo "exit code (direct node invocation): $?"
+        continue-on-error: true
+
+      - name: TEMP DEBUG - exact spawnSync call the executor makes
+        run: |
+          mkdir -p /tmp/dbg2 && cd /tmp/dbg2 && git init -q .
+          node -e '
+            const { spawnSync } = require("node:child_process");
+            const bin = "'"$GITHUB_WORKSPACE"'/node_modules/@promovaweb/specsfy/bin/specsfy.cjs";
+            const fs = require("node:fs");
+            const st = fs.statSync(bin);
+            console.log("mode:", (st.mode & 0o777).toString(8), "isFile:", st.isFile());
+            const r = spawnSync(bin, ["install", "--project", "/tmp/dbg2", "--json"], {
+              cwd: "/tmp/dbg2",
+              encoding: "utf8",
+              timeout: 120000,
+            });
+            console.log("error:", r.error);
+            console.log("status:", r.status);
+            console.log("signal:", r.signal);
+            console.log("stdout:", r.stdout);
+            console.log("stderr:", r.stderr);
+          '
         continue-on-error: true
 
       - name: Verify (install, build, test)
