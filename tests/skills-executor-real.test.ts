@@ -11,23 +11,32 @@ function cleanRoot(): string {
 }
 
 describe("AC-036 — real skills executor, without a fixture", () => {
+  // `retry`: real network fetch (see specsfy-install-real.test.ts for why).
   // SPECSFY: FR-020 AC-036
-  it("--list recognizes real skills from mattpocock/skills", () => {
-    const root = cleanRoot();
-    const execute = realSkillsExecutor();
-    const r = execute(["add", "mattpocock/skills", "-a", "claude-code", "--skill", "*", "--copy", "-y", "--list"], root);
-    expect(r).not.toBeNull();
-    expect(r?.status).toBe(0);
-    expect(r?.skills?.length ?? 0).toBeGreaterThan(0);
-  }, 30_000);
+  it(
+    "--list recognizes real skills from mattpocock/skills",
+    { timeout: 30_000, retry: 2 },
+    () => {
+      const root = cleanRoot();
+      const execute = realSkillsExecutor();
+      const r = execute(["add", "mattpocock/skills", "-a", "claude-code", "--skill", "*", "--copy", "-y", "--list"], root);
+      expect(r).not.toBeNull();
+      expect(r?.status).toBe(0);
+      expect(r?.skills?.length ?? 0).toBeGreaterThan(0);
+    },
+  );
 
   // SPECSFY: FR-027 AC-036
-  it("--list recognizes real skills from promovaweb/specsfy", () => {
-    const root = cleanRoot();
-    const execute = realSkillsExecutor();
-    const r = execute(["add", "promovaweb/specsfy", "-a", "claude-code", "--skill", "*", "--copy", "-y", "--list"], root);
-    expect(r).not.toBeNull();
-    expect(r?.status).toBe(0);
-    expect(r?.skills?.length ?? 0).toBeGreaterThan(0);
-  }, 30_000);
+  it(
+    "--list recognizes real skills from promovaweb/specsfy",
+    { timeout: 30_000, retry: 2 },
+    () => {
+      const root = cleanRoot();
+      const execute = realSkillsExecutor();
+      const r = execute(["add", "promovaweb/specsfy", "-a", "claude-code", "--skill", "*", "--copy", "-y", "--list"], root);
+      expect(r).not.toBeNull();
+      expect(r?.status).toBe(0);
+      expect(r?.skills?.length ?? 0).toBeGreaterThan(0);
+    },
+  );
 });

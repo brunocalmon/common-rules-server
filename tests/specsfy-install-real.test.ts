@@ -13,16 +13,26 @@ function gitRoot(): string {
 
 describe("AC-038 — real specsfy install executor, no fixture", () => {
   // SPECSFY: FR-028 FR-029 AC-038
-  it("really writes .specsfy/, .agents/skills/, CLAUDE.md and AGENTS.md", () => {
-    const root = gitRoot();
-    const execute = realSpecsfyExecutor();
-    const r = execute(root);
-    expect(r).not.toBeNull();
-    expect(r?.status).toBe(0);
-    expect(r?.changed ?? 0).toBeGreaterThan(0);
-    expect(existsSync(join(root, ".specsfy"))).toBe(true);
-    expect(existsSync(join(root, ".agents", "skills"))).toBe(true);
-    expect(existsSync(join(root, "CLAUDE.md"))).toBe(true);
-    expect(existsSync(join(root, "AGENTS.md"))).toBe(true);
-  }, 30_000);
+  // `retry`: this hits the real specsfy installer, which fetches skill
+  // sources over the network — a shared CI runner's IP occasionally gets a
+  // transient failure (rate limit, DNS hiccup) that a fresh attempt from
+  // the same machine doesn't reproduce. Retrying is about that class of
+  // flake, not about tolerating a real regression: a consistent failure
+  // still fails after the retries run out.
+  it(
+    "really writes .specsfy/, .agents/skills/, CLAUDE.md and AGENTS.md",
+    { timeout: 30_000, retry: 2 },
+    () => {
+      const root = gitRoot();
+      const execute = realSpecsfyExecutor();
+      const r = execute(root);
+      expect(r).not.toBeNull();
+      expect(r?.status).toBe(0);
+      expect(r?.changed ?? 0).toBeGreaterThan(0);
+      expect(existsSync(join(root, ".specsfy"))).toBe(true);
+      expect(existsSync(join(root, ".agents", "skills"))).toBe(true);
+      expect(existsSync(join(root, "CLAUDE.md"))).toBe(true);
+      expect(existsSync(join(root, "AGENTS.md"))).toBe(true);
+    },
+  );
 });
