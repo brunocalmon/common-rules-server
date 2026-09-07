@@ -27,7 +27,10 @@ describe("AC-038 — real specsfy install executor, no fixture", () => {
       const execute = realSpecsfyExecutor();
       const r = execute(root);
       expect(r).not.toBeNull();
-      expect(r?.status).toBe(0);
+      // The installer's own reason travels with the assertion: a CI-only
+      // failure that says just "expected 1 to be 0" sends whoever reads it
+      // hunting blind, which is what happened the first time this broke.
+      expect(r?.status, `installer failed: ${r?.reason ?? "(no reason captured)"}`).toBe(0);
       expect(r?.changed ?? 0).toBeGreaterThan(0);
       expect(existsSync(join(root, ".specsfy"))).toBe(true);
       expect(existsSync(join(root, ".agents", "skills"))).toBe(true);

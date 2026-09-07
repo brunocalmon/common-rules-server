@@ -37,12 +37,15 @@ export function realSpecsfyExecutor(root: string = packageRoot()): Executor {
     });
     if (r.error) return null;
     const status = r.status ?? 1;
-    if (status !== 0) return { status };
+    // Keep the installer's own words: a bare status tells the caller that
+    // something failed and nothing about what.
+    const reason = (r.stderr || r.stdout || "").trim().slice(0, 2000);
+    if (status !== 0) return { status, reason };
     try {
       const json = JSON.parse(r.stdout ?? "") as SpecsfyJson;
       return { status, changed: json.changed ?? 0, paths: json.paths ?? [] };
     } catch {
-      return { status: 1 };
+      return { status: 1, reason: `output is not the expected JSON: ${reason}` };
     }
   };
 }

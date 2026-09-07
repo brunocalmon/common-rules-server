@@ -1,5 +1,13 @@
-/** Returns `null` when the executable doesn't exist. */
-export type Executor = (root: string) => { status: number; changed?: number; paths?: string[] } | null;
+/**
+ * Returns `null` when the executable doesn't exist.
+ *
+ * `reason` carries the installer's own stderr on a non-zero status. Without
+ * it, a failure reaches the caller as a bare `status: 1` and the actual
+ * cause — a rate limit, a network error, a refused write — dies inside the
+ * subprocess. Diagnosing a CI-only failure of this executor cost a full
+ * investigation once precisely because the reason was discarded here.
+ */
+export type Executor = (root: string) => { status: number; changed?: number; paths?: string[]; reason?: string } | null;
 
 /**
  * Real argv, extracted so it can be reused by whoever needs to know the
