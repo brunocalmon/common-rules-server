@@ -11,7 +11,7 @@
 | Prioridade | Desbloqueada — Phase 1 e Phase 2 fechadas (`SPEC-0001` a `SPEC-0013`); sem prazo externo |
 | Milestones | |
 | Criado em | 2026-09-06 |
-| Spec promovida | MA-1 → specs/completed/0015-... (Complete, 2026-09-06); MA-2 → specs/completed/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md (Complete, 2026-09-07); MA-3 → specs/completed/0017-recomendacao-de-modelo-com-janela-de-contexto-e-tipo-de-tarefa/spec.md (Complete, 2026-09-07); MA-4 → specs/completed/0018-briefing-de-delegacao-para-subagent-nativo/spec.md (Complete, 2026-09-07); MA-5 e MA-6 pendentes |
+| Spec promovida | MA-1 → specs/completed/0015-... (Complete, 2026-09-06); MA-2 → specs/completed/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md (Complete, 2026-09-07); MA-3 → specs/completed/0017-recomendacao-de-modelo-com-janela-de-contexto-e-tipo-de-tarefa/spec.md (Complete, 2026-09-07); MA-4 → specs/completed/0018-briefing-de-delegacao-para-subagent-nativo/spec.md (Complete, 2026-09-07); MA-5 → specs/planned/0019-execucao-via-subprocesso-de-cli-externa/spec.md (Planned, Plan Gate: Passed, 2026-09-07); MA-6 pendente |
 
 ## Ideia original
 
