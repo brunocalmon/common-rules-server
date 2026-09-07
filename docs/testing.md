@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 196.
+- Arquivos de teste: 199.
 - Runner: Vitest.
 - Scripts: prepare: node scripts/install-git-hooks.mjs; prebuild: node scripts/check-version-checksum.mjs; build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -187,6 +187,9 @@
 | tests/specsfy-install-real.test.ts |
 | tests/surface.test.ts |
 | tests/task-types-config.test.ts |
+| tests/telemetry-record.test.ts |
+| tests/telemetry-report.test.ts |
+| tests/telemetry-store.test.ts |
 | tests/trace-doctor-relata.test.ts |
 | tests/trace-doctor-sem-registro.test.ts |
 | tests/trace-execucoes-distintas.test.ts |

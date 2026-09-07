@@ -454,3 +454,17 @@ Introduzida pela `SPEC-0019`, fatia MA-5 do épico (`BACKLOG-0009`).
 | Spawn | `spawnSync` com timeout de 120s, sem interpretar stdout/stderr | `src/delegation/cli-spawn.ts`, mesmo padrão de `scripts/pinned-skills.mjs` |
 | `AGENTS.md` real já existente | Recusa em vez de sobrescrever | Achado real: `specsfy setup` já grava `AGENTS.md` em todo projeto gerenciado — `agy`/`codex` são recusados por padrão em projetos assim, comportamento pretendido, não falha |
 | Verificação real | Todos os cinco backends spawnados nesta máquina; `goose` completou de ponta a ponta, os demais alcançaram o subprocesso real e relataram erro de conta/modelo do próprio backend | Prova de que `FR-007` (modelo desconhecido não bloqueia a preparação) se sustenta fora do teste unitário |
+
+## Telemetria multi-agente (`maestro report`)
+
+Introduzida pela `SPEC-0020`, fatia MA-6 do épico (`BACKLOG-0009`).
+
+| Item | Escolha | Evidência / motivo |
+| --- | --- | --- |
+| Escopo de dados | Só metadados estruturais — agente, backend, modelo, resultado, motivo/exitCode, instante, duração; nunca stdout/stderr | `src/telemetry/record.ts`, `PR-003`/`NFR-002` |
+| Persistência | Um arquivo por trace, `.maestro/telemetry/<trace>.json`, acumulando por agente | `src/telemetry/store.ts`, mesmo padrão de `.maestro/plans/<trace>.json` (`SPEC-0016`) |
+| Runtime coberto | Só `runtime: cli` — `native`/`auto` nunca gravam, porque só `cli` tem prova real de execução | `CliRuntimeContext.telemetry?` em `src/delegation/run.ts`, extensão aditiva sobre a `SPEC-0019`, sem reabrir seus gates |
+| Quatro desfechos gravados | `refused` com `stage: tools\|backend\|gate\|spawn`, ou `ran` com `exitCode` | `runCliAgent` grava em cada um dos pontos de retorno já existentes da `SPEC-0019` |
+| Leitura | `maestro report <trace>`, mesmo padrão de `maestro plan`/`maestro run`; trace sem registro é recusado nomeando a ausência | `src/telemetry/render.ts`, `formatTelemetryReport` em `src/cli.ts` |
+| Verificação real | `maestro plan` → `maestro run` → `maestro report` com um agente `cli` real sobre `goose` nesta máquina | Registro gravado bateu exatamente com o resultado real do spawn; nenhum stdout/stderr no arquivo |
+| Achado do desenho de teste | Os primeiros casos de AC-005/AC-007/AC-011 passavam mesmo sem a funcionalidade existir (asserção só de ausência) | Refinados para gravar com `cli` no mesmo teste antes de afirmar ausência para `native`/`auto` — sem isso não provavam RED de verdade |

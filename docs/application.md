@@ -21,7 +21,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/approval/tty-read.ts | SyncReader, atomicsSleep, realSyncReader, NEWLINE, RETRY_DELAY_MS, readTtyLine |
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
-| Outras fontes | src/cli.ts | CommandOutcome, HELP_FLAGS, USAGE_VERSION, USAGE_DOCTOR, USAGE_SETUP, USAGE_PLAN, USAGE_RUN, USAGE_RECOMMEND |
+| Outras fontes | src/cli.ts | CommandOutcome, HELP_FLAGS, USAGE_VERSION, USAGE_DOCTOR, USAGE_SETUP, USAGE_PLAN, USAGE_RUN, USAGE_REPORT |
 | Outras fontes | src/config/read.ts | readMaestroSection |
 | Outras fontes | src/config/schema.ts | LanguageException, LanguageSection, ProjectSection, SystemSection, GitGroup, GitSection, ConfiguredProperty, AgentIdentity |
 | Outras fontes | src/config/sync.ts | STACK_PATH, BLOCK, ROW, readMappedFields, syncProjectFromStack |
@@ -41,7 +41,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/delegation/cli-select.ts | selectBackend |
 | Outras fontes | src/delegation/cli-spawn.ts | SpawnOptions, spawnCliAgent |
 | Outras fontes | src/delegation/cli-tools.ts | checkToolsSupport |
-| Outras fontes | src/delegation/run.ts | CliRuntimeContext, renderNativeAgent, runCliAgent, runDelegation |
+| Outras fontes | src/delegation/run.ts | TelemetryHooks, CliRuntimeContext, renderNativeAgent, runCliAgent, runDelegation |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
 | Outras fontes | src/extensions/anchor.ts | anchorMarkers, insertAnchor, readAnchor, readAnchorRange, computeChecksum |
 | Outras fontes | src/extensions/create.ts | TargetFileEnvironment, ROUTER_FILES, resolveTargetPath, EXTENSIONS_DIR, realTargetFileEnvironment, listPresentExtensionNames, CreateOptions, CreateResult |
@@ -82,6 +82,9 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/specsfy/executor.ts | resolveSpecsfyBin, SpecsfyJson, realSpecsfyExecutor, describeSpecsfyCommand |
 | Outras fontes | src/specsfy/install.ts | buildSpecsfyInstallArgs, InstallOptions, InstallResult, installSpecsfy |
 | Outras fontes | src/telemetry/read.ts | readTrace |
+| Outras fontes | src/telemetry/record.ts | — |
+| Outras fontes | src/telemetry/render.ts | renderTelemetry |
+| Outras fontes | src/telemetry/store.ts | TELEMETRY_DIR, TelemetryRecord, recordPath, readTelemetryRecord, appendTelemetryEntry |
 | Outras fontes | src/telemetry/trace.ts | TRACE_ID_LENGTH, TraceSource, generateId, nowIso, realSource |
 | Outras fontes | src/version.ts | readVersion |
 | Testes | tests/agents-config-schema.test.ts | setup, readConfig, properties |
@@ -256,7 +259,4 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/skills-source-arbitraria.test.ts | — |
 | Testes | tests/skills-source-oficial.test.ts | — |
 | Testes | tests/skills-source-terceiro.test.ts | — |
-| Testes | tests/specsfy-install-alvo.test.ts | — |
-| Testes | tests/specsfy-install-falha.test.ts | — |
-| Testes | tests/specsfy-install-idempotente.test.ts | — |
 <!-- specsfy:documentator:end -->

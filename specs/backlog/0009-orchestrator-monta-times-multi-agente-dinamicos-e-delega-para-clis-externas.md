@@ -3,7 +3,7 @@
 | Metainformação | Valor |
 | --- | --- |
 | ID | BACKLOG-0009 |
-| Status | Ready for specification (épico — ver decomposição em fatias) |
+| Status | Promoted (épico — todas as seis fatias MA-1 a MA-6 entregues; ver decomposição) |
 | Produto | common-rules / maestro |
 | Épico | Orquestração multi-agente configurável (Phase 3, sucessora da Phase 2 já entregue) |
 | Funcionalidade | Perfis de subagent configuráveis, planejamento com aprovação humana, execução híbrida (nativa da IDE ou subprocesso CLI) |
@@ -11,7 +11,7 @@
 | Prioridade | Desbloqueada — Phase 1 e Phase 2 fechadas (`SPEC-0001` a `SPEC-0013`); sem prazo externo |
 | Milestones | |
 | Criado em | 2026-09-06 |
-| Spec promovida | MA-1 → specs/completed/0015-... (Complete, 2026-09-06); MA-2 → specs/completed/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md (Complete, 2026-09-07); MA-3 → specs/completed/0017-recomendacao-de-modelo-com-janela-de-contexto-e-tipo-de-tarefa/spec.md (Complete, 2026-09-07); MA-4 → specs/completed/0018-briefing-de-delegacao-para-subagent-nativo/spec.md (Complete, 2026-09-07); MA-5 → specs/completed/0019-execucao-via-subprocesso-de-cli-externa/spec.md (Complete, 2026-09-07); MA-6 pendente |
+| Spec promovida | MA-1 → specs/completed/0015-... (Complete, 2026-09-06); MA-2 → specs/completed/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md (Complete, 2026-09-07); MA-3 → specs/completed/0017-recomendacao-de-modelo-com-janela-de-contexto-e-tipo-de-tarefa/spec.md (Complete, 2026-09-07); MA-4 → specs/completed/0018-briefing-de-delegacao-para-subagent-nativo/spec.md (Complete, 2026-09-07); MA-5 → specs/completed/0019-execucao-via-subprocesso-de-cli-externa/spec.md (Complete, 2026-09-07); MA-6 → specs/completed/0020-telemetria-multi-agente/spec.md (Complete, 2026-09-07) |
 
 ## Ideia original
 

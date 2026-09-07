@@ -170,6 +170,17 @@ vez de replanejarem. O esqueleto propõe sempre um agente e anexa o que
 detectou: decompor a tarefa exige entendê-la, e isso é refinamento do agente
 que lê a saída, não cálculo do código.
 
+**Telemetria multi-agente.** Cada tentativa de spawn de um agente
+`runtime: cli` — recusada por tools, backend ausente, decisão negativa do
+gate, falha do próprio spawn, ou executada com sucesso — grava um registro
+estrutural em `.maestro/telemetry/<execução>.json`: agente, backend, modelo,
+resultado, motivo ou código de saída, instante e duração. Nunca o conteúdo
+de stdout/stderr, em nenhuma circunstância. `native`/`auto` nunca gravam —
+só `cli` tem prova real de execução. `maestro report <execução>` lê e
+apresenta os registros de um trace, recusando de forma nomeada quando não
+há nada gravado. Verificado com um spawn real de `goose` nesta máquina: o
+registro gravado bateu exatamente com o resultado do subprocesso.
+
 **Servidor MCP**, com a tool `setup` única, sobre entrada e saída padrão pelo
 binário `maestro-mcp`. Expõe a mesma lógica que o comando de terminal, e
 exige a raiz do projeto como parâmetro: o processo servidor não sabe em que
@@ -184,8 +195,6 @@ Esta lista importa tanto quanto a anterior. Nada abaixo está implementado:
   lê e aciona `runtime: native`/`auto` é o agente hospedeiro, fora do alcance
   de qualquer teste deste projeto. Só `runtime: cli` executa de verdade
   (`SPEC-0019`).
-- **Telemetria e correlação entre execuções multi-agente** — fatia MA-6 de
-  `BACKLOG-0009`, ainda não especificada.
 - **Paralelismo real entre spawns do mesmo plano.** `execution.concurrency`
   já existe no schema, mas orquestrar execução simultânea de vários agentes
   `cli` fica para além de `SPEC-0019`.

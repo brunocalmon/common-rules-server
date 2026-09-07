@@ -7,8 +7,15 @@ import { checkToolsSupport } from "./cli-tools.js";
 import { decideSpawn } from "./cli-gate.js";
 import { withTemporaryAgentsFile } from "./cli-behavior-file.js";
 import { spawnCliAgent, type SpawnOptions } from "./cli-spawn.js";
+import type { AgentTelemetryEntry } from "../telemetry/record.js";
 
 export type DelegationResult = { ok: true; text: string } | { ok: false; reason: string };
+
+/** Hooks de telemetria (`SPEC-0020`) — opcionais, aditivos, sem efeito no texto retornado. */
+export interface TelemetryHooks {
+  now(): string;
+  record(entry: AgentTelemetryEntry): void;
+}
 
 /**
  * O que `runtime: cli` precisa para de fato rodar — ambiente detectado,
@@ -22,6 +29,8 @@ export interface CliRuntimeContext {
   /** Pergunta a decisão de UM spawn específico; chamada uma vez por agente `cli` (`FR-005`). */
   ask(): boolean;
   spawn(command: string, args: readonly string[], options?: SpawnOptions): ReturnType<typeof spawnCliAgent>;
+  /** Grava um registro por tentativa de spawn (`SPEC-0020`). Ausente = nenhuma telemetria gravada. */
+  telemetry?: TelemetryHooks;
 }
 
 function renderNativeAgent(planned: PlannedAgent, brief: AgentBrief): string {
@@ -33,17 +42,24 @@ function runCliAgent(planned: PlannedAgent, brief: AgentBrief, profile: ReturnTy
   const header = `## ${planned.profile}`;
   if (profile === undefined) return `${header}\nrefused: profile not found`;
 
+  const startedAt = cli.telemetry?.now() ?? "";
+  const start = Date.now();
+  const finishRefused = (stage: "tools" | "backend" | "gate" | "spawn", reason: string, backend: string | null): string => {
+    cli.telemetry?.record({ agent: planned.profile, backend, model: planned.model, startedAt, durationMs: Date.now() - start, outcome: "refused", stage, reason });
+    return `${header}\nrefused: ${reason}`;
+  };
+
   const selected = selectBackend(profile, cli.detected);
-  if (!selected.ok) return `${header}\nrefused: ${selected.reason}`;
+  if (!selected.ok) return finishRefused("backend", selected.reason, null);
 
   const adapter = resolveAdapter(selected.backend);
-  if (adapter === undefined) return `${header}\nrefused: unknown backend "${selected.backend}"`;
+  if (adapter === undefined) return finishRefused("backend", `unknown backend "${selected.backend}"`, selected.backend);
 
   const toolsCheck = checkToolsSupport(profile.capability.tools.value, profile.capability.tools.mode, adapter);
-  if (!toolsCheck.ok) return `${header}\nrefused: ${toolsCheck.reason}`;
+  if (!toolsCheck.ok) return finishRefused("tools", toolsCheck.reason, adapter.name);
 
   const decision = decideSpawn(cli.ask);
-  if (!decision.approved) return `${header}\nrefused: ${decision.reason}`;
+  if (!decision.approved) return finishRefused("gate", decision.reason ?? "refused", adapter.name);
 
   const args = adapter.buildArgs(brief);
   const runSpawn = () => cli.spawn(adapter.name, args);
@@ -55,7 +71,17 @@ function runCliAgent(planned: PlannedAgent, brief: AgentBrief, profile: ReturnTy
         return wrapped.ok ? wrapped.result : { ok: false as const, reason: wrapped.reason };
       })();
 
-  if (!spawnResult.ok) return `${header}\nrefused: ${spawnResult.reason}`;
+  if (!spawnResult.ok) return finishRefused("spawn", spawnResult.reason, adapter.name);
+
+  cli.telemetry?.record({
+    agent: planned.profile,
+    backend: adapter.name,
+    model: planned.model,
+    startedAt,
+    durationMs: Date.now() - start,
+    outcome: "ran",
+    exitCode: spawnResult.exitCode,
+  });
   return `${header}\nbackend: ${adapter.name}\nexitCode: ${spawnResult.exitCode}\nstdout:\n${spawnResult.stdout}\nstderr:\n${spawnResult.stderr}`;
 }
 

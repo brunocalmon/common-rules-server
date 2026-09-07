@@ -19,6 +19,9 @@ import { resolveTaskType, type ResolvedTaskType } from "./models/task-type.js";
 import { realContextWindowReader } from "./models/context-window.js";
 import { runDelegation } from "./delegation/run.js";
 import { spawnCliAgent } from "./delegation/cli-spawn.js";
+import { appendTelemetryEntry, readTelemetryRecord } from "./telemetry/store.js";
+import { renderTelemetry } from "./telemetry/render.js";
+import type { AgentTelemetryEntry } from "./telemetry/record.js";
 import { readApprovedPlan } from "./plan/store.js";
 import { AGENT_RESOURCES_DIR } from "./agents/seed.js";
 import { existsSync } from "node:fs";
@@ -93,13 +96,25 @@ const USAGE_PLAN =
 
 const USAGE_RUN =
   "usage: maestro run <execution>\n\n" +
-  "Reads an approved plan and emits, per planned agent, the delegation brief:\n" +
-  "its composed behavior, skills, tools and model. The host agent reads this\n" +
-  "output and calls its own subagents — this command never does.\n\n" +
-  "An agent whose plan asks for runtime \"cli\" is refused, naming the slice\n" +
-  "that doesn't exist yet (MA-5). Nothing is written to disk.\n\n" +
+  "Reads an approved plan and, per planned agent: emits the delegation brief\n" +
+  "for runtime \"native\"/\"auto\" (behavior, skills, tools, model — the host\n" +
+  "agent calls its own subagents from this), or actually spawns a real CLI\n" +
+  "subprocess for runtime \"cli\", asking for a fresh approval before each\n" +
+  "spawn and reporting its stdout/stderr/exit code back as text, uninterpreted.\n\n" +
+  "Refusing one \"cli\" agent (tools, backend, or that spawn's decision) never\n" +
+  "blocks the rest of the plan. Each spawn attempt is recorded to\n" +
+  ".maestro/telemetry/<execution>.json — readable with `maestro report`.\n\n" +
   "  <execution>   the run identifier from an approved plan, i.e. the file\n" +
   "                name under .maestro/plans/ without the .json suffix.";
+
+const USAGE_REPORT =
+  "usage: maestro report <execution>\n\n" +
+  "Reads and presents the telemetry recorded for an execution's \"cli\" agents\n" +
+  "— backend, model, outcome (refused or ran), reason or exit code, and\n" +
+  "duration, one block per agent. Never stdout/stderr content.\n\n" +
+  "Refuses, naming the execution, when nothing was recorded for it — either\n" +
+  "the trace doesn't exist, or no runtime \"cli\" agent was ever processed.\n\n" +
+  "  <execution>   the same identifier used with `maestro run`.";
 
 const USAGE_RECOMMEND =
   "usage: maestro recommend [--backend <name>] [--local-model <name>]\n\n" +
@@ -128,6 +143,9 @@ const USAGE_TOP =
   "  doctor                Report every dependency this project's layers need.\n" +
   "  setup [--target ...]  Configure this project: hooks, skills, Specsfy.\n" +
   "  recommend [options]   Recommend an agent backend and local model.\n" +
+  "  plan --task \"...\"     Assemble an orchestration plan, pending approval.\n" +
+  "  run <execution>       Delegate an approved plan's agents.\n" +
+  "  report <execution>    Read the telemetry recorded for a run.\n" +
   "  extension <create|repair> ...   Manage one extension artifact.\n\n" +
   "Run `maestro <command> --help` for a command's full usage.";
 
@@ -385,6 +403,8 @@ function formatRun(args: readonly string[] = []): CommandOutcome {
         // Same decision channel as the plan gate (`SPEC-0016`), one call per spawn (`FR-005`).
         ask: () => realDecisionSource(process.stdin.isTTY ? "interactive" : "document").ask([], []),
         spawn: spawnCliAgent,
+        // Records every spawn attempt for `maestro report` (`SPEC-0020`).
+        telemetry: { now: () => new Date().toISOString(), record: (entry: AgentTelemetryEntry) => appendTelemetryEntry(root, traceId, entry) },
       }
     : undefined;
 
@@ -395,6 +415,30 @@ function formatRun(args: readonly string[] = []): CommandOutcome {
 
   if (!result.ok) return { output: `${USAGE_RUN}\n\nrefused: ${result.reason}`, exitCode: 2 };
   return { output: result.text, exitCode: 0 };
+}
+
+/**
+ * Reads and presents the telemetry recorded for an execution's `cli` agents.
+ *
+ * A trace with no telemetry file is refused nomeada — either the trace
+ * doesn't exist, or nothing `runtime: cli` was ever processed for it
+ * (`SPEC-0020`, `FR-004`).
+ */
+function formatTelemetryReport(args: readonly string[] = []): CommandOutcome {
+  if (hasHelp(args)) return { output: USAGE_REPORT, exitCode: 0 };
+
+  const positional = args.filter((arg) => !arg.startsWith("--"));
+  const traceId = positional[0];
+  if (traceId === undefined) {
+    return { output: `${USAGE_REPORT}\n\nrefused: the execution identifier is required.`, exitCode: 2 };
+  }
+
+  const root = process.cwd();
+  const record = readTelemetryRecord(root, traceId);
+  if (record === null) {
+    return { output: `${USAGE_REPORT}\n\nrefused: no telemetry recorded for "${traceId}".`, exitCode: 2 };
+  }
+  return { output: renderTelemetry(record), exitCode: 0 };
 }
 
 /** Reads `--flag value` from the command line; flags with no following value are ignored. */
@@ -476,6 +520,7 @@ export const COMMANDS: Record<string, (args: readonly string[]) => CommandOutcom
   recommend: formatRecommend,
   plan: formatPlan,
   run: formatRun,
+  report: formatTelemetryReport,
   extension: formatExtension,
 };
 
@@ -488,6 +533,7 @@ const ALIASES: Record<string, string> = {
   recommend: "recommend",
   plan: "plan",
   run: "run",
+  report: "report",
   extension: "extension",
 };
 
