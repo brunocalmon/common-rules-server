@@ -118,3 +118,16 @@ maestro:
       value: 1
       mode: suggested
   subagents: []
+  task_types:
+    ajuste_pontual:
+      context_window_min:
+        value: 8192
+        mode: suggested
+    trabalho_em_arquivos:
+      context_window_min:
+        value: 32768
+        mode: suggested
+    leitura_ampla:
+      context_window_min:
+        value: 131072
+        mode: suggested

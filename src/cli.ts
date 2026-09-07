@@ -15,6 +15,9 @@ import { realBridgeEnvironment } from "./setup/bridge.js";
 import { readVersion } from "./version.js";
 import { detectBackends, realBackendEnvironment } from "./backends/detect.js";
 import { readAgentConfig } from "./agents/read.js";
+import { resolveTaskType, type ResolvedTaskType } from "./models/task-type.js";
+import { realContextWindowReader } from "./models/context-window.js";
+import { readMaestroSection } from "./config/read.js";
 import { assemblePlan } from "./plan/assemble.js";
 import { renderPlan } from "./plan/render.js";
 import { decidePlan } from "./plan/run.js";
@@ -76,8 +79,11 @@ const USAGE_PLAN =
   "and carries the profiles and backends detected, for an agent to refine.\n\n" +
   "Approving writes the plan to .maestro/plans/<run>.json, which the execution\n" +
   "commands read instead of planning again. Refusing writes nothing.\n\n" +
-  "  --task   what the plan is for. Required — without it the command refuses\n" +
-  "           rather than guessing what to plan.";
+  "  --task        what the plan is for. Required — without it the command\n" +
+  "                refuses rather than guessing what to plan.\n" +
+  "  --task-type   a type declared in .maestro/config.yaml, whose context\n" +
+  "                window requirement filters the models considered. Omitted,\n" +
+  "                no requirement is applied.";
 
 const USAGE_RECOMMEND =
   "usage: maestro recommend [--backend <name>] [--local-model <name>]\n\n" +
@@ -214,20 +220,45 @@ function parseRecommendOverride(args: readonly string[]): RecommendOverride {
   return override;
 }
 
+/**
+ * Resolves a `--task-type` against the project's configuration.
+ *
+ * Returns `undefined` when none was given: absence must not turn into an
+ * invented requirement, and the recommendation stays exactly what it was
+ * before this flag existed (`DEC-006`).
+ */
+function parseTaskType(args: readonly string[], root: string): ResolvedTaskType | undefined {
+  const name = parseFlags(args)["task-type"];
+  if (name === undefined) return undefined;
+  return resolveTaskType(readMaestroSection(root).task_types ?? {}, name);
+}
+
 /** Resolves the three real sources and prints `recommendation.report` (FR-037). */
 function formatRecommend(args: readonly string[]): CommandOutcome {
   if (hasHelp(args)) return { output: USAGE_RECOMMEND, exitCode: 0 };
+
+  let requirement: ResolvedTaskType | undefined;
+  try {
+    requirement = parseTaskType(args, process.cwd());
+  } catch (error) {
+    return { output: `${USAGE_RECOMMEND}\n\nrefused: ${(error as Error).message}`, exitCode: 2 };
+  }
+
   const r = recommend(
     detectBackends(realBackendEnvironment()),
     listOllamaModels(),
     readCapacity(),
     parseRecommendOverride(args),
+    requirement,
+    // Only built when a type was given: without a requirement nothing is
+    // ever asked, so no subprocess is spawned (`AC-011`).
+    requirement === undefined ? undefined : realContextWindowReader(),
   );
   return { output: r.report, exitCode: r.backend === null ? 1 : 0 };
 }
 
 /** Flags `plan` recognizes; anything else is refused, not silently dropped. */
-const PLAN_FLAGS = new Set(["task"]);
+const PLAN_FLAGS = new Set(["task", "task-type"]);
 
 /**
  * Assembles a plan, presents it, and writes it only on an explicit yes.
@@ -255,7 +286,22 @@ function formatPlan(args: readonly string[] = []): CommandOutcome {
   const root = process.cwd();
   const trace = realTraceSource();
   const config = readAgentConfig(root);
-  const recommendation = recommend(detectBackends(realBackendEnvironment()), listOllamaModels(), readCapacity());
+
+  let requirement: ResolvedTaskType | undefined;
+  try {
+    requirement = parseTaskType(args, root);
+  } catch (error) {
+    return { output: `${USAGE_PLAN}\n\nrefused: ${(error as Error).message}`, exitCode: 2 };
+  }
+
+  const recommendation = recommend(
+    detectBackends(realBackendEnvironment()),
+    listOllamaModels(),
+    readCapacity(),
+    {},
+    requirement,
+    requirement === undefined ? undefined : realContextWindowReader(),
+  );
 
   const plan = assemblePlan({
     profiles: [config.maestro, ...config.subagents],

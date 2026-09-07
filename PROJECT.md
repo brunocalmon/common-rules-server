@@ -122,6 +122,15 @@ propriedade, e o `doctor` relata exatamente as mesmas divergências sem tocar
 em disco. É a fundação do épico de orquestração multi-agente: sozinha, ela
 configura e valida, mas ainda não executa nada.
 
+**Seleção de modelo por janela de contexto.** A recomendação passou a
+considerar, além da memória livre, se a janela de contexto do modelo comporta
+o tipo de trabalho. Os tipos e a janela mínima de cada um vivem em
+`.maestro/config.yaml` e são informados explicitamente — o código nunca deduz
+o tipo a partir do texto da tarefa. Janela insuficiente descarta o modelo
+antes da comparação por tamanho: não é uma escolha pior, é uma que falharia
+na execução. Sem tipo informado, nenhuma exigência é aplicada e o
+comportamento é o anterior.
+
 **Plano de orquestração com aprovação humana.** `maestro plan --task "..."`
 monta um plano a partir do que o ambiente oferece — perfis configurados,
 backends detectados, modelo recomendado — apresenta-o e só devolve um plano

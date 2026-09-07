@@ -5,8 +5,8 @@
 
 | Tipo | Quantidade |
 | --- | --- |
-| Código | 237 |
-| Testes | 179 |
+| Código | 246 |
+| Testes | 185 |
 
 ## Diagramas
 

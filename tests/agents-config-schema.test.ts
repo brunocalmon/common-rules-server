@@ -19,11 +19,24 @@ function readConfig(root: string): Record<string, any> {
   return parse(readFileSync(join(root, ".maestro", "config.yaml"), "utf8"));
 }
 
-/** Toda propriedade configurável de um perfil, exceto a lista aninhada de subagents. */
+/**
+ * Toda propriedade configurável da seção, incluindo as aninhadas.
+ *
+ * `subagents` é lista de perfis e `task_types` (SPEC-0017) é mapa de tipos:
+ * nenhum dos dois é propriedade, mas o que está dentro deles é — e a
+ * invariante do formato `{ value, mode }` precisa alcançar lá dentro, senão
+ * um grupo novo escaparia da regra só por ser aninhado.
+ */
 function properties(profile: Record<string, any>): [string, unknown][] {
   const out: [string, unknown][] = [];
   for (const [group, body] of Object.entries(profile)) {
     if (group === "subagents") continue;
+    if (group === "task_types") {
+      for (const [type, requirement] of Object.entries(body as Record<string, Record<string, unknown>>)) {
+        for (const [name, value] of Object.entries(requirement)) out.push([`task_types.${type}.${name}`, value]);
+      }
+      continue;
+    }
     for (const [name, value] of Object.entries(body as Record<string, unknown>)) {
       out.push([`${group}.${name}`, value]);
     }

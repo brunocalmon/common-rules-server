@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 179.
+- Arquivos de teste: 185.
 - Runner: Vitest.
 - Scripts: prepare: node scripts/install-git-hooks.mjs; prebuild: node scripts/check-version-checksum.mjs; build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -63,6 +63,7 @@
 | tests/config-schema.test.ts |
 | tests/config-sync.test.ts |
 | tests/config-write.test.ts |
+| tests/context-window.test.ts |
 | tests/cycle-command.test.ts |
 | tests/cycle-failure.test.ts |
 | tests/cycle-timings.test.ts |
@@ -124,6 +125,10 @@
 | tests/plan-assemble.test.ts |
 | tests/plan-command.test.ts |
 | tests/plan-store.test.ts |
+| tests/recommend-context-window.test.ts |
+| tests/recommend-fixtures.ts |
+| tests/recommend-relato.test.ts |
+| tests/recommend-sem-tipo.test.ts |
 | tests/rename-ci-workflow.test.ts |
 | tests/rename-commit-convention.test.ts |
 | tests/rename-completed-specs-untouched.test.ts |
@@ -170,6 +175,7 @@
 | tests/specsfy-install-idempotente.test.ts |
 | tests/specsfy-install-real.test.ts |
 | tests/surface.test.ts |
+| tests/task-types-config.test.ts |
 | tests/trace-doctor-relata.test.ts |
 | tests/trace-doctor-sem-registro.test.ts |
 | tests/trace-execucoes-distintas.test.ts |

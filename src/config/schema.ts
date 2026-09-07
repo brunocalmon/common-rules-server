@@ -103,9 +103,20 @@ export interface AgentProfile {
   execution: AgentExecution;
 }
 
-/** O maestro é um perfil como os outros, mais a lista de subagents que ele pode acionar. */
+/**
+ * Requisitos de um tipo de trabalho.
+ *
+ * `context_window_min` ausente significa tipo sem exigência de janela, o que
+ * é diferente de exigir zero (`SPEC-0017`, `FR-002`).
+ */
+export interface TaskTypeRequirement {
+  context_window_min?: ConfiguredProperty<number>;
+}
+
+/** O maestro é um perfil como os outros, mais a lista de subagents e os tipos de trabalho que reconhece. */
 export interface MaestroSection extends AgentProfile {
   subagents: AgentProfile[];
+  task_types: Record<string, TaskTypeRequirement>;
 }
 
 export interface ConfigDocument {
@@ -153,6 +164,7 @@ export const SCHEMA_KEYS: string[] = [
   "maestro.execution.runtime",
   "maestro.execution.concurrency",
   "maestro.subagents",
+  "maestro.task_types",
 ];
 
 export interface PlatformEnvironment {
@@ -218,6 +230,17 @@ function defaultMaestroProfile(): MaestroSection {
       concurrency: suggested(1),
     },
     subagents: [],
+    // Ponto de partida, não taxonomia definitiva: os nomes não significam
+    // nada para o código, que só compara o mínimo declarado contra a janela
+    // do modelo. Acrescentar um tipo é editar este arquivo, não o código
+    // (`DEC-002`). Os valores refletem janelas comuns hoje: 8k basta para um
+    // ajuste pontual, 32k para trabalho sobre alguns arquivos, e 128k para
+    // leitura ampla de repositório.
+    task_types: {
+      ajuste_pontual: { context_window_min: suggested(8_192) },
+      trabalho_em_arquivos: { context_window_min: suggested(32_768) },
+      leitura_ampla: { context_window_min: suggested(131_072) },
+    },
   };
 }
 

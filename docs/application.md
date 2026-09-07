@@ -22,6 +22,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
 | Outras fontes | src/cli.ts | CommandOutcome, HELP_FLAGS, USAGE_VERSION, USAGE_DOCTOR, USAGE_SETUP, USAGE_PLAN, USAGE_RECOMMEND, USAGE_EXTENSION_CREATE |
+| Outras fontes | src/config/read.ts | readMaestroSection |
 | Outras fontes | src/config/schema.ts | LanguageException, LanguageSection, ProjectSection, SystemSection, GitGroup, GitSection, ConfiguredProperty, AgentIdentity |
 | Outras fontes | src/config/sync.ts | STACK_PATH, BLOCK, ROW, readMappedFields, syncProjectFromStack |
 | Outras fontes | src/config/write.ts | CONFIG_PATH, ensureConfigFile, backfillConfigFile |
@@ -42,8 +43,10 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/mcp/server.ts | SERVER_NAME, createServer |
 | Outras fontes | src/mcp/tool.ts | TOOL_NAME, TOOL_DESCRIPTION, SetupToolResult, executeSetup |
 | Outras fontes | src/models/capacity.ts | Capacity, CapacityEnvironment, realCapacityEnvironment, readCapacity |
+| Outras fontes | src/models/context-window.ts | ContextWindowEnvironment, CONTEXT_LENGTH, parseContextLength, contextWindowReader, realContextWindowEnvironment, realContextWindowReader |
 | Outras fontes | src/models/ollama.ts | OllamaModel, OllamaSnapshot, OllamaEnvironment, UNITS, sizeToBytes, parseOllamaList, realOllamaEnvironment, listOllamaModels |
-| Outras fontes | src/models/recommend.ts | RecommendOverride, Recommendation, recommendBackend, recommendLocalModel, renderReport, recommend |
+| Outras fontes | src/models/recommend.ts | RecommendOverride, Recommendation, recommendBackend, WindowShortfall, LocalModelChoice, recommendLocalModel, largest, renderReport |
+| Outras fontes | src/models/task-type.ts | ResolvedTaskType, resolveTaskType |
 | Outras fontes | src/plan/assemble.ts | AssembleInput, has, assemblePlan |
 | Outras fontes | src/plan/model.ts | PlannedAgent, OrchestrationPlan, ApprovedPlan |
 | Outras fontes | src/plan/render.ts | renderPlan |
@@ -120,6 +123,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/config-schema.test.ts | FORBIDDEN_KEY_TERMS |
 | Testes | tests/config-sync.test.ts | mktemp, COMPLETE_YAML, writeConfig, writeStack |
 | Testes | tests/config-write.test.ts | mktemp |
+| Testes | tests/context-window.test.ts | REAL_OUTPUT |
 | Testes | tests/cycle-command.test.ts | ROOT |
 | Testes | tests/cycle-failure.test.ts | ROOT |
 | Testes | tests/cycle-timings.test.ts | ROOT |
@@ -181,6 +185,10 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/plan-assemble.test.ts | profile, FULL, EMPTY |
 | Testes | tests/plan-command.test.ts | — |
 | Testes | tests/plan-store.test.ts | project, PLAN |
+| Testes | tests/recommend-context-window.test.ts | — |
+| Testes | tests/recommend-fixtures.ts | GB, BIG_SMALL_WINDOW, SMALL_BIG_WINDOW, countingReader |
+| Testes | tests/recommend-relato.test.ts | — |
+| Testes | tests/recommend-sem-tipo.test.ts | — |
 | Testes | tests/rename-ci-workflow.test.ts | — |
 | Testes | tests/rename-commit-convention.test.ts | — |
 | Testes | tests/rename-completed-specs-untouched.test.ts | ROOT, walk, predatesRename, hashTree, EXPECTED_COMPLETED_SPECS_HASH |
@@ -227,6 +235,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/specsfy-install-idempotente.test.ts | — |
 | Testes | tests/specsfy-install-real.test.ts | gitRoot, of |
 | Testes | tests/surface.test.ts | FORBIDDEN |
+| Testes | tests/task-types-config.test.ts | setup |
 | Testes | tests/trace-doctor-relata.test.ts | report |
 | Testes | tests/trace-doctor-sem-registro.test.ts | — |
 | Testes | tests/trace-execucoes-distintas.test.ts | — |

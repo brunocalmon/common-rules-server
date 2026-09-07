@@ -412,3 +412,18 @@ Introduzido pela `SPEC-0016`, fatia MA-2 do épico (`BACKLOG-0009`).
 | Canal de decisão | Reusa o da `SPEC-0007` (TTY ou documento JSON por stdin) | `DEC-002`; a regra "exceção é recusa" foi extraída para `interpretDecision` em `src/approval/decide.ts`, usada pelos dois gates |
 | Artefato aprovado | `.maestro/plans/<trace-id>.json` | `DEC-004`; o identificador vem da `SPEC-0006`, então o plano conecta de volta à execução que o reportou |
 | Recusa | Nada gravado, saída diferente de zero | `NFR-002`; recusa, silêncio e documento malformado chegam como a mesma negativa |
+
+## Recomendação de modelo por janela de contexto e tipo de tarefa
+
+Introduzida pela `SPEC-0017`, fatia MA-3 do épico (`BACKLOG-0009`).
+
+| Item | Escolha | Evidência / motivo |
+| --- | --- | --- |
+| Origem da janela | `ollama show <modelo>`, subprocesso local | `src/models/context-window.ts`; mesma fronteira do `ollama list` já em uso — sem rede, sem autenticação |
+| Ausência de janela | `null`, nunca `0` | `0` compararia como "menor que qualquer exigência" e desqualificaria o modelo pelo motivo errado |
+| Falha na leitura | Ausência declarada, não exceção | Um modelo que sumiu entre o `list` e o `show` não pode derrubar a recomendação inteira |
+| Tipos de tarefa | `maestro.task_types` no `config.yaml`, semeados de fábrica | `DEC-002`; os nomes não significam nada para o código, que só compara o mínimo declarado |
+| Papel da janela | Filtro duro antes da comparação por tamanho | `DEC-003`; janela insuficiente é inviabilidade, não desvantagem |
+| Custo | Consulta só para quem passou no filtro de memória; nenhuma consulta sem tipo | `DEC-004`; um subprocesso por modelo candidato, proporcional a quem disputa |
+| Sem tipo | Nenhuma exigência aplicada, comportamento idêntico ao anterior | `DEC-006`; ausência de informação não vira requisito inventado |
+| Override | Escapa do filtro | `DEC-039` da `SPEC-0009`: escolha humana substitui o cálculo, não é auditada por ele |
