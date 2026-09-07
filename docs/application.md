@@ -21,12 +21,15 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/approval/tty-read.ts | SyncReader, atomicsSleep, realSyncReader, NEWLINE, RETRY_DELAY_MS, readTtyLine |
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
-| Outras fontes | src/cli.ts | CommandOutcome, HELP_FLAGS, USAGE_VERSION, USAGE_DOCTOR, USAGE_SETUP, USAGE_PLAN, USAGE_RECOMMEND, USAGE_EXTENSION_CREATE |
+| Outras fontes | src/cli.ts | CommandOutcome, HELP_FLAGS, USAGE_VERSION, USAGE_DOCTOR, USAGE_SETUP, USAGE_PLAN, USAGE_RUN, USAGE_RECOMMEND |
 | Outras fontes | src/config/read.ts | readMaestroSection |
 | Outras fontes | src/config/schema.ts | LanguageException, LanguageSection, ProjectSection, SystemSection, GitGroup, GitSection, ConfiguredProperty, AgentIdentity |
 | Outras fontes | src/config/sync.ts | STACK_PATH, BLOCK, ROW, readMappedFields, syncProjectFromStack |
 | Outras fontes | src/config/write.ts | CONFIG_PATH, ensureConfigFile, backfillConfigFile |
 | Outras fontes | src/config/yaml.ts | SECTION_COMMENTS, serialize, parse, resolveDefault, mergeMissingKeys |
+| Outras fontes | src/delegation/behavior.ts | BehaviorParts, composeBehavior |
+| Outras fontes | src/delegation/brief.ts | DelegationConfig, AgentBrief, findProfile, readOrNull, buildBriefs, renderBriefs |
+| Outras fontes | src/delegation/run.ts | runDelegation |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
 | Outras fontes | src/extensions/anchor.ts | anchorMarkers, insertAnchor, readAnchor, readAnchorRange, computeChecksum |
 | Outras fontes | src/extensions/create.ts | TargetFileEnvironment, ROUTER_FILES, resolveTargetPath, EXTENSIONS_DIR, realTargetFileEnvironment, listPresentExtensionNames, CreateOptions, CreateResult |
@@ -127,6 +130,10 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/cycle-command.test.ts | ROOT |
 | Testes | tests/cycle-failure.test.ts | ROOT |
 | Testes | tests/cycle-timings.test.ts | ROOT |
+| Testes | tests/delegation-behavior.test.ts | BASE, OWN, EXTRA |
+| Testes | tests/delegation-brief.test.ts | BASE |
+| Testes | tests/delegation-fixtures.ts | profile, plan |
+| Testes | tests/delegation-runtime.test.ts | project, BASE |
 | Testes | tests/doctor-camada-agent-texto.test.ts | — |
 | Testes | tests/doctor-cli-nomeia-extensao-divergente.test.ts | — |
 | Testes | tests/doctor-missing.test.ts | — |
@@ -194,6 +201,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/rename-completed-specs-untouched.test.ts | ROOT, walk, predatesRename, hashTree, EXPECTED_COMPLETED_SPECS_HASH |
 | Testes | tests/rename-package-identity.test.ts | — |
 | Testes | tests/rename-setup-directory.test.ts | project, LEGACY_RECORD |
+| Testes | tests/run-command.test.ts | — |
 | Testes | tests/scripts.test.ts | — |
 | Testes | tests/setup-bridge.test.ts | — |
 | Testes | tests/setup-delivers-bundled-skill.test.ts | — |
@@ -251,8 +259,4 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/trace-opacidade.test.ts | — |
 | Testes | tests/trace-padrao-producao.test.ts | withoutInjection |
 | Testes | tests/trace-registro-antigo.test.ts | withoutTrace |
-| Testes | tests/trace-relogio-deterministico.test.ts | instantOf |
-| Testes | tests/trace-sem-epoca.test.ts | entries |
-| Testes | tests/version.test.ts | ROOT |
-| Outras fontes | vitest.config.ts | — |
 <!-- specsfy:documentator:end -->

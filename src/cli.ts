@@ -17,6 +17,11 @@ import { detectBackends, realBackendEnvironment } from "./backends/detect.js";
 import { readAgentConfig } from "./agents/read.js";
 import { resolveTaskType, type ResolvedTaskType } from "./models/task-type.js";
 import { realContextWindowReader } from "./models/context-window.js";
+import { runDelegation } from "./delegation/run.js";
+import { readApprovedPlan } from "./plan/store.js";
+import { AGENT_RESOURCES_DIR } from "./agents/seed.js";
+import { existsSync } from "node:fs";
+import { join as pathJoin } from "node:path";
 import { readMaestroSection } from "./config/read.js";
 import { assemblePlan } from "./plan/assemble.js";
 import { renderPlan } from "./plan/render.js";
@@ -84,6 +89,16 @@ const USAGE_PLAN =
   "  --task-type   a type declared in .maestro/config.yaml, whose context\n" +
   "                window requirement filters the models considered. Omitted,\n" +
   "                no requirement is applied.";
+
+const USAGE_RUN =
+  "usage: maestro run <execution>\n\n" +
+  "Reads an approved plan and emits, per planned agent, the delegation brief:\n" +
+  "its composed behavior, skills, tools and model. The host agent reads this\n" +
+  "output and calls its own subagents — this command never does.\n\n" +
+  "An agent whose plan asks for runtime \"cli\" is refused, naming the slice\n" +
+  "that doesn't exist yet (MA-5). Nothing is written to disk.\n\n" +
+  "  <execution>   the run identifier from an approved plan, i.e. the file\n" +
+  "                name under .maestro/plans/ without the .json suffix.";
 
 const USAGE_RECOMMEND =
   "usage: maestro recommend [--backend <name>] [--local-model <name>]\n\n" +
@@ -323,6 +338,53 @@ function formatPlan(args: readonly string[] = []): CommandOutcome {
   return { output: `${rendered}\n\napproved: written to ${decision.writtenTo}`, exitCode: 0 };
 }
 
+/**
+ * Reads a base agent's factory behavior — the fallback `composeBehavior`
+ * uses when a profile declares neither `behavior` nor `additional_behavior`.
+ */
+function readBaseBehavior(agent = "maestro"): string {
+  const path = pathJoin(AGENT_RESOURCES_DIR, agent, "behavior.md");
+  return existsSync(path) ? readFileSync(path, "utf8") : "";
+}
+
+/**
+ * Emits the delegation brief for an approved plan, or refuses naming why.
+ *
+ * The command is the thin shell over `runDelegation`: this is where the
+ * plan and the profiles actually get read from disk, since the module
+ * beneath stays pure and testable without a filesystem.
+ */
+function formatRun(args: readonly string[] = []): CommandOutcome {
+  if (hasHelp(args)) return { output: USAGE_RUN, exitCode: 0 };
+
+  const positional = args.filter((arg) => !arg.startsWith("--"));
+  const traceId = positional[0];
+  if (traceId === undefined) {
+    return { output: `${USAGE_RUN}\n\nrefused: the execution identifier is required.`, exitCode: 2 };
+  }
+
+  const root = process.cwd();
+  const plan = readApprovedPlan(root, traceId);
+  if (plan === null) {
+    return { output: `${USAGE_RUN}\n\nrefused: no approved plan found for "${traceId}".`, exitCode: 2 };
+  }
+
+  let config;
+  try {
+    config = readAgentConfig(root);
+  } catch (error) {
+    return { output: `${USAGE_RUN}\n\nrefused: ${(error as Error).message}`, exitCode: 2 };
+  }
+
+  const result = runDelegation(plan, config, (path) => {
+    const full = pathJoin(root, path);
+    return existsSync(full) ? readFileSync(full, "utf8") : null;
+  }, readBaseBehavior());
+
+  if (!result.ok) return { output: `${USAGE_RUN}\n\nrefused: ${result.reason}`, exitCode: 2 };
+  return { output: result.text, exitCode: 0 };
+}
+
 /** Reads `--flag value` from the command line; flags with no following value are ignored. */
 function parseFlags(args: readonly string[]): Record<string, string> {
   const flags: Record<string, string> = {};
@@ -401,6 +463,7 @@ export const COMMANDS: Record<string, (args: readonly string[]) => CommandOutcom
   setup: formatSetup,
   recommend: formatRecommend,
   plan: formatPlan,
+  run: formatRun,
   extension: formatExtension,
 };
 
@@ -412,6 +475,7 @@ const ALIASES: Record<string, string> = {
   setup: "setup",
   recommend: "recommend",
   plan: "plan",
+  run: "run",
   extension: "extension",
 };
 

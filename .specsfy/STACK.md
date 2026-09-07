@@ -427,3 +427,14 @@ Introduzida pela `SPEC-0017`, fatia MA-3 do épico (`BACKLOG-0009`).
 | Custo | Consulta só para quem passou no filtro de memória; nenhuma consulta sem tipo | `DEC-004`; um subprocesso por modelo candidato, proporcional a quem disputa |
 | Sem tipo | Nenhuma exigência aplicada, comportamento idêntico ao anterior | `DEC-006`; ausência de informação não vira requisito inventado |
 | Override | Escapa do filtro | `DEC-039` da `SPEC-0009`: escolha humana substitui o cálculo, não é auditada por ele |
+
+## Briefing de delegação (`maestro run`)
+
+Introduzido pela `SPEC-0018`, fatia MA-4 do épico (`BACKLOG-0009`).
+
+| Item | Escolha | Evidência / motivo |
+| --- | --- | --- |
+| Fronteira | A CLI emite o briefing; o agente hospedeiro aciona os subagents | `DEC-001`; um processo de terminal não tem acesso à Agent tool da IDE |
+| Composição do comportamento | Resolvida pela CLI, texto final entregue | `DEC-002`; a regra substitui-versus-soma da `SPEC-0015` fica testável, não é convenção de prompt |
+| `runtime: cli` | Recusado nomeando a fatia ausente (MA-5) | `DEC-003`; emitir briefing para via não entregue sugeriria capacidade inexistente |
+| Estado | Nada é gravado | `DEC-004`; emitir briefing não é evidência de execução — telemetria real é MA-6 |

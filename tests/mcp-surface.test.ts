@@ -45,7 +45,7 @@ describe("AC-010 — no surface from the remaining fatias appears", () => {
     // this guards isn't the size of the CLI, it's that the MCP server keeps
     // exactly one tool while the CLI grows (checked above): every command
     // here must have no counterpart there.
-    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "extension", "plan", "recommend", "setup", "version"]);
+    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "extension", "plan", "recommend", "run", "setup", "version"]);
     const tools = (await (await connect()).listTools()).tools.map((tool) => tool.name);
     for (const command of Object.keys(COMMANDS)) {
       if (command !== "setup") expect(tools).not.toContain(command);

@@ -9,7 +9,7 @@ describe("AC-011 — this fatia doesn't deliver another one's capability", () =>
     // The list grows as later slices land — `plan` arrived with SPEC-0016.
     // What this still guards is the case below: no command from a slice that
     // hasn't been delivered yet shows up here by accident.
-    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "extension", "plan", "recommend", "setup", "version"]);
+    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "extension", "plan", "recommend", "run", "setup", "version"]);
   });
 
   // SPECSFY: US-001 FR-005 AC-011

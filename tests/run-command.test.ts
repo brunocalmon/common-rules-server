@@ -7,7 +7,7 @@ describe("AC-001 — o comando exige a execução", () => {
     const outcome = run(["run"]);
 
     expect(outcome.exitCode).not.toBe(0);
-    expect(outcome.output).toMatch(/execução|identificador/i);
+    expect(outcome.output).toMatch(/execution identifier|identificador da execução/i);
   });
 });
 

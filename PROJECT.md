@@ -131,6 +131,15 @@ antes da comparação por tamanho: não é uma escolha pior, é uma que falharia
 na execução. Sem tipo informado, nenhuma exigência é aplicada e o
 comportamento é o anterior.
 
+**Briefing de delegação.** `maestro run <execução>` lê um plano aprovado e
+emite, por agente planejado, o comportamento já composto (`behavior`
+substitui o padrão, `additional_behavior` soma a ele), skills, tools e
+modelo — pronto para o agente hospedeiro ler e delegar. A CLI não aciona
+subagent nenhum: não tem acesso ao mecanismo da ferramenta hospedeira, e diz
+isso em vez de fingir. Um agente que pede execução por subprocesso de CLI
+externa (`runtime: cli`) é recusado nomeando a fatia que ainda não existe.
+Nada é gravado — emitir briefing não é evidência de que algo rodou.
+
 **Plano de orquestração com aprovação humana.** `maestro plan --task "..."`
 monta um plano a partir do que o ambiente oferece — perfis configurados,
 backends detectados, modelo recomendado — apresenta-o e só devolve um plano
@@ -151,13 +160,12 @@ projeto está, e adivinhar escreveria na árvore errada relatando sucesso.
 
 Esta lista importa tanto quanto a anterior. Nada abaixo está implementado:
 
-- **Execução dos planos aprovados.** O plano é montado, aprovado e gravado,
-  mas nada o executa: nenhum subagent nativo é acionado, nenhum subprocesso
-  de CLI externa é aberto. `recommend` já alimenta o plano, mas ainda sem
-  janela de contexto nem tipo de tarefa como critério. São as fatias MA-3
-  (recomendação estendida), MA-4 (execução nativa), MA-5 (execução por CLI
-  externa) e MA-6 (telemetria multi-agente) de `BACKLOG-0009`, ainda não
-  especificadas.
+- **Execução real de um plano.** O briefing sai pronto para delegar, mas
+  ninguém prova que um subagent de fato rodou — quem lê e aciona é o agente
+  hospedeiro, fora do alcance de qualquer teste deste projeto. Execução por
+  subprocesso de CLI externa (`runtime: cli`) é recusada nomeando a fatia
+  ausente. São as fatias MA-5 (execução por CLI externa) e MA-6 (telemetria
+  multi-agente) de `BACKLOG-0009`, ainda não especificadas.
 - **Custo e uso de plano** na seleção de modelo — deliberadamente fora de
   escopo, não apenas ainda não construído (ver "Seleção de modelo" acima).
 - **Hidratação sob demanda de uma extensão de hook.** Uma extensão local

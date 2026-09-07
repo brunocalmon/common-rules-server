@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 185.
+- Arquivos de teste: 190.
 - Runner: Vitest.
 - Scripts: prepare: node scripts/install-git-hooks.mjs; prebuild: node scripts/check-version-checksum.mjs; build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -67,6 +67,10 @@
 | tests/cycle-command.test.ts |
 | tests/cycle-failure.test.ts |
 | tests/cycle-timings.test.ts |
+| tests/delegation-behavior.test.ts |
+| tests/delegation-brief.test.ts |
+| tests/delegation-fixtures.ts |
+| tests/delegation-runtime.test.ts |
 | tests/doctor-camada-agent-texto.test.ts |
 | tests/doctor-cli-nomeia-extensao-divergente.test.ts |
 | tests/doctor-missing.test.ts |
@@ -134,6 +138,7 @@
 | tests/rename-completed-specs-untouched.test.ts |
 | tests/rename-package-identity.test.ts |
 | tests/rename-setup-directory.test.ts |
+| tests/run-command.test.ts |
 | tests/scripts.test.ts |
 | tests/setup-bridge.test.ts |
 | tests/setup-delivers-bundled-skill.test.ts |
