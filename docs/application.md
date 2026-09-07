@@ -14,14 +14,14 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/agents/read.ts | PATH_PROPERTIES, AgentEnvironment, realAgentEnvironment, AgentConfig, collectProblems, readAgentConfig |
 | Outras fontes | src/agents/seed.ts | PACKAGE_ROOT, AGENT_RESOURCES_DIR, seedAgentDefaults |
 | Outras fontes | src/approval/context.ts | TerminalContext, realTerminalContext, resolveChannel |
-| Outras fontes | src/approval/decide.ts | DecisionSource, StdinReader, documentSource, interactiveSource, realSource, ApprovalResult, interpret |
+| Outras fontes | src/approval/decide.ts | DecisionSource, StdinReader, documentSource, interactiveSource, realSource, ApprovalResult, interpretDecision, interpret |
 | Outras fontes | src/approval/plan.ts | DependencyCommandItem, CommandCandidate, assembleDependencyCommands, partitionByApproval, recordApproval |
 | Outras fontes | src/approval/registry.ts | ApprovedCommand, ApprovalRegistry, RegistryEnvironment, REGISTRY_PATH, realRegistryEnvironment, readApprovalRegistry, writeApprovalRegistry, isApproved |
 | Outras fontes | src/approval/render.ts | PlannedItem, RenderedPlan, renderPlan |
 | Outras fontes | src/approval/tty-read.ts | SyncReader, atomicsSleep, realSyncReader, NEWLINE, RETRY_DELAY_MS, readTtyLine |
 | Outras fontes | src/backends/detect.ts | BackendEnvironment, BackendResult, realBackendEnvironment, detectBackends |
 | Outras fontes | src/backends/known.ts | SUPPORTED_AGENT_BACKENDS, KNOWN_AGENT_BACKENDS |
-| Outras fontes | src/cli.ts | CommandOutcome, HELP_FLAGS, USAGE_VERSION, USAGE_DOCTOR, USAGE_SETUP, USAGE_RECOMMEND, USAGE_EXTENSION_CREATE, USAGE_EXTENSION_REPAIR |
+| Outras fontes | src/cli.ts | CommandOutcome, HELP_FLAGS, USAGE_VERSION, USAGE_DOCTOR, USAGE_SETUP, USAGE_PLAN, USAGE_RECOMMEND, USAGE_EXTENSION_CREATE |
 | Outras fontes | src/config/schema.ts | LanguageException, LanguageSection, ProjectSection, SystemSection, GitGroup, GitSection, ConfiguredProperty, AgentIdentity |
 | Outras fontes | src/config/sync.ts | STACK_PATH, BLOCK, ROW, readMappedFields, syncProjectFromStack |
 | Outras fontes | src/config/write.ts | CONFIG_PATH, ensureConfigFile, backfillConfigFile |
@@ -44,6 +44,11 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/models/capacity.ts | Capacity, CapacityEnvironment, realCapacityEnvironment, readCapacity |
 | Outras fontes | src/models/ollama.ts | OllamaModel, OllamaSnapshot, OllamaEnvironment, UNITS, sizeToBytes, parseOllamaList, realOllamaEnvironment, listOllamaModels |
 | Outras fontes | src/models/recommend.ts | RecommendOverride, Recommendation, recommendBackend, recommendLocalModel, renderReport, recommend |
+| Outras fontes | src/plan/assemble.ts | AssembleInput, has, assemblePlan |
+| Outras fontes | src/plan/model.ts | PlannedAgent, OrchestrationPlan, ApprovedPlan |
+| Outras fontes | src/plan/render.ts | renderPlan |
+| Outras fontes | src/plan/run.ts | PlanDecisionSource, PlanDecision, decidePlan |
+| Outras fontes | src/plan/store.ts | PLANS_DIR, planPath, writeApprovedPlan, readApprovedPlan |
 | Outras fontes | src/setup/bridge.ts | PYTHON_SUBSYSTEM, PINNED_VERSION, VENV_DIR, BridgeEnvironment, BridgeResult, bridgePythonSubsystem, realBridgeEnvironment |
 | Outras fontes | src/setup/dependency-resolution.ts | CONTEXT_MODE, only, buildDependencyResolution, codeReviewGraphWillBeLocal |
 | Outras fontes | src/setup/env.ts | detectEnvironment |
@@ -172,6 +177,10 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/models-recommend.test.ts | — |
 | Testes | tests/models-sem-credencial.test.ts | CREDENTIAL_VARIABLES |
 | Testes | tests/pinning.test.ts | PINNED |
+| Testes | tests/plan-approval.test.ts | project, PLAN, plansIn |
+| Testes | tests/plan-assemble.test.ts | profile, FULL, EMPTY |
+| Testes | tests/plan-command.test.ts | — |
+| Testes | tests/plan-store.test.ts | project, PLAN |
 | Testes | tests/rename-ci-workflow.test.ts | — |
 | Testes | tests/rename-commit-convention.test.ts | — |
 | Testes | tests/rename-completed-specs-untouched.test.ts | ROOT, walk, predatesRename, hashTree, EXPECTED_COMPLETED_SPECS_HASH |

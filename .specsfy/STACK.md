@@ -398,3 +398,17 @@ Introduzido pela `SPEC-0015`, fatia MA-1 do épico de orquestração multi-agent
 | Leitura | `src/agents/read.ts`, recusa em voz alta nomeando perfil, propriedade e motivo | `FR-003`; nunca devolve perfil parcialmente válido |
 | Diagnóstico | `src/agents/diagnose.ts`, só-leitura, composto no `doctor` | `PR-003`; compartilha `collectProblems` com o leitor para relatar exatamente o que a execução recusaria |
 | Camadas de configuração | Apenas por projeto; sem `~/.maestro/` | `DEC-006`: consistente com nunca escrever fora da raiz do projeto |
+
+## Plano de orquestração e aprovação humana (`maestro plan`)
+
+Introduzido pela `SPEC-0016`, fatia MA-2 do épico (`BACKLOG-0009`).
+
+| Item | Escolha | Evidência / motivo |
+| --- | --- | --- |
+| Comando | `maestro plan --task "<descrição>"`, só no CLI | `src/cli.ts`; o servidor MCP mantém a tool `setup` única, decisão da `SPEC-0004` não reaberta |
+| Divisão de trabalho | O código monta o esqueleto determinístico; o agente refina | `DEC-001`: o código apura perfis, backends e memória livre sem adivinhar, e não julga decomposição de tarefa |
+| Tamanho do time no esqueleto | Sempre um agente, com candidatos anexados | `DEC-006`; decompor exigiria entender a tarefa |
+| Ausência de modelo | `model: null`, nunca string vazia | `FR-002`: ausência tem que ser legível como ausência |
+| Canal de decisão | Reusa o da `SPEC-0007` (TTY ou documento JSON por stdin) | `DEC-002`; a regra "exceção é recusa" foi extraída para `interpretDecision` em `src/approval/decide.ts`, usada pelos dois gates |
+| Artefato aprovado | `.maestro/plans/<trace-id>.json` | `DEC-004`; o identificador vem da `SPEC-0006`, então o plano conecta de volta à execução que o reportou |
+| Recusa | Nada gravado, saída diferente de zero | `NFR-002`; recusa, silêncio e documento malformado chegam como a mesma negativa |

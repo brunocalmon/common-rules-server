@@ -14,6 +14,12 @@ import { realSpecsfyExecutor } from "./specsfy/executor.js";
 import { realBridgeEnvironment } from "./setup/bridge.js";
 import { readVersion } from "./version.js";
 import { detectBackends, realBackendEnvironment } from "./backends/detect.js";
+import { readAgentConfig } from "./agents/read.js";
+import { assemblePlan } from "./plan/assemble.js";
+import { renderPlan } from "./plan/render.js";
+import { decidePlan } from "./plan/run.js";
+import { realSource as realTraceSource } from "./telemetry/trace.js";
+import { realSource as realDecisionSource } from "./approval/decide.js";
 import { listOllamaModels } from "./models/ollama.js";
 import { readCapacity } from "./models/capacity.js";
 import { recommend, type RecommendOverride } from "./models/recommend.js";
@@ -63,6 +69,16 @@ const USAGE_SETUP =
   "nothing when none is found — that's a normal exit, not a failure.\n\n" +
   "Prompts for approval on a real terminal; reads a JSON document\n" +
   '({"approved": true}) from standard input otherwise.';
+const USAGE_PLAN =
+  "usage: maestro plan --task \"<description>\"\n\n" +
+  "Assembles an orchestration plan for the task and asks for approval before\n" +
+  "anything is delegated. The plan names the agent, the model and the runtime,\n" +
+  "and carries the profiles and backends detected, for an agent to refine.\n\n" +
+  "Approving writes the plan to .maestro/plans/<run>.json, which the execution\n" +
+  "commands read instead of planning again. Refusing writes nothing.\n\n" +
+  "  --task   what the plan is for. Required — without it the command refuses\n" +
+  "           rather than guessing what to plan.";
+
 const USAGE_RECOMMEND =
   "usage: maestro recommend [--backend <name>] [--local-model <name>]\n\n" +
   "Recommends which agent backend and local model to use, based on what's\n" +
@@ -210,6 +226,57 @@ function formatRecommend(args: readonly string[]): CommandOutcome {
   return { output: r.report, exitCode: r.backend === null ? 1 : 0 };
 }
 
+/** Flags `plan` recognizes; anything else is refused, not silently dropped. */
+const PLAN_FLAGS = new Set(["task"]);
+
+/**
+ * Assembles a plan, presents it, and writes it only on an explicit yes.
+ *
+ * The decision channel is the one `SPEC-0007` already built: interactive
+ * when a terminal is there, a JSON document on stdin when it isn't, and a
+ * refusal in every other case (`DEC-002`).
+ */
+function formatPlan(args: readonly string[] = []): CommandOutcome {
+  if (hasHelp(args)) return { output: USAGE_PLAN, exitCode: 0 };
+
+  const flags = parseFlags(args);
+  const unknown = Object.keys(flags).filter((flag) => !PLAN_FLAGS.has(flag));
+  const bare = args.filter((arg) => arg.startsWith("--")).map((arg) => arg.slice(2)).filter((flag) => !PLAN_FLAGS.has(flag));
+  const rejected = [...new Set([...unknown, ...bare])];
+  if (rejected.length > 0) {
+    return { output: `${USAGE_PLAN}\n\nunrecognized: --${rejected.join(", --")}`, exitCode: 2 };
+  }
+
+  const task = flags.task ?? "";
+  if (task.trim() === "") {
+    return { output: `${USAGE_PLAN}\n\nrefused: --task is required, and no plan is assembled without it.`, exitCode: 2 };
+  }
+
+  const root = process.cwd();
+  const trace = realTraceSource();
+  const config = readAgentConfig(root);
+  const recommendation = recommend(detectBackends(realBackendEnvironment()), listOllamaModels(), readCapacity());
+
+  const plan = assemblePlan({
+    profiles: [config.maestro, ...config.subagents],
+    backends: detectBackends(realBackendEnvironment()).filter((b) => b.present).map((b) => b.name),
+    recommendation,
+    task,
+    trace: trace.id(),
+    createdAt: trace.now(),
+  });
+
+  const rendered = renderPlan(plan);
+  const decision = decidePlan(root, plan, {
+    ask: () => realDecisionSource(process.stdin.isTTY ? "interactive" : "document").ask([], []),
+  });
+
+  if (!decision.approved) {
+    return { output: `${rendered}\n\nrefused: ${decision.reason ?? "no approval"}. Nothing was written.`, exitCode: 1 };
+  }
+  return { output: `${rendered}\n\napproved: written to ${decision.writtenTo}`, exitCode: 0 };
+}
+
 /** Reads `--flag value` from the command line; flags with no following value are ignored. */
 function parseFlags(args: readonly string[]): Record<string, string> {
   const flags: Record<string, string> = {};
@@ -287,6 +354,7 @@ export const COMMANDS: Record<string, (args: readonly string[]) => CommandOutcom
   doctor: formatReport,
   setup: formatSetup,
   recommend: formatRecommend,
+  plan: formatPlan,
   extension: formatExtension,
 };
 
@@ -297,6 +365,7 @@ const ALIASES: Record<string, string> = {
   doctor: "doctor",
   setup: "setup",
   recommend: "recommend",
+  plan: "plan",
   extension: "extension",
 };
 

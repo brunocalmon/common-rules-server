@@ -122,6 +122,17 @@ propriedade, e o `doctor` relata exatamente as mesmas divergências sem tocar
 em disco. É a fundação do épico de orquestração multi-agente: sozinha, ela
 configura e valida, mas ainda não executa nada.
 
+**Plano de orquestração com aprovação humana.** `maestro plan --task "..."`
+monta um plano a partir do que o ambiente oferece — perfis configurados,
+backends detectados, modelo recomendado — apresenta-o e só devolve um plano
+aprovado depois de decisão explícita. Recusa, silêncio e documento malformado
+são a mesma negativa, e nenhuma delas grava nada. Aprovado, o plano vira
+`.maestro/plans/<execução>.json`, identificado pela mesma execução que o
+relatório cita, para as fatias de execução consumirem o que foi aprovado em
+vez de replanejarem. O esqueleto propõe sempre um agente e anexa o que
+detectou: decompor a tarefa exige entendê-la, e isso é refinamento do agente
+que lê a saída, não cálculo do código.
+
 **Servidor MCP**, com a tool `setup` única, sobre entrada e saída padrão pelo
 binário `maestro-mcp`. Expõe a mesma lógica que o comando de terminal, e
 exige a raiz do projeto como parâmetro: o processo servidor não sabe em que
@@ -131,12 +142,12 @@ projeto está, e adivinhar escreveria na árvore errada relatando sucesso.
 
 Esta lista importa tanto quanto a anterior. Nada abaixo está implementado:
 
-- **Orquestração, subagentes e delegação.** Nenhum motor de Orchestrator
-  existe ainda — `recommend` calcula uma recomendação isolada, sem consumi-la
-  em nenhum fluxo automático, e os perfis de agente descritos acima são lidos
-  e validados, mas nada os executa. Planejamento com aprovação humana,
-  execução por subagent nativo ou por subprocesso de CLI externa e telemetria
-  multi-agente são as fatias MA-2 a MA-6 de `BACKLOG-0009`, ainda não
+- **Execução dos planos aprovados.** O plano é montado, aprovado e gravado,
+  mas nada o executa: nenhum subagent nativo é acionado, nenhum subprocesso
+  de CLI externa é aberto. `recommend` já alimenta o plano, mas ainda sem
+  janela de contexto nem tipo de tarefa como critério. São as fatias MA-3
+  (recomendação estendida), MA-4 (execução nativa), MA-5 (execução por CLI
+  externa) e MA-6 (telemetria multi-agente) de `BACKLOG-0009`, ainda não
   especificadas.
 - **Custo e uso de plano** na seleção de modelo — deliberadamente fora de
   escopo, não apenas ainda não construído (ver "Seleção de modelo" acima).

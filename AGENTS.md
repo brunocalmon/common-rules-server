@@ -41,12 +41,6 @@ arquivo contém o fluxo, os caminhos canônicos e os gates do framework.
 - Não crie `plan.md`, `tasks.md`, `research.md` ou outra fonte normativa
   paralela.
 <!-- specsfy:framework:end -->
-<!-- common-rules:extension:agents-pointer:start -->
-Para o roteador do `common-rules`, leia a seção `common-rules` em `CLAUDE.md`.
-<!-- common-rules:extension:agents-pointer:end -->
-<!-- common-rules:extension:config-language-pointer:start -->
-For the `common-rules` language rule, read the `common-rules: language` section in `CLAUDE.md`.
-<!-- common-rules:extension:config-language-pointer:end -->
 <!-- maestro:extension:agents-pointer:start -->
 For the `maestro` router, read the `maestro` section in `CLAUDE.md`.
 <!-- maestro:extension:agents-pointer:end -->

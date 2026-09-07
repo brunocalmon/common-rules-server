@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0016 |
 | Slug | 0016-plano-de-orquestracao-e-aprovacao-humana |
-| Status | Planned |
+| Status | Complete |
 | Effort | 6 |
 | Effort rationale | Comando novo com quatro peças (montagem do esqueleto, renderização, gate de aprovação, persistência), integrando três mecanismos já entregues (`recommend` da SPEC-0009, canal de decisão da SPEC-0007, trace da SPEC-0006) e um recém-entregue (perfis da SPEC-0015). Sem execução de agente, sem rede, sem concorrência — o que segura o esforço é a superfície, não a profundidade. Faixa `standard` alta, mesma da MA-1. |
 | Effort updated at | 2026-09-07 |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | Pending |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — comando de terminal e um artefato JSON; a apresentação do plano é texto em stdout, sem tela. |
 | Atualizada em | 2026-09-07 |
@@ -517,39 +517,39 @@ tests/
 
 | IDs | BDD de referência | Teste TDD informado pelo BDD | RED observado | GREEN observado | Refactor/regressão |
 | --- | --- | --- | --- | --- | --- |
-| US-001, FR-001, NFR-002, AC-001 | AC-001 na seção 6 | tests/plan-command.test.ts (T001) | `unrecognized command "plan"` — o comando não existe na tabela | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-001, NFR-001, AC-002 | AC-002 na seção 6 | tests/plan-command.test.ts (T002) | saída 2 em vez de 0; `plan --help` não é reconhecido | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-001, NFR-002, AC-013 | AC-013 na seção 6 | tests/plan-command.test.ts (T013) | `unrecognized command "plan"` — flag nem chega a ser avaliada | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-002, NFR-001, AC-003 | AC-003 na seção 6 | tests/plan-assemble.test.ts (T003) | `Cannot find module '../src/plan/assemble'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-002, NFR-001, AC-004 | AC-004 na seção 6 | tests/plan-assemble.test.ts (T004) | `Cannot find module '../src/plan/assemble'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-002, NFR-001, AC-005 | AC-005 na seção 6 | tests/plan-assemble.test.ts (T005) | `Cannot find module '../src/plan/assemble'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-003, NFR-001, AC-006 | AC-006 na seção 6 | tests/plan-approval.test.ts (T006) | `Cannot find module '../src/plan/render'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-003, FR-004, AC-007 | AC-007 na seção 6 | tests/plan-approval.test.ts (T007) | `Cannot find module '../src/plan/run'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-003, FR-004, NFR-002, AC-008 | AC-008 na seção 6 | tests/plan-approval.test.ts (T008) | `Cannot find module '../src/plan/run'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-003, NFR-002, AC-009 | AC-009 na seção 6 | tests/plan-approval.test.ts (T009) | `Cannot find module '../src/plan/run'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-004, NFR-001, AC-010 | AC-010 na seção 6 | tests/plan-store.test.ts (T010) | `Cannot find module '../src/plan/store'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-004, NFR-001, AC-011 | AC-011 na seção 6 | tests/plan-store.test.ts (T011) | `Cannot find module '../src/plan/store'` | Pending (aguarda a fase 2) | Pending |
-| US-001, FR-004, NFR-001, AC-012 | AC-012 na seção 6 | tests/plan-store.test.ts (T012) | `Cannot find module '../src/plan/store'` | Pending (aguarda a fase 2) | Pending |
+| US-001, FR-001, NFR-002, AC-001 | AC-001 na seção 6 | tests/plan-command.test.ts (T001) | `unrecognized command "plan"` — o comando não existe na tabela | GREEN | 462/462 na suíte completa |
+| US-001, FR-001, NFR-001, AC-002 | AC-002 na seção 6 | tests/plan-command.test.ts (T002) | saída 2 em vez de 0; `plan --help` não é reconhecido | GREEN | 462/462 na suíte completa |
+| US-001, FR-001, NFR-002, AC-013 | AC-013 na seção 6 | tests/plan-command.test.ts (T013) | `unrecognized command "plan"` — flag nem chega a ser avaliada | GREEN | 462/462 na suíte completa |
+| US-001, FR-002, NFR-001, AC-003 | AC-003 na seção 6 | tests/plan-assemble.test.ts (T003) | `Cannot find module '../src/plan/assemble'` | GREEN | 462/462 na suíte completa |
+| US-001, FR-002, NFR-001, AC-004 | AC-004 na seção 6 | tests/plan-assemble.test.ts (T004) | `Cannot find module '../src/plan/assemble'` | GREEN | 462/462 na suíte completa |
+| US-001, FR-002, NFR-001, AC-005 | AC-005 na seção 6 | tests/plan-assemble.test.ts (T005) | `Cannot find module '../src/plan/assemble'` | GREEN | 462/462 na suíte completa |
+| US-001, FR-003, NFR-001, AC-006 | AC-006 na seção 6 | tests/plan-approval.test.ts (T006) | `Cannot find module '../src/plan/render'` | GREEN | 462/462 na suíte completa |
+| US-001, FR-003, FR-004, AC-007 | AC-007 na seção 6 | tests/plan-approval.test.ts (T007) | `Cannot find module '../src/plan/run'` | GREEN | 462/462 na suíte completa |
+| US-001, FR-003, FR-004, NFR-002, AC-008 | AC-008 na seção 6 | tests/plan-approval.test.ts (T008) | `Cannot find module '../src/plan/run'` | GREEN | 462/462 na suíte completa |
+| US-001, FR-003, NFR-002, AC-009 | AC-009 na seção 6 | tests/plan-approval.test.ts (T009) | `Cannot find module '../src/plan/run'` | GREEN | 462/462 na suíte completa |
+| US-001, FR-004, NFR-001, AC-010 | AC-010 na seção 6 | tests/plan-store.test.ts (T010) | `Cannot find module '../src/plan/store'` | GREEN | 462/462 na suíte completa |
+| US-001, FR-004, NFR-001, AC-011 | AC-011 na seção 6 | tests/plan-store.test.ts (T011) | `Cannot find module '../src/plan/store'` | GREEN | 462/462 na suíte completa |
+| US-001, FR-004, NFR-001, AC-012 | AC-012 na seção 6 | tests/plan-store.test.ts (T012) | `Cannot find module '../src/plan/store'` | GREEN | 462/462 na suíte completa |
 
 ### 12. Plano de testes e rastreabilidade
 
 | Requisito | Cenário BDD | Nível | Arquivo/comando esperado | Evidência |
 | --- | --- | --- | --- | --- |
-| FR-001 | AC-001 | Integração (CLI) | `tests/plan-command.test.ts` | Pending |
-| FR-001 | AC-002 | Integração (CLI) | `tests/plan-command.test.ts` | Pending |
-| FR-001 | AC-013 | Integração (CLI) | `tests/plan-command.test.ts` | Pending |
-| FR-002 | AC-003 | Unidade (pura) | `tests/plan-assemble.test.ts` | Pending |
-| FR-002 | AC-004 | Unidade (pura) | `tests/plan-assemble.test.ts` | Pending |
-| FR-002 | AC-005 | Unidade (pura) | `tests/plan-assemble.test.ts` | Pending |
-| FR-003 | AC-006 | Unidade | `tests/plan-approval.test.ts` | Pending |
-| FR-003 | AC-007 | Integração (decisão injetada) | `tests/plan-approval.test.ts` | Pending |
-| FR-003 | AC-008 | Integração (decisão injetada) | `tests/plan-approval.test.ts` | Pending |
-| FR-003 | AC-009 | Integração (decisão injetada) | `tests/plan-approval.test.ts` | Pending |
-| FR-004 | AC-010 | Unidade (root isolado) | `tests/plan-store.test.ts` | Pending |
-| FR-004 | AC-011 | Unidade (root isolado) | `tests/plan-store.test.ts` | Pending |
-| FR-004 | AC-012 | Unidade (root isolado) | `tests/plan-store.test.ts` | Pending |
-| NFR-001 | AC-003, AC-006, AC-011, AC-012 | Unidade + integração | ver linhas acima | Pending |
-| NFR-002 | AC-001, AC-008, AC-009, AC-013 | Integração | ver linhas acima | Pending |
+| FR-001 | AC-001 | Integração (CLI) | `tests/plan-command.test.ts` | Passed |
+| FR-001 | AC-002 | Integração (CLI) | `tests/plan-command.test.ts` | Passed |
+| FR-001 | AC-013 | Integração (CLI) | `tests/plan-command.test.ts` | Passed |
+| FR-002 | AC-003 | Unidade (pura) | `tests/plan-assemble.test.ts` | Passed |
+| FR-002 | AC-004 | Unidade (pura) | `tests/plan-assemble.test.ts` | Passed |
+| FR-002 | AC-005 | Unidade (pura) | `tests/plan-assemble.test.ts` | Passed |
+| FR-003 | AC-006 | Unidade | `tests/plan-approval.test.ts` | Passed |
+| FR-003 | AC-007 | Integração (decisão injetada) | `tests/plan-approval.test.ts` | Passed |
+| FR-003 | AC-008 | Integração (decisão injetada) | `tests/plan-approval.test.ts` | Passed |
+| FR-003 | AC-009 | Integração (decisão injetada) | `tests/plan-approval.test.ts` | Passed |
+| FR-004 | AC-010 | Unidade (root isolado) | `tests/plan-store.test.ts` | Passed |
+| FR-004 | AC-011 | Unidade (root isolado) | `tests/plan-store.test.ts` | Passed |
+| FR-004 | AC-012 | Unidade (root isolado) | `tests/plan-store.test.ts` | Passed |
+| NFR-001 | AC-003, AC-006, AC-011, AC-012 | Unidade + integração | ver linhas acima | Passed |
+| NFR-002 | AC-001, AC-008, AC-009, AC-013 | Integração | ver linhas acima | Passed |
 
 ### 13. Validações
 
@@ -567,9 +567,17 @@ tests/
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Pending
-- **Comando**: `node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/draft/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md .`
-- **Achados**: Pending.
+- **Resultado**: READY (2026-09-07) — 19/19 tarefas, 114/114 itens de checklist
+- **Comando**: `node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/in-progress/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md .` — `Rastreabilidade: 20/20 IDs cobertos em 179 arquivos de teste`.
+- **Achados**: Nenhum bloqueio. **462/462 testes** em 171 arquivos, `tsc` limpo, `build_documentation.mjs --check` limpo. Verificado com o binário instalado, não só pela suíte: `maestro plan --help` imprime o uso; sem `--task` recusa com saída 2; flag desconhecida é recusada nomeando-a; recusa imprime o plano e não grava nada; aprovação grava `.maestro/plans/<trace>.json` com agente, modelo, runtime e candidatos idênticos aos apresentados.
+- Uma refatoração de código já entregue aconteceu aqui, e é o cumprimento da `DEC-002` em vez de um desvio dela: `interpret()` da `SPEC-0007` era tipado ao conteúdo daquela fatia, então "reusar o canal" ainda deixaria a regra de recusa duplicada. A regra virou `interpretDecision(ask)` e os dois gates passam por ela.
+- Duas regressões apareceram, ambas de testes de specs anteriores que fixavam a lista exata de comandos do CLI (`SPEC-0003`, `SPEC-0004`). Nenhuma era defeito — a lista cresce a cada fatia. Atualizadas preservando a intenção de cada guard; a de `mcp-surface` passou a afirmar o que realmente protege (o servidor MCP mantém uma tool só enquanto o CLI cresce) em vez de depender de uma lista que envelhece a cada entrega.
+
+#### Aceite final (`$specsfy-04-validate`)
+
+- **Resultado**: READY (2026-09-07)
+- **Comando**: `node .claude/skills/specsfy-04-validate/scripts/validate_spec.mjs specs/review/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md` — `RESULTADO: READY`.
+- **Achados**: Nenhum `BLOCKER`. Três gates `Passed` com evidência verificável e Definition of Done comprovada. A garantia central do épico — nada delegado sem aprovação humana explícita — deixou de ser convenção de prompt e virou comportamento verificado: recusa, silêncio e documento malformado chegam ao mesmo ponto do código e nenhum deles grava. Diferente da `SPEC-0014`, nenhum `AC` dependeu de inspeção externa, e diferente da `SPEC-0015`, nenhum defeito escapou para a verificação com o binário real. `Status: Complete`.
 
 ### 14. Tarefas
 
@@ -698,61 +706,61 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 **Objetivo**: `maestro plan --task "..."` monta, apresenta, decide e grava.
 **Teste independente**: `npx vitest run tests/plan-assemble.test.ts tests/plan-render.test.ts tests/plan-store.test.ts tests/plan-approval.test.ts tests/plan-command.test.ts` — todos verdes.
 
-- [ ] T014 [CODE] [US-001] Declarar os tipos do plano em src/plan/model.ts e a montagem pura em src/plan/assemble.ts — Refs: US-001, FR-002, NFR-001, AC-003, AC-004, AC-005 — Depends: T003, T004, T005
-  - [ ] **PREP**: Confirmar RED de T003/T004/T005 e os tipos devolvidos por `readAgentConfig` e `recommend`.
-  - [ ] **EXECUTE**: `PlannedAgent`, `OrchestrationPlan` e `ApprovedPlan` em `model.ts`; `assemblePlan` puro em `assemble.ts`, sempre um agente, `model` nulo quando ausente, candidatos anexados. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/plan-assemble.test.ts` verde; `npx tsc --noEmit` limpo.
-  - [ ] **VISUAL**: Não aplicável — tipos e função pura, sem superfície visual.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T014 [CODE] [US-001] Declarar os tipos do plano em src/plan/model.ts e a montagem pura em src/plan/assemble.ts — Refs: US-001, FR-002, NFR-001, AC-003, AC-004, AC-005 — Depends: T003, T004, T005
+  - [x] **PREP**: Confirmar RED de T003/T004/T005 e os tipos devolvidos por `readAgentConfig` e `recommend`.
+  - [x] **EXECUTE**: `PlannedAgent`, `OrchestrationPlan` e `ApprovedPlan` em `model.ts`; `assemblePlan` puro em `assemble.ts`, sempre um agente, `model` nulo quando ausente, candidatos anexados. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/plan-assemble.test.ts` — AC-003, AC-004 e AC-005 **GREEN**; `npx tsc --noEmit` limpo.
+  - [x] **VISUAL**: Não aplicável — tipos e função pura, sem superfície visual.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
+  - [x] **IMPROVE**: Melhoria aplicada: o modelo configurado no perfil tem precedência sobre a recomendação — a pessoa escreveu, o cálculo apenas sugeriu. Vazio cai para o detectado e, na ausência, para `null`.
   <!-- specsfy:evidence {"task":"T014","refs":["US-001","FR-002","NFR-001","AC-003","AC-004","AC-005"],"files":["src/plan/model.ts","src/plan/assemble.ts"],"commands":[{"run":"npx vitest run tests/plan-assemble.test.ts","exit":0}]} -->
 
-- [ ] T015 [CODE] [US-001] Implementar a persistência do plano aprovado em src/plan/store.ts — Refs: US-001, FR-004, NFR-001, AC-010, AC-011, AC-012 — Depends: T010, T011, T012
-  - [ ] **PREP**: Confirmar RED de T010/T011/T012 e o padrão de escrita local dos outros estados em `.maestro/`.
-  - [ ] **EXECUTE**: `PLANS_DIR`, `writeApprovedPlan(root, plan)` criando o diretório quando ausente, e `readApprovedPlan(root, traceId)`. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/plan-store.test.ts` verde.
-  - [ ] **VISUAL**: Não aplicável — persistência em disco, sem tela.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T015 [CODE] [US-001] Implementar a persistência do plano aprovado em src/plan/store.ts — Refs: US-001, FR-004, NFR-001, AC-010, AC-011, AC-012 — Depends: T010, T011, T012
+  - [x] **PREP**: Confirmar RED de T010/T011/T012 e o padrão de escrita local dos outros estados em `.maestro/`.
+  - [x] **EXECUTE**: `PLANS_DIR`, `writeApprovedPlan(root, plan)` criando o diretório quando ausente, e `readApprovedPlan(root, traceId)`. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/plan-store.test.ts` — AC-010, AC-011 e AC-012 **GREEN**.
+  - [x] **VISUAL**: Não aplicável — persistência em disco, sem tela.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
+  - [x] **IMPROVE**: Melhoria aplicada: `readApprovedPlan` devolve `null` para artefato ilegível em vez de lançar — um arquivo corrompido prova que nada foi aprovado, que é a leitura segura para quem for executar.
   <!-- specsfy:evidence {"task":"T015","refs":["US-001","FR-004","NFR-001","AC-010","AC-011","AC-012"],"files":["src/plan/store.ts"],"commands":[{"run":"npx vitest run tests/plan-store.test.ts","exit":0}]} -->
 
-- [ ] T016 [CODE] [US-001] Implementar a renderização em src/plan/render.ts e o gate em src/plan/run.ts, reusando o canal da SPEC-0007 — Refs: US-001, FR-003, FR-004, NFR-001, NFR-002, AC-006, AC-007, AC-008, AC-009 — Depends: T006, T007, T008, T009
-  - [ ] **PREP**: Confirmar RED de T006/T007/T008/T009 e as assinaturas de `realSource`/`interpret` em `src/approval/decide.ts`.
-  - [ ] **EXECUTE**: `renderPlan` derivando o texto do mesmo objeto que será gravado; `runPlan` lendo perfis, detectando backends, recomendando, montando, renderizando, decidindo pelo canal existente e gravando só na aprovação. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/plan-approval.test.ts` verde; suíte de aprovação sem regressão.
-  - [ ] **VISUAL**: Não aplicável — texto em stdout, sem tela.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T016 [CODE] [US-001] Implementar a renderização em src/plan/render.ts e o gate em src/plan/run.ts, reusando o canal da SPEC-0007 — Refs: US-001, FR-003, FR-004, NFR-001, NFR-002, AC-006, AC-007, AC-008, AC-009 — Depends: T006, T007, T008, T009
+  - [x] **PREP**: Confirmar RED de T006/T007/T008/T009 e as assinaturas de `realSource`/`interpret` em `src/approval/decide.ts`.
+  - [x] **EXECUTE**: `renderPlan` derivando o texto do mesmo objeto que será gravado; `runPlan` lendo perfis, detectando backends, recomendando, montando, renderizando, decidindo pelo canal existente e gravando só na aprovação. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/plan-approval.test.ts` — AC-006, AC-007, AC-008 e AC-009 **GREEN**.
+  - [x] **VISUAL**: Não aplicável — texto em stdout, sem tela.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
+  - [x] **IMPROVE**: **Refatoração feita para honrar a DEC-002 de verdade**: `interpret()` da `SPEC-0007` era tipado ao conteúdo dela (hooks e comandos), então reusar "o canal" ainda deixaria a regra "exceção é recusa" duplicada. A regra foi extraída para `interpretDecision(ask)` em `src/approval/decide.ts`, e os dois gates passam por ela — o `interpret` original agora delega. Duplicar esse try/catch é exatamente onde um consentimento silencioso apareceria.
   <!-- specsfy:evidence {"task":"T016","refs":["US-001","FR-003","FR-004","NFR-001","NFR-002","AC-006","AC-007","AC-008","AC-009"],"files":["src/plan/render.ts","src/plan/run.ts"],"commands":[{"run":"npx vitest run tests/plan-approval.test.ts","exit":0}]} -->
 
-- [ ] T017 [CODE] [US-001] Ligar o comando plan em src/cli.ts, com USAGE_PLAN, parsing de --task e recusa de flag desconhecida — Refs: US-001, FR-001, NFR-001, NFR-002, AC-001, AC-002, AC-013 — Depends: T001, T002, T013
-  - [ ] **PREP**: Confirmar RED de T001/T002/T013 e o padrão de `SETUP_FLAGS`/`hasHelp`.
-  - [ ] **EXECUTE**: `USAGE_PLAN`, entrada `plan` na tabela de comandos, parsing de `--task` com recusa quando ausente e recusa nomeada para flag desconhecida. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/plan-command.test.ts` verde; `maestro plan --help` verificado com o binário construído, não só em fixture.
-  - [ ] **VISUAL**: Não aplicável — comando de terminal, sem tela.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T017 [CODE] [US-001] Ligar o comando plan em src/cli.ts, com USAGE_PLAN, parsing de --task e recusa de flag desconhecida — Refs: US-001, FR-001, NFR-001, NFR-002, AC-001, AC-002, AC-013 — Depends: T001, T002, T013
+  - [x] **PREP**: Confirmar RED de T001/T002/T013 e o padrão de `SETUP_FLAGS`/`hasHelp`.
+  - [x] **EXECUTE**: `USAGE_PLAN`, entrada `plan` na tabela de comandos, parsing de `--task` com recusa quando ausente e recusa nomeada para flag desconhecida. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/plan-command.test.ts` — AC-001, AC-002 e AC-013 **GREEN**. Verificado com o binário real: `maestro plan --help` imprime o uso; sem `--task` recusa com saída 2; `--modo-turbo` é recusada nomeando a flag.
+  - [x] **VISUAL**: Não aplicável — comando de terminal, sem tela.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13.
+  - [x] **IMPROVE**: Melhoria aplicada: a recusa de flag desconhecida também cobre flag sem valor (`--modo-turbo` sozinha), que `parseFlags` descartaria em silêncio — o mesmo buraco que a `SPEC-0007` já tinha encontrado com `--help`.
   <!-- specsfy:evidence {"task":"T017","refs":["US-001","FR-001","NFR-001","NFR-002","AC-001","AC-002","AC-013"],"files":["src/cli.ts"],"commands":[{"run":"npx vitest run tests/plan-command.test.ts","exit":0}]} -->
 
 **Checkpoint**: `maestro plan --task "..."` apresenta o plano; aprovar deixa `.maestro/plans/<trace>.json` legível; recusar não deixa nada.
 
 #### Fase final — Documentação e qualidade
 
-- [ ] T018 [DOC] [US-001] Registrar o comando e o artefato de plano em .specsfy/STACK.md e revisar PROJECT.md — Refs: US-001, FR-001, FR-004, AC-002, AC-010 — Depends: T014, T015, T016, T017
-  - [ ] **PREP**: Confirmar T014–T017 GREEN e o conteúdo atual de `.specsfy/STACK.md` e `PROJECT.md`.
-  - [ ] **EXECUTE**: Seção nova em `.specsfy/STACK.md` para o comando `plan` e o artefato `.maestro/plans/`; em `PROJECT.md`, registrar a capacidade e corrigir "O que ainda não existe", que hoje diz que nada consome os perfis.
-  - [ ] **VERIFY**: `monitor_context.mjs --check` sem pendência real; `build_documentation.mjs --check` limpo.
-  - [ ] **VISUAL**: Não aplicável — documentação em Markdown, sem tela.
-  - [ ] **EVIDENCE**: Registrar comandos e resultado nas seções 11–13.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T018 [DOC] [US-001] Registrar o comando e o artefato de plano em .specsfy/STACK.md e revisar PROJECT.md — Refs: US-001, FR-001, FR-004, AC-002, AC-010 — Depends: T014, T015, T016, T017
+  - [x] **PREP**: Confirmar T014–T017 GREEN e o conteúdo atual de `.specsfy/STACK.md` e `PROJECT.md`.
+  - [x] **EXECUTE**: Seção nova em `.specsfy/STACK.md` para o comando `plan` e o artefato `.maestro/plans/`; em `PROJECT.md`, registrar a capacidade e corrigir "O que ainda não existe", que hoje diz que nada consome os perfis.
+  - [x] **VERIFY**: `build_documentation.mjs --project . --check` limpo. `.specsfy/STACK.md` ganhou a seção do comando `plan` e do artefato; `PROJECT.md` registrou a capacidade e corrigiu "O que ainda não existe", que dizia que nada consumia os perfis — agora nomeia exatamente o que falta (execução, MA-3 a MA-6).
+  - [x] **VISUAL**: Não aplicável — documentação em Markdown, sem tela.
+  - [x] **EVIDENCE**: Registrar comandos e resultado nas seções 11–13.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T019 [TEST] Regressão completa e verificação com o binário real sobre tests/plan-*.test.ts e a suíte inteira — Refs: US-001, FR-001, FR-002, FR-003, FR-004, NFR-001, NFR-002, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013 — Depends: T014, T015, T016, T017, T018
-  - [ ] **PREP**: Identificar suites, checks e gates aplicáveis.
-  - [ ] **EXECUTE**: `npx vitest run`, `npx tsc --noEmit`, `check_traceability.mjs`, `verify_acceptance.mjs`, e o comando real (`maestro plan`) contra este projeto.
-  - [ ] **VERIFY**: Suíte verde, `tsc` limpo, rastreabilidade cobrindo os IDs da spec, `QA: PASSED`, e o comando real apresentando plano e respeitando recusa.
-  - [ ] **VISUAL**: Não aplicável — repasse final sem superfície visual própria.
-  - [ ] **EVIDENCE**: Registrar contagens e comandos finais nas seções 11–13.
-  - [ ] **IMPROVE**: Registrar retrospectiva do processo.
+- [x] T019 [TEST] Regressão completa e verificação com o binário real sobre tests/plan-*.test.ts e a suíte inteira — Refs: US-001, FR-001, FR-002, FR-003, FR-004, NFR-001, NFR-002, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013 — Depends: T014, T015, T016, T017, T018
+  - [x] **PREP**: Identificar suites, checks e gates aplicáveis.
+  - [x] **EXECUTE**: `npx vitest run`, `npx tsc --noEmit`, `check_traceability.mjs`, `verify_acceptance.mjs`, e o comando real (`maestro plan`) contra este projeto.
+  - [x] **VERIFY**: **462/462 testes** em 171 arquivos, `tsc` limpo, `Rastreabilidade: 20/20 IDs cobertos`. Com o binário real: recusa (`{"approved": false}`) imprimiu o plano e `refused: refused. Nothing was written.`, deixando `.maestro/plans/` vazio; aprovação gravou `.maestro/plans/cf534daaa4024145e29eb01e64f12ab7.json` com agente, modelo, runtime e candidatos exatamente como apresentados.
+  - [x] **VISUAL**: Não aplicável — repasse final sem superfície visual própria.
+  - [x] **EVIDENCE**: Registrar contagens e comandos finais nas seções 11–13.
+  - [x] **IMPROVE**: Retrospectiva: duas regressões apareceram, ambas da mesma família — testes de specs anteriores (`SPEC-0003` e `SPEC-0004`) que fixavam a lista exata de comandos do CLI. Nenhuma era defeito: a lista cresce a cada fatia. Atualizei mantendo a intenção de cada guard, e no caso do `mcp-surface` reforcei o teste para afirmar o que ele realmente protege (o MCP segue com uma tool só enquanto o CLI cresce), em vez de depender de uma lista que envelhece. Diferente da `SPEC-0015`, nenhum defeito escapou para a verificação com o binário real — o gate ser injetável desde a `SPEC-0007` deixou tudo exercitável na suíte.
 
 ### 15. Ordem de execução
 
@@ -794,11 +802,11 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
-- [ ] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
-- [ ] Os cenários `AC-001` a `AC-013` passam.
-- [ ] `FR-001` a `FR-004` e `NFR-001`/`NFR-002` têm evidência de verificação nas seções 11–12.
-- [ ] Todas as tarefas da seção 14 estão concluídas.
-- [ ] `.specsfy/STACK.md` registra o comando novo e o artefato de plano.
-- [ ] `PROJECT.md` revisado quanto à capacidade nova e à correção de "O que ainda não existe".
+- [x] `Definition Gate` está `Passed`.
+- [x] `Plan Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
+- [x] Os cenários `AC-001` a `AC-013` passam.
+- [x] `FR-001` a `FR-004` e `NFR-001`/`NFR-002` têm evidência de verificação nas seções 11–12.
+- [x] Todas as tarefas da seção 14 estão concluídas — 19/19, 114/114 itens.
+- [x] `.specsfy/STACK.md` registra o comando novo e o artefato de plano.
+- [x] `PROJECT.md` revisado quanto à capacidade nova e à correção de "O que ainda não existe".

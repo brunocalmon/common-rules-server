@@ -41,7 +41,15 @@ describe("AC-010 — no surface from the remaining fatias appears", () => {
   // SPECSFY: US-001 NFR-002 AC-010
   it("the terminal command's surface doesn't gain its own MCP tool", async () => {
     const { COMMANDS } = await import("../src/cli");
-    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "extension", "recommend", "setup", "version"]);
+    // The list grows as slices land — `plan` arrived with SPEC-0016. What
+    // this guards isn't the size of the CLI, it's that the MCP server keeps
+    // exactly one tool while the CLI grows (checked above): every command
+    // here must have no counterpart there.
+    expect(Object.keys(COMMANDS).sort()).toEqual(["doctor", "extension", "plan", "recommend", "setup", "version"]);
+    const tools = (await (await connect()).listTools()).tools.map((tool) => tool.name);
+    for (const command of Object.keys(COMMANDS)) {
+      if (command !== "setup") expect(tools).not.toContain(command);
+    }
   });
 });
 

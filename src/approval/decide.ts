@@ -85,15 +85,23 @@ export interface ApprovalResult {
 }
 
 /**
- * Interprets a source's result, treating an exception as a refusal.
+ * The refusal rule itself, independent of what is being approved.
  *
  * No answer means refusal, never consent: a source that throws can't, by
- * an implementation accident, unlock the write.
+ * an implementation accident, unlock the write. Extracted so a second gate
+ * (the orchestration plan, `SPEC-0016`) reuses the rule instead of
+ * reimplementing it — duplicating this try/catch is exactly where a silent
+ * consent would eventually appear.
  */
-export function interpret(source: DecisionSource, hooks: PlannedItem[], commands: DependencyCommandItem[]): ApprovalResult {
+export function interpretDecision(ask: () => boolean): ApprovalResult {
   try {
-    return source.ask(hooks, commands) ? { approved: true } : { approved: false, reason: "refused" };
+    return ask() ? { approved: true } : { approved: false, reason: "refused" };
   } catch {
     return { approved: false, reason: "the decision source failed" };
   }
+}
+
+/** Interprets a setup decision, over hooks and dependency commands (`SPEC-0007`). */
+export function interpret(source: DecisionSource, hooks: PlannedItem[], commands: DependencyCommandItem[]): ApprovalResult {
+  return interpretDecision(() => source.ask(hooks, commands));
 }
