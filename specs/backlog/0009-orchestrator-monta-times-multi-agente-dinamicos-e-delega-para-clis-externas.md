@@ -11,7 +11,7 @@
 | Prioridade | Desbloqueada — Phase 1 e Phase 2 fechadas (`SPEC-0001` a `SPEC-0013`); sem prazo externo |
 | Milestones | |
 | Criado em | 2026-09-06 |
-| Spec promovida | MA-1 → specs/completed/0015-schema-e-leitura-de-perfis-de-subagent-maestro-config-yaml/spec.md (Complete, 2026-09-06); MA-2 a MA-6 pendentes |
+| Spec promovida | MA-1 → specs/completed/0015-... (Complete, 2026-09-06); MA-2 → specs/planned/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md (Planned, 2026-09-07); MA-3 a MA-6 pendentes |
 
 ## Ideia original
 
@@ -197,7 +197,7 @@ executar):
    propriedade), incluindo o próprio maestro como um perfil configurável.
    Fundação: nada mais funciona sem isso existir como conceito lido e
    validado.
-2. **Fatia MA-2 — Planejamento de orquestração e aprovação humana**: o
+2. **Fatia MA-2 — Planejamento de orquestração e aprovação humana** — *promovida em `SPEC-0016`, `Planned` em 2026-09-07*: o
    maestro monta o plano (singleton ou múltiplo, perfil ou ad-hoc, modelo
    recomendado), apresenta alternativas com trade-offs, e obtém aprovação
    explícita antes de prosseguir. Depende de MA-1 para saber quais perfis
