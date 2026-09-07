@@ -28,8 +28,20 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Outras fontes | src/config/write.ts | CONFIG_PATH, ensureConfigFile, backfillConfigFile |
 | Outras fontes | src/config/yaml.ts | SECTION_COMMENTS, serialize, parse, resolveDefault, mergeMissingKeys |
 | Outras fontes | src/delegation/behavior.ts | BehaviorParts, composeBehavior |
-| Outras fontes | src/delegation/brief.ts | DelegationConfig, AgentBrief, findProfile, readOrNull, buildBriefs, renderBriefs |
-| Outras fontes | src/delegation/run.ts | runDelegation |
+| Outras fontes | src/delegation/brief.ts | DelegationConfig, AgentBrief, findProfile, readOrNull, resolveBehavior, buildBriefs, renderBriefs |
+| Outras fontes | src/delegation/cli-backends/adapter.ts | CliBackendAdapter |
+| Outras fontes | src/delegation/cli-backends/agy.ts | — |
+| Outras fontes | src/delegation/cli-backends/claude.ts | — |
+| Outras fontes | src/delegation/cli-backends/codex.ts | — |
+| Outras fontes | src/delegation/cli-backends/goose.ts | — |
+| Outras fontes | src/delegation/cli-backends/pi.ts | — |
+| Outras fontes | src/delegation/cli-backends/registry.ts | ADAPTERS, resolveAdapter |
+| Outras fontes | src/delegation/cli-behavior-file.ts | withTemporaryAgentsFile |
+| Outras fontes | src/delegation/cli-gate.ts | decideSpawn |
+| Outras fontes | src/delegation/cli-select.ts | selectBackend |
+| Outras fontes | src/delegation/cli-spawn.ts | SpawnOptions, spawnCliAgent |
+| Outras fontes | src/delegation/cli-tools.ts | checkToolsSupport |
+| Outras fontes | src/delegation/run.ts | CliRuntimeContext, renderNativeAgent, runCliAgent, runDelegation |
 | Outras fontes | src/doctor.ts | DependencyResult, Report, Environment, NPM_SUBSYSTEMS, PYTHON_SUBSYSTEM, NPM_HINT, PYTHON_HINT, pick |
 | Outras fontes | src/extensions/anchor.ts | anchorMarkers, insertAnchor, readAnchor, readAnchorRange, computeChecksum |
 | Outras fontes | src/extensions/create.ts | TargetFileEnvironment, ROUTER_FILES, resolveTargetPath, EXTENSIONS_DIR, realTargetFileEnvironment, listPresentExtensionNames, CreateOptions, CreateResult |
@@ -117,9 +129,15 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/budget.test.ts | BUDGET_SECONDS |
 | Testes | tests/build.test.ts | ROOT |
 | Testes | tests/cli-approval-real.test.ts | projectWithTarget |
+| Testes | tests/cli-backends-adapter.test.ts | — |
+| Testes | tests/cli-behavior-file.test.ts | project |
 | Testes | tests/cli-help.test.ts | — |
+| Testes | tests/cli-run-gate.test.ts | — |
+| Testes | tests/cli-run-tools.test.ts | — |
+| Testes | tests/cli-select.test.ts | — |
 | Testes | tests/cli-setup-drift-real.test.ts | projectWithTarget, run |
 | Testes | tests/cli-setup-real.test.ts | — |
+| Testes | tests/cli-spawn.test.ts | — |
 | Testes | tests/cli-symlink.test.ts | viaLink |
 | Testes | tests/config-backfill.test.ts | mktemp, writeExisting, COMPLETE_YAML |
 | Testes | tests/config-router-block.test.ts | mktemp |
@@ -241,22 +259,4 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/specsfy-install-alvo.test.ts | — |
 | Testes | tests/specsfy-install-falha.test.ts | — |
 | Testes | tests/specsfy-install-idempotente.test.ts | — |
-| Testes | tests/specsfy-install-real.test.ts | gitRoot, of |
-| Testes | tests/surface.test.ts | FORBIDDEN |
-| Testes | tests/task-types-config.test.ts | setup |
-| Testes | tests/trace-doctor-relata.test.ts | report |
-| Testes | tests/trace-doctor-sem-registro.test.ts | — |
-| Testes | tests/trace-execucoes-distintas.test.ts | — |
-| Testes | tests/trace-fixtures.ts | FIXED_INSTANT, FIXED_ID, EPOCH, fixedSource, project, writeRecord, oldRecord, fileTree |
-| Testes | tests/trace-forma.test.ts | — |
-| Testes | tests/trace-gerador-deterministico.test.ts | traceWith |
-| Testes | tests/trace-gerador-vazio.test.ts | record |
-| Testes | tests/trace-hooks-e-skills.test.ts | fullRecord |
-| Testes | tests/trace-instante-epoca.test.ts | withEpoch |
-| Testes | tests/trace-instante-injetado.test.ts | — |
-| Testes | tests/trace-marca-execucao.test.ts | recordOf |
-| Testes | tests/trace-no-relato.test.ts | — |
-| Testes | tests/trace-opacidade.test.ts | — |
-| Testes | tests/trace-padrao-producao.test.ts | withoutInjection |
-| Testes | tests/trace-registro-antigo.test.ts | withoutTrace |
 <!-- specsfy:documentator:end -->

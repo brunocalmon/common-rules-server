@@ -13,18 +13,33 @@ function project(): string {
 const BASE = "# padrão\nApresente o plano antes de executar.";
 const files = { ".maestro/subagents/maestro/behavior.md": BASE };
 
-describe("AC-010 — runtime não entregue é recusado", () => {
+describe("AC-010 — cli sem contexto de execução é recusado", () => {
   // SPECSFY: US-001 FR-004 NFR-002 AC-010
-  it("cli é recusado nomeando a fatia ausente", async () => {
+  it("recusa nomeando a ausência do contexto de execução, sem rodar às cegas", async () => {
     const { runDelegation } = await import("../src/delegation/run");
     const config = { maestro: profile("maestro"), subagents: [] };
 
     const result = runDelegation(plan([{ profile: "maestro", model: "qwen3:8b", runtime: "cli" }]), config, reader(files), BASE);
 
     expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.reason).toMatch(/cli/i);
-      expect(result.reason).toMatch(/MA-5|ainda não/i);
+    if (!result.ok) expect(result.reason).toMatch(/cli/i);
+  });
+
+  it("com contexto de execução, o agente cli de fato roda (SPEC-0019)", async () => {
+    const { runDelegation } = await import("../src/delegation/run");
+    const config = { maestro: profile("maestro"), subagents: [] };
+
+    const result = runDelegation(plan([{ profile: "maestro", model: "qwen3:8b", runtime: "cli" }]), config, reader(files), BASE, {
+      root: "/tmp",
+      detected: [{ name: "claude", present: true, version: "1.0.0", supported: true }],
+      ask: () => true,
+      spawn: () => ({ ok: true, stdout: "olá", stderr: "", exitCode: 0 }),
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.text).toMatch(/backend: claude/);
+      expect(result.text).toMatch(/exitCode: 0/);
     }
   });
 });

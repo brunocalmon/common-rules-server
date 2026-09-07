@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 190.
+- Arquivos de teste: 196.
 - Runner: Vitest.
 - Scripts: prepare: node scripts/install-git-hooks.mjs; prebuild: node scripts/check-version-checksum.mjs; build: tsc; test:tdd: vitest run; verify: node scripts/cycle.mjs.
 
@@ -54,9 +54,15 @@
 | tests/budget.test.ts |
 | tests/build.test.ts |
 | tests/cli-approval-real.test.ts |
+| tests/cli-backends-adapter.test.ts |
+| tests/cli-behavior-file.test.ts |
 | tests/cli-help.test.ts |
+| tests/cli-run-gate.test.ts |
+| tests/cli-run-tools.test.ts |
+| tests/cli-select.test.ts |
 | tests/cli-setup-drift-real.test.ts |
 | tests/cli-setup-real.test.ts |
+| tests/cli-spawn.test.ts |
 | tests/cli-symlink.test.ts |
 | tests/config-backfill.test.ts |
 | tests/config-router-block.test.ts |

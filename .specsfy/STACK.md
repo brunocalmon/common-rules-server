@@ -436,5 +436,21 @@ Introduzido pela `SPEC-0018`, fatia MA-4 do épico (`BACKLOG-0009`).
 | --- | --- | --- |
 | Fronteira | A CLI emite o briefing; o agente hospedeiro aciona os subagents | `DEC-001`; um processo de terminal não tem acesso à Agent tool da IDE |
 | Composição do comportamento | Resolvida pela CLI, texto final entregue | `DEC-002`; a regra substitui-versus-soma da `SPEC-0015` fica testável, não é convenção de prompt |
-| `runtime: cli` | Recusado nomeando a fatia ausente (MA-5) | `DEC-003`; emitir briefing para via não entregue sugeriria capacidade inexistente |
-| Estado | Nada é gravado | `DEC-004`; emitir briefing não é evidência de execução — telemetria real é MA-6 |
+| `runtime: cli` | Executa de verdade desde a `SPEC-0019` (abaixo) | Sem o contexto de execução novo, ainda é recusado nomeando a ausência |
+| Estado | Nada é gravado pelo briefing em si | `DEC-004`; emitir briefing não é evidência de execução — telemetria real é MA-6 |
+
+## Execução via subprocesso de CLI externa (`runtime: cli`)
+
+Introduzida pela `SPEC-0019`, fatia MA-5 do épico (`BACKLOG-0009`).
+
+| Item | Escolha | Evidência / motivo |
+| --- | --- | --- |
+| Adaptador por backend | `src/delegation/cli-backends/{pi,claude,goose,agy,codex}.ts`, um `CliBackendAdapter` cada | Flags reais confirmadas por `--help` de cada binário e, ao implementar, por spawn real nos cinco nesta máquina |
+| Injeção de comportamento | Flag nativa (`pi`, `claude`, `goose`) ou `AGENTS.md` temporário (`agy`, `codex`), sempre removido depois | `FR-002`; `agy`/`codex` não têm flag de system prompt |
+| Prompt/tarefa em si | Argumento posicional final (`pi`, `claude`, `agy`, `codex`) ou `--text` (`goose`) | Achado da verificação real: `claude --print` recusa sem prompt; `agy --print` toma o *próximo* argumento como prompt, então a tarefa precisa vir logo depois dessa flag; `goose` exige o subcomando `run` antes de qualquer flag |
+| Escolha de backend | `execution.cli_backend`; ausente, primeiro presente na ordem fixa de `SUPPORTED_AGENT_BACKENDS` | `src/delegation/cli-select.ts`, `FR-004` |
+| Tools não suportável | Recusa nomeando backend e limitação quando `required` | `src/delegation/cli-tools.ts`, `PR-001` (`SPEC-0015`, `D6`) |
+| Gate novo por spawn | Um `interpretDecision` por agente `cli`, independente da aprovação do plano | `src/delegation/cli-gate.ts`, `PR-003`; recusar um não afeta os demais do plano |
+| Spawn | `spawnSync` com timeout de 120s, sem interpretar stdout/stderr | `src/delegation/cli-spawn.ts`, mesmo padrão de `scripts/pinned-skills.mjs` |
+| `AGENTS.md` real já existente | Recusa em vez de sobrescrever | Achado real: `specsfy setup` já grava `AGENTS.md` em todo projeto gerenciado — `agy`/`codex` são recusados por padrão em projetos assim, comportamento pretendido, não falha |
+| Verificação real | Todos os cinco backends spawnados nesta máquina; `goose` completou de ponta a ponta, os demais alcançaram o subprocesso real e relataram erro de conta/modelo do próprio backend | Prova de que `FR-007` (modelo desconhecido não bloqueia a preparação) se sustenta fora do teste unitário |

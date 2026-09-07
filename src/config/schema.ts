@@ -92,6 +92,8 @@ export interface AgentCapability {
 export interface AgentExecution {
   runtime: ConfiguredProperty<"auto" | "native" | "cli">;
   concurrency: ConfiguredProperty<number>;
+  /** Which of `SUPPORTED_AGENT_BACKENDS` runs a `runtime: cli` agent. Absent picks the first detected, in fixed order (`SPEC-0019`, `FR-004`). */
+  cli_backend?: ConfiguredProperty<string>;
 }
 
 /** Um agente configurável — o próprio maestro ou um de seus subagents. */

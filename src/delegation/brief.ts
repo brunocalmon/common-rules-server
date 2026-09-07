@@ -18,16 +18,28 @@ export interface AgentBrief {
   behavior: string;
   skills: string[];
   tools: string[];
+  /** A tarefa do plano aprovado — o que o agente deve de fato fazer, além do comportamento. Vazio quando não houver `task` (`SPEC-0019`). */
+  task?: string;
 }
 
-function findProfile(config: DelegationConfig, name: string): AgentProfile | undefined {
+/** Resolve um perfil pelo nome — o maestro ou um subagent. Exportado para o `runtime: cli` (`SPEC-0019`) reusar. */
+export function findProfile(config: DelegationConfig, name: string): AgentProfile | undefined {
   if (config.maestro.identity.name.value === name) return config.maestro;
   return config.subagents.find((p) => p.identity.name.value === name);
 }
 
-/** `""` na config é "nada declarado" (SPEC-0015); só um caminho real vira leitura. */
-function readOrNull(path: string, read: FileReader): string | null {
+/** `""` na config é "nada declarado" (SPEC-0015); só um caminho real vira leitura. Exportado para o `runtime: cli` (`SPEC-0019`) reusar. */
+export function readOrNull(path: string, read: FileReader): string | null {
   return path === "" ? null : read(path);
+}
+
+/** Compõe o comportamento de um perfil já resolvido — a mesma regra que `buildBriefs` aplica por agente. */
+export function resolveBehavior(profile: AgentProfile, read: FileReader, base: string): string {
+  return composeBehavior({
+    base,
+    behavior: readOrNull(profile.instruction.behavior.value, read),
+    additional: readOrNull(profile.instruction.additional_behavior.value, read),
+  });
 }
 
 /**
@@ -59,6 +71,7 @@ export function buildBriefs(
       behavior,
       skills: profile.capability.skills.value,
       tools: profile.capability.tools.value,
+      task: plan.task,
     };
   });
 }

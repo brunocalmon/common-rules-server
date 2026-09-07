@@ -18,6 +18,7 @@ import { readAgentConfig } from "./agents/read.js";
 import { resolveTaskType, type ResolvedTaskType } from "./models/task-type.js";
 import { realContextWindowReader } from "./models/context-window.js";
 import { runDelegation } from "./delegation/run.js";
+import { spawnCliAgent } from "./delegation/cli-spawn.js";
 import { readApprovedPlan } from "./plan/store.js";
 import { AGENT_RESOURCES_DIR } from "./agents/seed.js";
 import { existsSync } from "node:fs";
@@ -376,10 +377,21 @@ function formatRun(args: readonly string[] = []): CommandOutcome {
     return { output: `${USAGE_RUN}\n\nrefused: ${(error as Error).message}`, exitCode: 2 };
   }
 
+  const needsCli = plan.agents.some((agent) => agent.runtime === "cli");
+  const cliRuntime = needsCli
+    ? {
+        root,
+        detected: detectBackends(realBackendEnvironment()),
+        // Same decision channel as the plan gate (`SPEC-0016`), one call per spawn (`FR-005`).
+        ask: () => realDecisionSource(process.stdin.isTTY ? "interactive" : "document").ask([], []),
+        spawn: spawnCliAgent,
+      }
+    : undefined;
+
   const result = runDelegation(plan, config, (path) => {
     const full = pathJoin(root, path);
     return existsSync(full) ? readFileSync(full, "utf8") : null;
-  }, readBaseBehavior());
+  }, readBaseBehavior(), cliRuntime);
 
   if (!result.ok) return { output: `${USAGE_RUN}\n\nrefused: ${result.reason}`, exitCode: 2 };
   return { output: result.text, exitCode: 0 };

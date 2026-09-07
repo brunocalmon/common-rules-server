@@ -136,9 +136,28 @@ emite, por agente planejado, o comportamento já composto (`behavior`
 substitui o padrão, `additional_behavior` soma a ele), skills, tools e
 modelo — pronto para o agente hospedeiro ler e delegar. A CLI não aciona
 subagent nenhum: não tem acesso ao mecanismo da ferramenta hospedeira, e diz
-isso em vez de fingir. Um agente que pede execução por subprocesso de CLI
-externa (`runtime: cli`) é recusado nomeando a fatia que ainda não existe.
-Nada é gravado — emitir briefing não é evidência de que algo rodou.
+isso em vez de fingir. Nada é gravado — emitir briefing não é evidência de
+que algo rodou.
+
+**Execução real via subprocesso de CLI externa.** Um agente com
+`runtime: cli` agora roda de verdade: um adaptador por backend suportado
+(`pi`, `agy`, `claude`, `codex`, `goose`) constrói os argumentos reais —
+comportamento por flag nativa quando o backend tem uma (`pi`, `claude`,
+`goose`) ou por um `AGENTS.md` temporário quando não tem (`agy`, `codex`,
+sempre removido depois, sucesso ou falha), modelo repassado sem tradução,
+`capability.tools` `required` recusado quando o backend não consegue
+restringir tools. `execution.cli_backend` escolhe qual dos cinco; ausente,
+usa o primeiro presente na ordem fixa da `SPEC-0008`. Antes de cada spawn
+real, um segundo gate de aprovação — independente da aprovação do plano —
+pede decisão explícita para aquele agente específico; recusar um não afeta
+os demais do mesmo plano. O subprocesso roda com timeout, e stdout, stderr e
+código de saída chegam como texto ao agente hospedeiro, sem interpretação —
+quem julga o resultado é quem pediu a execução, nunca o maestro. Verificado
+com os cinco binários reais nesta máquina: `goose` completou um pedido de
+ponta a ponta; os demais alcançaram o subprocesso real e relataram um erro
+de conta/modelo do próprio backend, não da preparação do maestro — prova de
+que `FR-007` (modelo desconhecido não bloqueia a preparação) se sustenta na
+prática, não só em teste unitário.
 
 **Plano de orquestração com aprovação humana.** `maestro plan --task "..."`
 monta um plano a partir do que o ambiente oferece — perfis configurados,
@@ -160,12 +179,16 @@ projeto está, e adivinhar escreveria na árvore errada relatando sucesso.
 
 Esta lista importa tanto quanto a anterior. Nada abaixo está implementado:
 
-- **Execução real de um plano.** O briefing sai pronto para delegar, mas
-  ninguém prova que um subagent de fato rodou — quem lê e aciona é o agente
-  hospedeiro, fora do alcance de qualquer teste deste projeto. Execução por
-  subprocesso de CLI externa (`runtime: cli`) é recusada nomeando a fatia
-  ausente. São as fatias MA-5 (execução por CLI externa) e MA-6 (telemetria
-  multi-agente) de `BACKLOG-0009`, ainda não especificadas.
+- **Execução real de um agente nativo.** O briefing sai pronto para delegar,
+  mas ninguém prova que um subagent nativo do hospedeiro de fato rodou — quem
+  lê e aciona `runtime: native`/`auto` é o agente hospedeiro, fora do alcance
+  de qualquer teste deste projeto. Só `runtime: cli` executa de verdade
+  (`SPEC-0019`).
+- **Telemetria e correlação entre execuções multi-agente** — fatia MA-6 de
+  `BACKLOG-0009`, ainda não especificada.
+- **Paralelismo real entre spawns do mesmo plano.** `execution.concurrency`
+  já existe no schema, mas orquestrar execução simultânea de vários agentes
+  `cli` fica para além de `SPEC-0019`.
 - **Custo e uso de plano** na seleção de modelo — deliberadamente fora de
   escopo, não apenas ainda não construído (ver "Seleção de modelo" acima).
 - **Hidratação sob demanda de uma extensão de hook.** Uma extensão local

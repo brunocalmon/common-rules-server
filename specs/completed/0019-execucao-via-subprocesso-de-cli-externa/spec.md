@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0019 |
 | Slug | 0019-execucao-via-subprocesso-de-cli-externa |
-| Status | Planned |
+| Status | Complete |
 | Effort | 8 |
 | Effort rationale | Cinco adaptadores de backend com convenções de flag genuinamente diferentes (confirmado por execução real de `--help` em cada um), um gate de aprovação novo por spawn, injeção de comportamento por dois caminhos distintos (flag nativa ou arquivo temporário) e captura de subprocesso com timeout. Maior superfície que qualquer fatia anterior do épico — não por mecanismo novo em si, mas pela multiplicação por cinco backends reais, cada um verificado individualmente. Primeira fatia do épico que de fato executa ação capaz de escrever fora do controle direto do maestro. |
 | Effort updated at | 2026-09-07 |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | Pending |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Interface para pessoas | Não — comando de terminal cuja saída é texto relatado ao agente que pediu a execução, sem tela. |
 | Atualizada em | 2026-09-07 |
@@ -637,53 +637,53 @@ tests/
 
 | IDs | BDD de referência | Teste TDD informado pelo BDD | RED observado | GREEN observado | Refactor/regressão |
 | --- | --- | --- | --- | --- | --- |
-| US-001, FR-001, NFR-001, AC-001 | AC-001 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-001, FR-007, NFR-001, AC-002 | AC-002 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-001, NFR-001, AC-003 | AC-003 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-002, NFR-001, AC-004 | AC-004 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-002, NFR-001, AC-005 | AC-005 na seção 6 | tests/cli-behavior-file.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-002, NFR-002, AC-006 | AC-006 na seção 6 | tests/cli-behavior-file.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-003, NFR-002, AC-007 | AC-007 na seção 6 | tests/cli-run-tools.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-003, NFR-001, AC-008 | AC-008 na seção 6 | tests/cli-run-tools.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-003, NFR-001, AC-009 | AC-009 na seção 6 | tests/cli-run-tools.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-004, NFR-001, AC-010 | AC-010 na seção 6 | tests/cli-select.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-004, NFR-002, AC-011 | AC-011 na seção 6 | tests/cli-select.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-004, NFR-001, AC-012 | AC-012 na seção 6 | tests/cli-select.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-005, NFR-002, AC-013 | AC-013 na seção 6 | tests/cli-run-gate.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-005, NFR-001, AC-014 | AC-014 na seção 6 | tests/cli-run-gate.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-005, NFR-002, AC-015 | AC-015 na seção 6 | tests/cli-run-gate.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-006, NFR-001, AC-016 | AC-016 na seção 6 | tests/cli-spawn.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-006, NFR-001, AC-017 | AC-017 na seção 6 | tests/cli-spawn.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-006, NFR-002, AC-018 | AC-018 na seção 6 | tests/cli-spawn.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-007, NFR-001, AC-019 | AC-019 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
-| US-001, FR-007, NFR-001, AC-020 | AC-020 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | Pending | Pending |
+| US-001, FR-001, NFR-001, AC-001 | AC-001 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-001, FR-007, NFR-001, AC-002 | AC-002 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-001, NFR-001, AC-003 | AC-003 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-002, NFR-001, AC-004 | AC-004 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-002, NFR-001, AC-005 | AC-005 na seção 6 | tests/cli-behavior-file.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-002, NFR-002, AC-006 | AC-006 na seção 6 | tests/cli-behavior-file.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-003, NFR-002, AC-007 | AC-007 na seção 6 | tests/cli-run-tools.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-003, NFR-001, AC-008 | AC-008 na seção 6 | tests/cli-run-tools.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-003, NFR-001, AC-009 | AC-009 na seção 6 | tests/cli-run-tools.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-004, NFR-001, AC-010 | AC-010 na seção 6 | tests/cli-select.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-004, NFR-002, AC-011 | AC-011 na seção 6 | tests/cli-select.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-004, NFR-001, AC-012 | AC-012 na seção 6 | tests/cli-select.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-005, NFR-002, AC-013 | AC-013 na seção 6 | tests/cli-run-gate.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-005, NFR-001, AC-014 | AC-014 na seção 6 | tests/cli-run-gate.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-005, NFR-002, AC-015 | AC-015 na seção 6 | tests/cli-run-gate.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-006, NFR-001, AC-016 | AC-016 na seção 6 | tests/cli-spawn.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-006, NFR-001, AC-017 | AC-017 na seção 6 | tests/cli-spawn.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-006, NFR-002, AC-018 | AC-018 na seção 6 | tests/cli-spawn.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-007, NFR-001, AC-019 | AC-019 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
+| US-001, FR-007, NFR-001, AC-020 | AC-020 na seção 6 | tests/cli-backends-adapter.test.ts | RED confirmado 2026-09-07 (`npx vitest run` — módulo inexistente) | GREEN confirmado 2026-09-07 (`npx vitest run` — 21/21) | Regressão completa 510/510 e verificação real com os cinco backends |
 
 ### 12. Plano de testes e rastreabilidade
 
 | Requisito | Cenário BDD | Nível | Arquivo/comando esperado | Evidência |
 | --- | --- | --- | --- | --- |
-| FR-001 | AC-001 | Unidade | `tests/cli-backends-adapter.test.ts` | RED confirmado |
-| FR-001 | AC-002 | Unidade | `tests/cli-backends-adapter.test.ts` | RED confirmado |
-| FR-001 | AC-003 | Unidade | `tests/cli-backends-adapter.test.ts` | RED confirmado |
-| FR-002 | AC-004 | Unidade | `tests/cli-backends-adapter.test.ts` | RED confirmado |
-| FR-002 | AC-005 | Unidade (fs isolado) | `tests/cli-behavior-file.test.ts` | RED confirmado |
-| FR-002 | AC-006 | Unidade (fs isolado) | `tests/cli-behavior-file.test.ts` | RED confirmado |
-| FR-003 | AC-007 | Unidade | `tests/cli-run-tools.test.ts` | RED confirmado |
-| FR-003 | AC-008 | Unidade | `tests/cli-run-tools.test.ts` | RED confirmado |
-| FR-003 | AC-009 | Unidade | `tests/cli-run-tools.test.ts` | RED confirmado |
-| FR-004 | AC-010 | Unidade | `tests/cli-select.test.ts` | RED confirmado |
-| FR-004 | AC-011 | Unidade | `tests/cli-select.test.ts` | RED confirmado |
-| FR-004 | AC-012 | Unidade | `tests/cli-select.test.ts` | RED confirmado |
-| FR-005 | AC-013 | Integração (decisão injetada) | `tests/cli-run-gate.test.ts` | RED confirmado |
-| FR-005 | AC-014 | Integração (decisão injetada) | `tests/cli-run-gate.test.ts` | RED confirmado |
-| FR-005 | AC-015 | Integração (decisão injetada) | `tests/cli-run-gate.test.ts` | RED confirmado |
-| FR-006 | AC-016 | Integração (comando fake) | `tests/cli-spawn.test.ts` | RED confirmado |
-| FR-006 | AC-017 | Integração (comando fake) | `tests/cli-spawn.test.ts` | RED confirmado |
-| FR-006 | AC-018 | Integração (comando fake) | `tests/cli-spawn.test.ts` | RED confirmado |
-| FR-007 | AC-019 | Unidade | `tests/cli-backends-adapter.test.ts` | RED confirmado |
-| FR-007 | AC-020 | Unidade | `tests/cli-backends-adapter.test.ts` | RED confirmado |
-| NFR-001 | AC-001, AC-002, AC-003, AC-004, AC-008, AC-009, AC-010, AC-012, AC-014, AC-016, AC-017, AC-019, AC-020 | Unidade + integração | ver linhas acima | RED confirmado nos 13 casos |
-| NFR-002 | AC-006, AC-007, AC-011, AC-013, AC-015, AC-018 | Unidade + integração | ver linhas acima | RED confirmado nos 6 casos |
+| FR-001 | AC-001 | Unidade | `tests/cli-backends-adapter.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-001 | AC-002 | Unidade | `tests/cli-backends-adapter.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-001 | AC-003 | Unidade | `tests/cli-backends-adapter.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-002 | AC-004 | Unidade | `tests/cli-backends-adapter.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-002 | AC-005 | Unidade (fs isolado) | `tests/cli-behavior-file.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-002 | AC-006 | Unidade (fs isolado) | `tests/cli-behavior-file.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-003 | AC-007 | Unidade | `tests/cli-run-tools.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-003 | AC-008 | Unidade | `tests/cli-run-tools.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-003 | AC-009 | Unidade | `tests/cli-run-tools.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-004 | AC-010 | Unidade | `tests/cli-select.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-004 | AC-011 | Unidade | `tests/cli-select.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-004 | AC-012 | Unidade | `tests/cli-select.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-005 | AC-013 | Integração (decisão injetada) | `tests/cli-run-gate.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-005 | AC-014 | Integração (decisão injetada) | `tests/cli-run-gate.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-005 | AC-015 | Integração (decisão injetada) | `tests/cli-run-gate.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-006 | AC-016 | Integração (comando fake) | `tests/cli-spawn.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-006 | AC-017 | Integração (comando fake) | `tests/cli-spawn.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-006 | AC-018 | Integração (comando fake) | `tests/cli-spawn.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-007 | AC-019 | Unidade | `tests/cli-backends-adapter.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| FR-007 | AC-020 | Unidade | `tests/cli-backends-adapter.test.ts` | Passed — GREEN confirmado 2026-09-07 |
+| NFR-001 | AC-001, AC-002, AC-003, AC-004, AC-008, AC-009, AC-010, AC-012, AC-014, AC-016, AC-017, AC-019, AC-020 | Unidade + integração | ver linhas acima | Passed nos 13 casos |
+| NFR-002 | AC-006, AC-007, AC-011, AC-013, AC-015, AC-018 | Unidade + integração | ver linhas acima | Passed nos 6 casos |
 
 ### 13. Validações
 
@@ -701,9 +701,9 @@ tests/
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Pending
-- **Comando**: `node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/draft/0019-execucao-via-subprocesso-de-cli-externa/spec.md .`
-- **Achados**: Pending.
+- **Resultado**: Passed (2026-09-07)
+- **Comandos**: `node .claude/skills/specsfy-06-tdd-bdd/scripts/check_traceability.mjs specs/planned/0019-execucao-via-subprocesso-de-cli-externa/spec.md .` → 30/30 IDs desta spec cobertos; `node .claude/skills/specsfy-06-tdd-bdd/scripts/verify_acceptance.mjs specs/planned/0019-execucao-via-subprocesso-de-cli-externa/spec.md .` → `QA: PASSED`; `node .claude/skills/specsfy-05-tasks/scripts/validate_tasks.mjs specs/planned/0019-execucao-via-subprocesso-de-cli-externa/spec.md` → `RESULTADO: READY` (30/30 tarefas concluídas, contrato de evidência verificado); `npx vitest run` → 186 arquivos, 510/510; `npx tsc --noEmit` limpo.
+- **Achados**: Todas as 20 ACs passaram de RED para GREEN. Verificação manual real (`métricas de sucesso` da seção 1) executada nos cinco backends instalados nesta máquina via `maestro plan` → `maestro run`: `goose` completou de ponta a ponta (respondeu "OK" à tarefa pedida); `pi`, `claude`, `agy` e `codex` alcançaram o subprocesso real e relataram erro de conta/modelo do próprio backend, nunca uma recusa da preparação do maestro — prova real de `FR-007`. A verificação manual encontrou e corrigiu dois bugs reais que a suíte automatizada não detectava: `goose` exigia o subcomando `run` antes das flags, e `agy --print` toma o argumento imediatamente seguinte como o prompt (uma flag ali seria lida como prompt por engano) — ambos documentados em `.specsfy/STACK.md` e no código. `agy`/`codex` foram recusados por padrão neste projeto porque `specsfy setup` já grava um `AGENTS.md` real aqui — comportamento pretendido (`AC-005`/casos-limite), confirmado afastando o arquivo temporariamente para provar o caminho completo de injeção por arquivo. `docs/`, `.specsfy/STACK.md` e `PROJECT.md` atualizados; `PROJECT.md` revisado (mudança de aplicação material, `runtime: cli` agora executa de verdade). Nenhum `BLOCKER`.
 
 ### 14. Tarefas
 
@@ -896,88 +896,88 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 **Objetivo**: `maestro run` com `runtime: cli` roda de verdade, para os cinco backends.
 **Teste independente**: `npx vitest run tests/cli-backends-adapter.test.ts tests/cli-behavior-file.test.ts tests/cli-run-tools.test.ts tests/cli-select.test.ts tests/cli-run-gate.test.ts tests/cli-spawn.test.ts` — todos verdes.
 
-- [ ] T021 [CODE] [US-001] Implementar os cinco adaptadores e o registro em src/delegation/cli-backends/{adapter,pi,claude,goose,agy,codex,registry}.ts — Refs: US-001, FR-001, FR-002, FR-007, NFR-001, AC-001, AC-002, AC-003, AC-004, AC-019, AC-020 — Depends: T001, T002, T003, T004, T019, T020
-  - [ ] **PREP**: Confirmar RED de T001/T002/T003/T004/T019/T020 e as flags reais de cada backend (seção 2).
-  - [ ] **EXECUTE**: `CliBackendAdapter` e os cinco módulos concretos, cada um mapeando as flags verificadas — modelo, saída estruturada, comportamento (flag ou não), tools (allowlist ou não). Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/cli-backends-adapter.test.ts` verde; `npx tsc --noEmit` limpo.
-  - [ ] **VISUAL**: Não aplicável — módulos de construção de argumentos, sem tela.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T021 [CODE] [US-001] Implementar os cinco adaptadores e o registro em src/delegation/cli-backends/{adapter,pi,claude,goose,agy,codex,registry}.ts — Refs: US-001, FR-001, FR-002, FR-007, NFR-001, AC-001, AC-002, AC-003, AC-004, AC-019, AC-020 — Depends: T001, T002, T003, T004, T019, T020
+  - [x] **PREP**: Confirmar RED de T001/T002/T003/T004/T019/T020 e as flags reais de cada backend (seção 2).
+  - [x] **EXECUTE**: `CliBackendAdapter` e os cinco módulos concretos, cada um mapeando as flags verificadas — modelo, saída estruturada, comportamento (flag ou não), tools (allowlist ou não). Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/cli-backends-adapter.test.ts` verde; `npx tsc --noEmit` limpo. GREEN confirmado: `npx vitest run tests/cli-backends-adapter.test.ts` — 6/6; `npx tsc --noEmit` limpo.
+  - [x] **VISUAL**: Não aplicável — módulos de construção de argumentos, sem tela.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos criados nas seções 11–13. GREEN e arquivos registrados na seção 11; verificação real com os cinco `--help`/spawn confirmou as flags.
+  - [x] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
   <!-- specsfy:evidence {"task":"T021","refs":["US-001","FR-001","FR-002","FR-007","NFR-001","AC-001","AC-002","AC-003","AC-004","AC-019","AC-020"],"files":["src/delegation/cli-backends/adapter.ts","src/delegation/cli-backends/pi.ts","src/delegation/cli-backends/claude.ts","src/delegation/cli-backends/goose.ts","src/delegation/cli-backends/agy.ts","src/delegation/cli-backends/codex.ts","src/delegation/cli-backends/registry.ts"],"commands":[{"run":"npx vitest run tests/cli-backends-adapter.test.ts","exit":0}]} -->
 
-- [ ] T022 [CODE] [US-001] Implementar a injeção por arquivo temporário em src/delegation/cli-behavior-file.ts — Refs: US-001, FR-002, NFR-001, NFR-002, AC-005, AC-006 — Depends: T005, T006, T031
-  - [ ] **PREP**: Confirmar RED de T005/T006.
-  - [ ] **EXECUTE**: `withTemporaryAgentsFile(root, content, fn)` com `try/finally` garantindo remoção, e recusa quando `AGENTS.md` real já existir. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/cli-behavior-file.test.ts` verde.
-  - [ ] **VISUAL**: Não aplicável — sem superfície visual.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivo criado nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T022 [CODE] [US-001] Implementar a injeção por arquivo temporário em src/delegation/cli-behavior-file.ts — Refs: US-001, FR-002, NFR-001, NFR-002, AC-005, AC-006 — Depends: T005, T006, T031
+  - [x] **PREP**: Confirmar RED de T005/T006.
+  - [x] **EXECUTE**: `withTemporaryAgentsFile(root, content, fn)` com `try/finally` garantindo remoção, e recusa quando `AGENTS.md` real já existir. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/cli-behavior-file.test.ts` verde. GREEN confirmado: `npx vitest run tests/cli-behavior-file.test.ts` — 3/3.
+  - [x] **VISUAL**: Não aplicável — sem superfície visual.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivo criado nas seções 11–13. GREEN registrado na seção 11; verificação real confirmou remoção do arquivo em sucesso e em erro, para agy e codex.
+  - [x] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
   <!-- specsfy:evidence {"task":"T022","refs":["US-001","FR-002","NFR-001","NFR-002","AC-005","AC-006"],"files":["src/delegation/cli-behavior-file.ts"],"commands":[{"run":"npx vitest run tests/cli-behavior-file.test.ts","exit":0}]} -->
 
-- [ ] T023 [CODE] [US-001] Implementar a seleção de backend em src/delegation/cli-select.ts — Refs: US-001, FR-004, NFR-001, NFR-002, AC-010, AC-011, AC-012 — Depends: T010, T011, T012
-  - [ ] **PREP**: Confirmar RED de T010/T011/T012 e `SUPPORTED_AGENT_BACKENDS`.
-  - [ ] **EXECUTE**: `selectBackend(agent, detected)` — sem declaração usa o primeiro detectado; `required` ausente recusa; `suggested` ausente cai para outro presente. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/cli-select.test.ts` verde.
-  - [ ] **VISUAL**: Não aplicável — sem superfície visual.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivo criado nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T023 [CODE] [US-001] Implementar a seleção de backend em src/delegation/cli-select.ts — Refs: US-001, FR-004, NFR-001, NFR-002, AC-010, AC-011, AC-012 — Depends: T010, T011, T012
+  - [x] **PREP**: Confirmar RED de T010/T011/T012 e `SUPPORTED_AGENT_BACKENDS`.
+  - [x] **EXECUTE**: `selectBackend(agent, detected)` — sem declaração usa o primeiro detectado; `required` ausente recusa; `suggested` ausente cai para outro presente. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/cli-select.test.ts` verde. GREEN confirmado: `npx vitest run tests/cli-select.test.ts` — 3/3.
+  - [x] **VISUAL**: Não aplicável — sem superfície visual.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivo criado nas seções 11–13. GREEN registrado na seção 11.
+  - [x] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
   <!-- specsfy:evidence {"task":"T023","refs":["US-001","FR-004","NFR-001","NFR-002","AC-010","AC-011","AC-012"],"files":["src/delegation/cli-select.ts"],"commands":[{"run":"npx vitest run tests/cli-select.test.ts","exit":0}]} -->
 
-- [ ] T024 [CODE] [US-001] Adicionar execution.cli_backend em src/config/schema.ts e a recusa de tools não suportável ligada à seleção — Refs: US-001, FR-003, FR-004, NFR-001, NFR-002, AC-007, AC-008, AC-009 — Depends: T007, T008, T009
-  - [ ] **PREP**: Confirmar RED de T007/T008/T009 e o formato de `AgentExecution`.
-  - [ ] **EXECUTE**: `execution.cli_backend?: ConfiguredProperty<string>` no schema e em `SCHEMA_KEYS`; lógica de recusa de `tools` `required` não suportável, usando `supportsToolsAllowlist` do adaptador escolhido. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/cli-run-tools.test.ts` verde; suíte de config sem regressão.
-  - [ ] **VISUAL**: Não aplicável — sem superfície visual.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
-  <!-- specsfy:evidence {"task":"T024","refs":["US-001","FR-003","FR-004","NFR-001","NFR-002","AC-007","AC-008","AC-009"],"files":["src/config/schema.ts"],"commands":[{"run":"npx vitest run tests/cli-run-tools.test.ts","exit":0}]} -->
+- [x] T024 [CODE] [US-001] Adicionar execution.cli_backend em src/config/schema.ts e a recusa de tools não suportável ligada à seleção — Refs: US-001, FR-003, FR-004, NFR-001, NFR-002, AC-007, AC-008, AC-009 — Depends: T007, T008, T009
+  - [x] **PREP**: Confirmar RED de T007/T008/T009 e o formato de `AgentExecution`.
+  - [x] **EXECUTE**: `execution.cli_backend?: ConfiguredProperty<string>` no schema e em `SCHEMA_KEYS`; lógica de recusa de `tools` `required` não suportável, usando `supportsToolsAllowlist` do adaptador escolhido. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/cli-run-tools.test.ts` verde; suíte de config sem regressão. GREEN confirmado: `npx vitest run tests/cli-run-tools.test.ts` — 3/3; suíte de config sem regressão.
+  - [x] **VISUAL**: Não aplicável — sem superfície visual.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13. GREEN registrado na seção 11; `src/delegation/cli-tools.ts` acrescentado à lista de arquivos desta tarefa.
+  - [x] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+  <!-- specsfy:evidence {"task":"T024","refs":["US-001","FR-003","FR-004","NFR-001","NFR-002","AC-007","AC-008","AC-009"],"files":["src/config/schema.ts","src/delegation/cli-tools.ts"],"commands":[{"run":"npx vitest run tests/cli-run-tools.test.ts","exit":0}]} -->
 
-- [ ] T025 [CODE] [US-001] Implementar o gate por agente em src/delegation/cli-gate.ts — Refs: US-001, FR-005, NFR-001, NFR-002, AC-013, AC-014, AC-015 — Depends: T013, T014, T015
-  - [ ] **PREP**: Confirmar RED de T013/T014/T015 e `interpretDecision`.
-  - [ ] **EXECUTE**: `decideSpawn(source)` chamando `interpretDecision`, uma vez por agente. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/cli-run-gate.test.ts` verde.
-  - [ ] **VISUAL**: Não aplicável — sem superfície visual.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivo criado nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T025 [CODE] [US-001] Implementar o gate por agente em src/delegation/cli-gate.ts — Refs: US-001, FR-005, NFR-001, NFR-002, AC-013, AC-014, AC-015 — Depends: T013, T014, T015
+  - [x] **PREP**: Confirmar RED de T013/T014/T015 e `interpretDecision`.
+  - [x] **EXECUTE**: `decideSpawn(source)` chamando `interpretDecision`, uma vez por agente. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/cli-run-gate.test.ts` verde. GREEN confirmado: `npx vitest run tests/cli-run-gate.test.ts` — 3/3.
+  - [x] **VISUAL**: Não aplicável — sem superfície visual.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivo criado nas seções 11–13. GREEN registrado na seção 11.
+  - [x] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
   <!-- specsfy:evidence {"task":"T025","refs":["US-001","FR-005","NFR-001","NFR-002","AC-013","AC-014","AC-015"],"files":["src/delegation/cli-gate.ts"],"commands":[{"run":"npx vitest run tests/cli-run-gate.test.ts","exit":0}]} -->
 
-- [ ] T026 [CODE] [US-001] Implementar o spawn com timeout e captura em src/delegation/cli-spawn.ts — Refs: US-001, FR-006, NFR-001, NFR-002, AC-016, AC-017, AC-018 — Depends: T016, T017, T018
-  - [ ] **PREP**: Confirmar RED de T016/T017/T018 e o padrão de `spawnSync` já usado em `scripts/pinned-skills.mjs`.
-  - [ ] **EXECUTE**: `spawnCliAgent(adapter, args, options)` com timeout de 120s, capturando stdout/stderr/status sem interpretar; timeout vira `SpawnResult` de erro nomeando o motivo. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: `npx vitest run tests/cli-spawn.test.ts` verde.
-  - [ ] **VISUAL**: Não aplicável — sem superfície visual.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivo criado nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+- [x] T026 [CODE] [US-001] Implementar o spawn com timeout e captura em src/delegation/cli-spawn.ts — Refs: US-001, FR-006, NFR-001, NFR-002, AC-016, AC-017, AC-018 — Depends: T016, T017, T018
+  - [x] **PREP**: Confirmar RED de T016/T017/T018 e o padrão de `spawnSync` já usado em `scripts/pinned-skills.mjs`.
+  - [x] **EXECUTE**: `spawnCliAgent(adapter, args, options)` com timeout de 120s, capturando stdout/stderr/status sem interpretar; timeout vira `SpawnResult` de erro nomeando o motivo. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: `npx vitest run tests/cli-spawn.test.ts` verde. GREEN confirmado: `npx vitest run tests/cli-spawn.test.ts` — 3/3, incluindo o timeout real sem travar o processo de teste.
+  - [x] **VISUAL**: Não aplicável — sem superfície visual.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivo criado nas seções 11–13. GREEN registrado na seção 11.
+  - [x] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
   <!-- specsfy:evidence {"task":"T026","refs":["US-001","FR-006","NFR-001","NFR-002","AC-016","AC-017","AC-018"],"files":["src/delegation/cli-spawn.ts"],"commands":[{"run":"npx vitest run tests/cli-spawn.test.ts","exit":0}]} -->
 
-- [ ] T027 [CODE] [US-001] Estender src/delegation/run.ts para runtime cli deixar de recusar, ligando seleção, tools, gate, injeção e spawn — Refs: US-001, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, NFR-001, NFR-002 — Depends: T021, T022, T023, T024, T025, T026
-  - [ ] **PREP**: Confirmar T021–T026 GREEN e o ponto exato onde `runDelegation` recusa `cli` hoje.
-  - [ ] **EXECUTE**: Substituir a recusa fixa por: selecionar backend, checar tools, montar argumentos, injetar comportamento (arquivo ou flag), pedir decisão, spawnar, relatar — um agente `cli` por vez, sem interromper os demais do plano em caso de recusa. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
-  - [ ] **VERIFY**: Suíte de delegação completa verde; verificado com o binário real sobre os cinco backends nesta máquina.
-  - [ ] **VISUAL**: Não aplicável — sem superfície visual.
-  - [ ] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13.
-  - [ ] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
-  <!-- specsfy:evidence {"task":"T027","refs":["US-001","FR-001","FR-002","FR-003","FR-004","FR-005","FR-006","NFR-001","NFR-002"],"files":["src/delegation/run.ts"],"commands":[{"run":"npx vitest run tests/delegation-runtime.test.ts","exit":0}]} -->
+- [x] T027 [CODE] [US-001] Estender src/delegation/run.ts para runtime cli deixar de recusar, ligando seleção, tools, gate, injeção e spawn — Refs: US-001, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, NFR-001, NFR-002 — Depends: T021, T022, T023, T024, T025, T026
+  - [x] **PREP**: Confirmar T021–T026 GREEN e o ponto exato onde `runDelegation` recusa `cli` hoje.
+  - [x] **EXECUTE**: Substituir a recusa fixa por: selecionar backend, checar tools, montar argumentos, injetar comportamento (arquivo ou flag), pedir decisão, spawnar, relatar — um agente `cli` por vez, sem interromper os demais do plano em caso de recusa. Reconstruir `docs/` com `$specsfy-documentator` antes de fechar este item.
+  - [x] **VERIFY**: Suíte de delegação completa verde; verificado com o binário real sobre os cinco backends nesta máquina. GREEN confirmado: suíte de delegação completa verde (`tests/delegation-runtime.test.ts`, `tests/delegation-brief.test.ts`, `tests/delegation-behavior.test.ts`); verificado com os cinco binários reais nesta máquina via `maestro plan` → `maestro run` — `goose` completou de ponta a ponta, os demais alcançaram o subprocesso real (achados registrados em `.specsfy/STACK.md`).
+  - [x] **VISUAL**: Não aplicável — sem superfície visual.
+  - [x] **EVIDENCE**: Registrar GREEN e arquivos alterados nas seções 11–13. GREEN e arquivos registrados na seção 11; dois bugs reais corrigidos pela verificação manual: `goose` exigia o subcomando `run`, e `agy --print` toma o argumento seguinte como prompt — ambos com testes/comentário no código apontando o achado.
+  - [x] **IMPROVE**: Aplicar melhoria de processo ou justificar nenhuma.
+  <!-- specsfy:evidence {"task":"T027","refs":["US-001","FR-001","FR-002","FR-003","FR-004","FR-005","FR-006","NFR-001","NFR-002"],"files":["src/delegation/run.ts","src/delegation/brief.ts","src/cli.ts"],"commands":[{"run":"npx vitest run tests/delegation-runtime.test.ts","exit":0}]} -->
 
 **Checkpoint**: um plano aprovado com um agente `runtime: cli` por backend, autorizado spawn a spawn, roda de verdade nos cinco.
 
 #### Fase final — Documentação e qualidade
 
-- [ ] T028 [DOC] [US-001] Registrar os cinco adaptadores e execution.cli_backend em .specsfy/STACK.md e revisar PROJECT.md — Refs: US-001, FR-001, FR-004, AC-001, AC-010 — Depends: T021, T022, T023, T024, T025, T026, T027
-  - [ ] **PREP**: Confirmar T021–T027 GREEN e o conteúdo atual dos dois documentos.
-  - [ ] **EXECUTE**: Seção nova em `.specsfy/STACK.md` (os cinco adaptadores, injeção por flag ou arquivo, gate por agente) e revisão de `PROJECT.md`, corrigindo "O que ainda não existe" para dizer que `runtime: cli` executa de verdade.
-  - [ ] **VERIFY**: `monitor_context.mjs --check` sem pendência real; `build_documentation.mjs --check` limpo.
-  - [ ] **VISUAL**: Não aplicável — documentação em Markdown, sem tela.
-  - [ ] **EVIDENCE**: Registrar comandos e resultado nas seções 11–13.
-  - [ ] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
+- [x] T028 [DOC] [US-001] Registrar os cinco adaptadores e execution.cli_backend em .specsfy/STACK.md e revisar PROJECT.md — Refs: US-001, FR-001, FR-004, AC-001, AC-010 — Depends: T021, T022, T023, T024, T025, T026, T027
+  - [x] **PREP**: Confirmar T021–T027 GREEN e o conteúdo atual dos dois documentos.
+  - [x] **EXECUTE**: Seção nova em `.specsfy/STACK.md` (os cinco adaptadores, injeção por flag ou arquivo, gate por agente) e revisão de `PROJECT.md`, corrigindo "O que ainda não existe" para dizer que `runtime: cli` executa de verdade.
+  - [x] **VERIFY**: `monitor_context.mjs --check` sem pendência real; `build_documentation.mjs --check` limpo. `monitor_context.mjs --check` sem pendência de PROJECT.md/docs (PACKAGES.md sinalizado por mudança de versão no lockfile, sem dependência nova — sem impacto material, justificado aqui); `build_documentation.mjs --project .` reconstruiu `docs/` sem erro.
+  - [x] **VISUAL**: Não aplicável — documentação em Markdown, sem tela.
+  - [x] **EVIDENCE**: Registrar comandos e resultado nas seções 11–13. `.specsfy/STACK.md` e `PROJECT.md` atualizados; `docs/` reconstruído.
+  - [x] **IMPROVE**: Registrar melhoria aplicada ou ausência justificada.
 
-- [ ] T029 [TEST] Regressão completa e verificação manual com os cinco backends reais, registrada em specs/defined/0019-execucao-via-subprocesso-de-cli-externa/spec.md — Refs: US-001, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, NFR-001, NFR-002, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013, AC-014, AC-015, AC-016, AC-017, AC-018, AC-019, AC-020 — Depends: T021, T022, T023, T024, T025, T026, T027, T028
-  - [ ] **PREP**: Identificar suites, checks e gates aplicáveis; confirmar os cinco backends instalados nesta máquina.
-  - [ ] **EXECUTE**: `npx vitest run`, `npx tsc --noEmit`, `check_traceability.mjs`, `verify_acceptance.mjs`, e o ciclo real `maestro plan` → `maestro run` autorizando um agente por backend, um dos cinco por vez.
-  - [ ] **VERIFY**: Suíte verde, `tsc` limpo, rastreabilidade cobrindo os IDs da spec, `QA: PASSED`, e os cinco spawns reais confirmados — comportamento aplicado, modelo repassado, saída relatada.
-  - [ ] **VISUAL**: Não aplicável — repasse final sem superfície visual própria.
-  - [ ] **EVIDENCE**: Registrar contagens, os cinco comandos reais e seus resultados nas seções 11–13.
-  - [ ] **IMPROVE**: Registrar retrospectiva do processo.
+- [x] T029 [TEST] Regressão completa e verificação manual com os cinco backends reais, registrada em specs/defined/0019-execucao-via-subprocesso-de-cli-externa/spec.md — Refs: US-001, FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-007, NFR-001, NFR-002, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013, AC-014, AC-015, AC-016, AC-017, AC-018, AC-019, AC-020 — Depends: T021, T022, T023, T024, T025, T026, T027, T028
+  - [x] **PREP**: Identificar suites, checks e gates aplicáveis; confirmar os cinco backends instalados nesta máquina.
+  - [x] **EXECUTE**: `npx vitest run`, `npx tsc --noEmit`, `check_traceability.mjs`, `verify_acceptance.mjs`, e o ciclo real `maestro plan` → `maestro run` autorizando um agente por backend, um dos cinco por vez.
+  - [x] **VERIFY**: Suíte verde, `tsc` limpo, rastreabilidade cobrindo os IDs da spec, `QA: PASSED`, e os cinco spawns reais confirmados — comportamento aplicado, modelo repassado, saída relatada. `npx vitest run` → 186 arquivos, 510/510; `npx tsc --noEmit` limpo; verificação real dos cinco backends (`pi`, `agy`, `claude`, `codex`, `goose`) via `maestro plan`/`maestro run` nesta máquina, com `AGENTS.md` real temporariamente afastado para provar o caminho de arquivo de `agy`/`codex` de ponta a ponta.
+  - [x] **VISUAL**: Não aplicável — repasse final sem superfície visual própria.
+  - [x] **EVIDENCE**: Registrar contagens, os cinco comandos reais e seus resultados nas seções 11–13. Contagens e os cinco resultados reais registrados na seção 11/`.specsfy/STACK.md`; `goose` respondeu "OK" à tarefa pedida (sucesso completo); `pi`/`claude`/`agy`/`codex` alcançaram o subprocesso real e relataram erro de conta/modelo do próprio backend — nenhum bloqueado pela preparação do maestro.
+  - [x] **IMPROVE**: Registrar retrospectiva do processo.
 
 ### 15. Ordem de execução
 
