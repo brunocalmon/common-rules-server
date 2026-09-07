@@ -11,7 +11,7 @@
 | Prioridade | Desbloqueada — Phase 1 e Phase 2 fechadas (`SPEC-0001` a `SPEC-0013`); sem prazo externo |
 | Milestones | |
 | Criado em | 2026-09-06 |
-| Spec promovida | MA-1 → specs/completed/0015-... (Complete, 2026-09-06); MA-2 → specs/completed/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md (Complete, 2026-09-07); MA-3 → specs/completed/0017-recomendacao-de-modelo-com-janela-de-contexto-e-tipo-de-tarefa/spec.md (Complete, 2026-09-07); MA-4 a MA-6 pendentes |
+| Spec promovida | MA-1 → specs/completed/0015-... (Complete, 2026-09-06); MA-2 → specs/completed/0016-plano-de-orquestracao-e-aprovacao-humana/spec.md (Complete, 2026-09-07); MA-3 → specs/completed/0017-recomendacao-de-modelo-com-janela-de-contexto-e-tipo-de-tarefa/spec.md (Complete, 2026-09-07); MA-4 → specs/planned/0018-briefing-de-delegacao-para-subagent-nativo/spec.md (Planned, 2026-09-07); MA-5 e MA-6 pendentes |
 
 ## Ideia original
 
@@ -206,7 +206,7 @@ executar):
 3. **Fatia MA-3 — Extensão de `recommend()` com contexto e tipo de tarefa** — *entregue em `SPEC-0017`, `Complete` em 2026-09-07*:
    adiciona os dois critérios novos à seleção de modelo existente
    (`SPEC-0009`). Pode andar em paralelo com MA-2.
-4. **Fatia MA-4 — Execução via subagent nativo da IDE**: aciona o mecanismo
+4. **Fatia MA-4 — Execução via subagent nativo da IDE** — *promovida em `SPEC-0018`, `Planned` em 2026-09-07; entregue como emissão de briefing de delegação, não como acionamento direto — a CLI não tem acesso ao mecanismo de subagent da ferramenta hospedeira*: aciona o mecanismo
    nativo (ex: Agent tool do Claude Code) quando o plano aprovado escolher
    essa via. Depende de MA-2.
 5. **Fatia MA-5 — Execução via subprocesso CLI externo**: spawn headless
