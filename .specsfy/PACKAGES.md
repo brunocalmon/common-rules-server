@@ -6,7 +6,7 @@
 | Gerenciador | Escopo | Pacote | Versão | Finalidade | Fonte |
 | --- | --- | --- | --- | --- | --- |
 | npm | produção | @modelcontextprotocol/sdk | 1.30.0 | Model Context Protocol implementation for TypeScript | https://github.com/modelcontextprotocol/typescript-sdk |
-| npm | produção | @promovaweb/specsfy | 0.10.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy |
+| npm | produção | @promovaweb/specsfy | 0.22.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy |
 | npm | produção | context-mode | 1.0.169 | MCP plugin that saves 98% of your context window. Works with Claude Code, Gemini CLI, VS Code Copilot, OpenCode, and Codex CLI. Sandboxed code execution, FTS5 knowledge base, and intent-driven search. | https://github.com/mksglu/context-mode |
 | npm | produção | skills | 1.5.23 | The open agent skills ecosystem | https://github.com/vercel-labs/skills |
 | npm | produção | yaml | 2.9.0 | JavaScript parser and stringifier for YAML | github:eemeli/yaml |
@@ -31,7 +31,7 @@
 | npm | transitiva | @mixmark-io/domino | 2.2.0 | Server-side DOM implementation based on Mozilla's dom.js | https://github.com/mixmark-io/domino |
 | npm | transitiva | @modelcontextprotocol/sdk | 1.30.0 | Model Context Protocol implementation for TypeScript | https://github.com/modelcontextprotocol/typescript-sdk |
 | npm | transitiva | @oxc-project/types | 0.146.0 | Types for Oxc AST nodes | https://github.com/oxc-project/oxc |
-| npm | transitiva | @promovaweb/specsfy | 0.10.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy |
+| npm | transitiva | @promovaweb/specsfy | 0.22.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy |
 | npm | transitiva | @rolldown/binding-android-arm-eabi | 1.2.5 | Finalidade não descrita nos metadados locais. |  |
 | npm | transitiva | @rolldown/binding-android-arm64 | 1.2.5 | Finalidade não descrita nos metadados locais. |  |
 | npm | transitiva | @rolldown/binding-darwin-arm64 | 1.2.5 | Finalidade não descrita nos metadados locais. |  |

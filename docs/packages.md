@@ -6,7 +6,7 @@
 | Categoria | Escopo | Pacote | Versão | Finalidade | Fonte | GitHub |
 | --- | --- | --- | --- | --- | --- | --- |
 | Terceiro | produção | @modelcontextprotocol/sdk | 1.30.0 | Model Context Protocol implementation for TypeScript | https://github.com/modelcontextprotocol/typescript-sdk | https://github.com/modelcontextprotocol/typescript-sdk |
-| Terceiro | produção | @promovaweb/specsfy | 0.10.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy | https://github.com/promovaweb/specsfy |
+| Terceiro | produção | @promovaweb/specsfy | 0.22.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy | https://github.com/promovaweb/specsfy |
 | Terceiro | produção | context-mode | 1.0.169 | MCP plugin that saves 98% of your context window. Works with Claude Code, Gemini CLI, VS Code Copilot, OpenCode, and Codex CLI. Sandboxed code execution, FTS5 knowledge base, and intent-driven search. | https://github.com/mksglu/context-mode | https://github.com/mksglu/context-mode |
 | Terceiro | produção | skills | 1.5.23 | The open agent skills ecosystem | https://github.com/vercel-labs/skills | https://github.com/vercel-labs/skills |
 | Terceiro | produção | yaml | 2.9.0 | JavaScript parser and stringifier for YAML | github:eemeli/yaml | — |
@@ -31,7 +31,7 @@
 | Terceiro | transitiva | @mixmark-io/domino | 2.2.0 | Server-side DOM implementation based on Mozilla's dom.js | https://github.com/mixmark-io/domino | https://github.com/mixmark-io/domino |
 | Terceiro | transitiva | @modelcontextprotocol/sdk | 1.30.0 | Model Context Protocol implementation for TypeScript | https://github.com/modelcontextprotocol/typescript-sdk | https://github.com/modelcontextprotocol/typescript-sdk |
 | Terceiro | transitiva | @oxc-project/types | 0.146.0 | Types for Oxc AST nodes | https://github.com/oxc-project/oxc | https://github.com/oxc-project/oxc |
-| Terceiro | transitiva | @promovaweb/specsfy | 0.10.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy | https://github.com/promovaweb/specsfy |
+| Terceiro | transitiva | @promovaweb/specsfy | 0.22.2 | CLI e TUI do Specsfy para instalar skills e acompanhar especificações. | https://github.com/promovaweb/specsfy | https://github.com/promovaweb/specsfy |
 | Terceiro | transitiva | @rolldown/binding-android-arm-eabi | 1.2.5 | Finalidade não descrita nos metadados locais. |  | — |
 | Terceiro | transitiva | @rolldown/binding-android-arm64 | 1.2.5 | Finalidade não descrita nos metadados locais. |  | — |
 | Terceiro | transitiva | @rolldown/binding-darwin-arm64 | 1.2.5 | Finalidade não descrita nos metadados locais. |  | — |

@@ -27,7 +27,7 @@ Pacote npm `@brunocalmon/maestro`, binário `maestro`.
 Exemplo real de `doctor`:
 
 ```text
-ok      @promovaweb/specsfy — camada npm, origem local, versão 0.10.2
+ok      @promovaweb/specsfy — camada npm, origem local, versão 0.22.2
 ok      context-mode — camada npm, origem local, versão 1.0.169
 ok      code-review-graph — camada python, origem global, versão 2.3.7
 ```
